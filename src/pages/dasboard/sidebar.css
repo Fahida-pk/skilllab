@@ -1,9 +1,3 @@
-/* RESET (VERY IMPORTANT) */
-body {
-  margin: 0;
-}
-
-/* SIDEBAR */
 .sidebar {
   width: 250px;
   height: 100vh;
@@ -12,61 +6,35 @@ body {
 
   display: flex;
   flex-direction: column;
-
-  /* ❌ REMOVE THIS */
-  /* justify-content: space-between; */
-
-  box-sizing: border-box;
+  justify-content: space-between; /* 🔥 THIS pushes bottom down */
 }
 
-/* TOP (LOGO) */
+/* TOP */
 .top {
   text-align: center;
+  padding-top: 20px;
 }
 
-/* LOGO TEXT */
 .logo {
   font-size: 22px;
   font-weight: bold;
 }
 
-/* PROFILE SECTION (BOTTOM) */
-.profile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* BOTTOM */
+.bottom {
+  text-align: center;
   padding-bottom: 20px;
-  margin-bottom: 10px;
-
-  margin-top: auto; /* ✅ pushes to bottom */
 }
-/* PROFILE IMAGE */
-.profile-img {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  border: 3px solid white;
+
+/* PROFILE */
+.profile {
   margin-bottom: 10px;
 }
 
-/* PROFILE ICON */
-.profile-icon {
-  font-size: 70px;
-  margin-bottom: 10px;
+.icon {
+  font-size: 50px;
 }
 
-/* NAME */
-.name {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-/* EMAIL */
-.email {
-  font-size: 13px;
-  opacity: 0.8;
-  margin-bottom: 12px;
-}
 
 /* LOGOUT BUTTON */
 .logout-btn {
