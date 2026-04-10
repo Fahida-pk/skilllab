@@ -76,7 +76,13 @@ function Dashboard() {
   };
 const getNextTaskTime = (id) => {
   const index = tasks.findIndex(t => t.id === id);
-  return tasks[index + 1]?.time || "";
+
+  // If last task → connect to Wake Up
+  if (index === tasks.length - 1) {
+    return tasks.find(t => t.title === "Wake Up")?.time;
+  }
+
+  return tasks[index + 1]?.time;
 };
   // TOGGLE
   const toggleTask = (id) => {
@@ -157,10 +163,8 @@ const getNextTaskTime = (id) => {
 
                 <div className="card-content">
                   <h3>{task.title}</h3>
-                  <p>
-  {task.title === "Sleep"
-    ? `10 PM - ${tasks.find(t => t.title === "Wake Up")?.time}`
-    : task.title === "Wake Up"
+                 <p>
+  {task.title === "Wake Up"
     ? task.time
     : `${task.time} - ${getNextTaskTime(task.id)}`}
 </p>
