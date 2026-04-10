@@ -122,7 +122,56 @@
   cursor: pointer;
   font-size: 16px;
 }
+/* FLOAT BUTTON */
+.fab {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
 
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+
+  border: none;
+  font-size: 28px;
+
+  background: #6c63ff;
+  color: white;
+
+  cursor: pointer;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-box {
+  width: 300px;
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+}
+
+.modal-box input {
+  width: 100%;
+  margin: 10px 0;
+  padding: 8px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
 .actions input {
   width: 20px;
   height: 20px;

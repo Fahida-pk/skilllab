@@ -14,6 +14,11 @@ import {
 function Dashboard() {
   const [date, setDate] = useState(new Date());
 
+  const [showModal, setShowModal] = useState(false);
+  const [title, setTitle] = useState("");
+  const [time, setTime] = useState("");
+  const [image, setImage] = useState(null);
+
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -72,8 +77,10 @@ function Dashboard() {
     );
   };
 
-  // ADD TASK
-  const addTask = () => {
+  // ADD TASK FROM MODAL
+  const handleAddTask = () => {
+    if (!title) return;
+
     const colors = [
       "linear-gradient(135deg, #43e97b, #38f9d7)",
       "linear-gradient(135deg, #fa709a, #fee140)",
@@ -83,14 +90,22 @@ function Dashboard() {
 
     const newTask = {
       id: Date.now(),
-      title: "New Task",
-      time: "Now",
-      icon: <FaBook />,
+      title,
+      time: time || "Now",
+      icon: image
+        ? <img src={URL.createObjectURL(image)} width="25" />
+        : <FaBook />,
       color: colors[Math.floor(Math.random() * colors.length)],
       completed: false,
     };
 
     setTasks([...tasks, newTask]);
+
+    // reset
+    setShowModal(false);
+    setTitle("");
+    setTime("");
+    setImage(null);
   };
 
   return (
@@ -143,12 +158,44 @@ function Dashboard() {
             ))}
           </div>
 
-          {/* ADD BUTTON */}
-          <button className="add-btn" onClick={addTask}>
-            + Add Task
+          {/* FLOAT BUTTON */}
+          <button className="fab" onClick={() => setShowModal(true)}>
+            +
           </button>
         </div>
       </div>
+
+      {/* MODAL */}
+      {showModal && (
+        <div className="modal">
+          <div className="modal-box">
+            <h2>Add Task</h2>
+
+            <input
+              type="text"
+              placeholder="Task title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+
+            <input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+            />
+
+            <input
+              type="file"
+              onChange={(e) => setImage(e.target.files[0])}
+            />
+
+            <div className="modal-actions">
+              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button onClick={handleAddTask}>OK</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
