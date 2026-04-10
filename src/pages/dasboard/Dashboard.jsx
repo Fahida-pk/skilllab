@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import "./dashboard.css";
-import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaSun, FaBook, FaLanguage } from "react-icons/fa";
 
 function Dashboard() {
   const [date, setDate] = useState(new Date());
@@ -20,18 +21,18 @@ function Dashboard() {
   };
 
   const tasks = [
-    { id: 1, title: "Wake Up", time: "5 AM" },
-    { id: 2, title: "Study MERN", time: "10 AM" },
-    { id: 3, title: "Practice English", time: "3 PM" },
+    { id: 1, title: "Wake Up", time: "5 AM", icon: <FaSun /> },
+    { id: 2, title: "Study MERN", time: "10 AM", icon: <FaBook /> },
+    { id: 3, title: "Practice English", time: "3 PM", icon: <FaLanguage /> },
   ];
 
   return (
     <div className="dashboard">
 
-      {/* ✅ SIDEBAR */}
+      {/* SIDEBAR */}
       <Sidebar />
 
-      {/* ✅ MAIN */}
+      {/* MAIN */}
       <div className="main">
 
         {/* DATE NAV */}
@@ -52,16 +53,19 @@ function Dashboard() {
           {tasks.map((task) => (
             <div className="card" key={task.id}>
 
-              <div className="checkbox"></div>
+              {/* LEFT ICON */}
+              <div className="icon-box">
+                {task.icon}
+              </div>
 
+              {/* TEXT */}
               <div className="card-content">
                 <h3>{task.title}</h3>
                 <p>{task.time}</p>
               </div>
 
-              <button className="close-btn">
-                <FaTimes />
-              </button>
+              {/* RIGHT CHECKBOX */}
+              <input type="checkbox" className="check" />
 
             </div>
           ))}
