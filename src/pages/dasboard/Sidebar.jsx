@@ -27,7 +27,7 @@ function Sidebar() {
         ) : (
           <FaUserCircle className="profile-icon" />
         )}
-      </div>
+      
       <div className="bottom">
         <p className="name">{user?.name || "User Name"}</p>
         <p className="email">{user?.email || "user@email.com"}</p>
