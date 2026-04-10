@@ -1,19 +1,55 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import "./dashboard.css";
-import { FaChevronLeft, FaChevronRight, FaSun, FaBook, FaLanguage } from "react-icons/fa";
+
+import {
+  FaChevronLeft,
+  FaChevronRight,
+  FaSun,
+  FaBook,
+  FaLanguage,
+  FaDumbbell,
+} from "react-icons/fa";
 
 function Dashboard() {
   const [date, setDate] = useState(new Date());
 
   const [tasks, setTasks] = useState([
-  { id: 1, title: "Wake Up", time: "5 AM", icon: <FaSun />, completed: false },
-  { id: 2, title: "Study MERN", time: "10 AM", icon: <FaBook />, completed: false },
-  { id: 3, title: "Practice English", time: "3 PM", icon: <FaLanguage />, completed: false },
-  { id: 4, title: "Workout", time: "6 PM", icon: <FaSun />, completed: false },
-  { id: 5, title: "Read Book", time: "8 PM", icon: <FaBook />, completed: false },
-  { id: 6, title: "Sleep", time: "10 PM", icon: <FaSun />, completed: false },
-]);
+    {
+      id: 1,
+      title: "Wake Up",
+      time: "5 AM",
+      icon: <FaSun />,
+      color: "linear-gradient(135deg, #f6d365, #fda085)",
+      completed: false,
+    },
+    {
+      id: 2,
+      title: "Study MERN",
+      time: "10 AM",
+      icon: <FaBook />,
+      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+      completed: false,
+    },
+    {
+      id: 3,
+      title: "Practice English",
+      time: "3 PM",
+      icon: <FaLanguage />,
+      color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+      completed: false,
+    },
+    {
+      id: 4,
+      title: "Workout",
+      time: "6 PM",
+      icon: <FaDumbbell />,
+      color: "linear-gradient(135deg, #fccb90, #d57eeb)",
+      completed: false,
+    },
+  ]);
+
+  // DATE CHANGE
   const changeDate = (type) => {
     const newDate = new Date(date);
     type === "prev"
@@ -22,10 +58,12 @@ function Dashboard() {
     setDate(newDate);
   };
 
+  // DELETE
   const deleteTask = (id) => {
     setTasks(tasks.filter((t) => t.id !== id));
   };
 
+  // TOGGLE
   const toggleTask = (id) => {
     setTasks(
       tasks.map((t) =>
@@ -34,12 +72,32 @@ function Dashboard() {
     );
   };
 
+  // ADD TASK
+  const addTask = () => {
+    const colors = [
+      "linear-gradient(135deg, #43e97b, #38f9d7)",
+      "linear-gradient(135deg, #fa709a, #fee140)",
+      "linear-gradient(135deg, #30cfd0, #330867)",
+      "linear-gradient(135deg, #f093fb, #f5576c)",
+    ];
+
+    const newTask = {
+      id: Date.now(),
+      title: "New Task",
+      time: "Now",
+      icon: <FaBook />,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      completed: false,
+    };
+
+    setTasks([...tasks, newTask]);
+  };
+
   return (
     <div className="dashboard">
       <Sidebar />
 
       <div className="main">
-
         {/* DATE */}
         <div className="date-bar">
           <button onClick={() => changeDate("prev")}>
@@ -56,14 +114,14 @@ function Dashboard() {
         {/* TASK BOX */}
         <div className="task-wrapper">
           <div className="cards">
-
             {tasks.map((task) => (
-              <div className={`card ${task.completed ? "done" : ""}`} key={task.id}>
-
-                {/* LEFT ICON */}
-                <div className="icon-box">
-                  {task.icon}
-                </div>
+              <div
+                className={`card ${task.completed ? "done" : ""}`}
+                key={task.id}
+                style={{ background: task.color }}
+              >
+                {/* ICON */}
+                <div className="icon-box">{task.icon}</div>
 
                 {/* TEXT */}
                 <div className="card-content">
@@ -71,27 +129,25 @@ function Dashboard() {
                   <p>{task.time}</p>
                 </div>
 
-                {/* RIGHT SIDE */}
+                {/* ACTIONS */}
                 <div className="actions">
-
-                  {/* CLOSE */}
                   <button onClick={() => deleteTask(task.id)}>✕</button>
 
-                  {/* CHECK */}
                   <input
                     type="checkbox"
                     checked={task.completed}
                     onChange={() => toggleTask(task.id)}
                   />
-
                 </div>
-
               </div>
             ))}
-
           </div>
-        </div>
 
+          {/* ADD BUTTON */}
+          <button className="add-btn" onClick={addTask}>
+            + Add Task
+          </button>
+        </div>
       </div>
     </div>
   );
