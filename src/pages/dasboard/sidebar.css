@@ -2,78 +2,74 @@ body, html, #root {
   height: 100%;
   margin: 0;
 }
+
+/* SIDEBAR */
 .sidebar {
-  width: 350px;
-  min-height: 100vh;   /* 🔥 CHANGE THIS */
+  width: 300px;
+  height: 100vh;
+  background: linear-gradient(180deg, #6a11cb, #d4145a);
+  color: white;
 
   display: flex;
   flex-direction: column;
 
-  background: linear-gradient(180deg, #6a11cb, #d4145a);
-  color: white;
+  position: fixed;
+  left: 0;
+  top: 0;
+
+  transition: 0.3s;
 }
-/* 🔥 IMPORTANT */
+
+/* 🔥 TOP */
 .top {
   text-align: center;
   margin-top: 20px;
-
-  flex-grow: 1;   /* 🔥 stronger than flex:1 */
 }
 
+/* 🔥 PUSH PROFILE DOWN */
 .bottom {
+  margin-top: auto;
   padding-bottom: 20px;
-  margin-top: auto;   /* 🔥 FORCE push down */
 }
+
 /* PROFILE */
 .profile {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.logo {
-  font-size: 22px;
-  font-weight: bold;
-}
-
-/* PROFILE (BOTTOM) */
-
 
 /* IMAGE */
 .profile-img {
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  object-fit: cover;
-
   border: 3px solid white;
   margin-bottom: 10px;
 }
 
-/* DEFAULT ICON */
+/* ICON */
 .profile-icon {
   font-size: 70px;
   margin-bottom: 10px;
 }
 
-/* NAME */
+/* TEXT */
 .name {
   font-size: 15px;
   font-weight: 600;
-  margin: 5px 0;
 }
 
-/* EMAIL */
 .email {
   font-size: 13px;
   opacity: 0.8;
-  margin-bottom: 12px; /* 🔥 space before logout */
+  margin-bottom: 12px;
 }
 
-/* LOGOUT BUTTON */
+/* BUTTON */
 .logout-btn {
   width: 80%;
   padding: 10px;
-
   border: none;
   border-radius: 8px;
 
@@ -83,13 +79,34 @@ body, html, #root {
   cursor: pointer;
 
   display: flex;
-  align-items: center;
   justify-content: center;
   gap: 8px;
-
-  transition: 0.3s;
 }
 
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.35);
+/* 🔥 MOBILE NAVBAR */
+.mobile-navbar {
+  display: none;
+  height: 60px;
+  background: #6a11cb;
+  color: white;
+
+  align-items: center;
+  padding: 0 15px;
+  gap: 15px;
+}
+
+/* 🔥 MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+
+  .mobile-navbar {
+    display: flex;
+  }
+
+  .sidebar {
+    left: -100%;   /* 🔥 HIDE */
+  }
+
+  .sidebar.show {
+    left: 0;       /* 🔥 SHOW */
+  }
 }
