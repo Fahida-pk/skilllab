@@ -10,8 +10,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-
-  /* align-items: center; ❌ removed */
+  background: #f4f4f4;
 }
 
 /* DATE */
@@ -35,7 +34,6 @@
 .task-wrapper {
   width: 400px;
   height: 600px;
-  margin: auto;   /* ✅ center safely */
 
   background: #fff;
   border-radius: 20px;
