@@ -1,13 +1,12 @@
-import { FaUserCircle, FaSignOutAlt, FaBars } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaBars, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./sidebar.css";
 
 function Sidebar() {
+  const [open, setOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
-
-  const [open, setOpen] = useState(false); // 🔥 NEW
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -16,31 +15,32 @@ function Sidebar() {
 
   return (
     <>
-      {/* 🔥 MOBILE NAVBAR */}
+      {/* 🔥 TOP NAVBAR */}
       <div className="mobile-navbar">
-        <FaBars onClick={() => setOpen(!open)} />
-        <h3>SKILL LAB</h3>
+        <FaBars onClick={() => setOpen(true)} />
+        <h3>neGbis</h3>
       </div>
 
-      {/* SIDEBAR */}
+      {/* 🔥 OVERLAY */}
+      {open && <div className="overlay" onClick={() => setOpen(false)}></div>}
+
+      {/* 🔥 SIDEBAR */}
       <div className={`sidebar ${open ? "show" : ""}`}>
 
-        {/* TOP */}
         <div className="top">
           <h2 className="logo">SKILL LAB</h2>
         </div>
 
-        {/* BOTTOM */}
         <div className="bottom">
           <div className="profile">
             {user?.picture ? (
-              <img src={user.picture} alt="profile" className="profile-img" />
+              <img src={user.picture} className="profile-img" />
             ) : (
               <FaUserCircle className="profile-icon" />
             )}
 
-            <p className="name">{user?.name || "User Name"}</p>
-            <p className="email">{user?.email || "user@email.com"}</p>
+            <p className="name">{user?.name}</p>
+            <p className="email">{user?.email}</p>
 
             <button className="logout-btn" onClick={handleLogout}>
               <FaSignOutAlt /> Logout

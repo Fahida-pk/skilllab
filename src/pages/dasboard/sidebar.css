@@ -1,32 +1,50 @@
-body, html, #root {
-  height: 100%;
+body, html {
   margin: 0;
 }
 
-/* SIDEBAR */
+/* 🔥 NAVBAR */
+.mobile-navbar {
+  height: 60px;
+  background: linear-gradient(90deg, #6a11cb, #5f72be);
+  color: white;
+
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 0 15px;
+
+  font-weight: 600;
+}
+
+/* 🔥 SIDEBAR */
 .sidebar {
-  width: 300px;
+  position: fixed;
+  top: 0;
+  left: -250px;   /* 🔥 hidden */
+  width: 250px;
   height: 100vh;
+
   background: linear-gradient(180deg, #6a11cb, #d4145a);
   color: white;
 
   display: flex;
   flex-direction: column;
 
-  position: fixed;
-  left: 0;
-  top: 0;
-
   transition: 0.3s;
+  z-index: 1000;
 }
 
-/* 🔥 TOP */
+.sidebar.show {
+  left: 0;   /* 🔥 show */
+}
+
+/* TOP */
 .top {
   text-align: center;
   margin-top: 20px;
 }
 
-/* 🔥 PUSH PROFILE DOWN */
+/* BOTTOM */
 .bottom {
   margin-top: auto;
   padding-bottom: 20px;
@@ -44,81 +62,75 @@ body, html, #root {
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  border: 3px solid white;
-  margin-bottom: 10px;
 }
 
 /* ICON */
 .profile-icon {
   font-size: 70px;
-  margin-bottom: 10px;
 }
 
 /* TEXT */
 .name {
-  font-size: 15px;
-  font-weight: 600;
+  font-weight: bold;
 }
 
 .email {
-  font-size: 13px;
+  font-size: 12px;
   opacity: 0.8;
-  margin-bottom: 12px;
 }
 
 /* BUTTON */
 .logout-btn {
-  width: 80%;
+  margin-top: 10px;
   padding: 10px;
+  width: 80%;
   border: none;
   border-radius: 8px;
-
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255,255,255,0.2);
   color: white;
-
-  cursor: pointer;
-
-  display: flex;
-  justify-content: center;
-  gap: 8px;
 }
 
-/* 🔥 MOBILE NAVBAR */
+/* 🔥 OVERLAY */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  z-index: 900;
+}
+/* 🔥 DEFAULT (DESKTOP) */
 .mobile-navbar {
   display: none;
-  height: 60px;
-  background: #6a11cb;
-  color: white;
-
-  align-items: center;
-  padding: 0 15px;
-  gap: 15px;
 }
 
-/* 🔥 MOBILE RESPONSIVE */
+.sidebar {
+  position: relative;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+}
+
+/* 🔥 MOBILE VIEW */
 @media (max-width: 768px) {
 
+  /* SHOW NAVBAR */
   .mobile-navbar {
     display: flex;
   }
 
+  /* HIDE SIDEBAR */
   .sidebar {
-    left: -100%;   /* 🔥 HIDE */
+    position: fixed;
+    top: 0;
+    left: -250px;   /* 🔥 hide */
+    width: 250px;
+    height: 100vh;
   }
 
   .sidebar.show {
-    left: 0;       /* 🔥 SHOW */
-  }
-}
-@media (max-width: 768px) {
-
-  .sidebar {
-    width: 250px;   /* ❗ keep this fixed */
-    left: -250px;   /* 🔥 IMPORTANT (not -100%) */
-  }
-
-  .sidebar.show {
-    left: 0;
+    left: 0;        /* 🔥 show */
   }
 
 }
