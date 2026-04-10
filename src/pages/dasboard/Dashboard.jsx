@@ -52,6 +52,13 @@ function Dashboard() {
       color: "linear-gradient(135deg, #fccb90, #d57eeb)",
       completed: false,
     },
+    {
+  id: 5,
+  title: "Sleep",
+  icon: "🌙",
+  color: "linear-gradient(135deg, #141e30, #243b55)",
+  completed: false,
+},
   ]);
 
   // DATE CHANGE
@@ -67,7 +74,10 @@ function Dashboard() {
   const deleteTask = (id) => {
     setTasks(tasks.filter((t) => t.id !== id));
   };
-
+const getNextTaskTime = (id) => {
+  const index = tasks.findIndex(t => t.id === id);
+  return tasks[index + 1]?.time || "";
+};
   // TOGGLE
   const toggleTask = (id) => {
     setTasks(
@@ -147,7 +157,13 @@ function Dashboard() {
 
                 <div className="card-content">
                   <h3>{task.title}</h3>
-                  <p>{task.time}</p>
+                  <p>
+  {task.title === "Sleep"
+    ? `10 PM - ${tasks.find(t => t.title === "Wake Up")?.time}`
+    : task.title === "Wake Up"
+    ? task.time
+    : `${task.time} - ${getNextTaskTime(task.id)}`}
+</p>
                 </div>
 
                 <div className="actions">
