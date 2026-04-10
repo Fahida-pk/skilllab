@@ -81,15 +81,6 @@ const getPreviousTaskTime = (id) => {
 
   return tasks[index - 1]?.time;
 };
-const getSleepEndTime = () => {
-  const sleepTask = tasks.find(t => t.title === "Sleep");
-
-  // 🔥 check if time exists
-  if (!sleepTask || !sleepTask.time) return null;
-
-  const parts = sleepTask.time.split(" - ");
-  return parts[1];
-};
   // TOGGLE
   const toggleTask = (id) => {
     setTasks(
@@ -168,9 +159,10 @@ const getSleepEndTime = () => {
                 <div className="icon-box">{task.icon}</div>
 
                 <div className="card-content">
+                  <h3>{task.title}</h3>
                 <p>
   {task.title === "Wake Up"
-    ? getPreviousTaskTime(tasks.find(t => t.title === "Sleep")?.id) || task.time
+    ? task.time
     : task.title === "Sleep"
     ? `${getPreviousTaskTime(task.id)} - ${
         tasks.find(t => t.title === "Wake Up")?.time
