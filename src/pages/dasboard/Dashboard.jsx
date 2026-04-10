@@ -1,18 +1,15 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import "./dashboard.css";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaSun, FaBook, FaLanguage } from "react-icons/fa";
 
 function Dashboard() {
   const [date, setDate] = useState(new Date());
 
   const [tasks, setTasks] = useState([
-    { id: 1, title: "Get up early", color: "yellow", completed: true },
-    { id: 2, title: "Make bed", color: "pink", completed: true },
-    { id: 3, title: "Stay hydrated", color: "green", completed: false },
-    { id: 4, title: "Go on a walk", color: "blue", completed: false },
-    { id: 5, title: "Clean my room", color: "purple", completed: false },
-    { id: 6, title: "Start to study", color: "pink2", completed: false },
+    { id: 1, title: "Wake Up", time: "5 AM", icon: <FaSun />, completed: false },
+    { id: 2, title: "Study MERN", time: "10 AM", icon: <FaBook />, completed: false },
+    { id: 3, title: "Practice English", time: "3 PM", icon: <FaLanguage />, completed: false },
   ]);
 
   const changeDate = (type) => {
@@ -21,6 +18,10 @@ function Dashboard() {
       ? newDate.setDate(date.getDate() - 1)
       : newDate.setDate(date.getDate() + 1);
     setDate(newDate);
+  };
+
+  const deleteTask = (id) => {
+    setTasks(tasks.filter((t) => t.id !== id));
   };
 
   const toggleTask = (id) => {
@@ -50,19 +51,38 @@ function Dashboard() {
           </button>
         </div>
 
-        {/* SCROLL BOX */}
+        {/* TASK BOX */}
         <div className="task-wrapper">
           <div className="cards">
 
             {tasks.map((task) => (
-              <div className={`task ${task.color}`} key={task.id}>
+              <div className={`card ${task.completed ? "done" : ""}`} key={task.id}>
 
-                <span className="task-text">{task.title}</span>
+                {/* LEFT ICON */}
+                <div className="icon-box">
+                  {task.icon}
+                </div>
 
-                <div
-                  className={`toggle ${task.completed ? "active" : ""}`}
-                  onClick={() => toggleTask(task.id)}
-                ></div>
+                {/* TEXT */}
+                <div className="card-content">
+                  <h3>{task.title}</h3>
+                  <p>{task.time}</p>
+                </div>
+
+                {/* RIGHT SIDE */}
+                <div className="actions">
+
+                  {/* CLOSE */}
+                  <button onClick={() => deleteTask(task.id)}>✕</button>
+
+                  {/* CHECK */}
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => toggleTask(task.id)}
+                  />
+
+                </div>
 
               </div>
             ))}

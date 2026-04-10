@@ -1,4 +1,5 @@
 import { FaUserCircle } from "react-icons/fa";
+import "./sidebar.css";
 
 function Sidebar() {
   const user = JSON.parse(localStorage.getItem("user"));

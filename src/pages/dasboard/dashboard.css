@@ -4,6 +4,7 @@
   height: 100vh;
 }
 
+/* MAIN */
 .main {
   flex: 1;
   display: flex;
@@ -26,76 +27,93 @@
   padding: 8px;
 }
 
-/* SCROLL BOX */
+/* TASK BOX */
 .task-wrapper {
-  width: 350px;
+  width: 400px;
   height: 600px;
 
-  background: white;
-  border-radius: 25px;
+  background: #fff;
+  border-radius: 20px;
   padding: 15px;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 
   overflow: hidden;
 }
 
+/* SCROLL */
 .cards {
   height: 100%;
   overflow-y: auto;
 }
 
-/* TASK CARD */
-.task {
+/* CARD */
+.card {
   display: flex;
-  justify-content: space-between;
   align-items: center;
 
+  background: #f0f0f0;
   padding: 15px;
-  border-radius: 20px;
-  margin-bottom: 15px;
+  border-radius: 15px;
 
-  color: white;
-  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+/* ICON */
+.icon-box {
+  width: 45px;
+  height: 45px;
+  background: #fff;
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 15px;
 }
 
 /* TEXT */
-.task-text {
+.card-content h3 {
+  margin: 0;
   font-size: 16px;
 }
 
-/* TOGGLE BUTTON */
-.toggle {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.6);
+.card-content p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: gray;
+}
+
+/* RIGHT SIDE */
+.actions {
+  margin-left: auto;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  height: 50px;
+}
+
+.actions button {
+  border: none;
+  background: none;
   cursor: pointer;
 }
 
-.toggle.active {
-  background: #4caf50;
+/* CHECKBOX */
+.actions input {
+  width: 18px;
+  height: 18px;
 }
 
-/* COLORS */
-.yellow {
-  background: linear-gradient(45deg, #fbc02d, #fdd835);
+/* COMPLETED */
+.card.done h3 {
+  text-decoration: line-through;
+  color: gray;
 }
 
-.pink {
-  background: linear-gradient(45deg, #ec407a, #f06292);
-}
-
-.green {
-  background: linear-gradient(45deg, #66bb6a, #81c784);
-}
-
-.blue {
-  background: linear-gradient(45deg, #42a5f5, #64b5f6);
-}
-
-.purple {
-  background: linear-gradient(45deg, #7e57c2, #9575cd);
-}
-
-.pink2 {
-  background: linear-gradient(45deg, #f06292, #ba68c8);
+.card.done p {
+  color: lightgray;
 }
