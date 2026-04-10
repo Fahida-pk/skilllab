@@ -206,8 +206,7 @@ function Dashboard() {
         <button className="cancel" onClick={() => setShowModal(false)}>
           Cancel
         </button>
-
-        <button className="fab-inside" onClick={() => setShowModal(true)}>
+<button className="fab-inside" onClick={() => setShowModal(true)}>
   +
 </button>
       </div>

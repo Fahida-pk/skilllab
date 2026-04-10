@@ -217,6 +217,11 @@
 }
 
 /* ROUND BUTTON */
+.task-wrapper {
+  position: relative; /* MUST */
+}
+
+/* ROUND FLOAT BUTTON */
 .fab-inside {
   position: absolute;
   bottom: 20px;
@@ -231,7 +236,7 @@
   background: linear-gradient(135deg, #6c63ff, #5a54e6);
   color: white;
 
-  font-size: 26px;
+  font-size: 28px;
   cursor: pointer;
 
   display: flex;
@@ -245,6 +250,7 @@
 .fab-inside:hover {
   transform: scale(1.1);
 }
+
 
 .add-btn:hover {
   transform: scale(1.03);
