@@ -6,33 +6,37 @@ function Login() {
 
   const handleSuccess = async (res) => {
     try {
+      const token = res.credential;
+
+      if (!token) {
+        alert("No token received");
+        return;
+      }
+
       const response = await fetch(
-        "http://zyntaweb.com/skilllab/login.php",
+        "https://zyntaweb.com/skilllab/login.php",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            token: res.credential,
-          }),
+          body: JSON.stringify({ token }),
         }
       );
 
       const data = await response.json();
-      console.log(data);
+      console.log("API Response:", data);
 
       if (data.success) {
-        // ✅ Save user
         localStorage.setItem("user", JSON.stringify(data.user));
-
-        // ✅ Redirect
+        alert("Login success ✅");
         navigate("/");
       } else {
-        alert("Login failed");
+        alert(data.message || "Login failed ❌");
       }
     } catch (error) {
       console.error("Error:", error);
+      alert("Something went wrong");
     }
   };
 
@@ -42,7 +46,7 @@ function Login() {
 
       <GoogleLogin
         onSuccess={handleSuccess}
-        onError={() => console.log("Login Failed")}
+        onError={() => alert("Google Login Failed")}
       />
     </div>
   );
