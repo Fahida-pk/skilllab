@@ -3,31 +3,27 @@ body, html, #root {
   margin: 0;
 }
 .sidebar {
-  
   width: 350px;
   height: 100vh;
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-
-  flex-shrink: 0;   /* 🔥 ADD THIS */
 
   background: linear-gradient(180deg, #6a11cb, #d4145a);
   color: white;
 }
 
-/* TOP */
+/* 🔥 IMPORTANT */
 .top {
   text-align: center;
   margin-top: 20px;
+
+  flex: 1;   /* THIS WILL PUSH PROFILE DOWN */
 }
 
-/* 🔥 BOTTOM CONTAINER */
 .bottom {
   padding-bottom: 20px;
 }
-
 /* PROFILE */
 .profile {
   display: flex;
