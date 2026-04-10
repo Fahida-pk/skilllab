@@ -74,9 +74,10 @@ function Dashboard() {
   const deleteTask = (id) => {
     setTasks(tasks.filter((t) => t.id !== id));
   };
-const getPreviousTaskTime = (id) => {
+  const getPreviousTaskTime = (id) => {
   const index = tasks.findIndex(t => t.id === id);
 
+  // First task (Wake Up)
   if (index === 0) return tasks[0]?.time;
 
   return tasks[index - 1]?.time;
@@ -164,9 +165,7 @@ const getPreviousTaskTime = (id) => {
   {task.title === "Wake Up"
     ? task.time
     : task.title === "Sleep"
-    ? `${getPreviousTaskTime(task.id)} - ${
-        tasks.find(t => t.title === "Wake Up")?.time
-      }`
+    ? `10 PM - ${tasks.find(t => t.title === "Wake Up")?.time}`
     : `${getPreviousTaskTime(task.id)} - ${task.time}`}
 </p>
                 </div>
