@@ -82,15 +82,22 @@ body, html {
 
 /* BUTTON */
 .logout-btn {
-  margin-top: 10px;
+  margin-top: 15px;
   padding: 10px;
   width: 80%;
+
   border: none;
   border-radius: 8px;
   background: rgba(255,255,255,0.2);
   color: white;
-}
 
+  display: flex;              /* 🔥 important */
+  align-items: center;        /* 🔥 vertical align */
+  justify-content: center;    /* center */
+  gap: 8px;                   /* space between icon & text */
+
+  cursor: pointer;
+}
 /* 🔥 OVERLAY */
 .overlay {
   position: fixed;
