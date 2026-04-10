@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
 import "./index.css";
-import App from './App.jsx'
+import App from "./App.jsx"; // ✅ correct path
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
