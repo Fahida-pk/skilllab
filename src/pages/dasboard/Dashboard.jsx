@@ -165,7 +165,9 @@ function Dashboard() {
   {task.title === "Wake Up"
     ? task.time
     : task.title === "Sleep"
-    ? `10 PM - ${tasks.find(t => t.title === "Wake Up")?.time}`
+    ? `${getPreviousTaskTime(task.id)} - ${
+        tasks.find(t => t.title === "Wake Up")?.time
+      }`
     : `${getPreviousTaskTime(task.id)} - ${task.time}`}
 </p>
                 </div>
