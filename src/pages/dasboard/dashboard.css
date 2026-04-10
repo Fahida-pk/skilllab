@@ -59,7 +59,14 @@
 
   margin-bottom: 15px;
 }
+.cards::-webkit-scrollbar {
+  width: 6px;
+}
 
+.cards::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 10px;
+}
 /* ICON */
 .icon-box {
   width: 45px;
