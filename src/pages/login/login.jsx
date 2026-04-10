@@ -1,21 +1,28 @@
 import { GoogleLogin } from "@react-oauth/google";
+import { useNavigate } from "react-router-dom";
 import "./login.css";
 
 function Login() {
+  const navigate = useNavigate();
+
   return (
     <div className="login-page">
-      <div className="login-box">
-        <h1>📚 Student To-Do</h1>
-        <p>Organize your tasks. Stay productive.</p>
+  <div className="login-card">
+    <div className="logo">📘</div>
 
-        <div className="google-login">
-          <GoogleLogin
-            onSuccess={(res) => console.log(res)}
-            onError={() => console.log("Login Failed")}
-          />
-        </div>
-      </div>
-    </div>
+    <h1>SkillLab</h1>
+    <p className="subtitle">Student To-Do Manager</p>
+
+    <button className="google-btn">
+      <img
+        src="https://developers.google.com/identity/images/g-logo.png"
+        alt="google"
+      />
+      Continue with Google
+    </button>
+  </div>
+</div>
+    
   );
 }
 
