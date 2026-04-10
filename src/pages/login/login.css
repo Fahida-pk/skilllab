@@ -1,0 +1,35 @@
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+}
+
+.login-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.login-box {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  text-align: center;
+  width: 320px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.login-box h1 {
+  margin-bottom: 10px;
+}
+
+.login-box p {
+  color: gray;
+  margin-bottom: 20px;
+}
+
+.google-login {
+  display: flex;
+  justify-content: center;
+}
