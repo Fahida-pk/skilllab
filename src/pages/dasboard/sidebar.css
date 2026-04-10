@@ -12,12 +12,9 @@
 .bottom {
   margin-top: auto;   /* 👈 pushes to bottom */
   text-align: center;
-  padding-bottom: 20px;
+  padding-bottom: 5px;
 }
-.top {
-  text-align: center;
-  padding-top: 20px;
-}
+
 
 .logo {
   font-size: 22px;
