@@ -15,7 +15,11 @@ html, body {
 
 /* PROFILE */
 .profile {
-  margin-top: auto;   /* push to bottom */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin-top: auto;   /* 🔥 THIS is key */
   padding-bottom: 25px;
 }
 /* TOP */
