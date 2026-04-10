@@ -207,9 +207,9 @@ function Dashboard() {
           Cancel
         </button>
 
-        <button className="ok" onClick={handleAddTask}>
-          Add Task
-        </button>
+        <button className="fab-inside" onClick={() => setShowModal(true)}>
+  +
+</button>
       </div>
 
     </div>
