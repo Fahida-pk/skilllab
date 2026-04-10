@@ -8,6 +8,7 @@ body, html, #root {
 
   display: flex;
   flex-direction: column;
+  justify-content: space-between;  /* 🔥 IMPORTANT */
 
   background: linear-gradient(180deg, #6a11cb, #d4145a);
   color: white;
@@ -21,7 +22,6 @@ body, html, #root {
 
 /* 🔥 BOTTOM CONTAINER */
 .bottom {
-  margin-top: auto;   /* THIS pushes everything down */
   padding-bottom: 20px;
 }
 
