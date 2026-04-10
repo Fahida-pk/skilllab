@@ -132,15 +132,15 @@ body, html {
   .sidebar {
     position: fixed;
     top: 0;
-    left: -100%;      /* 🔥 FULL hide */
-    width: 100%;      /* 🔥 FULL SCREEN */
+    left: -80%;       /* 🔥 hide */
+    width: 80%;       /* 🔥 ONLY 80% */
     height: 100vh;
 
     z-index: 1000;
-    transition: 0.3s;
+    transition: 0.3s ease;
   }
 
   .sidebar.show {
-    left: 0;          /* 🔥 FULL show */
+    left: 0;          /* 🔥 slide in */
   }
 }
