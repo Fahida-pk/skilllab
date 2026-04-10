@@ -7,19 +7,19 @@ function Sidebar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("user"); // remove user data
-    navigate("/login"); // redirect to login page
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
   return (
     <div className="sidebar">
 
-      {/* TOP SECTION */}
+      {/* TOP */}
       <div className="top">
         <h2 className="logo">SKILL LAB</h2>
       </div>
 
-      {/* BOTTOM PROFILE */}
+      {/* BOTTOM */}
       <div className="profile">
         {user?.picture ? (
           <img src={user.picture} alt="profile" className="profile-img" />
@@ -30,7 +30,6 @@ function Sidebar() {
         <p className="name">{user?.name || "User Name"}</p>
         <p className="email">{user?.email || "user@email.com"}</p>
 
-        {/* ✅ LOGOUT BUTTON */}
         <button className="logout-btn" onClick={handleLogout}>
           <FaSignOutAlt /> Logout
         </button>
