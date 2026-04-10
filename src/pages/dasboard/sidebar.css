@@ -8,7 +8,10 @@
   flex-direction: column;
   justify-content: space-between; /* 🔥 THIS pushes bottom down */
 }
-
+.bottom {
+  text-align: center;
+  padding-bottom: 20px;
+}
 /* TOP */
 .top {
   text-align: center;
