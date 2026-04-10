@@ -159,43 +159,62 @@ function Dashboard() {
           </div>
 
           {/* FLOAT BUTTON */}
-          <button className="fab" onClick={() => setShowModal(true)}>
-            +
-          </button>
+          <button className="add-btn" onClick={() => setShowModal(true)}>
+  + Add Task
+</button>
         </div>
       </div>
 
-      {/* MODAL */}
       {showModal && (
-        <div className="modal">
-          <div className="modal-box">
-            <h2>Add Task</h2>
+  <div className="modal">
+    <div className="modal-box">
 
-            <input
-              type="text"
-              placeholder="Task title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+      <h2>Add New Task</h2>
 
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-            />
+      {/* TITLE */}
+      <div className="input-group">
+        <label>Task Title</label>
+        <input
+          type="text"
+          placeholder="Enter task..."
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </div>
 
-            <input
-              type="file"
-              onChange={(e) => setImage(e.target.files[0])}
-            />
+      {/* TIME */}
+      <div className="input-group">
+        <label>Time</label>
+        <input
+          type="time"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+        />
+      </div>
 
-            <div className="modal-actions">
-              <button onClick={() => setShowModal(false)}>Cancel</button>
-              <button onClick={handleAddTask}>OK</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* IMAGE */}
+      <div className="input-group">
+        <label>Upload Icon</label>
+        <input
+          type="file"
+          onChange={(e) => setImage(e.target.files[0])}
+        />
+      </div>
+
+      {/* ACTIONS */}
+      <div className="modal-actions">
+        <button className="cancel" onClick={() => setShowModal(false)}>
+          Cancel
+        </button>
+
+        <button className="ok" onClick={handleAddTask}>
+          Add Task
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
     </div>
   );
 }

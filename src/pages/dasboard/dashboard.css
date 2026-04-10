@@ -123,23 +123,8 @@
   font-size: 16px;
 }
 /* FLOAT BUTTON */
-.fab {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
 
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
 
-  border: none;
-  font-size: 28px;
-
-  background: #6c63ff;
-  color: white;
-
-  cursor: pointer;
-}
 
 /* MODAL */
 .modal {
@@ -148,7 +133,9 @@
   left: 0;
   width: 100%;
   height: 100%;
+
   background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(5px);
 
   display: flex;
   justify-content: center;
@@ -156,18 +143,83 @@
 }
 
 .modal-box {
-  width: 300px;
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
+  width: 340px;
+  background: #fff;
+
+  padding: 25px;
+  border-radius: 20px;
+
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
 }
 
-.modal-box input {
+.modal-box h2 {
+  margin-bottom: 15px;
+}
+
+/* INPUT GROUP */
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  font-size: 13px;
+  color: gray;
+}
+
+.input-group input {
   width: 100%;
-  margin: 10px 0;
-  padding: 8px;
+  padding: 10px;
+  margin-top: 5px;
+
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
 }
 
+/* ACTION BUTTONS */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.modal-actions .cancel {
+  background: none;
+  border: none;
+  color: gray;
+  cursor: pointer;
+}
+
+.modal-actions .ok {
+  background: #6c63ff;
+  color: white;
+  border: none;
+
+  padding: 8px 15px;
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+.add-btn {
+  width: 100%;
+  padding: 14px;
+
+  border: none;
+  border-radius: 14px;
+
+  background: linear-gradient(135deg, #6c63ff, #5a54e6);
+  color: white;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.add-btn:hover {
+  transform: scale(1.03);
+}
 .modal-actions {
   display: flex;
   justify-content: space-between;
