@@ -7,6 +7,12 @@ import { FaSun, FaBook, FaLanguage } from "react-icons/fa";
 function Dashboard() {
   const [date, setDate] = useState(new Date());
 
+  const [tasks, setTasks] = useState([
+    { id: 1, title: "Wake Up", time: "5 AM", icon: <FaSun />, completed: false },
+    { id: 2, title: "Study MERN", time: "10 AM", icon: <FaBook />, completed: false },
+    { id: 3, title: "Practice English", time: "3 PM", icon: <FaLanguage />, completed: false },
+  ]);
+
   const changeDate = (type) => {
     const newDate = new Date(date);
 
@@ -20,11 +26,19 @@ function Dashboard() {
     return d.toDateString();
   };
 
-  const tasks = [
-    { id: 1, title: "Wake Up", time: "5 AM", icon: <FaSun /> },
-    { id: 2, title: "Study MERN", time: "10 AM", icon: <FaBook /> },
-    { id: 3, title: "Practice English", time: "3 PM", icon: <FaLanguage /> },
-  ];
+  // ✅ DELETE TASK
+  const deleteTask = (id) => {
+    setTasks(tasks.filter((task) => task.id !== id));
+  };
+
+  // ✅ TOGGLE COMPLETE
+  const toggleComplete = (id) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
 
   return (
     <div className="dashboard">
@@ -48,27 +62,52 @@ function Dashboard() {
           </button>
         </div>
 
-        {/* TASK CARDS */}
-        <div className="cards">
-          {tasks.map((task) => (
-            <div className="card" key={task.id}>
+        {/* TASK BOX */}
+        <div className="task-wrapper">
+          <div className="cards">
 
-              {/* LEFT ICON */}
-              <div className="icon-box">
-                {task.icon}
+            {tasks.map((task) => (
+              <div
+                className={`card ${task.completed ? "completed" : ""}`}
+                key={task.id}
+              >
+
+                {/* ICON */}
+                <div className="icon-box">
+                  {task.icon}
+                </div>
+
+                {/* TEXT */}
+                <div className="card-content">
+                  <h3>{task.title}</h3>
+                  <p>{task.time}</p>
+                </div>
+
+                {/* RIGHT SIDE */}
+                <div className="card-actions">
+
+                  {/* CLOSE */}
+                  <button
+                    className="close-btn"
+                    onClick={() => deleteTask(task.id)}
+                  >
+                    ✕
+                  </button>
+
+                  {/* CHECK */}
+                  <input
+                    type="checkbox"
+                    className="check"
+                    checked={task.completed}
+                    onChange={() => toggleComplete(task.id)}
+                  />
+
+                </div>
+
               </div>
+            ))}
 
-              {/* TEXT */}
-              <div className="card-content">
-                <h3>{task.title}</h3>
-                <p>{task.time}</p>
-              </div>
-
-              {/* RIGHT CHECKBOX */}
-              <input type="checkbox" className="check" />
-
-            </div>
-          ))}
+          </div>
         </div>
 
       </div>
