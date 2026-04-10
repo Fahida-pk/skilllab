@@ -13,18 +13,23 @@ body, html, #root {
   color: white;
 }
 
+/* TOP */
 .top {
   text-align: center;
   margin-top: 20px;
-  flex-grow: 1; /* 🔥 pushes profile down */
 }
 
+/* 🔥 BOTTOM CONTAINER */
+.bottom {
+  margin-top: auto;   /* THIS pushes everything down */
+  padding-bottom: 20px;
+}
+
+/* PROFILE */
 .profile {
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  margin-bottom: 20px;
 }
 .logo {
   font-size: 22px;

@@ -12,14 +12,15 @@ function Sidebar() {
   };
 
   return (
-    <div className="sidebar">
+  <div className="sidebar">
 
-      {/* TOP */}
-      <div className="top">
-        <h2 className="logo">SKILL LAB</h2>
-      </div>
+    {/* TOP */}
+    <div className="top">
+      <h2 className="logo">SKILL LAB</h2>
+    </div>
 
-      {/* BOTTOM */}
+    {/* BOTTOM WRAPPER 🔥 */}
+    <div className="bottom">
       <div className="profile">
         {user?.picture ? (
           <img src={user.picture} alt="profile" className="profile-img" />
@@ -34,9 +35,11 @@ function Sidebar() {
           <FaSignOutAlt /> Logout
         </button>
       </div>
-
     </div>
-  );
+
+  </div>
+);
+  
 }
 
 export default Sidebar;
