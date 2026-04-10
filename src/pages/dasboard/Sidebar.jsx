@@ -18,7 +18,7 @@ function Sidebar() {
       {/* 🔥 TOP NAVBAR */}
       <div className="mobile-navbar">
         <FaBars onClick={() => setOpen(true)} />
-        <h3>neGbis</h3>
+        <h2 className="logo">SKILL LAB</h2>
       </div>
 
       {/* 🔥 OVERLAY */}
