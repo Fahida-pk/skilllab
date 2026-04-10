@@ -6,13 +6,14 @@
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* 🔥 THIS pushes bottom down */
 }
+
+/* 🔥 THIS IS THE REAL FIX */
 .bottom {
+  margin-top: auto;   /* 👈 pushes to bottom */
   text-align: center;
   padding-bottom: 20px;
 }
-/* TOP */
 .top {
   text-align: center;
   padding-top: 20px;
