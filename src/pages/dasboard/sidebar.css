@@ -125,22 +125,22 @@ body, html {
 /* 🔥 MOBILE VIEW */
 @media (max-width: 768px) {
 
-  /* SHOW NAVBAR */
   .mobile-navbar {
     display: flex;
   }
 
-  /* HIDE SIDEBAR */
   .sidebar {
     position: fixed;
     top: 0;
-    left: -250px;   /* 🔥 hide */
-    width: 250px;
+    left: -100%;      /* 🔥 FULL hide */
+    width: 100%;      /* 🔥 FULL SCREEN */
     height: 100vh;
+
+    z-index: 1000;
+    transition: 0.3s;
   }
 
   .sidebar.show {
-    left: 0;        /* 🔥 show */
+    left: 0;          /* 🔥 FULL show */
   }
-
 }
