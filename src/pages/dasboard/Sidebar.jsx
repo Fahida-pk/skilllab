@@ -1,25 +1,18 @@
 import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import "./sidebar.css";
 
 function Sidebar() {
   const user = JSON.parse(localStorage.getItem("user"));
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/login");
-  };
 
   return (
     <div className="sidebar">
 
-      {/* TOP */}
+      {/* 🔝 TOP */}
       <div className="top">
         <h2 className="logo">SKILL LAB</h2>
       </div>
 
-      {/* BOTTOM */}
+      {/* 🔽 BOTTOM PROFILE */}
       <div className="profile">
         {user?.picture ? (
           <img src={user.picture} alt="profile" className="profile-img" />
@@ -27,10 +20,10 @@ function Sidebar() {
           <FaUserCircle className="profile-icon" />
         )}
 
-        <p className="name">{user?.name || "User Name"}</p>
-        <p className="email">{user?.email || "user@email.com"}</p>
+        <p className="name">{user?.name}</p>
+        <p className="email">{user?.email}</p>
 
-        <button className="logout-btn" onClick={handleLogout}>
+        <button className="logout-btn">
           <FaSignOutAlt /> Logout
         </button>
       </div>
