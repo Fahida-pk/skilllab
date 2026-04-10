@@ -74,10 +74,9 @@ function Dashboard() {
   const deleteTask = (id) => {
     setTasks(tasks.filter((t) => t.id !== id));
   };
-  const getPreviousTaskTime = (id) => {
+const getPreviousTaskTime = (id) => {
   const index = tasks.findIndex(t => t.id === id);
 
-  // First task (Wake Up)
   if (index === 0) return tasks[0]?.time;
 
   return tasks[index - 1]?.time;
