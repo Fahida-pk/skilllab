@@ -201,23 +201,20 @@
   cursor: pointer;
 }
 .add-btn {
- position: absolute;
-  bottom: 30px;
-  right: 30px;
-
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
+  width: 100%;
+  padding: 14px;
 
   border: none;
-  font-size: 28px;
+  border-radius: 14px;
 
-  background: #6c63ff;
+  background: linear-gradient(135deg, #6c63ff, #5a54e6);
   color: white;
 
-  cursor: pointer;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  font-size: 15px;
+  font-weight: 500;
 
+  cursor: pointer;
+  transition: 0.3s;
 }
 
 .add-btn:hover {
