@@ -12,27 +12,20 @@ body, html, #root {
   background: linear-gradient(180deg, #6a11cb, #d4145a);
   color: white;
 }
-/* PROFILE */
+
+.top {
+  text-align: center;
+  margin-top: 20px;
+  flex-grow: 1; /* 🔥 pushes profile down */
+}
+
 .profile {
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  margin-top: auto;   /* 🔥 push to bottom */
-  margin-bottom: 20px; /* 🔥 little spacing */
+  margin-bottom: 20px;
 }
-/* TOP */
-.top {
-  text-align: center;
-  margin-top: 20px;
-
-  flex-grow: 1;   /* 🔥 THIS IS THE FIX */
-}
-
-/* PROFILE (BOTTOM) */
-
-
-
 .logo {
   font-size: 22px;
   font-weight: bold;
