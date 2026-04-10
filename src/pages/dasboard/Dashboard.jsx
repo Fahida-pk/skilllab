@@ -77,12 +77,11 @@ function Dashboard() {
   const getPreviousTaskTime = (id) => {
   const index = tasks.findIndex(t => t.id === id);
 
-  // first task after Wake Up
-  if (index === 0) return task.time;
+  // First task (Wake Up)
+  if (index === 0) return tasks[0]?.time;
 
   return tasks[index - 1]?.time;
 };
-
   // TOGGLE
   const toggleTask = (id) => {
     setTasks(
