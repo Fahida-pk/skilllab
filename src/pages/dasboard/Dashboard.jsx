@@ -74,16 +74,15 @@ function Dashboard() {
   const deleteTask = (id) => {
     setTasks(tasks.filter((t) => t.id !== id));
   };
-const getNextTaskTime = (id) => {
+  const getPreviousTaskTime = (id) => {
   const index = tasks.findIndex(t => t.id === id);
 
-  // If last task → connect to Wake Up
-  if (index === tasks.length - 1) {
-    return tasks.find(t => t.title === "Wake Up")?.time;
-  }
+  // first task after Wake Up
+  if (index === 0) return task.time;
 
-  return tasks[index + 1]?.time;
+  return tasks[index - 1]?.time;
 };
+
   // TOGGLE
   const toggleTask = (id) => {
     setTasks(
