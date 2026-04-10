@@ -28,19 +28,26 @@
 }
 
 /* TASK BOX */
+/* TASK BOX */
 .task-wrapper {
   width: 400px;
   height: 600px;
-  overflow: hidden;   /* outside scroll stop */
+
+  background: #fff;
+  border-radius: 20px;
+  padding: 15px;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+
+  display: flex;          /* 🔥 IMPORTANT */
+  flex-direction: column; /* 🔥 IMPORTANT */
 }
 
+/* SCROLL AREA */
 .cards {
-  height: 100%;
-  overflow-y: auto;   /* 🔥 scroll inside */
+  flex: 1;                /* 🔥 instead of height:100% */
+  overflow-y: auto;
 }
-
-/* SCROLL */
-
 /* CARD */
 .card {
   display: flex;
