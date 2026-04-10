@@ -1,68 +1,244 @@
-body {
+/* RESET */
+html, body, #root {
   margin: 0;
-  font-family: "Inter", sans-serif;
-  background: #f8fafc;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
-/* CENTER PAGE */
+/* BACKGROUND FULL SCREEN */
 .login-page {
+  width: 100vw;
   height: 100vh;
+
   display: flex;
   justify-content: center;
   align-items: center;
+
+  background: linear-gradient(135deg, #5f8cff, #8b5cf6, #ec4899);
+
+  position: relative;
+  overflow: hidden;
 }
 
-/* CARD */
+/* GLOW BLOBS */
+.login-page::before,
+.login-page::after {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 0;
+}
+
+.login-page::before {
+  background: #4f8cff;
+  left: -200px;
+  top: 50px;
+}
+
+.login-page::after {
+  background: #ff3cac;
+  right: -200px;
+  bottom: 50px;
+}
+
+/* EXTRA BACK SHAPE */
+.bg-shape {
+  position: absolute;
+  width: 500px;
+  height: 600px;
+
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+
+  background: linear-gradient(135deg, #4facfe, #ff3cac);
+  opacity: 0.35;
+  filter: blur(60px);
+
+  z-index: 0;
+}
+
+/* MAIN GLASS BLOB */
 .login-card {
-  background: #ffffff;
-  padding: 40px;
-  border-radius: 12px;
-  width: 340px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-  border: 1px solid #e5e7eb;
+  position: relative;
+  z-index: 2;
+
+  width: 420px;
+  height: 300px;
+
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding-top: 60px;
+
+  background: rgba(255, 255, 255, 0.18);
+
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
+
+  border: 1px solid rgba(255,255,255,0.35);
+
+  box-shadow: 
+    0 30px 100px rgba(0,0,0,0.3),
+    inset 0 0 40px rgba(255,255,255,0.3);
+
+  transition: 0.4s ease;
 }
 
-/* LOGO */
-.logo {
+.login-card:hover {
+  transform: translateY(-10px);
+}
+
+/* INNER LIGHT EFFECT */
+.login-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  border-radius: inherit;
+
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0.4),
+    rgba(255,255,255,0.05)
+  );
+
+  pointer-events: none;
+}
+
+/* PROFILE ICON (TOP FLOAT) */
+.profile-icon {
+  position: absolute;
+  top: -5px;
+
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+
+  background: linear-gradient(135deg, #6a11cb, #ff3cac);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: white;
   font-size: 40px;
-  margin-bottom: 10px;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* TITLE */
-.login-card h1 {
-  font-size: 24px;
-  color: #111827;
-  margin-bottom: 5px;
+/* TEXT */
+.title {
+  color: white;
+  font-size: 28px;
+  font-weight: bold;
 }
 
-/* SUBTITLE */
 .subtitle {
-  color: #6b7280;
-  font-size: 14px;
-  margin-bottom: 25px;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 30px;
 }
 
 /* GOOGLE BUTTON */
 .google-btn {
   display: flex;
+  justify-content: center;
+}
+
+.google-btn div {
+  border-radius: 30px !important;
+  overflow: hidden;
+}
+/* COMMON SHAPE */
+.blob {
+  position: absolute;
+  width: 420px;
+  height: 520px;
+
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+}
+
+/* 🔥 BACK (COLORED SHAPE) */
+.blob.back {
+  background: linear-gradient(135deg, #4facfe, #ff3cac);
+
+  transform: translate(-50%, -50%) rotate(-12deg) scale(1.05);
+
+  opacity: 0.6;
+  filter: blur(10px);
+
+  z-index: 1;
+}
+
+/* 🔥 FRONT (GLASS CARD) */
+.blob.front {
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding-top: 70px;
+
+  background: rgba(255, 255, 255, 0.18);
+
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+
+  border: 1px solid rgba(255,255,255,0.3);
+
+  box-shadow: 
+    0 30px 100px rgba(0,0,0,0.3),
+    inset 0 0 50px rgba(255,255,255,0.25);
+}
+
+/* PROFILE ICON */
+.profile-icon {
+  position: absolute;
+  top: -40px;
+
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+
+  background: linear-gradient(135deg, #6a11cb, #ff3cac);
+
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  cursor: pointer;
-  font-weight: 500;
-  transition: 0.2s;
+
+  color: white;
+  font-size: 36px;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-.google-btn img {
-  width: 20px;
+/* TEXT */
+.title {
+  color: white;
+  font-size: 28px;
+  font-weight: bold;
 }
 
-.google-btn:hover {
-  background: #f1f5f9;
+.subtitle {
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 30px;
+}
+
+/* GOOGLE BUTTON */
+.google-btn div {
+  border-radius: 30px !important;
+  overflow: hidden;
 }
