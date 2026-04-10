@@ -77,7 +77,7 @@ function Dashboard() {
     );
   };
 
-  // ADD TASK FROM MODAL
+  // ADD TASK
   const handleAddTask = () => {
     if (!title) return;
 
@@ -88,20 +88,28 @@ function Dashboard() {
       "linear-gradient(135deg, #f093fb, #f5576c)",
     ];
 
+    const formattedTime = time
+      ? new Date(`1970-01-01T${time}`).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "Now";
+
     const newTask = {
       id: Date.now(),
       title,
-      time: time || "Now",
-      icon: image
-        ? <img src={URL.createObjectURL(image)} width="25" />
-        : <FaBook />,
+      time: formattedTime,
+      icon: image ? (
+        <img src={URL.createObjectURL(image)} width="25" />
+      ) : (
+        <FaBook />
+      ),
       color: colors[Math.floor(Math.random() * colors.length)],
       completed: false,
     };
 
     setTasks([...tasks, newTask]);
 
-    // reset
     setShowModal(false);
     setTitle("");
     setTime("");
@@ -135,16 +143,13 @@ function Dashboard() {
                 key={task.id}
                 style={{ background: task.color }}
               >
-                {/* ICON */}
                 <div className="icon-box">{task.icon}</div>
 
-                {/* TEXT */}
                 <div className="card-content">
                   <h3>{task.title}</h3>
                   <p>{task.time}</p>
                 </div>
 
-                {/* ACTIONS */}
                 <div className="actions">
                   <button onClick={() => deleteTask(task.id)}>✕</button>
 
@@ -158,63 +163,64 @@ function Dashboard() {
             ))}
           </div>
 
-          {/* FLOAT BUTTON */}
-        <button className="fab-inside" onClick={() => setShowModal(true)}>
-  +
-</button>
+          {/* ROUND + BUTTON */}
+          <button
+            className="fab-inside"
+            onClick={() => setShowModal(true)}
+          >
+            +
+          </button>
         </div>
       </div>
 
+      {/* MODAL */}
       {showModal && (
-  <div className="modal">
-    <div className="modal-box">
+        <div className="modal">
+          <div className="modal-box">
+            <h2>Add New Task</h2>
 
-      <h2>Add New Task</h2>
+            <div className="input-group">
+              <label>Task Title</label>
+              <input
+                type="text"
+                placeholder="Enter task..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
 
-      {/* TITLE */}
-      <div className="input-group">
-        <label>Task Title</label>
-        <input
-          type="text"
-          placeholder="Enter task..."
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </div>
+            <div className="input-group">
+              <label>Time</label>
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+              />
+            </div>
 
-      {/* TIME */}
-      <div className="input-group">
-        <label>Time</label>
-        <input
-          type="time"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-        />
-      </div>
+            <div className="input-group">
+              <label>Upload Icon</label>
+              <input
+                type="file"
+                onChange={(e) => setImage(e.target.files[0])}
+              />
+            </div>
 
-      {/* IMAGE */}
-      <div className="input-group">
-        <label>Upload Icon</label>
-        <input
-          type="file"
-          onChange={(e) => setImage(e.target.files[0])}
-        />
-      </div>
+            <div className="modal-actions">
+              <button
+                className="cancel"
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </button>
 
-      {/* ACTIONS */}
-      <div className="modal-actions">
-        <button className="cancel" onClick={() => setShowModal(false)}>
-          Cancel
-        </button>
-
-        <button className="ok" onClick={handleAddTask}>
-          Add Task
-        </button>
-      </div>
-
-    </div>
-  </div>
-)}
+              <button className="ok" onClick={handleAddTask}>
+                Add Task
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
