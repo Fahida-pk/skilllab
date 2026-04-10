@@ -1,16 +1,12 @@
-html, body {
+body, html, #root {
   height: 100%;
   margin: 0;
 }
 .sidebar {
   width: 350px;
-  height: 100vh;
-
+  height: 100%;   /* 🔥 change from 100vh → 100% */
   display: flex;
   flex-direction: column;
-
-  background: linear-gradient(180deg, #6a11cb, #d4145a);
-  color: white;
 }
 /* PROFILE */
 .profile {
@@ -18,8 +14,8 @@ html, body {
   flex-direction: column;
   align-items: center;
 
-  margin-top: auto;   /* 🔥 push to bottom */
-  margin-bottom: 20px; /* 🔥 little spacing */
+ margin-top: auto;
+  margin-bottom: 20px;
 }
 /* TOP */
 .top {
