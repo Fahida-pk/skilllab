@@ -2,6 +2,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
 import { FaUser } from "react-icons/fa";
+import { jwtDecode } from "jwt-decode"; // ✅ correct import
 
 function Login() {
   const navigate = useNavigate();
@@ -25,8 +26,21 @@ function Login() {
         <div className="google-btn">
           <GoogleLogin
             onSuccess={(res) => {
-              console.log(res);
-              navigate("/dashboard");
+              try {
+                // ✅ decode user data
+                const user = jwtDecode(res.credential);
+
+                console.log("User:", user);
+
+                // ✅ save to localStorage
+                localStorage.setItem("user", JSON.stringify(user));
+
+                // ✅ go to dashboard
+                navigate("/dashboard");
+
+              } catch (error) {
+                console.log("Decode error:", error);
+              }
             }}
             onError={() => console.log("Login Failed")}
           />
