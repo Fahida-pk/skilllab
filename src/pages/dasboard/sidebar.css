@@ -24,7 +24,7 @@ body, html, #root {
   flex-direction: column;
   align-items: center;
 
-  margin-bottom: 20px;
+  margin-top: 70px;
 }
 .logo {
   font-size: 22px;
