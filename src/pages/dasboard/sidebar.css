@@ -47,6 +47,11 @@ body, html {
 /* BOTTOM */
 .bottom {
   margin-top: auto;
+
+  display: flex;              /* 🔥 ADD THIS */
+  justify-content: center;    /* center horizontally */
+  align-items: flex-end;      /* 🔥 push to bottom */
+
   padding-bottom: 30px;
 }
 
@@ -55,7 +60,8 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px; /* 🔥 spacing */
+
+  gap: 10px;
 }
 
 /* IMAGE */
@@ -68,6 +74,7 @@ body, html {
 /* ICON */
 .profile-icon {
   font-size: 70px;
+  display: block;   /* 🔥 fix inline issue */
 }
 
 /* TEXT */
