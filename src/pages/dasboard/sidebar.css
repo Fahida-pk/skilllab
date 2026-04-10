@@ -25,6 +25,8 @@ body, html, #root {
 .top {
   text-align: center;
   margin-top: 20px;
+
+  flex-grow: 1;   /* 🔥 THIS IS THE FIX */
 }
 
 /* PROFILE (BOTTOM) */
