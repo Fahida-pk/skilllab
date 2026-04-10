@@ -163,10 +163,12 @@ const getNextTaskTime = (id) => {
 
                 <div className="card-content">
                   <h3>{task.title}</h3>
-                 <p>
+                <p>
   {task.title === "Wake Up"
     ? task.time
-    : `${task.time} - ${getNextTaskTime(task.id)}`}
+    : task.title === "Sleep"
+    ? `10 PM - ${tasks.find(t => t.title === "Wake Up")?.time}`
+    : `${getPreviousTaskTime(task.id)} - ${task.time}`}
 </p>
                 </div>
 
