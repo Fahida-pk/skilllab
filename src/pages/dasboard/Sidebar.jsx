@@ -32,11 +32,11 @@ function Sidebar() {
         </div>
 
         <div className="bottom">
-          <div className="profile">
+          <div className="profile1">
             {user?.picture ? (
-              <img src={user.picture} className="profile-img" />
+              <img src={user.picture} className="profile1-img" />
             ) : (
-              <FaUserCircle className="profile-icon" />
+              <FaUserCircle className="profile1-icon" />
             )}
 
             <p className="name">{user?.name}</p>
