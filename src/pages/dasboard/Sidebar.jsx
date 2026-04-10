@@ -20,14 +20,15 @@ function Sidebar() {
     </div>
 
     {/* BOTTOM WRAPPER 🔥 */}
-    <div className="bottom">
+   
       <div className="profile">
         {user?.picture ? (
           <img src={user.picture} alt="profile" className="profile-img" />
         ) : (
           <FaUserCircle className="profile-icon" />
         )}
-
+      </div>
+      <div className="bottom">
         <p className="name">{user?.name || "User Name"}</p>
         <p className="email">{user?.email || "user@email.com"}</p>
 
