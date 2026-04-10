@@ -1,17 +1,13 @@
-/* SIDEBAR */
 .sidebar {
   width: 250px;
   height: 100vh;
-
   background: linear-gradient(180deg, #6a11cb, #d4145a);
   color: white;
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* 🔥 keeps top & bottom */
 }
 
-/* TOP */
 .top {
   text-align: center;
   margin-top: 20px;
@@ -22,67 +18,54 @@
   font-weight: bold;
 }
 
-/* PROFILE (BOTTOM) */
 .profile {
+  margin-top: auto; /* 🔥 main fix */
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  padding-bottom: 15px; /* 🔥 spacing from bottom */
+  padding-bottom: 15px;
 }
 
-/* IMAGE */
 .profile-img {
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  object-fit: cover;
-
   border: 3px solid white;
   margin-bottom: 10px;
 }
 
-/* DEFAULT ICON */
 .profile-icon {
   font-size: 70px;
   margin-bottom: 10px;
 }
 
-/* NAME */
 .name {
   font-size: 15px;
   font-weight: 600;
-  margin: 5px 0;
 }
 
-/* EMAIL */
 .email {
   font-size: 13px;
   opacity: 0.8;
-  margin-bottom: 12px; /* 🔥 space before logout */
+  margin-bottom: 12px;
 }
 
-/* LOGOUT BUTTON */
 .logout-btn {
   width: 80%;
   padding: 10px;
-
   border: none;
   border-radius: 8px;
 
   background: rgba(255, 255, 255, 0.2);
   color: white;
 
-  cursor: pointer;
-
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 
-  transition: 0.3s;
+  cursor: pointer;
 }
-
 .logout-btn:hover {
   background: rgba(255, 255, 255, 0.35);
 }
