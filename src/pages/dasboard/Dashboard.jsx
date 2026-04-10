@@ -2,107 +2,67 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import "./dashboard.css";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { FaSun, FaBook, FaLanguage } from "react-icons/fa";
 
 function Dashboard() {
   const [date, setDate] = useState(new Date());
 
   const [tasks, setTasks] = useState([
-    { id: 1, title: "Wake Up", time: "5 AM", icon: <FaSun />, completed: false },
-    { id: 2, title: "Study MERN", time: "10 AM", icon: <FaBook />, completed: false },
-    { id: 3, title: "Practice English", time: "3 PM", icon: <FaLanguage />, completed: false },
+    { id: 1, title: "Get up early", color: "yellow", completed: true },
+    { id: 2, title: "Make bed", color: "pink", completed: true },
+    { id: 3, title: "Stay hydrated", color: "green", completed: false },
+    { id: 4, title: "Go on a walk", color: "blue", completed: false },
+    { id: 5, title: "Clean my room", color: "purple", completed: false },
+    { id: 6, title: "Start to study", color: "pink2", completed: false },
   ]);
 
   const changeDate = (type) => {
     const newDate = new Date(date);
-
-    if (type === "prev") newDate.setDate(date.getDate() - 1);
-    else newDate.setDate(date.getDate() + 1);
-
+    type === "prev"
+      ? newDate.setDate(date.getDate() - 1)
+      : newDate.setDate(date.getDate() + 1);
     setDate(newDate);
   };
 
-  const formatDate = (d) => {
-    return d.toDateString();
-  };
-
-  // ✅ DELETE TASK
-  const deleteTask = (id) => {
-    setTasks(tasks.filter((task) => task.id !== id));
-  };
-
-  // ✅ TOGGLE COMPLETE
-  const toggleComplete = (id) => {
+  const toggleTask = (id) => {
     setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
+      tasks.map((t) =>
+        t.id === id ? { ...t, completed: !t.completed } : t
       )
     );
   };
 
   return (
     <div className="dashboard">
-
-      {/* SIDEBAR */}
       <Sidebar />
 
-      {/* MAIN */}
       <div className="main">
 
-        {/* DATE NAV */}
+        {/* DATE */}
         <div className="date-bar">
           <button onClick={() => changeDate("prev")}>
             <FaChevronLeft />
           </button>
 
-          <span>{formatDate(date)}</span>
+          <span>{date.toDateString()}</span>
 
           <button onClick={() => changeDate("next")}>
             <FaChevronRight />
           </button>
         </div>
 
-        {/* TASK BOX */}
+        {/* SCROLL BOX */}
         <div className="task-wrapper">
           <div className="cards">
 
             {tasks.map((task) => (
-              <div
-                className={`card ${task.completed ? "completed" : ""}`}
-                key={task.id}
-              >
+              <div className={`task ${task.color}`} key={task.id}>
 
-                {/* ICON */}
-                <div className="icon-box">
-                  {task.icon}
-                </div>
+                <span className="task-text">{task.title}</span>
 
-                {/* TEXT */}
-                <div className="card-content">
-                  <h3>{task.title}</h3>
-                  <p>{task.time}</p>
-                </div>
-
-                {/* RIGHT SIDE */}
-                <div className="card-actions">
-
-                  {/* CLOSE */}
-                  <button
-                    className="close-btn"
-                    onClick={() => deleteTask(task.id)}
-                  >
-                    ✕
-                  </button>
-
-                  {/* CHECK */}
-                  <input
-                    type="checkbox"
-                    className="check"
-                    checked={task.completed}
-                    onChange={() => toggleComplete(task.id)}
-                  />
-
-                </div>
+                <div
+                  className={`toggle ${task.completed ? "active" : ""}`}
+                  onClick={() => toggleTask(task.id)}
+                ></div>
 
               </div>
             ))}
