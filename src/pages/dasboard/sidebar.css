@@ -110,3 +110,15 @@ body, html, #root {
     left: 0;       /* 🔥 SHOW */
   }
 }
+@media (max-width: 768px) {
+
+  .sidebar {
+    width: 250px;   /* ❗ keep this fixed */
+    left: -250px;   /* 🔥 IMPORTANT (not -100%) */
+  }
+
+  .sidebar.show {
+    left: 0;
+  }
+
+}
