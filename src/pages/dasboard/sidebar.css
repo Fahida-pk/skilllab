@@ -16,11 +16,8 @@ body, html {
   font-weight: 600;
 }
 
-/* 🔥 SIDEBAR */
+/* SIDEBAR */
 .sidebar {
-  position: fixed;
-  top: 0;
-  left: -250px;   /* 🔥 hidden */
   width: 250px;
   height: 100vh;
 
@@ -29,61 +26,59 @@ body, html {
 
   display: flex;
   flex-direction: column;
+  justify-content: space-between; /* 🔥 THIS FIXES BOTTOM */
 
-  transition: 0.3s;
-  z-index: 1000;
-}
-
-.sidebar.show {
-  left: 0;   /* 🔥 show */
+  padding: 20px 0;
 }
 
 /* TOP */
 .top {
   text-align: center;
-  margin-top: 20px;
 }
 
-/* BOTTOM */
-.bottom {
-  margin-top: auto;
-
-  display: flex;              /* 🔥 ADD THIS */
-  justify-content: center;    /* center horizontally */
-  align-items: flex-end;      /* 🔥 push to bottom */
-
-  padding-bottom: 30px;
+/* LOGO */
+.logo {
+  font-size: 22px;
+  font-weight: bold;
 }
 
-/* PROFILE */
+/* PROFILE SECTION */
 .profile {
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  gap: 10px;
+  margin-bottom: 20px;
 }
 
-/* IMAGE */
+/* PROFILE IMAGE */
 .profile-img {
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
+
+  object-fit: cover;
+  margin-bottom: 10px;
+
+  border: 3px solid white;
 }
 
-/* ICON */
+/* DEFAULT ICON */
 .profile-icon {
-  font-size: 70px;
-  display: block;   /* 🔥 fix inline issue */
+  font-size: 80px;
+  margin-bottom: 10px;
 }
 
-/* TEXT */
+/* NAME */
 .name {
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 5px 0;
 }
 
+/* EMAIL */
 .email {
-  font-size: 12px;
+  font-size: 13px;
   opacity: 0.8;
 }
 
