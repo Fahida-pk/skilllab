@@ -159,8 +159,8 @@ function Dashboard() {
           </div>
 
           {/* FLOAT BUTTON */}
-          <button className="add-btn" onClick={() => setShowModal(true)}>
-  + Add Task
+        <button className="fab-inside" onClick={() => setShowModal(true)}>
+  +
 </button>
         </div>
       </div>
@@ -206,9 +206,10 @@ function Dashboard() {
         <button className="cancel" onClick={() => setShowModal(false)}>
           Cancel
         </button>
-<button className="fab-inside" onClick={() => setShowModal(true)}>
-  +
-</button>
+
+        <button className="ok" onClick={handleAddTask}>
+          Add Task
+        </button>
       </div>
 
     </div>
