@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/login/login.jsx";
-import Dashboard from "./pages/dashboard/Dashboard.jsx"; // ✅ add this
+import Dashboard  from "./pages/dasboard/Dashboard.jsx";
 
 function App() {
   return (
