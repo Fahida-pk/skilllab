@@ -219,18 +219,22 @@ useEffect(() => {
       });
     }
 
-    const newTask = {
-      id: editTask ? editTask.id : Date.now(),
-      title,
-      from: formattedFrom,
-      to: formattedTo,
-      nextDay,
-      icon: image ? URL.createObjectURL(image) : "book",
-      color: editTask
-        ? editTask.color
-        : colors[Math.floor(Math.random() * colors.length)],
-      completed: false,
-    };
+   const sleepColor = "linear-gradient(135deg, #141e30, #243b55)";
+
+const newTask = {
+  id: editTask ? editTask.id : Date.now(),
+  title,
+  from: formattedFrom,
+  to: formattedTo,
+  nextDay,
+  icon: image ? URL.createObjectURL(image) : "book",
+  color: title.toLowerCase().includes("sleep")
+    ? sleepColor
+    : editTask
+    ? editTask.color
+    : colors[Math.floor(Math.random() * colors.length)],
+  completed: false,
+};
 
     if (editTask) {
       updatedTasks = updatedTasks.map((t) =>
