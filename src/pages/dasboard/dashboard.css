@@ -1,20 +1,18 @@
 /* LAYOUT */
 .dashboard {
   display: flex;
-  min-height: 100vh;
-
-  overflow: visible; /* ✅ VERY IMPORTANT */
+  min-height: 100vh; 
 }
+
 /* MAIN */
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  background: #f4f4f4;
 
-  overflow-y: auto;
-  min-height: 0;
-
-  height: 100vh; /* 🔥 ADD THIS */
+  overflow-y: auto; /* ✅ IMPORTANT */
 }
 /* DATE */
 .date-bar {
@@ -36,9 +34,7 @@
 /* TASK BOX */
 .task-wrapper {
    width: 400px;
-  max-height: 80vh; /* 🔥 change from fixed height */
-  display: flex;
-  flex-direction: column;
+  height: 600px;
   background: #fff;
   border-radius: 20px;
   padding: 15px;
@@ -53,7 +49,7 @@
 
 /* SCROLL */
 .cards {
-   flex: 1;
+  flex: 1;
   overflow-y: auto;
   padding-right: 5px;
 }
@@ -283,23 +279,22 @@
 }
 /* FIXED MOBILE */
 @media (max-width: 768px) {
-  .main {
-    height: auto; /* ✅ override */
+  .dashboard {
+    display: block;
   }
-}
-@media (max-width: 768px) {
+
   .main {
-    min-height: 0; /* 🔥 MUST */
-    overflow-y: auto;
+    align-items: stretch;
+    overflow-y: auto; /* ✅ only main scroll */
   }
 
   .task-wrapper {
     width: 100%;
-    max-height: none;
-    height: auto;
+    height: auto; /* ✅ remove fixed height */
+    border-radius: 0;
   }
 
   .cards {
-    overflow-y: visible;
+    overflow-y: visible; /* ✅ remove inner scroll */
   }
 }
