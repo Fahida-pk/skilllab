@@ -279,27 +279,31 @@
 /* FIXED MOBILE */
 @media (max-width: 768px) {
 
+  html, body {
+    height: auto;
+    overflow-y: auto;   /* 🔥 FORCE SCROLL */
+  }
+
   .dashboard {
     display: block;
-    height: auto; /* 🔥 VERY IMPORTANT */
+    height: auto;
+    min-height: 100vh;  /* 🔥 IMPORTANT */
   }
 
   .main {
     width: 100%;
-    margin-left: 0;
     align-items: stretch;
-
-    overflow-y: visible; /* 🔥 FIX */
+    overflow: visible;  /* 🔥 NOT overflow-y */
   }
 
   .task-wrapper {
     width: 100%;
-    height: auto; /* already correct */
+    height: auto;
     border-radius: 0;
   }
 
   .cards {
-    overflow-y: visible; /* already correct */
+    overflow: visible;
   }
 
 }
