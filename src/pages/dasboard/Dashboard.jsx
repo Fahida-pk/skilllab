@@ -19,77 +19,81 @@ function Dashboard() {
   const [toTime, setToTime] = useState("");
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
-// 🔥 CHECK NEXT DAY
-const isNextDay = (from, to) => {
-  if (!from || !to) return false;
 
-  const f = new Date(`2024-01-01 ${from}`);
-  const t = new Date(`2024-01-01 ${to}`);
+  // ✅ DATE KEY
+  const getDateKey = (d) => d.toISOString().split("T")[0];
+  const currentKey = getDateKey(date);
 
-  return t <= f; // 🔥 key logic
-};
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Wake Up",
-      time: "5 AM",
-      icon: <FaSun />,
-      color: "linear-gradient(135deg, #f6d365, #fda085)",
-      completed: false,
-    },
-    {
-      id: 2,
-      title: "Study MERN",
-      from: "5 AM",
-      to: "10 AM",
-      icon: <FaBook />,
-      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-      completed: false,
-    },
-    {
-      id: 3,
-      title: "Practice English",
-      from: "1 PM",
-      to: "4 PM",
-      icon: <FaLanguage />,
-      color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-      completed: false,
-    },
-    {
-      id: 4,
-      title: "Workout",
-      from: "6 PM",
-      to: "7 PM",
-      icon: <FaDumbbell />,
-      color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-      completed: false,
-    },
-    {
-      id: 5,
-      title: "Sleep",
-      from: "10 PM",
-      to: "5 AM",
-      icon: "🌙",
-      color: "linear-gradient(135deg, #141e30, #243b55)",
-      completed: false,
-    },
-  ]);
-useEffect(() => {
-  const nextWake = localStorage.getItem("nextWakeUp");
+  // ✅ DATE-WISE TASKS
+  const [tasksByDate, setTasksByDate] = useState({});
 
-  if (nextWake) {
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.title === "Wake Up"
-          ? { ...t, time: nextWake }
-          : t
-      )
-    );
+  const tasks = tasksByDate[currentKey] || [];
 
-    localStorage.removeItem("nextWakeUp");
-  }
-}, [date]);
-  // 🔥 FORMAT TIME
+  // ✅ DEFAULT TASKS LOAD
+  useEffect(() => {
+    if (!tasksByDate[currentKey]) {
+      setTasksByDate((prev) => ({
+        ...prev,
+        [currentKey]: [
+          {
+            id: 1,
+            title: "Wake Up",
+            time: "5:00 AM",
+            icon: <FaSun />,
+            color: "linear-gradient(135deg, #f6d365, #fda085)",
+            completed: false,
+          },
+          {
+            id: 2,
+            title: "Study MERN",
+            from: "5:00 AM",
+            to: "10:00 AM",
+            icon: <FaBook />,
+            color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+            completed: false,
+          },
+          {
+            id: 3,
+            title: "Practice English",
+            from: "1:00 PM",
+            to: "4:00 PM",
+            icon: <FaLanguage />,
+            color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+            completed: false,
+          },
+          {
+            id: 4,
+            title: "Workout",
+            from: "6:00 PM",
+            to: "7:00 PM",
+            icon: <FaDumbbell />,
+            color: "linear-gradient(135deg, #fccb90, #d57eeb)",
+            completed: false,
+          },
+          {
+            id: 5,
+            title: "Sleep",
+            from: "10:00 PM",
+            to: "5:00 AM",
+            icon: "🌙",
+            color: "linear-gradient(135deg, #141e30, #243b55)",
+            completed: false,
+            nextDay: true,
+          },
+        ],
+      }));
+    }
+  }, [date]);
+
+  // 🔥 CHECK NEXT DAY
+  const isNextDay = (from, to) => {
+    if (!from || !to) return false;
+    const f = new Date(`2024-01-01 ${from}`);
+    const t = new Date(`2024-01-01 ${to}`);
+    return t <= f;
+  };
+
+  // FORMAT TIME
   const formatTime = (t) => {
     if (!t) return "";
     const [hour, minute] = t.split(":");
@@ -100,7 +104,6 @@ useEffect(() => {
     return `${h}:${minute} ${ampm}`;
   };
 
-  // 🔥 CONVERT FOR EDIT
   const convertToInputTime = (timeStr) => {
     if (!timeStr) return "";
     try {
@@ -118,7 +121,7 @@ useEffect(() => {
     }
   };
 
-  // DATE
+  // DATE CHANGE
   const changeDate = (type) => {
     const newDate = new Date(date);
     type === "prev"
@@ -129,16 +132,24 @@ useEffect(() => {
 
   // DELETE
   const deleteTask = (id) => {
-    setTasks(tasks.filter((t) => t.id !== id));
+    const updated = tasks.filter((t) => t.id !== id);
+
+    setTasksByDate((prev) => ({
+      ...prev,
+      [currentKey]: updated,
+    }));
   };
 
   // TOGGLE
   const toggleTask = (id) => {
-    setTasks(
-      tasks.map((t) =>
-        t.id === id ? { ...t, completed: !t.completed } : t
-      )
+    const updated = tasks.map((t) =>
+      t.id === id ? { ...t, completed: !t.completed } : t
     );
+
+    setTasksByDate((prev) => ({
+      ...prev,
+      [currentKey]: updated,
+    }));
   };
 
   // EDIT
@@ -152,63 +163,96 @@ useEffect(() => {
   };
 
   // ADD / UPDATE
-const handleAddTask = () => {
-  if (!title || !fromTime) return;
+  const handleAddTask = () => {
+    if (!title || !fromTime) return;
 
-  const colors = [
-    "linear-gradient(135deg, #43e97b, #38f9d7)",
-    "linear-gradient(135deg, #fa709a, #fee140)",
-    "linear-gradient(135deg, #30cfd0, #330867)",
-    "linear-gradient(135deg, #f093fb, #f5576c)",
-  ];
+    const colors = [
+      "linear-gradient(135deg, #43e97b, #38f9d7)",
+      "linear-gradient(135deg, #fa709a, #fee140)",
+      "linear-gradient(135deg, #30cfd0, #330867)",
+      "linear-gradient(135deg, #f093fb, #f5576c)",
+    ];
 
-  const formattedFrom = formatTime(fromTime);
-  const formattedTo = toTime ? formatTime(toTime) : "";
+    const formattedFrom = formatTime(fromTime);
+    const formattedTo = toTime ? formatTime(toTime) : "";
 
-  let updatedTasks = [...tasks];
+    let updatedTasks = [...tasks];
 
-  // 🔥 CHECK NEXT DAY
-  const nextDay = isNextDay(fromTime, toTime);
+    const nextDay = isNextDay(fromTime, toTime);
 
-  // 🔥 Sleep → update Wake Up (ALWAYS correct)
-// 🔥 Sleep → update ONLY next day Wake Up
-if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
-  localStorage.setItem("nextWakeUp", formattedTo);
-}
-  const newTask = {
-    id: editTask ? editTask.id : Date.now(),
-    title,
-    from: formattedFrom,
-    to: formattedTo,
-    nextDay, // 🔥 IMPORTANT
-    icon: image ? (
-      <img src={URL.createObjectURL(image)} width="25" />
-    ) : (
-      <FaBook />
-    ),
-    color: editTask
-      ? editTask.color
-      : colors[Math.floor(Math.random() * colors.length)],
-    completed: false,
+    // ✅ Sleep → next day wake update
+    if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
+      const nextDate = new Date(date);
+      nextDate.setDate(date.getDate() + 1);
+
+      const nextKey = getDateKey(nextDate);
+
+      setTasksByDate((prev) => {
+        const nextTasks = prev[nextKey] || [];
+
+        const updatedNextTasks =
+          nextTasks.length > 0
+            ? nextTasks.map((t) =>
+                t.title === "Wake Up"
+                  ? { ...t, time: formattedTo }
+                  : t
+              )
+            : [
+                {
+                  id: 1,
+                  title: "Wake Up",
+                  time: formattedTo,
+                  icon: <FaSun />,
+                  color: "linear-gradient(135deg, #f6d365, #fda085)",
+                  completed: false,
+                },
+              ];
+
+        return {
+          ...prev,
+          [nextKey]: updatedNextTasks,
+        };
+      });
+    }
+
+    const newTask = {
+      id: editTask ? editTask.id : Date.now(),
+      title,
+      from: formattedFrom,
+      to: formattedTo,
+      nextDay,
+      icon: image ? (
+        <img src={URL.createObjectURL(image)} width="25" />
+      ) : (
+        <FaBook />
+      ),
+      color: editTask
+        ? editTask.color
+        : colors[Math.floor(Math.random() * colors.length)],
+      completed: false,
+    };
+
+    if (editTask) {
+      updatedTasks = updatedTasks.map((t) =>
+        t.id === editTask.id ? newTask : t
+      );
+    } else {
+      updatedTasks.push(newTask);
+    }
+
+    setTasksByDate((prev) => ({
+      ...prev,
+      [currentKey]: updatedTasks,
+    }));
+
+    setEditTask(null);
+    setShowModal(false);
+    setTitle("");
+    setFromTime("");
+    setToTime("");
+    setImage(null);
   };
 
-  if (editTask) {
-    updatedTasks = updatedTasks.map((t) =>
-      t.id === editTask.id ? newTask : t
-    );
-  } else {
-    updatedTasks.push(newTask);
-  }
-
-  setTasks(updatedTasks);
-
-  setEditTask(null);
-  setShowModal(false);
-  setTitle("");
-  setFromTime("");
-  setToTime("");
-  setImage(null);
-};
 
   return (
     <div className="dashboard">
