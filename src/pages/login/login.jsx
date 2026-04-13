@@ -28,7 +28,7 @@ function Login() {
       if (data.success) {
         // ✅ save user
         localStorage.setItem("user", JSON.stringify(data.user));
-
+localStorage.setItem("token", token);
         // ✅ redirect to dashboard
         navigate("/dashboard");
       } else {
