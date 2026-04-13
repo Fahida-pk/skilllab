@@ -18,7 +18,8 @@ function Dashboard() {
   const [title, setTitle] = useState("");
   const [time, setTime] = useState("");
   const [image, setImage] = useState(null);
-
+const [fromTime, setFromTime] = useState("");
+const [toTime, setToTime] = useState("");
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -94,42 +95,52 @@ const wakeUpTime = tasks.find(t => t.title === "Wake Up")?.time;
 
   // ADD TASK
   const handleAddTask = () => {
-    if (!title) return;
+  if (!title || !fromTime) return;
 
-    const colors = [
-      "linear-gradient(135deg, #43e97b, #38f9d7)",
-      "linear-gradient(135deg, #fa709a, #fee140)",
-      "linear-gradient(135deg, #30cfd0, #330867)",
-      "linear-gradient(135deg, #f093fb, #f5576c)",
-    ];
+  const colors = [
+    "linear-gradient(135deg, #43e97b, #38f9d7)",
+    "linear-gradient(135deg, #fa709a, #fee140)",
+    "linear-gradient(135deg, #30cfd0, #330867)",
+    "linear-gradient(135deg, #f093fb, #f5576c)",
+  ];
 
-    const formattedTime = time
-      ? new Date(`1970-01-01T${time}`).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      : "Now";
+  // format time
+  const formatTime = (t) =>
+    new Date(`1970-01-01T${t}`).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-    const newTask = {
-      id: Date.now(),
-      title,
-      time: formattedTime,
-      icon: image ? (
-        <img src={URL.createObjectURL(image)} width="25" />
-      ) : (
-        <FaBook />
-      ),
-      color: colors[Math.floor(Math.random() * colors.length)],
-      completed: false,
-    };
+  let finalToTime = toTime;
 
-    setTasks([...tasks, newTask]);
+  // 🔥 Sleep case
+  if (title.toLowerCase() === "sleep" || title.toLowerCase() === "sleeping") {
+    const wakeUp = tasks.find((t) => t.title === "Wake Up");
+    finalToTime = wakeUp?.time; // auto next day
+  }
 
-    setShowModal(false);
-    setTitle("");
-    setTime("");
-    setImage(null);
+  const newTask = {
+    id: Date.now(),
+    title,
+    from: formatTime(fromTime),
+    to: finalToTime ? formatTime(finalToTime) : "",
+    icon: image ? (
+      <img src={URL.createObjectURL(image)} width="25" />
+    ) : (
+      <FaBook />
+    ),
+    color: colors[Math.floor(Math.random() * colors.length)],
+    completed: false,
   };
+
+  setTasks([...tasks, newTask]);
+
+  setShowModal(false);
+  setTitle("");
+  setFromTime("");
+  setToTime("");
+  setImage(null);
+};
 
   return (
     <div className="dashboard">
@@ -167,7 +178,7 @@ const wakeUpTime = tasks.find(t => t.title === "Wake Up")?.time;
     ? task.time
     : task.title === "Sleep"
     ? `${task.time} - ${tasks.find(t => t.title === "Wake Up")?.time}`
-    : `${getPreviousTaskTime(task.id)} - ${task.time}`}
+    : `${task.from} - ${task.to}`}
 </p>
                 </div>
 
@@ -212,11 +223,12 @@ const wakeUpTime = tasks.find(t => t.title === "Wake Up")?.time;
 
             <div className="input-group">
               <label>Time</label>
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-              />
+              <label>From Time</label>
+<input type="time" value={fromTime} onChange={(e) => setFromTime(e.target.value)} />
+
+<label>To Time</label>
+<input type="time" value={toTime} onChange={(e) => setToTime(e.target.value)} />
+            
             </div>
 
             <div className="input-group">
