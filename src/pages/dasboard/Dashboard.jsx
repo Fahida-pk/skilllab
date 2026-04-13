@@ -20,63 +20,37 @@ function Dashboard() {
   const [toTime, setToTime] = useState("");
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
-// 🔥 CHECK NEXT DAY
-const isNextDay = (from, to) => {
-  if (!from || !to) return false;
 
-  const f = new Date(`2024-01-01 ${from}`);
-  const t = new Date(`2024-01-01 ${to}`);
+  // ✅ DATE KEY
+  const getDateKey = (d) => d.toISOString().split("T")[0];
 
-  return t <= f; // 🔥 key logic
-};
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Wake Up",
-      time: "5 AM",
-      icon: <FaSun />,
-      color: "linear-gradient(135deg, #f6d365, #fda085)",
-      completed: false,
-    },
-    {
-      id: 2,
-      title: "Study MERN",
-      from: "5 AM",
-      to: "10 AM",
-      icon: <FaBook />,
-      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-      completed: false,
-    },
-    {
-      id: 3,
-      title: "Practice English",
-      from: "1 PM",
-      to: "4 PM",
-      icon: <FaLanguage />,
-      color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-      completed: false,
-    },
-    {
-      id: 4,
-      title: "Workout",
-      from: "6 PM",
-      to: "7 PM",
-      icon: <FaDumbbell />,
-      color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-      completed: false,
-    },
-    {
-      id: 5,
-      title: "Sleep",
-      from: "10 PM",
-      to: "5 AM",
-      icon: "🌙",
-      color: "linear-gradient(135deg, #141e30, #243b55)",
-      completed: false,
-    },
-  ]);
+  const dateKey = getDateKey(date);
 
-  // 🔥 FORMAT TIME
+  // ✅ STORE TASKS DATE-WISE
+  const [tasksByDate, setTasksByDate] = useState({
+    [dateKey]: [
+      {
+        id: 1,
+        title: "Wake Up",
+        time: "5:00 AM",
+        icon: <FaSun />,
+        color: "linear-gradient(135deg, #f6d365, #fda085)",
+        completed: false,
+      },
+    ],
+  });
+
+  const tasks = tasksByDate[dateKey] || [];
+
+  // 🔥 CHECK NEXT DAY
+  const isNextDay = (from, to) => {
+    if (!from || !to) return false;
+    const f = new Date(`2024-01-01 ${from}`);
+    const t = new Date(`2024-01-01 ${to}`);
+    return t <= f;
+  };
+
+  // FORMAT
   const formatTime = (t) => {
     if (!t) return "";
     const [hour, minute] = t.split(":");
@@ -87,25 +61,7 @@ const isNextDay = (from, to) => {
     return `${h}:${minute} ${ampm}`;
   };
 
-  // 🔥 CONVERT FOR EDIT
-  const convertToInputTime = (timeStr) => {
-    if (!timeStr) return "";
-    try {
-      const [time, modifier] = timeStr.split(" ");
-      let [hours, minutes] = time.split(":");
-
-      hours = parseInt(hours);
-
-      if (modifier === "PM" && hours !== 12) hours += 12;
-      if (modifier === "AM" && hours === 12) hours = 0;
-
-      return `${hours.toString().padStart(2, "0")}:${minutes}`;
-    } catch {
-      return "";
-    }
-  };
-
-  // DATE
+  // DATE CHANGE
   const changeDate = (type) => {
     const newDate = new Date(date);
     type === "prev"
@@ -116,16 +72,24 @@ const isNextDay = (from, to) => {
 
   // DELETE
   const deleteTask = (id) => {
-    setTasks(tasks.filter((t) => t.id !== id));
+    const updated = tasks.filter((t) => t.id !== id);
+
+    setTasksByDate((prev) => ({
+      ...prev,
+      [dateKey]: updated,
+    }));
   };
 
   // TOGGLE
   const toggleTask = (id) => {
-    setTasks(
-      tasks.map((t) =>
-        t.id === id ? { ...t, completed: !t.completed } : t
-      )
+    const updated = tasks.map((t) =>
+      t.id === id ? { ...t, completed: !t.completed } : t
     );
+
+    setTasksByDate((prev) => ({
+      ...prev,
+      [dateKey]: updated,
+    }));
   };
 
   // EDIT
@@ -134,79 +98,83 @@ const isNextDay = (from, to) => {
     setEditTask(task);
 
     setTitle(task.title);
-    setFromTime(convertToInputTime(task.from));
-    setToTime(convertToInputTime(task.to));
+    setFromTime("");
+    setToTime("");
   };
 
   // ADD / UPDATE
-const handleAddTask = () => {
-  if (!title || !fromTime) return;
+  const handleAddTask = () => {
+    if (!title || !fromTime) return;
 
-  const colors = [
-    "linear-gradient(135deg, #43e97b, #38f9d7)",
-    "linear-gradient(135deg, #fa709a, #fee140)",
-    "linear-gradient(135deg, #30cfd0, #330867)",
-    "linear-gradient(135deg, #f093fb, #f5576c)",
-  ];
+    const formattedFrom = formatTime(fromTime);
+    const formattedTo = toTime ? formatTime(toTime) : "";
 
-  const formattedFrom = formatTime(fromTime);
-  const formattedTo = toTime ? formatTime(toTime) : "";
+    const nextDay = isNextDay(fromTime, toTime);
 
-  let updatedTasks = [...tasks];
+    let updatedToday = [...tasks];
 
-  // 🔥 CHECK NEXT DAY
-  const nextDay = isNextDay(fromTime, toTime);
+    const newTask = {
+      id: editTask ? editTask.id : Date.now(),
+      title,
+      from: formattedFrom,
+      to: formattedTo,
+      nextDay,
+      icon: <FaBook />,
+      color: "linear-gradient(135deg, #30cfd0, #330867)",
+      completed: false,
+    };
 
-  // 🔥 Sleep → update Wake Up (ALWAYS correct)
-  if (title.toLowerCase().includes("sleep") && formattedTo) {
-    updatedTasks = updatedTasks.map((t) =>
-      t.title === "Wake Up"
-        ? { ...t, time: formattedTo }
-        : t
-    );
-  }
+    if (editTask) {
+      updatedToday = updatedToday.map((t) =>
+        t.id === editTask.id ? newTask : t
+      );
+    } else {
+      updatedToday.push(newTask);
+    }
 
-  const newTask = {
-    id: editTask ? editTask.id : Date.now(),
-    title,
-    from: formattedFrom,
-    to: formattedTo,
-    nextDay, // 🔥 IMPORTANT
-    icon: image ? (
-      <img src={URL.createObjectURL(image)} width="25" />
-    ) : (
-      <FaBook />
-    ),
-    color: editTask
-      ? editTask.color
-      : colors[Math.floor(Math.random() * colors.length)],
-    completed: false,
+    // 🔥 NEXT DAY WAKE UP FIX
+    let updatedNextDayTasks = [];
+
+    if (title.toLowerCase().includes("sleep") && formattedTo) {
+      const nextDate = new Date(date);
+      nextDate.setDate(date.getDate() + 1);
+      const nextKey = getDateKey(nextDate);
+
+      const nextDayTasks = tasksByDate[nextKey] || [];
+
+      updatedNextDayTasks = nextDayTasks.map((t) =>
+        t.title === "Wake Up"
+          ? { ...t, time: formattedTo }
+          : t
+      );
+    }
+
+    setTasksByDate((prev) => {
+      const nextDate = new Date(date);
+      nextDate.setDate(date.getDate() + 1);
+      const nextKey = getDateKey(nextDate);
+
+      return {
+        ...prev,
+        [dateKey]: updatedToday,
+        ...(updatedNextDayTasks.length > 0 && {
+          [nextKey]: updatedNextDayTasks,
+        }),
+      };
+    });
+
+    setEditTask(null);
+    setShowModal(false);
+    setTitle("");
+    setFromTime("");
+    setToTime("");
   };
-
-  if (editTask) {
-    updatedTasks = updatedTasks.map((t) =>
-      t.id === editTask.id ? newTask : t
-    );
-  } else {
-    updatedTasks.push(newTask);
-  }
-
-  setTasks(updatedTasks);
-
-  setEditTask(null);
-  setShowModal(false);
-  setTitle("");
-  setFromTime("");
-  setToTime("");
-  setImage(null);
-};
 
   return (
     <div className="dashboard">
       <Sidebar />
 
       <div className="main">
-        {/* DATE */}
         <div className="date-bar">
           <button onClick={() => changeDate("prev")}>
             <FaChevronLeft />
@@ -219,7 +187,6 @@ const handleAddTask = () => {
           </button>
         </div>
 
-        {/* TASKS */}
         <div className="task-wrapper">
           <div className="cards">
             {tasks.map((task) => (
@@ -233,12 +200,12 @@ const handleAddTask = () => {
                 <div className="card-content">
                   <h3>{task.title}</h3>
                   <p>
-  {task.title === "Wake Up"
-    ? task.time
-    : `${task.from} - ${task.to} ${
-        task.nextDay ? "(Next Day)" : ""
-      }`}
-</p>
+                    {task.title === "Wake Up"
+                      ? task.time
+                      : `${task.from} - ${task.to} ${
+                          task.nextDay ? "(Next Day)" : ""
+                        }`}
+                  </p>
                 </div>
 
                 <div className="actions">
@@ -263,51 +230,33 @@ const handleAddTask = () => {
         </div>
       </div>
 
-      {/* MODAL */}
       {showModal && (
         <div className="modal">
           <div className="modal-box">
-            <h2>{editTask ? "Edit Task" : "Add New Task"}</h2>
+            <h2>{editTask ? "Edit Task" : "Add Task"}</h2>
 
-            <div className="input-group">
-              <label>Task Title</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
 
-            <div className="input-group">
-              <label>From Time</label>
-              <input
-                type="time"
-                value={fromTime}
-                onChange={(e) => setFromTime(e.target.value)}
-              />
+            <input
+              type="time"
+              value={fromTime}
+              onChange={(e) => setFromTime(e.target.value)}
+            />
 
-              <label>To Time</label>
-              <input
-                type="time"
-                value={toTime}
-                onChange={(e) => setToTime(e.target.value)}
-              />
-            </div>
+            <input
+              type="time"
+              value={toTime}
+              onChange={(e) => setToTime(e.target.value)}
+            />
 
-            <div className="input-group">
-              <label>Upload Icon</label>
-              <input
-                type="file"
-                onChange={(e) => setImage(e.target.files[0])}
-              />
-            </div>
-
-            <div className="modal-actions">
-              <button onClick={() => setShowModal(false)}>Cancel</button>
-              <button onClick={handleAddTask}>
-                {editTask ? "Update" : "Add"}
-              </button>
-            </div>
+            <button onClick={handleAddTask}>
+              {editTask ? "Update" : "Add"}
+            </button>
           </div>
         </div>
       )}
