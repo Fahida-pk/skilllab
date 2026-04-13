@@ -11,8 +11,11 @@ import {
 } from "react-icons/fa";
 
 function Dashboard() {
-  const [date, setDate] = useState(new Date());
 
+  // ✅ TOKEN FIX
+  const token = localStorage.getItem("token");
+
+  const [date, setDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [fromTime, setFromTime] = useState("");
@@ -20,15 +23,13 @@ function Dashboard() {
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
 
-  // ✅ DATE KEY
   const getDateKey = (d) => d.toISOString().split("T")[0];
   const currentKey = getDateKey(date);
 
-  // ✅ DATE-WISE TASKS
-const [tasksByDate, setTasksByDate] = useState({});
+  const [tasksByDate, setTasksByDate] = useState({});
   const tasks = tasksByDate[currentKey] || [];
 
-  // ✅ DEFAULT TASKS LOAD
+  // ✅ DEFAULT TASKS
   useEffect(() => {
     if (!tasksByDate[currentKey]) {
       setTasksByDate((prev) => ({
@@ -42,82 +43,37 @@ const [tasksByDate, setTasksByDate] = useState({});
             color: "linear-gradient(135deg, #f6d365, #fda085)",
             completed: false,
           },
-          {
-            id: 2,
-            title: "Study MERN",
-            from: "5:00 AM",
-            to: "10:00 AM",
-            icon: <FaBook />,
-            color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-            completed: false,
-          },
-          {
-            id: 3,
-            title: "Practice English",
-            from: "1:00 PM",
-            to: "4:00 PM",
-            icon: <FaLanguage />,
-            color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-            completed: false,
-          },
-          {
-            id: 4,
-            title: "Workout",
-            from: "6:00 PM",
-            to: "7:00 PM",
-            icon: <FaDumbbell />,
-            color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-            completed: false,
-          },
-          {
-            id: 5,
-            title: "Sleep",
-            from: "10:00 PM",
-            to: "5:00 AM",
-            icon: "🌙",
-            color: "linear-gradient(135deg, #141e30, #243b55)",
-            completed: false,
-            nextDay: true,
-          },
         ],
       }));
     }
   }, [date]);
+
+  // ✅ GET FROM DB
   useEffect(() => {
-  const stored = localStorage.getItem("tasks");
+    if (!token) return;
 
-  if (stored) {
-    setTasksByDate(JSON.parse(stored));
-  }
-}, []);
-useEffect(() => {
-  localStorage.setItem("tasks", JSON.stringify(tasksByDate));
-}, [tasksByDate]);
-useEffect(() => {
-  if (!token) return;
+    fetch("https://zyntaweb.com/skilllab/dashboard.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "get",
+        token: token,
+        task_date: currentKey,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setTasksByDate((prev) => ({
+            ...prev,
+            [currentKey]: data.tasks,
+          }));
+        }
+      });
+  }, [currentKey]);
 
-  fetch("https://zyntaweb.com/skilllab/dashboard.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      action: "get",
-      token: token,
-      task_date: currentKey,
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        setTasksByDate((prev) => ({
-          ...prev,
-          [currentKey]: data.tasks,
-        }));
-      }
-    });
-}, [currentKey]);
-  // 🔥 CHECK NEXT DAY
   const isNextDay = (from, to) => {
     if (!from || !to) return false;
     const f = new Date(`2024-01-01 ${from}`);
@@ -125,7 +81,6 @@ useEffect(() => {
     return t <= f;
   };
 
-  // FORMAT TIME
   const formatTime = (t) => {
     if (!t) return "";
     const [hour, minute] = t.split(":");
@@ -153,7 +108,6 @@ useEffect(() => {
     }
   };
 
-  // DATE CHANGE
   const changeDate = (type) => {
     const newDate = new Date(date);
     type === "prev"
@@ -162,27 +116,27 @@ useEffect(() => {
     setDate(newDate);
   };
 
-  // DELETE
+  // ✅ DELETE
   const deleteTask = (id) => {
-  fetch("https://zyntaweb.com/skilllab/dashboard.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      action: "delete",
-      token: token,
-      id: id,
-    }),
-  }).then(() => {
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: tasks.filter((t) => t.id !== id),
-    }));
-  });
-};
+    fetch("https://zyntaweb.com/skilllab/dashboard.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "delete",
+        token: token,
+        id: id,
+      }),
+    }).then(() => {
+      setTasksByDate((prev) => ({
+        ...prev,
+        [currentKey]: tasks.filter((t) => t.id !== id),
+      }));
+    });
+  };
 
-  // TOGGLE
+  // ✅ TOGGLE
   const toggleTask = (id) => {
     const updated = tasks.map((t) =>
       t.id === id ? { ...t, completed: !t.completed } : t
@@ -194,7 +148,6 @@ useEffect(() => {
     }));
   };
 
-  // EDIT
   const handleEdit = (task) => {
     setShowModal(true);
     setEditTask(task);
@@ -204,97 +157,76 @@ useEffect(() => {
     setToTime(convertToInputTime(task.to));
   };
 
-  // ADD / UPDATE
-const handleAddTask = () => {
-  if (!title || !fromTime) return;
+  // ✅ ADD / UPDATE
+  const handleAddTask = () => {
+    if (!title || !fromTime) return;
 
-  const colors = [
-    "linear-gradient(135deg, #43e97b, #38f9d7)",
-    "linear-gradient(135deg, #fa709a, #fee140)",
-    "linear-gradient(135deg, #30cfd0, #330867)",
-    "linear-gradient(135deg, #f093fb, #f5576c)",
-  ];
+    const colors = [
+      "linear-gradient(135deg, #43e97b, #38f9d7)",
+      "linear-gradient(135deg, #fa709a, #fee140)",
+      "linear-gradient(135deg, #30cfd0, #330867)",
+      "linear-gradient(135deg, #f093fb, #f5576c)",
+    ];
 
-  const formattedFrom = formatTime(fromTime);
-  const formattedTo = toTime ? formatTime(toTime) : "";
+    const formattedFrom = formatTime(fromTime);
+    const formattedTo = toTime ? formatTime(toTime) : "";
 
-  let updatedTasks = [...tasks];
+    let updatedTasks = [...tasks];
 
-  const nextDay = isNextDay(fromTime, toTime);
+    const nextDay = isNextDay(fromTime, toTime);
 
-  // ✅ Sleep → next day wake update
-  if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
-    const nextDate = new Date(date);
-    nextDate.setDate(date.getDate() + 1);
+    const randomColor =
+      editTask?.color ||
+      colors[Math.floor(Math.random() * colors.length)];
 
-    const nextKey = getDateKey(nextDate);
+    const newTask = {
+      id: editTask ? editTask.id : Date.now(),
+      title,
+      from: formattedFrom,
+      to: formattedTo,
+      nextDay,
+      icon: image ? URL.createObjectURL(image) : "book",
+      color: randomColor,
+      completed: false,
+    };
 
-    setTasksByDate((prev) => {
-      const nextTasks = prev[nextKey] || [];
+    if (editTask) {
+      updatedTasks = updatedTasks.map((t) =>
+        t.id === editTask.id ? newTask : t
+      );
+    } else {
+      updatedTasks.push(newTask);
+    }
 
-      const updatedNextTasks =
-        nextTasks.length > 0
-          ? nextTasks.map((t) =>
-              t.title === "Wake Up"
-                ? { ...t, time: formattedTo }
-                : t
-            )
-          : [
-              {
-                id: 1,
-                title: "Wake Up",
-                time: formattedTo,
-                icon: <FaSun />,
-                color: "linear-gradient(135deg, #f6d365, #fda085)",
-                completed: false,
-              },
-            ];
+    setTasksByDate((prev) => ({
+      ...prev,
+      [currentKey]: updatedTasks,
+    }));
 
-      return {
-        ...prev,
-        [nextKey]: updatedNextTasks,
-      };
+    // ✅ SAVE TO DB
+    fetch("https://zyntaweb.com/skilllab/dashboard.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: editTask ? "update" : "add",
+        token: token,
+        id: editTask ? editTask.id : null,
+        title: title,
+        from: formattedFrom,
+        to: formattedTo,
+        task_date: currentKey,
+      }),
     });
-  }
 
-  // 🎯 FIX 1 → RANDOM COLOR STORE CHEYYANAM
-  const randomColor =
-    editTask?.color ||
-    colors[Math.floor(Math.random() * colors.length)];
-
-  const newTask = {
-    id: editTask ? editTask.id : Date.now(),
-    title,
-    from: formattedFrom,
-    to: formattedTo,
-    nextDay,
-    icon: image ? URL.createObjectURL(image) : "book",
-    color: randomColor, // ✅ IMPORTANT
-    completed: editTask ? editTask.completed : false,
+    setEditTask(null);
+    setShowModal(false);
+    setTitle("");
+    setFromTime("");
+    setToTime("");
+    setImage(null);
   };
-
-  // 🎯 FIX 2 → UPDATE / ADD CORRECT
-  if (editTask) {
-    updatedTasks = updatedTasks.map((t) =>
-      t.id === editTask.id ? newTask : t
-    );
-  } else {
-    updatedTasks.push(newTask);
-  }
-
-  setTasksByDate((prev) => ({
-    ...prev,
-    [currentKey]: updatedTasks,
-  }));
-
-  // RESET
-  setEditTask(null);
-  setShowModal(false);
-  setTitle("");
-  setFromTime("");
-  setToTime("");
-  setImage(null);
-};
 
   return (
     <div className="dashboard">
@@ -321,21 +253,20 @@ const handleAddTask = () => {
                 key={task.id}
                 style={{ background: task.color }}
               >
-<div className="icon-box">
-  {task.icon === "book" ? (
-    <FaBook />
-  ) : typeof task.icon === "string" ? (
-    <img src={task.icon} width="25" />
-  ) : null}
-</div>
+                <div className="icon-box">
+                  {task.icon === "book" ? (
+                    <FaBook />
+                  ) : typeof task.icon === "string" ? (
+                    <img src={task.icon} width="25" />
+                  ) : null}
+                </div>
+
                 <div className="card-content">
                   <h3>{task.title}</h3>
                   <p>
                     {task.title === "Wake Up"
                       ? task.time
-                      : `${task.from} - ${task.to} ${
-                          task.nextDay ? "(Next Day)" : ""
-                        }`}
+                      : `${task.from} - ${task.to}`}
                   </p>
                 </div>
 
