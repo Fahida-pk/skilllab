@@ -279,16 +279,12 @@
 @media (max-width: 768px) {
   .dashboard {
     display: block;
-  }
-}
-@media (max-width: 768px) {
-  .dashboard {
-    display: block;
     min-height: 100vh;
   }
 
   .main {
     align-items: stretch;
+    overflow-y: auto; /* 🔥 ensure scroll */
   }
 
   .task-wrapper {
@@ -298,7 +294,7 @@
   }
 
   .cards {
-    overflow-y: auto; /* ✅ FIX */
+    overflow-y: visible; /* ✅ mobile scroll parent handle cheyyum */
   }
 
   .fab-inside {
