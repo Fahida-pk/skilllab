@@ -44,8 +44,16 @@ function Dashboard() {
           }),
         });
 
-        const data = await res.json();
+const text = await res.text();
+console.log("SERVER RESPONSE:", text);
 
+let data;
+try {
+  data = JSON.parse(text);
+} catch (e) {
+  alert("Server error");
+  return;
+}
         const defaultTasks = [
           {
             id: "d1",
