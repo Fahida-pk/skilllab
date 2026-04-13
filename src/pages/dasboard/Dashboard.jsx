@@ -45,15 +45,16 @@ function Dashboard() {
         });
 
 const text = await res.text();
-console.log("SERVER RESPONSE:", text);
+console.log("ADD RESPONSE RAW:", text);
 
 let data;
 try {
   data = JSON.parse(text);
 } catch (e) {
-  alert("Server error");
+  alert("Server error while adding");
   return;
 }
+ 
         const defaultTasks = [
           {
             id: "d1",
