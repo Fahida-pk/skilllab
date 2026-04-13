@@ -20,7 +20,15 @@ function Dashboard() {
   const [toTime, setToTime] = useState("");
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
+// 🔥 CHECK NEXT DAY
+const isNextDay = (from, to) => {
+  if (!from || !to) return false;
 
+  const f = new Date(`2024-01-01 ${from}`);
+  const t = new Date(`2024-01-01 ${to}`);
+
+  return t <= f; // 🔥 key logic
+};
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -131,63 +139,67 @@ function Dashboard() {
   };
 
   // ADD / UPDATE
-  const handleAddTask = () => {
-    if (!title || !fromTime) return;
+const handleAddTask = () => {
+  if (!title || !fromTime) return;
 
-    const colors = [
-      "linear-gradient(135deg, #43e97b, #38f9d7)",
-      "linear-gradient(135deg, #fa709a, #fee140)",
-      "linear-gradient(135deg, #30cfd0, #330867)",
-      "linear-gradient(135deg, #f093fb, #f5576c)",
-    ];
+  const colors = [
+    "linear-gradient(135deg, #43e97b, #38f9d7)",
+    "linear-gradient(135deg, #fa709a, #fee140)",
+    "linear-gradient(135deg, #30cfd0, #330867)",
+    "linear-gradient(135deg, #f093fb, #f5576c)",
+  ];
 
-    const formattedFrom = formatTime(fromTime);
-    const formattedTo = toTime ? formatTime(toTime) : "";
+  const formattedFrom = formatTime(fromTime);
+  const formattedTo = toTime ? formatTime(toTime) : "";
 
-    let updatedTasks = [...tasks];
+  let updatedTasks = [...tasks];
 
-    // 🔥 Sleep → update Wake Up
-    if (title.toLowerCase().includes("sleep")) {
-      updatedTasks = updatedTasks.map((t) =>
-        t.title === "Wake Up"
-          ? { ...t, time: formattedTo }
-          : t
-      );
-    }
+  // 🔥 CHECK NEXT DAY
+  const nextDay = isNextDay(fromTime, toTime);
 
-    const newTask = {
-      id: editTask ? editTask.id : Date.now(),
-      title,
-      from: formattedFrom,
-      to: formattedTo,
-      icon: image ? (
-        <img src={URL.createObjectURL(image)} width="25" />
-      ) : (
-        <FaBook />
-      ),
-      color: editTask
-        ? editTask.color
-        : colors[Math.floor(Math.random() * colors.length)],
-      completed: false,
-    };
+  // 🔥 Sleep → update Wake Up (ALWAYS correct)
+  if (title.toLowerCase().includes("sleep") && formattedTo) {
+    updatedTasks = updatedTasks.map((t) =>
+      t.title === "Wake Up"
+        ? { ...t, time: formattedTo }
+        : t
+    );
+  }
 
-    if (editTask) {
-      updatedTasks = updatedTasks.map((t) =>
-        t.id === editTask.id ? newTask : t
-      );
-    } else {
-      updatedTasks.push(newTask);
-    }
-
-    setTasks(updatedTasks);
-
-    setEditTask(null);
-    setShowModal(false);
-    setTitle("");
-    setFromTime("");
-    setToTime("");
-    setImage(null);
+  const newTask = {
+    id: editTask ? editTask.id : Date.now(),
+    title,
+    from: formattedFrom,
+    to: formattedTo,
+    nextDay, // 🔥 IMPORTANT
+    icon: image ? (
+      <img src={URL.createObjectURL(image)} width="25" />
+    ) : (
+      <FaBook />
+    ),
+    color: editTask
+      ? editTask.color
+      : colors[Math.floor(Math.random() * colors.length)],
+    completed: false,
   };
+
+  if (editTask) {
+    updatedTasks = updatedTasks.map((t) =>
+      t.id === editTask.id ? newTask : t
+    );
+  } else {
+    updatedTasks.push(newTask);
+  }
+
+  setTasks(updatedTasks);
+
+  setEditTask(null);
+  setShowModal(false);
+  setTitle("");
+  setFromTime("");
+  setToTime("");
+  setImage(null);
+};
 
   return (
     <div className="dashboard">
@@ -221,10 +233,12 @@ function Dashboard() {
                 <div className="card-content">
                   <h3>{task.title}</h3>
                   <p>
-                    {task.title === "Wake Up"
-                      ? task.time
-                      : `${task.from} - ${task.to}`}
-                  </p>
+  {task.title === "Wake Up"
+    ? task.time
+    : `${task.from} - ${task.to} ${
+        task.nextDay ? "(Next Day)" : ""
+      }`}
+</p>
                 </div>
 
                 <div className="actions">
