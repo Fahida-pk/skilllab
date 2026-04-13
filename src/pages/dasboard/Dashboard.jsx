@@ -1,6 +1,6 @@
 import Sidebar from "./Sidebar";
 import "./dashboard.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   FaChevronLeft,
   FaChevronRight,
@@ -13,22 +13,16 @@ import {
 function Dashboard() {
   const [date, setDate] = useState(new Date());
 
+  const [tasksByDate, setTasksByDate] = useState({});
+
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [fromTime, setFromTime] = useState("");
   const [toTime, setToTime] = useState("");
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
-// 🔥 CHECK NEXT DAY
-const isNextDay = (from, to) => {
-  if (!from || !to) return false;
 
-  const f = new Date(`2024-01-01 ${from}`);
-  const t = new Date(`2024-01-01 ${to}`);
-
-  return t <= f; // 🔥 key logic
-};
-  const [tasks, setTasks] = useState([
+  const getDefaultTasks = () => [
     {
       id: 1,
       title: "Wake Up",
@@ -73,57 +67,25 @@ const isNextDay = (from, to) => {
       color: "linear-gradient(135deg, #141e30, #243b55)",
       completed: false,
     },
-  ]);
-useEffect(() => {
-  const nextWake = localStorage.getItem("nextWakeUp");
+  ];
 
-  const today = new Date().toDateString();
-  const selectedDate = date.toDateString();
+  const dateKey = date.toDateString();
+  const tasks = tasksByDate[dateKey] || getDefaultTasks();
 
-  // Apply only when going to next day
-  if (nextWake && selectedDate !== today) {
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.title === "Wake Up"
-          ? { ...t, time: nextWake }
-          : t
-      )
-    );
+  const isNextDay = (from, to) => {
+    if (!from || !to) return false;
+    return new Date(`2024-01-01 ${to}`) <= new Date(`2024-01-01 ${from}`);
+  };
 
-    // remove after applying
-    localStorage.removeItem("nextWakeUp");
-  }
-}, [date]);
-  // 🔥 FORMAT TIME
   const formatTime = (t) => {
     if (!t) return "";
-    const [hour, minute] = t.split(":");
-    let h = parseInt(hour);
-    const ampm = h >= 12 ? "PM" : "AM";
-    h = h % 12;
-    if (h === 0) h = 12;
-    return `${h}:${minute} ${ampm}`;
+    const [h, m] = t.split(":");
+    let hour = parseInt(h);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour}:${m} ${ampm}`;
   };
 
-  // 🔥 CONVERT FOR EDIT
-  const convertToInputTime = (timeStr) => {
-    if (!timeStr) return "";
-    try {
-      const [time, modifier] = timeStr.split(" ");
-      let [hours, minutes] = time.split(":");
-
-      hours = parseInt(hours);
-
-      if (modifier === "PM" && hours !== 12) hours += 12;
-      if (modifier === "AM" && hours === 12) hours = 0;
-
-      return `${hours.toString().padStart(2, "0")}:${minutes}`;
-    } catch {
-      return "";
-    }
-  };
-
-  // DATE
   const changeDate = (type) => {
     const newDate = new Date(date);
     type === "prev"
@@ -132,95 +94,63 @@ useEffect(() => {
     setDate(newDate);
   };
 
-  // DELETE
-  const deleteTask = (id) => {
-    setTasks(tasks.filter((t) => t.id !== id));
-  };
+  const handleAddTask = () => {
+    if (!title || !fromTime) return;
 
-  // TOGGLE
-  const toggleTask = (id) => {
-    setTasks(
-      tasks.map((t) =>
-        t.id === id ? { ...t, completed: !t.completed } : t
-      )
-    );
-  };
+    const formattedFrom = formatTime(fromTime);
+    const formattedTo = toTime ? formatTime(toTime) : "";
 
-  // EDIT
-  const handleEdit = (task) => {
-    setShowModal(true);
-    setEditTask(task);
+    let updatedTasks = [...tasks];
+    const nextDay = isNextDay(fromTime, toTime);
 
-    setTitle(task.title);
-    setFromTime(convertToInputTime(task.from));
-    setToTime(convertToInputTime(task.to));
-  };
+    // 🔥 Sleep → next day wake update
+    if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
+      const nextDate = new Date(date);
+      nextDate.setDate(date.getDate() + 1);
+      const nextKey = nextDate.toDateString();
 
-  // ADD / UPDATE
-const handleAddTask = () => {
-  if (!title || !fromTime) return;
+      setTasksByDate((prev) => {
+        const nextTasks = prev[nextKey] || getDefaultTasks();
 
-  const colors = [
-    "linear-gradient(135deg, #43e97b, #38f9d7)",
-    "linear-gradient(135deg, #fa709a, #fee140)",
-    "linear-gradient(135deg, #30cfd0, #330867)",
-    "linear-gradient(135deg, #f093fb, #f5576c)",
-  ];
+        const updatedNext = nextTasks.map((t) =>
+          t.title === "Wake Up"
+            ? { ...t, time: formattedTo }
+            : t
+        );
 
-  const formattedFrom = formatTime(fromTime);
-  const formattedTo = toTime ? formatTime(toTime) : "";
+        return { ...prev, [nextKey]: updatedNext };
+      });
+    }
 
-  let updatedTasks = [...tasks];
+    const newTask = {
+      id: Date.now(),
+      title,
+      from: formattedFrom,
+      to: formattedTo,
+      nextDay,
+      icon: <FaBook />,
+      color: "linear-gradient(135deg, #30cfd0, #330867)",
+      completed: false,
+    };
 
-  // 🔥 CHECK NEXT DAY
-  const nextDay = isNextDay(fromTime, toTime);
-
-  // 🔥 Sleep → update Wake Up (ALWAYS correct)
-// 🔥 Sleep → update ONLY next day Wake Up
-if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
-  localStorage.setItem("nextWakeUp", formattedTo);
-}
-  const newTask = {
-    id: editTask ? editTask.id : Date.now(),
-    title,
-    from: formattedFrom,
-    to: formattedTo,
-    nextDay, // 🔥 IMPORTANT
-    icon: image ? (
-      <img src={URL.createObjectURL(image)} width="25" />
-    ) : (
-      <FaBook />
-    ),
-    color: editTask
-      ? editTask.color
-      : colors[Math.floor(Math.random() * colors.length)],
-    completed: false,
-  };
-
-  if (editTask) {
-    updatedTasks = updatedTasks.map((t) =>
-      t.id === editTask.id ? newTask : t
-    );
-  } else {
     updatedTasks.push(newTask);
-  }
 
-  setTasks(updatedTasks);
+    setTasksByDate((prev) => ({
+      ...prev,
+      [dateKey]: updatedTasks,
+    }));
 
-  setEditTask(null);
-  setShowModal(false);
-  setTitle("");
-  setFromTime("");
-  setToTime("");
-  setImage(null);
-};
+    setShowModal(false);
+    setTitle("");
+    setFromTime("");
+    setToTime("");
+  };
 
   return (
     <div className="dashboard">
       <Sidebar />
 
       <div className="main">
-        {/* DATE */}
         <div className="date-bar">
           <button onClick={() => changeDate("prev")}>
             <FaChevronLeft />
@@ -233,98 +163,21 @@ if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
           </button>
         </div>
 
-        {/* TASKS */}
-        <div className="task-wrapper">
-          <div className="cards">
-            {tasks.map((task) => (
-              <div
-                className={`card ${task.completed ? "done" : ""}`}
-                key={task.id}
-                style={{ background: task.color }}
-              >
-                <div className="icon-box">{task.icon}</div>
-
-                <div className="card-content">
-                  <h3>{task.title}</h3>
-                  <p>
-  {task.title === "Wake Up"
-    ? task.time
-    : `${task.from} - ${task.to} ${
-        task.nextDay ? "(Next Day)" : ""
-      }`}
-</p>
-                </div>
-
-                <div className="actions">
-                  <button onClick={() => handleEdit(task)}>✏️</button>
-                  <button onClick={() => deleteTask(task.id)}>✕</button>
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => toggleTask(task.id)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <button
-            className="fab-inside"
-            onClick={() => setShowModal(true)}
-          >
-            +
-          </button>
+        <div className="cards">
+          {tasks.map((task) => (
+            <div key={task.id} style={{ background: task.color }}>
+              <h3>{task.title}</h3>
+              <p>
+                {task.title === "Wake Up"
+                  ? task.time
+                  : `${task.from} - ${task.to} ${
+                      task.nextDay ? "(Next Day)" : ""
+                    }`}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* MODAL */}
-      {showModal && (
-        <div className="modal">
-          <div className="modal-box">
-            <h2>{editTask ? "Edit Task" : "Add New Task"}</h2>
-
-            <div className="input-group">
-              <label>Task Title</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-
-            <div className="input-group">
-              <label>From Time</label>
-              <input
-                type="time"
-                value={fromTime}
-                onChange={(e) => setFromTime(e.target.value)}
-              />
-
-              <label>To Time</label>
-              <input
-                type="time"
-                value={toTime}
-                onChange={(e) => setToTime(e.target.value)}
-              />
-            </div>
-
-            <div className="input-group">
-              <label>Upload Icon</label>
-              <input
-                type="file"
-                onChange={(e) => setImage(e.target.files[0])}
-              />
-            </div>
-
-            <div className="modal-actions">
-              <button onClick={() => setShowModal(false)}>Cancel</button>
-              <button onClick={handleAddTask}>
-                {editTask ? "Update" : "Add"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
