@@ -144,11 +144,11 @@
 /* 🔥 ROUND + BUTTON */
 .fab-inside {
   position: absolute;
-  bottom: 30px;
-  right: 50px;
+  bottom: 20px;
+  right: 70px;
 
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
 
   border-radius: 50%;
   border: none;
@@ -156,7 +156,7 @@
   background: linear-gradient(135deg, #6c63ff, #5a54e6);
   color: white;
 
-  font-size: 20px;
+  font-size: 30px;
   font-weight: bold;
 
   cursor: pointer;
