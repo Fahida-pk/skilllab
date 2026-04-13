@@ -253,13 +253,11 @@ function Dashboard() {
     setImage(null);
   };
 
-
   return (
     <div className="dashboard">
       <Sidebar />
 
       <div className="main">
-        {/* DATE */}
         <div className="date-bar">
           <button onClick={() => changeDate("prev")}>
             <FaChevronLeft />
@@ -272,7 +270,6 @@ function Dashboard() {
           </button>
         </div>
 
-        {/* TASKS */}
         <div className="task-wrapper">
           <div className="cards">
             {tasks.map((task) => (
@@ -286,12 +283,12 @@ function Dashboard() {
                 <div className="card-content">
                   <h3>{task.title}</h3>
                   <p>
-  {task.title === "Wake Up"
-    ? task.time
-    : `${task.from} - ${task.to} ${
-        task.nextDay ? "(Next Day)" : ""
-      }`}
-</p>
+                    {task.title === "Wake Up"
+                      ? task.time
+                      : `${task.from} - ${task.to} ${
+                          task.nextDay ? "(Next Day)" : ""
+                        }`}
+                  </p>
                 </div>
 
                 <div className="actions">
@@ -316,7 +313,6 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* MODAL */}
       {showModal && (
         <div className="modal">
           <div className="modal-box">
