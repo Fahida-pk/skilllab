@@ -23,14 +23,56 @@ function Dashboard() {
   const API_URL = "https://zyntaweb.com/api/tasks.php";
   const token = localStorage.getItem("token");
 
-  // ✅ DATE KEY
   const getDateKey = (d) => d.toISOString().split("T")[0];
   const currentKey = getDateKey(date);
 
-  // ✅ TASK STATE
   const [tasks, setTasks] = useState([]);
 
-  // 🔥 FETCH TASKS FROM BACKEND
+  // ✅ DEFAULT TASKS (FRONTEND ONLY)
+  const defaultTasks = [
+    {
+      id: 1,
+      title: "Wake Up",
+      time: "5:00 AM",
+      color: "linear-gradient(135deg, #f6d365, #fda085)",
+      completed: false,
+    },
+    {
+      id: 2,
+      title: "Study MERN",
+      from: "5:00 AM",
+      to: "10:00 AM",
+      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+      completed: false,
+    },
+    {
+      id: 3,
+      title: "Practice English",
+      from: "1:00 PM",
+      to: "4:00 PM",
+      color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+      completed: false,
+    },
+    {
+      id: 4,
+      title: "Workout",
+      from: "6:00 PM",
+      to: "7:00 PM",
+      color: "linear-gradient(135deg, #fccb90, #d57eeb)",
+      completed: false,
+    },
+    {
+      id: 5,
+      title: "Sleep",
+      from: "10:00 PM",
+      to: "5:00 AM",
+      color: "linear-gradient(135deg, #141e30, #243b55)",
+      completed: false,
+      nextDay: true,
+    },
+  ];
+
+  // 🔥 FETCH
   useEffect(() => {
     fetchTasks();
   }, [date]);
@@ -49,19 +91,14 @@ function Dashboard() {
     const data = await res.json();
 
     if (data.success) {
-      setTasks(data.tasks);
+      if (data.tasks.length === 0) {
+        setTasks(defaultTasks); // ✅ default show
+      } else {
+        setTasks(data.tasks); // ✅ DB data
+      }
     }
   };
 
-  // 🔥 CHECK NEXT DAY
-  const isNextDay = (from, to) => {
-    if (!from || !to) return false;
-    const f = new Date(`2024-01-01 ${from}`);
-    const t = new Date(`2024-01-01 ${to}`);
-    return t <= f;
-  };
-
-  // FORMAT TIME
   const formatTime = (t) => {
     if (!t) return "";
     const [hour, minute] = t.split(":");
@@ -89,7 +126,6 @@ function Dashboard() {
     }
   };
 
-  // DATE CHANGE
   const changeDate = (type) => {
     const newDate = new Date(date);
     type === "prev"
@@ -98,7 +134,7 @@ function Dashboard() {
     setDate(newDate);
   };
 
-  // DELETE
+  // ✅ DELETE (DB only)
   const deleteTask = async (id) => {
     await fetch(API_URL, {
       method: "POST",
@@ -113,7 +149,7 @@ function Dashboard() {
     fetchTasks();
   };
 
-  // TOGGLE (local only UI)
+  // ✅ TOGGLE (UI only)
   const toggleTask = (id) => {
     const updated = tasks.map((t) =>
       t.id === id ? { ...t, completed: !t.completed } : t
@@ -131,15 +167,15 @@ function Dashboard() {
     setToTime(convertToInputTime(task.to));
   };
 
-  // ADD / UPDATE
+  // ✅ ADD / UPDATE
   const handleAddTask = async () => {
     if (!title || !fromTime) return;
 
     const formattedFrom = formatTime(fromTime);
     const formattedTo = toTime ? formatTime(toTime) : "";
 
-    if (editTask) {
-      // UPDATE
+    if (editTask && !editTask.isDefault) {
+      // UPDATE DB
       await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -153,7 +189,7 @@ function Dashboard() {
         }),
       });
     } else {
-      // ADD
+      // ADD NEW
       await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -177,6 +213,7 @@ function Dashboard() {
     setToTime("");
     setImage(null);
   };
+
 
   return (
     <div className="dashboard">
@@ -203,14 +240,21 @@ function Dashboard() {
                 key={task.id}
                 style={{ background: task.color }}
               >
-                <div className="icon-box">
-                  <FaBook />
-                </div>
-
+<div className="icon-box">
+  {task.icon === "book" ? (
+    <FaBook />
+  ) : typeof task.icon === "string" ? (
+    <img src={task.icon} width="25" />
+  ) : null}
+</div>
                 <div className="card-content">
                   <h3>{task.title}</h3>
                   <p>
-                    {task.from} - {task.to}
+                    {task.title === "Wake Up"
+                      ? task.time
+                      : `${task.from} - ${task.to} ${
+                          task.nextDay ? "(Next Day)" : ""
+                        }`}
                   </p>
                 </div>
 
@@ -263,6 +307,14 @@ function Dashboard() {
                 type="time"
                 value={toTime}
                 onChange={(e) => setToTime(e.target.value)}
+              />
+            </div>
+
+            <div className="input-group">
+              <label>Upload Icon</label>
+              <input
+                type="file"
+                onChange={(e) => setImage(e.target.files[0])}
               />
             </div>
 
