@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import "./dashboard.css";
-
+import { useState, useEffect } from "react";
 import {
   FaChevronLeft,
   FaChevronRight,
@@ -75,7 +75,21 @@ const isNextDay = (from, to) => {
       completed: false,
     },
   ]);
+useEffect(() => {
+  const nextWake = localStorage.getItem("nextWakeUp");
 
+  if (nextWake) {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.title === "Wake Up"
+          ? { ...t, time: nextWake }
+          : t
+      )
+    );
+
+    localStorage.removeItem("nextWakeUp");
+  }
+}, [date]);
   // 🔥 FORMAT TIME
   const formatTime = (t) => {
     if (!t) return "";
@@ -158,14 +172,10 @@ const handleAddTask = () => {
   const nextDay = isNextDay(fromTime, toTime);
 
   // 🔥 Sleep → update Wake Up (ALWAYS correct)
-  if (title.toLowerCase().includes("sleep") && formattedTo) {
-    updatedTasks = updatedTasks.map((t) =>
-      t.title === "Wake Up"
-        ? { ...t, time: formattedTo }
-        : t
-    );
-  }
-
+// 🔥 Sleep → update ONLY next day Wake Up
+if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
+  localStorage.setItem("nextWakeUp", formattedTo);
+}
   const newTask = {
     id: editTask ? editTask.id : Date.now(),
     title,
