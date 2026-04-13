@@ -188,52 +188,66 @@ function Dashboard() {
   // ADD / UPDATE (DB + UI)
   // =========================
   const handleAddTask = async () => {
-    if (!title || !fromTime) return;
+  if (!title || !fromTime) return;
 
-    const formattedFrom = formatTime(fromTime);
-    const formattedTo = toTime ? formatTime(toTime) : "";
+  const formattedFrom = formatTime(fromTime);
+  const formattedTo = toTime ? formatTime(toTime) : "";
 
-    await fetch("https://zyntaweb.com/skilllab/dashboard.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token: localStorage.getItem("token"),
-        action: editTask ? "update" : "add",
-        id: editTask?.id,
-        title,
-        from: formattedFrom,
-        to: formattedTo,
-        task_date: currentKey,
-      }),
-    });
+  const token = localStorage.getItem("token");
 
-    const newTask = {
-      id: editTask ? editTask.id : Date.now(),
+  console.log("TOKEN:", token); // 🔥 DEBUG
+
+  const res = await fetch("https://zyntaweb.com/skilllab/dashboard.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      token,
+      action: editTask ? "update" : "add",
+      id: editTask ? editTask.id : null,
       title,
       from: formattedFrom,
       to: formattedTo,
-      color: "linear-gradient(135deg,#43e97b,#38f9d7)",
-      completed: false,
-    };
+      task_date: currentKey,
+    }),
+  });
 
-    let updated = editTask
-      ? tasks.map((t) => (t.id === editTask.id ? newTask : t))
-      : [...tasks, newTask];
+  const data = await res.json();
+  console.log("ADD RESPONSE:", data);
 
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: updated,
-    }));
+  // ❗ IMPORTANT CHECK
+  if (!data.success) {
+    alert(data.message);
+    return;
+  }
 
-    setEditTask(null);
-    setShowModal(false);
-    setTitle("");
-    setFromTime("");
-    setToTime("");
+  const newTask = {
+    id: editTask ? editTask.id : Date.now(),
+    title,
+    from: formattedFrom,
+    to: formattedTo,
+    color: "linear-gradient(135deg,#43e97b,#38f9d7)",
+    completed: false,
   };
 
+  let updated = editTask
+    ? tasks.map((t) => (t.id === editTask.id ? newTask : t))
+    : [...tasks, newTask];
+
+  setTasksByDate((prev) => ({
+    ...prev,
+    [currentKey]: updated,
+  }));
+
+  setEditTask(null);
+  setShowModal(false);
+  setTitle("");
+  setFromTime("");
+  setToTime("");
+};
+
+    
   return (
     <div className="dashboard">
       <Sidebar />
