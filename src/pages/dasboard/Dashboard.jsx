@@ -6,8 +6,6 @@ import {
   FaChevronRight,
   FaSun,
   FaBook,
-  FaLanguage,
-  FaDumbbell,
 } from "react-icons/fa";
 
 function Dashboard() {
@@ -17,7 +15,6 @@ function Dashboard() {
   const [title, setTitle] = useState("");
   const [fromTime, setFromTime] = useState("");
   const [toTime, setToTime] = useState("");
-  const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
 
   const API_URL = "https://zyntaweb.com/skilllab/dashboard.php";
@@ -28,77 +25,93 @@ function Dashboard() {
 
   const [tasks, setTasks] = useState([]);
 
-  // ✅ DEFAULT TASKS (FRONTEND ONLY)
+  // ✅ DEFAULT TASKS (UI ONLY)
   const defaultTasks = [
     {
       id: 1,
       title: "Wake Up",
-      time: "5:00 AM",
+      time: "5:45 AM",
+      icon: "sun",
       color: "linear-gradient(135deg, #f6d365, #fda085)",
       completed: false,
+      isDefault: true,
     },
     {
       id: 2,
       title: "Study MERN",
       from: "5:00 AM",
       to: "10:00 AM",
+      icon: "book",
       color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
       completed: false,
+      isDefault: true,
     },
     {
       id: 3,
       title: "Practice English",
       from: "1:00 PM",
       to: "4:00 PM",
+      icon: "book",
       color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
       completed: false,
+      isDefault: true,
     },
     {
       id: 4,
       title: "Workout",
       from: "6:00 PM",
       to: "7:00 PM",
+      icon: "book",
       color: "linear-gradient(135deg, #fccb90, #d57eeb)",
       completed: false,
+      isDefault: true,
     },
     {
       id: 5,
       title: "Sleep",
       from: "10:00 PM",
-      to: "5:00 AM",
+      to: "5:20 AM",
+      icon: "moon",
       color: "linear-gradient(135deg, #141e30, #243b55)",
       completed: false,
       nextDay: true,
+      isDefault: true,
     },
   ];
 
-  // 🔥 FETCH
+  // 🔥 FETCH TASKS
   useEffect(() => {
     fetchTasks();
   }, [date]);
 
   const fetchTasks = async () => {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token,
-        action: "get",
-        task_date: currentKey,
-      }),
-    });
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token,
+          action: "get",
+          task_date: currentKey,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.success) {
-      if (data.tasks.length === 0) {
-        setTasks(defaultTasks); // ✅ default show
-      } else {
-        setTasks(data.tasks); // ✅ DB data
+      if (data.success) {
+        if (data.tasks.length === 0) {
+          setTasks(defaultTasks);
+        } else {
+          setTasks(data.tasks);
+        }
       }
+    } catch (err) {
+      console.log("Fetch error:", err);
+      setTasks(defaultTasks);
     }
   };
 
+  // TIME FORMAT
   const formatTime = (t) => {
     if (!t) return "";
     const [hour, minute] = t.split(":");
@@ -134,7 +147,7 @@ function Dashboard() {
     setDate(newDate);
   };
 
-  // ✅ DELETE (DB only)
+  // DELETE
   const deleteTask = async (id) => {
     await fetch(API_URL, {
       method: "POST",
@@ -149,7 +162,7 @@ function Dashboard() {
     fetchTasks();
   };
 
-  // ✅ TOGGLE (UI only)
+  // TOGGLE
   const toggleTask = (id) => {
     const updated = tasks.map((t) =>
       t.id === id ? { ...t, completed: !t.completed } : t
@@ -161,13 +174,12 @@ function Dashboard() {
   const handleEdit = (task) => {
     setShowModal(true);
     setEditTask(task);
-
     setTitle(task.title);
     setFromTime(convertToInputTime(task.from));
     setToTime(convertToInputTime(task.to));
   };
 
-  // ✅ ADD / UPDATE
+  // ADD / UPDATE
   const handleAddTask = async () => {
     if (!title || !fromTime) return;
 
@@ -175,7 +187,6 @@ function Dashboard() {
     const formattedTo = toTime ? formatTime(toTime) : "";
 
     if (editTask && !editTask.isDefault) {
-      // UPDATE DB
       await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -189,7 +200,6 @@ function Dashboard() {
         }),
       });
     } else {
-      // ADD NEW
       await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -211,9 +221,7 @@ function Dashboard() {
     setTitle("");
     setFromTime("");
     setToTime("");
-    setImage(null);
   };
-
 
   return (
     <div className="dashboard">
@@ -240,13 +248,16 @@ function Dashboard() {
                 key={task.id}
                 style={{ background: task.color }}
               >
-<div className="icon-box">
-  {task.icon === "book" ? (
-    <FaBook />
-  ) : typeof task.icon === "string" ? (
-    <img src={task.icon} width="25" />
-  ) : null}
-</div>
+                <div className="icon-box">
+                  {task.icon === "sun" ? (
+                    <FaSun />
+                  ) : task.icon === "book" ? (
+                    <FaBook />
+                  ) : task.icon === "moon" ? (
+                    "🌙"
+                  ) : null}
+                </div>
+
                 <div className="card-content">
                   <h3>{task.title}</h3>
                   <p>
@@ -271,10 +282,7 @@ function Dashboard() {
             ))}
           </div>
 
-          <button
-            className="fab-inside"
-            onClick={() => setShowModal(true)}
-          >
+          <button className="fab-inside" onClick={() => setShowModal(true)}>
             +
           </button>
         </div>
@@ -285,45 +293,28 @@ function Dashboard() {
           <div className="modal-box">
             <h2>{editTask ? "Edit Task" : "Add New Task"}</h2>
 
-            <div className="input-group">
-              <label>Task Title</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Task Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
 
-            <div className="input-group">
-              <label>From Time</label>
-              <input
-                type="time"
-                value={fromTime}
-                onChange={(e) => setFromTime(e.target.value)}
-              />
+            <input
+              type="time"
+              value={fromTime}
+              onChange={(e) => setFromTime(e.target.value)}
+            />
 
-              <label>To Time</label>
-              <input
-                type="time"
-                value={toTime}
-                onChange={(e) => setToTime(e.target.value)}
-              />
-            </div>
+            <input
+              type="time"
+              value={toTime}
+              onChange={(e) => setToTime(e.target.value)}
+            />
 
-            <div className="input-group">
-              <label>Upload Icon</label>
-              <input
-                type="file"
-                onChange={(e) => setImage(e.target.files[0])}
-              />
-            </div>
-
-            <div className="modal-actions">
-              <button onClick={() => setShowModal(false)}>Cancel</button>
-              <button onClick={handleAddTask}>
-                {editTask ? "Update" : "Add"}
-              </button>
-            </div>
+            <button onClick={handleAddTask}>
+              {editTask ? "Update" : "Add"}
+            </button>
           </div>
         </div>
       )}
