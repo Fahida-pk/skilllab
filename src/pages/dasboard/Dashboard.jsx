@@ -247,9 +247,9 @@ function Dashboard() {
                 style={{ background: task.color }}
               >
                 <div className="icon-box">
-                  {task.icon?.startsWith("blob:")
-                    ? <img src={task.icon} width="25" />
-                    : getIcon(task.icon)}
+                  {typeof task.icon === "string" && task.icon.startsWith("blob:")
+  ? <img src={task.icon} width="25" />
+  : getIcon(task.icon)}
                 </div>
 
                 <div className="card-content">
