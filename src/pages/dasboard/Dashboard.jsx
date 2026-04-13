@@ -53,12 +53,13 @@ function Dashboard() {
       completed: false,
     },
     {
-  id: 5,
-  title: "Sleep",
-  icon: "🌙",
-  color: "linear-gradient(135deg, #141e30, #243b55)",
-  completed: false,
-},
+      id: 5,
+      title: "Sleep",
+      time: "10 PM", // ✅ ADD THIS
+      icon: "🌙",
+      color: "linear-gradient(135deg, #141e30, #243b55)",
+      completed: false,
+    }
   ]);
 
   // DATE CHANGE
@@ -69,7 +70,7 @@ function Dashboard() {
       : newDate.setDate(date.getDate() + 1);
     setDate(newDate);
   };
-
+const wakeUpTime = tasks.find(t => t.title === "Wake Up")?.time;
   // DELETE
   const deleteTask = (id) => {
     setTasks(tasks.filter((t) => t.id !== id));
@@ -161,11 +162,11 @@ function Dashboard() {
 
                 <div className="card-content">
                   <h3>{task.title}</h3>
-                <p>
+           <p>
   {task.title === "Wake Up"
     ? task.time
     : task.title === "Sleep"
-    ? `10 PM - ${tasks.find(t => t.title === "Wake Up")?.time}`
+    ? `${task.time} - ${tasks.find(t => t.title === "Wake Up")?.time}`
     : `${getPreviousTaskTime(task.id)} - ${task.time}`}
 </p>
                 </div>
