@@ -25,8 +25,10 @@ function Dashboard() {
   const currentKey = getDateKey(date);
 
   // ✅ DATE-WISE TASKS
-  const [tasksByDate, setTasksByDate] = useState({});
-
+const [tasksByDate, setTasksByDate] = useState(() => {
+  const saved = localStorage.getItem("tasksByDate");
+  return saved ? JSON.parse(saved) : {};
+});
   const tasks = tasksByDate[currentKey] || [];
 
   // ✅ DEFAULT TASKS LOAD
@@ -84,7 +86,9 @@ function Dashboard() {
       }));
     }
   }, [date]);
-
+useEffect(() => {
+  localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
+}, [tasksByDate]);
   // 🔥 CHECK NEXT DAY
   const isNextDay = (from, to) => {
     if (!from || !to) return false;
