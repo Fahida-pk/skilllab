@@ -20,6 +20,7 @@ function Dashboard() {
   const [image, setImage] = useState(null);
 const [fromTime, setFromTime] = useState("");
 const [toTime, setToTime] = useState("");
+const [editTask, setEditTask] = useState(null);
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -32,7 +33,8 @@ const [toTime, setToTime] = useState("");
     {
       id: 2,
       title: "Study MERN",
-      time: "10 AM",
+       from: "5 AM",
+  to: "10 AM",
       icon: <FaBook />,
       color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
       completed: false,
@@ -40,7 +42,8 @@ const [toTime, setToTime] = useState("");
     {
       id: 3,
       title: "Practice English",
-      time: "3 PM",
+      from: "1 PM",
+      to: "4 PM",
       icon: <FaLanguage />,
       color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
       completed: false,
@@ -48,7 +51,8 @@ const [toTime, setToTime] = useState("");
     {
       id: 4,
       title: "Workout",
-      time: "6 PM",
+      from: "6 PM",
+      to: "7 PM",
       icon: <FaDumbbell />,
       color: "linear-gradient(135deg, #fccb90, #d57eeb)",
       completed: false,
@@ -56,7 +60,8 @@ const [toTime, setToTime] = useState("");
     {
       id: 5,
       title: "Sleep",
-      time: "10 PM", // ✅ ADD THIS
+      from: "10 PM",
+      to: "5 AM",
       icon: "🌙",
       color: "linear-gradient(135deg, #141e30, #243b55)",
       completed: false,
@@ -92,7 +97,14 @@ const wakeUpTime = tasks.find(t => t.title === "Wake Up")?.time;
       )
     );
   };
+const handleEdit = (task) => {
+  setShowModal(true);
+  setEditTask(task);
 
+  setTitle(task.title);
+  setFromTime(task.from || "");
+  setToTime(task.to || "");
+};
   // ADD TASK
   const handleAddTask = () => {
   if (!title || !fromTime) return;
@@ -173,24 +185,26 @@ const wakeUpTime = tasks.find(t => t.title === "Wake Up")?.time;
 
                 <div className="card-content">
                   <h3>{task.title}</h3>
-           <p>
+          <p>
   {task.title === "Wake Up"
     ? task.time
     : task.title === "Sleep"
-    ? `${task.time} - ${tasks.find(t => t.title === "Wake Up")?.time}`
-    : `${task.from} - ${task.to}`}
+    ? `${task.from || task.time} - ${wakeUpTime}`
+    : `${task.from || ""} - ${task.to || ""}`}
 </p>
                 </div>
 
-                <div className="actions">
-                  <button onClick={() => deleteTask(task.id)}>✕</button>
+              <div className="actions">
+  <button onClick={() => handleEdit(task)}>✏️</button>
 
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => toggleTask(task.id)}
-                  />
-                </div>
+  <button onClick={() => deleteTask(task.id)}>✕</button>
+
+  <input
+    type="checkbox"
+    checked={task.completed}
+    onChange={() => toggleTask(task.id)}
+  />
+</div>
               </div>
             ))}
           </div>
