@@ -251,44 +251,99 @@ function Dashboard() {
           </button>
         </div>
 
-        <div className="cards">
-          {tasks.map((task) => (
-            <div
-              key={task.id}
-              className={`card ${task.completed ? "done" : ""}`}
-              style={{ background: task.color }}
-            >
-              <h3>{task.title}</h3>
-              <p>
-                {task.title === "Wake Up"
-                  ? task.time
-                  : `${task.from} - ${task.to}`}
-              </p>
+        <div className="task-wrapper">
+          <div className="cards">
+            {tasks.map((task) => (
+              <div
+                className={`card ${task.completed ? "done" : ""}`}
+                key={task.id}
+                style={{ background: task.color }}
+              >
+<div className="icon-box">
+  {task.icon === "book" ? (
+    <FaBook />
+  ) : typeof task.icon === "string" ? (
+    <img src={task.icon} width="25" />
+  ) : null}
+</div>
+                <div className="card-content">
+                  <h3>{task.title}</h3>
+                  <p>
+                    {task.title === "Wake Up"
+                      ? task.time
+                      : `${task.from} - ${task.to} ${
+                          task.nextDay ? "(Next Day)" : ""
+                        }`}
+                  </p>
+                </div>
 
-              <button onClick={() => handleEdit(task)}>✏️</button>
-              <button onClick={() => deleteTask(task.id)}>✕</button>
+                <div className="actions">
+                  <button onClick={() => handleEdit(task)}>✏️</button>
+                  <button onClick={() => deleteTask(task.id)}>✕</button>
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => toggleTask(task.id)}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
 
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => toggleTask(task.id)}
-              />
-            </div>
-          ))}
+          <button
+            className="fab-inside"
+            onClick={() => setShowModal(true)}
+          >
+            +
+          </button>
         </div>
-
-        <button onClick={() => setShowModal(true)}>+</button>
       </div>
 
       {showModal && (
         <div className="modal">
-          <input value={title} onChange={(e) => setTitle(e.target.value)} />
-          <input type="time" value={fromTime} onChange={(e) => setFromTime(e.target.value)} />
-          <input type="time" value={toTime} onChange={(e) => setToTime(e.target.value)} />
+          <div className="modal-box">
+            <h2>{editTask ? "Edit Task" : "Add New Task"}</h2>
 
-          <button onClick={handleAddTask}>
-            {editTask ? "Update" : "Add"}
-          </button>
+            <div className="input-group">
+              <label>Task Title</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+
+            <div className="input-group">
+              <label>From Time</label>
+              <input
+                type="time"
+                value={fromTime}
+                onChange={(e) => setFromTime(e.target.value)}
+              />
+
+              <label>To Time</label>
+              <input
+                type="time"
+                value={toTime}
+                onChange={(e) => setToTime(e.target.value)}
+              />
+            </div>
+
+            <div className="input-group">
+              <label>Upload Icon</label>
+              <input
+                type="file"
+                onChange={(e) => setImage(e.target.files[0])}
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button onClick={handleAddTask}>
+                {editTask ? "Update" : "Add"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
