@@ -144,3 +144,29 @@ body, html {
     left: 0;          /* 🔥 slide in */
   }
 }
+/* DESKTOP */
+.sidebar {
+  position: relative;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  transition: 0.3s ease;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;   /* 🔥 FULLY HIDE */
+    width: 75%;    /* 🔥 reduce from 80% */
+    height: 100vh;
+
+    z-index: 1000;
+  }
+
+  .sidebar.show {
+    left: 0;
+  }
+}

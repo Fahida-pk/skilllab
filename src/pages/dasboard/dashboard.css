@@ -297,3 +297,14 @@
     overflow-y: visible; /* ✅ remove inner scroll */
   }
 }
+@media (max-width: 768px) {
+  .dashboard {
+    display: block;
+  }
+
+  .main {
+    width: 100%;
+    margin-left: 0;
+    align-items: stretch;
+  }
+}
