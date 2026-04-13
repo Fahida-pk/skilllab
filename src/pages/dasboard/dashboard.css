@@ -284,27 +284,26 @@
 @media (max-width: 768px) {
   .dashboard {
     display: block;
+    min-height: 100vh;
   }
 
   .main {
-    align-items: stretch; /* 🔥 center remove */
+    align-items: stretch;
   }
 
   .task-wrapper {
     width: 100%;
     height: auto;
-    border-radius: 0; /* optional */
+    border-radius: 0;
   }
 
   .cards {
-  flex: 1;
-  overflow-y: auto; /* ✅ correct */
-}
+    overflow-y: auto; /* ✅ FIX */
+  }
 
-.fab-inside {
-  position: fixed; /* 🔥 important */
-
-  bottom: 20px;
-  right: 70px;
-}
+  .fab-inside {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+  }
 }
