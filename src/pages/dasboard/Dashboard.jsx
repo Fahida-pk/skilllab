@@ -29,7 +29,7 @@ const isNextDay = (from, to) => {
 
   return t <= f; // 🔥 key logic
 };
-  const [tasksByDate, setTasksByDate] = useState([
+  const [tasks, setTasks] = useState([
     {
       id: 1,
       title: "Wake Up",
