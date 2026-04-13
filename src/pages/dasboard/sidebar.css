@@ -170,3 +170,11 @@ body, html {
     left: 0;
   }
 }
+@media (max-width: 768px) {
+
+  .sidebar {
+    overflow-y: auto;   /* 🔥 THIS FIX */
+    -webkit-overflow-scrolling: touch;
+  }
+
+}
