@@ -32,9 +32,9 @@
 
 /* TASK BOX */
 .task-wrapper {
-  width: 400px;
-  height: 600px;
-
+  width: 100%;        /* 🔥 instead of 400px */
+  max-width: 400px;   /* desktop-il limit */
+  height: auto;       /* 🔥 remove fixed height */
   background: #fff;
   border-radius: 20px;
   padding: 15px;
@@ -281,4 +281,29 @@
   .dashboard {
     display: block;
   }
+}
+@media (max-width: 768px) {
+  .dashboard {
+    display: block;
+  }
+
+  .main {
+    align-items: stretch; /* 🔥 center remove */
+  }
+
+  .task-wrapper {
+    width: 100%;
+    height: auto;
+    border-radius: 0; /* optional */
+  }
+
+  .cards {
+    overflow-y: visible; /* 🔥 scroll issue fix */
+  }
+  .fab-inside {
+  position: fixed; /* 🔥 important */
+
+  bottom: 20px;
+  right: 20px;
+}
 }
