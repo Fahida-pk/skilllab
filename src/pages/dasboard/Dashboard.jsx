@@ -134,14 +134,21 @@ function Dashboard() {
   };
 
   // EDIT
-  const handleEdit = (task) => {
-    setShowModal(true);
-    setEditTask(task);
+const handleEdit = (task) => {
+  setShowModal(true);
+  setEditTask(task);
 
-    setTitle(task.title);
-    setFromTime(convertToInputTime(task.from));
+  setTitle(task.title);
+  setFromTime(convertToInputTime(task.from));
+
+  // 🔥 FIX: Sleep → auto set wake up time
+  if (task.title.toLowerCase().includes("sleep")) {
+    const wake = tasks.find(t => t.title === "Wake Up");
+    setToTime(convertToInputTime(wake?.time));
+  } else {
     setToTime(convertToInputTime(task.to));
-  };
+  }
+};
 
   // ADD + UPDATE
   const handleAddTask = () => {
@@ -278,12 +285,12 @@ function Dashboard() {
               />
 
               <label>To Time</label>
-              <input
-                type="time"
-                value={toTime}
-                onChange={(e) => setToTime(e.target.value)}
-                disabled={title.toLowerCase().includes("sleep")}
-              />
+          <input
+  type="time"
+  value={toTime}
+  onChange={(e) => setToTime(e.target.value)}
+  disabled={title.toLowerCase().includes("sleep")}
+/>
             </div>
 
             <div className="input-group">
