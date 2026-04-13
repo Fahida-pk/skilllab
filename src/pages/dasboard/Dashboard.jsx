@@ -19,106 +19,85 @@ function Dashboard() {
   const [toTime, setToTime] = useState("");
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
+// 🔥 CHECK NEXT DAY
+const isNextDay = (from, to) => {
+  if (!from || !to) return false;
 
-  // 🔥 ICON RENDER FUNCTION
-  const getIcon = (icon) => {
-    switch (icon) {
-      case "sun":
-        return <FaSun />;
-      case "book":
-        return <FaBook />;
-      case "language":
-        return <FaLanguage />;
-      case "gym":
-        return <FaDumbbell />;
-      case "sleep":
-        return "🌙";
-      default:
-        return <FaBook />;
-    }
-  };
+  const f = new Date(`2024-01-01 ${from}`);
+  const t = new Date(`2024-01-01 ${to}`);
 
-  // 🔥 CHECK NEXT DAY
-  const isNextDay = (from, to) => {
-    if (!from || !to) return false;
-    const f = new Date(`2024-01-01 ${from}`);
-    const t = new Date(`2024-01-01 ${to}`);
-    return t <= f;
-  };
+  return t <= f; // 🔥 key logic
+};
 
-  // 🔥 TASK STATE
   const [tasks, setTasks] = useState(() => {
-    const saved = localStorage.getItem("tasks");
-    return saved
-      ? JSON.parse(saved)
-      : [
-          {
-            id: 1,
-            title: "Wake Up",
-            time: "5:00 AM",
-            icon: "sun",
-            color: "linear-gradient(135deg, #f6d365, #fda085)",
-            completed: false,
-          },
-          {
-            id: 2,
-            title: "Study MERN",
-            from: "5:00 AM",
-            to: "10:00 AM",
-            icon: "book",
-            color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-            completed: false,
-          },
-          {
-            id: 3,
-            title: "Practice English",
-            from: "1:00 PM",
-            to: "4:00 PM",
-            icon: "language",
-            color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-            completed: false,
-          },
-          {
-            id: 4,
-            title: "Workout",
-            from: "6:00 PM",
-            to: "7:00 PM",
-            icon: "gym",
-            color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-            completed: false,
-          },
-          {
-            id: 5,
-            title: "Sleep",
-            from: "10:00 PM",
-            to: "5:00 AM",
-            icon: "sleep",
-            color: "linear-gradient(135deg, #141e30, #243b55)",
-            completed: false,
-          },
-        ];
-  });
+  const saved = localStorage.getItem("tasks");
+  return saved ? JSON.parse(saved) : [
+    {
+      id: 1,
+      title: "Wake Up",
+      time: "5 AM",
+      icon: <FaSun />,
+      color: "linear-gradient(135deg, #f6d365, #fda085)",
+      completed: false,
+    },
+    {
+      id: 2,
+      title: "Study MERN",
+      from: "5 AM",
+      to: "10 AM",
+      icon: <FaBook />,
+      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+      completed: false,
+    },
+    {
+      id: 3,
+      title: "Practice English",
+      from: "1 PM",
+      to: "4 PM",
+      icon: <FaLanguage />,
+      color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+      completed: false,
+    },
+    {
+      id: 4,
+      title: "Workout",
+      from: "6 PM",
+      to: "7 PM",
+      icon: <FaDumbbell />,
+      color: "linear-gradient(135deg, #fccb90, #d57eeb)",
+      completed: false,
+    },
+    {
+      id: 5,
+      title: "Sleep",
+      from: "10 PM",
+      to: "5 AM",
+      icon: "🌙",
+      color: "linear-gradient(135deg, #141e30, #243b55)",
+      completed: false,
+    },
+  ];
+});
 
-  // SAVE LOCALSTORAGE
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+useEffect(() => {
+  const nextWake = localStorage.getItem("nextWakeUp");
 
-  // WAKE UP UPDATE
-  useEffect(() => {
-    const nextWake = localStorage.getItem("nextWakeUp");
+  if (nextWake) {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.title === "Wake Up"
+          ? { ...t, time: nextWake }
+          : t
+      )
+    );
 
-    if (nextWake) {
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.title === "Wake Up" ? { ...t, time: nextWake } : t
-        )
-      );
-      localStorage.removeItem("nextWakeUp");
-    }
-  }, []);
+    localStorage.removeItem("nextWakeUp");
+  }
+}, []);
 
-  // FORMAT TIME
+    // remove after applying
+   
+  // 🔥 FORMAT TIME
   const formatTime = (t) => {
     if (!t) return "";
     const [hour, minute] = t.split(":");
@@ -129,7 +108,7 @@ function Dashboard() {
     return `${h}:${minute} ${ampm}`;
   };
 
-  // CONVERT INPUT
+  // 🔥 CONVERT FOR EDIT
   const convertToInputTime = (timeStr) => {
     if (!timeStr) return "";
     try {
@@ -147,7 +126,7 @@ function Dashboard() {
     }
   };
 
-  // DATE CHANGE
+  // DATE
   const changeDate = (type) => {
     const newDate = new Date(date);
     type === "prev"
@@ -181,51 +160,70 @@ function Dashboard() {
   };
 
   // ADD / UPDATE
-  const handleAddTask = () => {
-    if (!title || !fromTime) return;
+const handleAddTask = () => {
+  if (!title || !fromTime) return;
 
-    const formattedFrom = formatTime(fromTime);
-    const formattedTo = toTime ? formatTime(toTime) : "";
+  const colors = [
+    "linear-gradient(135deg, #43e97b, #38f9d7)",
+    "linear-gradient(135deg, #fa709a, #fee140)",
+    "linear-gradient(135deg, #30cfd0, #330867)",
+    "linear-gradient(135deg, #f093fb, #f5576c)",
+  ];
 
-    const nextDay = isNextDay(fromTime, toTime);
+  const formattedFrom = formatTime(fromTime);
+  const formattedTo = toTime ? formatTime(toTime) : "";
 
-    // 🔥 Sleep → update next day wake up
-    if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
-      localStorage.setItem("nextWakeUp", formattedTo);
-    }
+  let updatedTasks = [...tasks];
 
-    const newTask = {
-      id: editTask ? editTask.id : Date.now(),
-      title,
-      from: formattedFrom,
-      to: formattedTo,
-      nextDay,
-      icon: image ? URL.createObjectURL(image) : "book",
-      color: editTask
-        ? editTask.color
-        : "linear-gradient(135deg, #43e97b, #38f9d7)",
-      completed: false,
-    };
+  // 🔥 CHECK NEXT DAY
+  const nextDay = isNextDay(fromTime, toTime);
 
-    let updatedTasks = editTask
-      ? tasks.map((t) => (t.id === editTask.id ? newTask : t))
-      : [...tasks, newTask];
-
-    setTasks(updatedTasks);
-
-    setEditTask(null);
-    setShowModal(false);
-    setTitle("");
-    setFromTime("");
-    setToTime("");
-    setImage(null);
+  // 🔥 Sleep → update Wake Up (ALWAYS correct)
+// 🔥 Sleep → update ONLY next day Wake Up
+if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
+  localStorage.setItem("nextWakeUp", formattedTo);
+}
+  const newTask = {
+    id: editTask ? editTask.id : Date.now(),
+    title,
+    from: formattedFrom,
+    to: formattedTo,
+    nextDay, // 🔥 IMPORTANT
+    icon: image ? (
+      <img src={URL.createObjectURL(image)} width="25" />
+    ) : (
+      <FaBook />
+    ),
+    color: editTask
+      ? editTask.color
+      : colors[Math.floor(Math.random() * colors.length)],
+    completed: false,
   };
+
+  if (editTask) {
+    updatedTasks = updatedTasks.map((t) =>
+      t.id === editTask.id ? newTask : t
+    );
+  } else {
+    updatedTasks.push(newTask);
+  }
+
+  setTasks(updatedTasks);
+
+  setEditTask(null);
+  setShowModal(false);
+  setTitle("");
+  setFromTime("");
+  setToTime("");
+  setImage(null);
+};
 
   return (
     <div className="dashboard">
       <Sidebar />
 
       <div className="main">
+        {/* DATE */}
         <div className="date-bar">
           <button onClick={() => changeDate("prev")}>
             <FaChevronLeft />
@@ -238,6 +236,7 @@ function Dashboard() {
           </button>
         </div>
 
+        {/* TASKS */}
         <div className="task-wrapper">
           <div className="cards">
             {tasks.map((task) => (
@@ -246,21 +245,17 @@ function Dashboard() {
                 key={task.id}
                 style={{ background: task.color }}
               >
-                <div className="icon-box">
-                  {typeof task.icon === "string" && task.icon.startsWith("blob:")
-  ? <img src={task.icon} width="25" />
-  : getIcon(task.icon)}
-                </div>
+                <div className="icon-box">{task.icon}</div>
 
                 <div className="card-content">
                   <h3>{task.title}</h3>
                   <p>
-                    {task.title === "Wake Up"
-                      ? task.time
-                      : `${task.from} - ${task.to} ${
-                          task.nextDay ? "(Next Day)" : ""
-                        }`}
-                  </p>
+  {task.title === "Wake Up"
+    ? task.time
+    : `${task.from} - ${task.to} ${
+        task.nextDay ? "(Next Day)" : ""
+      }`}
+</p>
                 </div>
 
                 <div className="actions">
@@ -285,38 +280,51 @@ function Dashboard() {
         </div>
       </div>
 
+      {/* MODAL */}
       {showModal && (
         <div className="modal">
           <div className="modal-box">
-            <h2>{editTask ? "Edit Task" : "Add Task"}</h2>
+            <h2>{editTask ? "Edit Task" : "Add New Task"}</h2>
 
-            <input
-              type="text"
-              placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+            <div className="input-group">
+              <label>Task Title</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
 
-            <input
-              type="time"
-              value={fromTime}
-              onChange={(e) => setFromTime(e.target.value)}
-            />
+            <div className="input-group">
+              <label>From Time</label>
+              <input
+                type="time"
+                value={fromTime}
+                onChange={(e) => setFromTime(e.target.value)}
+              />
 
-            <input
-              type="time"
-              value={toTime}
-              onChange={(e) => setToTime(e.target.value)}
-            />
+              <label>To Time</label>
+              <input
+                type="time"
+                value={toTime}
+                onChange={(e) => setToTime(e.target.value)}
+              />
+            </div>
 
-            <input
-              type="file"
-              onChange={(e) => setImage(e.target.files[0])}
-            />
+            <div className="input-group">
+              <label>Upload Icon</label>
+              <input
+                type="file"
+                onChange={(e) => setImage(e.target.files[0])}
+              />
+            </div>
 
-            <button onClick={handleAddTask}>
-              {editTask ? "Update" : "Add"}
-            </button>
+            <div className="modal-actions">
+              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button onClick={handleAddTask}>
+                {editTask ? "Update" : "Add"}
+              </button>
+            </div>
           </div>
         </div>
       )}
