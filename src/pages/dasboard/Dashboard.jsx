@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Sidebar from "./Sidebar";
 import "./dashboard.css";
 
@@ -79,32 +79,25 @@ function Dashboard() {
     return `${h}:${minute} ${ampm}`;
   };
 
-  // 🔥 CONVERT FOR INPUT (EDIT)
+  // 🔥 CONVERT FOR EDIT
   const convertToInputTime = (timeStr) => {
-  if (!timeStr) return "";
+    if (!timeStr) return "";
+    try {
+      const [time, modifier] = timeStr.split(" ");
+      let [hours, minutes] = time.split(":");
 
-  try {
-    const [time, modifier] = timeStr.split(" ");
-    let [hours, minutes] = time.split(":");
+      hours = parseInt(hours);
 
-    hours = parseInt(hours);
+      if (modifier === "PM" && hours !== 12) hours += 12;
+      if (modifier === "AM" && hours === 12) hours = 0;
 
-    if (modifier === "PM" && hours !== 12) {
-      hours += 12;
+      return `${hours.toString().padStart(2, "0")}:${minutes}`;
+    } catch {
+      return "";
     }
-    if (modifier === "AM" && hours === 12) {
-      hours = 0;
-    }
+  };
 
-    return `${hours.toString().padStart(2, "0")}:${minutes}`;
-  } catch {
-    return "";
-  }
-};
-  const wakeUpTime = tasks.find((t) => t.title === "Wake Up")?.time;
-
-  
-  // DATE CHANGE
+  // DATE
   const changeDate = (type) => {
     const newDate = new Date(date);
     type === "prev"
@@ -128,93 +121,73 @@ function Dashboard() {
   };
 
   // EDIT
-const handleEdit = (task) => {
-  setShowModal(true);
-  setEditTask(task);
+  const handleEdit = (task) => {
+    setShowModal(true);
+    setEditTask(task);
 
-  setTitle(task.title);
-  setFromTime(convertToInputTime(task.from));
-
-  if (task.title.toLowerCase().includes("sleep")) {
-    const wake = tasks.find((t) => t.title === "Wake Up");
-
-    // 🔥 important fallback
-    if (wake?.time) {
-      setToTime(convertToInputTime(wake.time));
-    } else {
-      setToTime("");
-    }
-  } else {
+    setTitle(task.title);
+    setFromTime(convertToInputTime(task.from));
     setToTime(convertToInputTime(task.to));
-  }
-};
-const isNextDay = (from, to) => {
-  const [fh, fm] = from.split(":").map(Number);
-  const [th, tm] = to.split(":").map(Number);
-
-  return th < fh || (th === fh && tm < fm);
-};
-  // ADD + UPDATE
-const handleAddTask = () => {
-  if (!title || !fromTime) return;
-
-  const colors = [
-    "linear-gradient(135deg, #43e97b, #38f9d7)",
-    "linear-gradient(135deg, #fa709a, #fee140)",
-    "linear-gradient(135deg, #30cfd0, #330867)",
-    "linear-gradient(135deg, #f093fb, #f5576c)",
-  ];
-
-  let formattedTo = toTime ? formatTime(toTime) : "";
-
-if (toTime && isNextDay(fromTime, toTime)) {
-  formattedTo += " (Next Day)";
-}
-
-  let updatedTasks = [...tasks];
-
-  // 🔥 SLEEP → UPDATE WAKE UP
-  if (title.toLowerCase().includes("sleep")) {
-    updatedTasks = updatedTasks.map((t) =>
-      t.title === "Wake Up"
-        ? { ...t, time: formattedTo }
-        : t
-    );
-  }
-
-  const newTask = {
-    id: editTask ? editTask.id : Date.now(),
-    title,
-    from: formattedFrom,
-    to: formattedTo,
-    icon: image ? (
-      <img src={URL.createObjectURL(image)} width="25" />
-    ) : (
-      <FaBook />
-    ),
-    color: editTask
-      ? editTask.color
-      : colors[Math.floor(Math.random() * colors.length)],
-    completed: false,
   };
 
-  if (editTask) {
-    updatedTasks = updatedTasks.map((t) =>
-      t.id === editTask.id ? newTask : t
-    );
-  } else {
-    updatedTasks.push(newTask);
-  }
+  // ADD / UPDATE
+  const handleAddTask = () => {
+    if (!title || !fromTime) return;
 
-  setTasks(updatedTasks);
+    const colors = [
+      "linear-gradient(135deg, #43e97b, #38f9d7)",
+      "linear-gradient(135deg, #fa709a, #fee140)",
+      "linear-gradient(135deg, #30cfd0, #330867)",
+      "linear-gradient(135deg, #f093fb, #f5576c)",
+    ];
 
-  setEditTask(null);
-  setShowModal(false);
-  setTitle("");
-  setFromTime("");
-  setToTime("");
-  setImage(null);
-};
+    const formattedFrom = formatTime(fromTime);
+    const formattedTo = toTime ? formatTime(toTime) : "";
+
+    let updatedTasks = [...tasks];
+
+    // 🔥 Sleep → update Wake Up
+    if (title.toLowerCase().includes("sleep")) {
+      updatedTasks = updatedTasks.map((t) =>
+        t.title === "Wake Up"
+          ? { ...t, time: formattedTo }
+          : t
+      );
+    }
+
+    const newTask = {
+      id: editTask ? editTask.id : Date.now(),
+      title,
+      from: formattedFrom,
+      to: formattedTo,
+      icon: image ? (
+        <img src={URL.createObjectURL(image)} width="25" />
+      ) : (
+        <FaBook />
+      ),
+      color: editTask
+        ? editTask.color
+        : colors[Math.floor(Math.random() * colors.length)],
+      completed: false,
+    };
+
+    if (editTask) {
+      updatedTasks = updatedTasks.map((t) =>
+        t.id === editTask.id ? newTask : t
+      );
+    } else {
+      updatedTasks.push(newTask);
+    }
+
+    setTasks(updatedTasks);
+
+    setEditTask(null);
+    setShowModal(false);
+    setTitle("");
+    setFromTime("");
+    setToTime("");
+    setImage(null);
+  };
 
   return (
     <div className="dashboard">
@@ -250,8 +223,6 @@ if (toTime && isNextDay(fromTime, toTime)) {
                   <p>
                     {task.title === "Wake Up"
                       ? task.time
-                      : task.title.toLowerCase().includes("sleep")
-                      ? `${task.from} - ${task.to}`
                       : `${task.from} - ${task.to}`}
                   </p>
                 </div>
@@ -302,12 +273,11 @@ if (toTime && isNextDay(fromTime, toTime)) {
               />
 
               <label>To Time</label>
-          <input
-  type="time"
-  value={toTime}
-  onChange={(e) => setToTime(e.target.value)}
-  disabled={false}
-/>
+              <input
+                type="time"
+                value={toTime}
+                onChange={(e) => setToTime(e.target.value)}
+              />
             </div>
 
             <div className="input-group">
