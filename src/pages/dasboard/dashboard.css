@@ -288,12 +288,39 @@
   }
 
   .task-wrapper {
+  width: 400px;
+  max-height: 80vh; /* ✅ instead of fixed height */
+  background: #fff;
+  border-radius: 20px;
+  padding: 15px;
+
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+  .cards {
+  flex: 1;
+  overflow-y: auto; /* ✅ scroll here */
+}
+}
+@media (max-width: 768px) {
+  .dashboard {
+    display: block;
+    min-height: 100vh;
+  }
+
+  .task-wrapper {
     width: 100%;
+    max-height: none; /* ✅ remove restriction */
     height: auto;
-    border-radius: 0;
   }
 
   .cards {
-    overflow-y: auto; /* ❌ visible remove, ✅ auto */
+    overflow-y: visible; /* ✅ page scroll handle cheyyum */
+  }
+
+  .main {
+    overflow-y: auto; /* ✅ main scroll */
   }
 }
