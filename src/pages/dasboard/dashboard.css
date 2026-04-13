@@ -276,6 +276,7 @@
 .modal-actions .ok:hover {
   transform: scale(1.05);
 }
+/* FIXED MOBILE */
 @media (max-width: 768px) {
   .dashboard {
     display: block;
@@ -284,43 +285,16 @@
 
   .main {
     align-items: stretch;
-    overflow-y: auto; /* ✅ keep */
-  }
-
-  .task-wrapper {
-  width: 400px;
-  max-height: 80vh; /* ✅ instead of fixed height */
-  background: #fff;
-  border-radius: 20px;
-  padding: 15px;
-
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-  .cards {
-  flex: 1;
-  overflow-y: auto; /* ✅ scroll here */
-}
-}
-@media (max-width: 768px) {
-  .dashboard {
-    display: block;
-    min-height: 100vh;
+    overflow-y: auto; /* ✅ only main scroll */
   }
 
   .task-wrapper {
     width: 100%;
-    max-height: none; /* ✅ remove restriction */
-    height: auto;
+    height: auto; /* ✅ remove fixed height */
+    border-radius: 0;
   }
 
   .cards {
-    overflow-y: visible; /* ✅ page scroll handle cheyyum */
-  }
-
-  .main {
-    overflow-y: auto; /* ✅ main scroll */
+    overflow-y: visible; /* ✅ remove inner scroll */
   }
 }
