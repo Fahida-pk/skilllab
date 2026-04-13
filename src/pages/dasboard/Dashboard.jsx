@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import "./dashboard.css";
 
@@ -16,11 +16,11 @@ function Dashboard() {
 
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
-  const [time, setTime] = useState("");
+  const [fromTime, setFromTime] = useState("");
+  const [toTime, setToTime] = useState("");
   const [image, setImage] = useState(null);
-const [fromTime, setFromTime] = useState("");
-const [toTime, setToTime] = useState("");
-const [editTask, setEditTask] = useState(null);
+  const [editTask, setEditTask] = useState(null);
+
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -33,8 +33,8 @@ const [editTask, setEditTask] = useState(null);
     {
       id: 2,
       title: "Study MERN",
-       from: "5 AM",
-  to: "10 AM",
+      from: "5 AM",
+      to: "10 AM",
       icon: <FaBook />,
       color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
       completed: false,
@@ -65,8 +65,50 @@ const [editTask, setEditTask] = useState(null);
       icon: "🌙",
       color: "linear-gradient(135deg, #141e30, #243b55)",
       completed: false,
-    }
+    },
   ]);
+
+  // 🔥 FORMAT TIME
+  const formatTime = (t) => {
+    if (!t) return "";
+    const [hour, minute] = t.split(":");
+    let h = parseInt(hour);
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12;
+    if (h === 0) h = 12;
+    return `${h}:${minute} ${ampm}`;
+  };
+
+  // 🔥 CONVERT FOR INPUT (EDIT)
+  const convertToInputTime = (timeStr) => {
+    if (!timeStr) return "";
+    const [time, modifier] = timeStr.split(" ");
+    let [hours, minutes] = time.split(":");
+
+    if (modifier === "PM" && hours !== "12") {
+      hours = parseInt(hours) + 12;
+    }
+    if (modifier === "AM" && hours === "12") {
+      hours = "00";
+    }
+
+    return `${hours.toString().padStart(2, "0")}:${minutes}`;
+  };
+
+  const wakeUpTime = tasks.find((t) => t.title === "Wake Up")?.time;
+
+  // 🔥 AUTO UPDATE SLEEP
+  useEffect(() => {
+    if (!wakeUpTime) return;
+
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.title.toLowerCase().includes("sleep")
+          ? { ...t, to: wakeUpTime }
+          : t
+      )
+    );
+  }, [wakeUpTime]);
 
   // DATE CHANGE
   const changeDate = (type) => {
@@ -76,19 +118,12 @@ const [editTask, setEditTask] = useState(null);
       : newDate.setDate(date.getDate() + 1);
     setDate(newDate);
   };
-const wakeUpTime = tasks.find(t => t.title === "Wake Up")?.time;
+
   // DELETE
   const deleteTask = (id) => {
     setTasks(tasks.filter((t) => t.id !== id));
   };
-  const getPreviousTaskTime = (id) => {
-  const index = tasks.findIndex(t => t.id === id);
 
-  // First task (Wake Up)
-  if (index === 0) return tasks[0]?.time;
-
-  return tasks[index - 1]?.time;
-};
   // TOGGLE
   const toggleTask = (id) => {
     setTasks(
@@ -97,62 +132,65 @@ const wakeUpTime = tasks.find(t => t.title === "Wake Up")?.time;
       )
     );
   };
-const handleEdit = (task) => {
-  setShowModal(true);
-  setEditTask(task);
 
-  setTitle(task.title);
-  setFromTime(task.from || "");
-  setToTime(task.to || "");
-};
-  // ADD TASK
-  const handleAddTask = () => {
-  if (!title || !fromTime) return;
+  // EDIT
+  const handleEdit = (task) => {
+    setShowModal(true);
+    setEditTask(task);
 
-  const colors = [
-    "linear-gradient(135deg, #43e97b, #38f9d7)",
-    "linear-gradient(135deg, #fa709a, #fee140)",
-    "linear-gradient(135deg, #30cfd0, #330867)",
-    "linear-gradient(135deg, #f093fb, #f5576c)",
-  ];
-
-  // format time
-  const formatTime = (t) =>
-    new Date(`1970-01-01T${t}`).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-  let finalToTime = toTime;
-
-  // 🔥 Sleep case
-  if (title.toLowerCase() === "sleep" || title.toLowerCase() === "sleeping") {
-    const wakeUp = tasks.find((t) => t.title === "Wake Up");
-    finalToTime = wakeUp?.time; // auto next day
-  }
-
-  const newTask = {
-    id: Date.now(),
-    title,
-    from: formatTime(fromTime),
-    to: finalToTime ? formatTime(finalToTime) : "",
-    icon: image ? (
-      <img src={URL.createObjectURL(image)} width="25" />
-    ) : (
-      <FaBook />
-    ),
-    color: colors[Math.floor(Math.random() * colors.length)],
-    completed: false,
+    setTitle(task.title);
+    setFromTime(convertToInputTime(task.from));
+    setToTime(convertToInputTime(task.to));
   };
 
-  setTasks([...tasks, newTask]);
+  // ADD + UPDATE
+  const handleAddTask = () => {
+    if (!title || !fromTime) return;
 
-  setShowModal(false);
-  setTitle("");
-  setFromTime("");
-  setToTime("");
-  setImage(null);
-};
+    const colors = [
+      "linear-gradient(135deg, #43e97b, #38f9d7)",
+      "linear-gradient(135deg, #fa709a, #fee140)",
+      "linear-gradient(135deg, #30cfd0, #330867)",
+      "linear-gradient(135deg, #f093fb, #f5576c)",
+    ];
+
+    let finalTo = "";
+
+    if (title.toLowerCase().includes("sleep")) {
+      finalTo = wakeUpTime;
+    } else {
+      finalTo = toTime ? formatTime(toTime) : "";
+    }
+
+    const newTask = {
+      id: editTask ? editTask.id : Date.now(),
+      title,
+      from: formatTime(fromTime),
+      to: finalTo,
+      icon: image ? (
+        <img src={URL.createObjectURL(image)} width="25" />
+      ) : (
+        <FaBook />
+      ),
+      color: editTask
+        ? editTask.color
+        : colors[Math.floor(Math.random() * colors.length)],
+      completed: false,
+    };
+
+    if (editTask) {
+      setTasks(tasks.map((t) => (t.id === editTask.id ? newTask : t)));
+    } else {
+      setTasks([...tasks, newTask]);
+    }
+
+    setEditTask(null);
+    setShowModal(false);
+    setTitle("");
+    setFromTime("");
+    setToTime("");
+    setImage(null);
+  };
 
   return (
     <div className="dashboard">
@@ -172,7 +210,7 @@ const handleEdit = (task) => {
           </button>
         </div>
 
-        {/* TASK BOX */}
+        {/* TASKS */}
         <div className="task-wrapper">
           <div className="cards">
             {tasks.map((task) => (
@@ -185,31 +223,28 @@ const handleEdit = (task) => {
 
                 <div className="card-content">
                   <h3>{task.title}</h3>
-          <p>
-  {task.title === "Wake Up"
-    ? task.time
-    : task.title === "Sleep"
-    ? `${task.from || task.time} - ${wakeUpTime}`
-    : `${task.from || ""} - ${task.to || ""}`}
-</p>
+                  <p>
+                    {task.title === "Wake Up"
+                      ? task.time
+                      : task.title.toLowerCase().includes("sleep")
+                      ? `${task.from} - ${wakeUpTime}`
+                      : `${task.from} - ${task.to}`}
+                  </p>
                 </div>
 
-              <div className="actions">
-  <button onClick={() => handleEdit(task)}>✏️</button>
-
-  <button onClick={() => deleteTask(task.id)}>✕</button>
-
-  <input
-    type="checkbox"
-    checked={task.completed}
-    onChange={() => toggleTask(task.id)}
-  />
-</div>
+                <div className="actions">
+                  <button onClick={() => handleEdit(task)}>✏️</button>
+                  <button onClick={() => deleteTask(task.id)}>✕</button>
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => toggleTask(task.id)}
+                  />
+                </div>
               </div>
             ))}
           </div>
 
-          {/* ROUND + BUTTON */}
           <button
             className="fab-inside"
             onClick={() => setShowModal(true)}
@@ -223,26 +258,32 @@ const handleEdit = (task) => {
       {showModal && (
         <div className="modal">
           <div className="modal-box">
-            <h2>Add New Task</h2>
+            <h2>{editTask ? "Edit Task" : "Add New Task"}</h2>
 
             <div className="input-group">
               <label>Task Title</label>
               <input
                 type="text"
-                placeholder="Enter task..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
 
             <div className="input-group">
-              <label>Time</label>
               <label>From Time</label>
-<input type="time" value={fromTime} onChange={(e) => setFromTime(e.target.value)} />
+              <input
+                type="time"
+                value={fromTime}
+                onChange={(e) => setFromTime(e.target.value)}
+              />
 
-<label>To Time</label>
-<input type="time" value={toTime} onChange={(e) => setToTime(e.target.value)} />
-            
+              <label>To Time</label>
+              <input
+                type="time"
+                value={toTime}
+                onChange={(e) => setToTime(e.target.value)}
+                disabled={title.toLowerCase().includes("sleep")}
+              />
             </div>
 
             <div className="input-group">
@@ -254,15 +295,9 @@ const handleEdit = (task) => {
             </div>
 
             <div className="modal-actions">
-              <button
-                className="cancel"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
-
-              <button className="ok" onClick={handleAddTask}>
-                Add Task
+              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button onClick={handleAddTask}>
+                {editTask ? "Update" : "Add"}
               </button>
             </div>
           </div>
