@@ -77,7 +77,11 @@ const isNextDay = (from, to) => {
 useEffect(() => {
   const nextWake = localStorage.getItem("nextWakeUp");
 
-  if (nextWake) {
+  const today = new Date().toDateString();
+  const selectedDate = date.toDateString();
+
+  // Apply only when going to next day
+  if (nextWake && selectedDate !== today) {
     setTasks((prev) =>
       prev.map((t) =>
         t.title === "Wake Up"
@@ -86,6 +90,7 @@ useEffect(() => {
       )
     );
 
+    // remove after applying
     localStorage.removeItem("nextWakeUp");
   }
 }, [date]);
