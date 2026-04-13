@@ -153,7 +153,8 @@
   border-radius: 50%;
   border: none;
 
-  color: white;
+  color: linear-gradient(135deg, #6c63ff, #5a54e6);
+
 
   font-size: 30px;
   font-weight: bold;
