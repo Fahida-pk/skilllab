@@ -297,9 +297,11 @@
   }
 
   .cards {
-    overflow-y: visible; /* 🔥 scroll issue fix */
-  }
-  .fab-inside {
+  flex: 1;
+  overflow-y: auto; /* ✅ correct */
+}
+
+.fab-inside {
   position: fixed; /* 🔥 important */
 
   bottom: 20px;
