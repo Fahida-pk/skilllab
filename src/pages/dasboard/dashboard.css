@@ -1,7 +1,7 @@
 /* LAYOUT */
 .dashboard {
   display: flex;
-  min-height: 100vh; 
+  height: 100vh;
 }
 
 /* MAIN */
@@ -11,9 +11,8 @@
   flex-direction: column;
   align-items: center;
   background: #f4f4f4;
-
-  overflow-y: auto; /* ✅ IMPORTANT */
 }
+
 /* DATE */
 .date-bar {
   margin: 20px;
