@@ -81,20 +81,26 @@ function Dashboard() {
 
   // 🔥 CONVERT FOR INPUT (EDIT)
   const convertToInputTime = (timeStr) => {
-    if (!timeStr) return "";
+  if (!timeStr) return "";
+
+  try {
     const [time, modifier] = timeStr.split(" ");
     let [hours, minutes] = time.split(":");
 
-    if (modifier === "PM" && hours !== "12") {
-      hours = parseInt(hours) + 12;
+    hours = parseInt(hours);
+
+    if (modifier === "PM" && hours !== 12) {
+      hours += 12;
     }
-    if (modifier === "AM" && hours === "12") {
-      hours = "00";
+    if (modifier === "AM" && hours === 12) {
+      hours = 0;
     }
 
     return `${hours.toString().padStart(2, "0")}:${minutes}`;
-  };
-
+  } catch {
+    return "";
+  }
+};
   const wakeUpTime = tasks.find((t) => t.title === "Wake Up")?.time;
 
   // 🔥 AUTO UPDATE SLEEP
@@ -141,10 +147,15 @@ const handleEdit = (task) => {
   setTitle(task.title);
   setFromTime(convertToInputTime(task.from));
 
-  // 🔥 FIX: Sleep → auto set wake up time
   if (task.title.toLowerCase().includes("sleep")) {
-    const wake = tasks.find(t => t.title === "Wake Up");
-    setToTime(convertToInputTime(wake?.time));
+    const wake = tasks.find((t) => t.title === "Wake Up");
+
+    // 🔥 important fallback
+    if (wake?.time) {
+      setToTime(convertToInputTime(wake.time));
+    } else {
+      setToTime("");
+    }
   } else {
     setToTime(convertToInputTime(task.to));
   }
