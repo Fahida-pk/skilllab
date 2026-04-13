@@ -144,8 +144,8 @@
 /* 🔥 ROUND + BUTTON */
 .fab-inside {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  bottom: 30px;
+  right: 50px;
 
   width: 20px;
   height: 20px;
