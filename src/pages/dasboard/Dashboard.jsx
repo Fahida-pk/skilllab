@@ -20,84 +20,85 @@ function Dashboard() {
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
 
-  // ✅ DATE KEY
+  const API_URL = "https://zyntaweb.com/skilllab/dashboard.php";
+  const token = localStorage.getItem("token");
+
   const getDateKey = (d) => d.toISOString().split("T")[0];
   const currentKey = getDateKey(date);
 
-  // ✅ DATE-WISE TASKS
-const [tasksByDate, setTasksByDate] = useState(() => {
-  const saved = localStorage.getItem("tasksByDate");
-  return saved ? JSON.parse(saved) : {};
-});
-  const tasks = tasksByDate[currentKey] || [];
+  const [tasks, setTasks] = useState([]);
 
-  // ✅ DEFAULT TASKS LOAD
+  // ✅ DEFAULT TASKS (FRONTEND ONLY)
+  const defaultTasks = [
+    {
+      id: 1,
+      title: "Wake Up",
+      time: "5:00 AM",
+      color: "linear-gradient(135deg, #f6d365, #fda085)",
+      completed: false,
+    },
+    {
+      id: 2,
+      title: "Study MERN",
+      from: "5:00 AM",
+      to: "10:00 AM",
+      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+      completed: false,
+    },
+    {
+      id: 3,
+      title: "Practice English",
+      from: "1:00 PM",
+      to: "4:00 PM",
+      color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+      completed: false,
+    },
+    {
+      id: 4,
+      title: "Workout",
+      from: "6:00 PM",
+      to: "7:00 PM",
+      color: "linear-gradient(135deg, #fccb90, #d57eeb)",
+      completed: false,
+    },
+    {
+      id: 5,
+      title: "Sleep",
+      from: "10:00 PM",
+      to: "5:00 AM",
+      color: "linear-gradient(135deg, #141e30, #243b55)",
+      completed: false,
+      nextDay: true,
+    },
+  ];
+
+  // 🔥 FETCH
   useEffect(() => {
-    if (!tasksByDate[currentKey]) {
-      setTasksByDate((prev) => ({
-        ...prev,
-        [currentKey]: [
-          {
-            id: 1,
-            title: "Wake Up",
-            time: "5:00 AM",
-            icon: <FaSun />,
-            color: "linear-gradient(135deg, #f6d365, #fda085)",
-            completed: false,
-          },
-          {
-            id: 2,
-            title: "Study MERN",
-            from: "5:00 AM",
-            to: "10:00 AM",
-            icon: <FaBook />,
-            color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-            completed: false,
-          },
-          {
-            id: 3,
-            title: "Practice English",
-            from: "1:00 PM",
-            to: "4:00 PM",
-            icon: <FaLanguage />,
-            color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-            completed: false,
-          },
-          {
-            id: 4,
-            title: "Workout",
-            from: "6:00 PM",
-            to: "7:00 PM",
-            icon: <FaDumbbell />,
-            color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-            completed: false,
-          },
-          {
-            id: 5,
-            title: "Sleep",
-            from: "10:00 PM",
-            to: "5:00 AM",
-            icon: "🌙",
-            color: "linear-gradient(135deg, #141e30, #243b55)",
-            completed: false,
-            nextDay: true,
-          },
-        ],
-      }));
-    }
+    fetchTasks();
   }, [date]);
-useEffect(() => {
-  localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
-}, [tasksByDate]);
-  // 🔥 CHECK NEXT DAY
-  const isNextDay = (from, to) => {
-    if (!from || !to) return false;
-    const f = new Date(`2024-01-01 ${from}`);
-    const t = new Date(`2024-01-01 ${to}`);
-    return t <= f;
+
+  const fetchTasks = async () => {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        action: "get",
+        task_date: currentKey,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      if (data.tasks.length === 0) {
+        setTasks(defaultTasks); // ✅ default show
+      } else {
+        setTasks(data.tasks); // ✅ DB data
+      }
+    }
   };
 
-  // FORMAT TIME
   const formatTime = (t) => {
     if (!t) return "";
     const [hour, minute] = t.split(":");
@@ -125,7 +126,6 @@ useEffect(() => {
     }
   };
 
-  // DATE CHANGE
   const changeDate = (type) => {
     const newDate = new Date(date);
     type === "prev"
@@ -134,26 +134,27 @@ useEffect(() => {
     setDate(newDate);
   };
 
-  // DELETE
-  const deleteTask = (id) => {
-    const updated = tasks.filter((t) => t.id !== id);
+  // ✅ DELETE (DB only)
+  const deleteTask = async (id) => {
+    await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        action: "delete",
+        id,
+      }),
+    });
 
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: updated,
-    }));
+    fetchTasks();
   };
 
-  // TOGGLE
+  // ✅ TOGGLE (UI only)
   const toggleTask = (id) => {
     const updated = tasks.map((t) =>
       t.id === id ? { ...t, completed: !t.completed } : t
     );
-
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: updated,
-    }));
+    setTasks(updated);
   };
 
   // EDIT
@@ -166,84 +167,44 @@ useEffect(() => {
     setToTime(convertToInputTime(task.to));
   };
 
-  // ADD / UPDATE
-  const handleAddTask = () => {
+  // ✅ ADD / UPDATE
+  const handleAddTask = async () => {
     if (!title || !fromTime) return;
-
-    const colors = [
-      "linear-gradient(135deg, #43e97b, #38f9d7)",
-      "linear-gradient(135deg, #fa709a, #fee140)",
-      "linear-gradient(135deg, #30cfd0, #330867)",
-      "linear-gradient(135deg, #f093fb, #f5576c)",
-    ];
 
     const formattedFrom = formatTime(fromTime);
     const formattedTo = toTime ? formatTime(toTime) : "";
 
-    let updatedTasks = [...tasks];
-
-    const nextDay = isNextDay(fromTime, toTime);
-
-    // ✅ Sleep → next day wake update
-    if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
-      const nextDate = new Date(date);
-      nextDate.setDate(date.getDate() + 1);
-
-      const nextKey = getDateKey(nextDate);
-
-      setTasksByDate((prev) => {
-        const nextTasks = prev[nextKey] || [];
-
-        const updatedNextTasks =
-          nextTasks.length > 0
-            ? nextTasks.map((t) =>
-                t.title === "Wake Up"
-                  ? { ...t, time: formattedTo }
-                  : t
-              )
-            : [
-                {
-                  id: 1,
-                  title: "Wake Up",
-                  time: formattedTo,
-                  icon: <FaSun />,
-                  color: "linear-gradient(135deg, #f6d365, #fda085)",
-                  completed: false,
-                },
-              ];
-
-        return {
-          ...prev,
-          [nextKey]: updatedNextTasks,
-        };
+    if (editTask && !editTask.isDefault) {
+      // UPDATE DB
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token,
+          action: "update",
+          id: editTask.id,
+          title,
+          from: formattedFrom,
+          to: formattedTo,
+        }),
+      });
+    } else {
+      // ADD NEW
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token,
+          action: "add",
+          title,
+          from: formattedFrom,
+          to: formattedTo,
+          task_date: currentKey,
+        }),
       });
     }
 
-    const newTask = {
-      id: editTask ? editTask.id : Date.now(),
-      title,
-      from: formattedFrom,
-      to: formattedTo,
-      nextDay,
-      icon: image ? URL.createObjectURL(image) : "book",
-      color: editTask
-        ? editTask.color
-        : colors[Math.floor(Math.random() * colors.length)],
-      completed: false,
-    };
-
-    if (editTask) {
-      updatedTasks = updatedTasks.map((t) =>
-        t.id === editTask.id ? newTask : t
-      );
-    } else {
-      updatedTasks.push(newTask);
-    }
-
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: updatedTasks,
-    }));
+    fetchTasks();
 
     setEditTask(null);
     setShowModal(false);
@@ -252,6 +213,7 @@ useEffect(() => {
     setToTime("");
     setImage(null);
   };
+
 
   return (
     <div className="dashboard">
