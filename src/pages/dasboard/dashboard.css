@@ -143,20 +143,21 @@
 
 /* 🔥 ROUND + BUTTON */
 .fab-inside {
-  position: absolute;
-  bottom: 10px;
+  position: fixed; /* 🔥 change this */
+
+  bottom: 20px;
   right: 20px;
 
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
 
   border-radius: 50%;
   border: none;
 
-  color: linear-gradient(135deg, #6c63ff, #5a54e6);
+  background: linear-gradient(135deg, #6c63ff, #5a54e6); /* ❗ color → background */
+  color: white;
 
-
-  font-size: 30px;
+  font-size: 28px;
   font-weight: bold;
 
   cursor: pointer;
@@ -167,6 +168,12 @@
 
   box-shadow: 0 12px 25px rgba(0,0,0,0.3);
   transition: 0.3s ease;
+
+  z-index: 1000; /* 🔥 always top */
+}
+
+.fab-inside:hover {
+  transform: scale(1.15);
 }
 
 .fab-inside:hover {
