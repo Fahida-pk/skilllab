@@ -225,11 +225,7 @@ useEffect(() => {
       from: formattedFrom,
       to: formattedTo,
       nextDay,
-      icon: image ? (
-        <img src={URL.createObjectURL(image)} width="25" />
-      ) : (
-        <FaBook />
-      ),
+      icon: image ? URL.createObjectURL(image) : "book",
       color: editTask
         ? editTask.color
         : colors[Math.floor(Math.random() * colors.length)],
@@ -282,8 +278,13 @@ useEffect(() => {
                 key={task.id}
                 style={{ background: task.color }}
               >
-                <div className="icon-box">{task.icon}</div>
-
+<div className="icon-box">
+  {task.icon === "book" ? (
+    <FaBook />
+  ) : typeof task.icon === "string" ? (
+    <img src={task.icon} width="25" />
+  ) : null}
+</div>
                 <div className="card-content">
                   <h3>{task.title}</h3>
                   <p>
