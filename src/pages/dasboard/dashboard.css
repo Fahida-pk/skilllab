@@ -278,33 +278,28 @@
 }
 /* FIXED MOBILE */
 @media (max-width: 768px) {
+
   .dashboard {
     display: block;
-  }
-
-  .main {
-    align-items: stretch;
-    overflow-y: auto; /* ✅ only main scroll */
-  }
-
-  .task-wrapper {
-    width: 100%;
-    height: auto; /* ✅ remove fixed height */
-    border-radius: 0;
-  }
-
-  .cards {
-    overflow-y: visible; /* ✅ remove inner scroll */
-  }
-}
-@media (max-width: 768px) {
-  .dashboard {
-    display: block;
+    height: auto; /* 🔥 VERY IMPORTANT */
   }
 
   .main {
     width: 100%;
     margin-left: 0;
     align-items: stretch;
+
+    overflow-y: visible; /* 🔥 FIX */
   }
+
+  .task-wrapper {
+    width: 100%;
+    height: auto; /* already correct */
+    border-radius: 0;
+  }
+
+  .cards {
+    overflow-y: visible; /* already correct */
+  }
+
 }
