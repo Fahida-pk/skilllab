@@ -1,20 +1,20 @@
 /* LAYOUT */
 .dashboard {
   display: flex;
-  min-height: 100vh; 
-}
+  min-height: 100vh;
 
+  overflow: visible; /* ✅ VERY IMPORTANT */
+}
 /* MAIN */
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background: #f4f4f4;
 
   overflow-y: auto;
+  min-height: 0;
 
-  min-height: 0; /* 🔥 THIS IS THE KEY FIX */
+  height: 100vh; /* 🔥 ADD THIS */
 }
 /* DATE */
 .date-bar {
@@ -282,6 +282,11 @@
   transform: scale(1.05);
 }
 /* FIXED MOBILE */
+@media (max-width: 768px) {
+  .main {
+    height: auto; /* ✅ override */
+  }
+}
 @media (max-width: 768px) {
   .main {
     min-height: 0; /* 🔥 MUST */
