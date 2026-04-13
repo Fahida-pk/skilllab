@@ -178,25 +178,7 @@ const handleAddTask = () => {
   // 🔥 Sleep → update Wake Up (ALWAYS correct)
 // 🔥 Sleep → update ONLY next day Wake Up
 if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
-  const nextDate = new Date(date);
-  nextDate.setDate(date.getDate() + 1);
-
-  const nextKey = nextDate.toDateString();
-
-  setTasksByDate((prev) => {
-    const nextDayTasks = prev[nextKey] || getDefaultTasks();
-
-    const updatedNext = nextDayTasks.map((t) =>
-      t.title === "Wake Up"
-        ? { ...t, time: formattedTo }
-        : t
-    );
-
-    return {
-      ...prev,
-      [nextKey]: updatedNext,
-    };
-  });
+  localStorage.setItem("nextWakeUp", formattedTo);
 }
   const newTask = {
     id: editTask ? editTask.id : Date.now(),
