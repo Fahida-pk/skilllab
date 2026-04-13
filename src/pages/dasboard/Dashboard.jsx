@@ -103,19 +103,7 @@ function Dashboard() {
 };
   const wakeUpTime = tasks.find((t) => t.title === "Wake Up")?.time;
 
-  // 🔥 AUTO UPDATE SLEEP
-  useEffect(() => {
-    if (!wakeUpTime) return;
-
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.title.toLowerCase().includes("sleep")
-          ? { ...t, to: wakeUpTime }
-          : t
-      )
-    );
-  }, [wakeUpTime]);
-
+  
   // DATE CHANGE
   const changeDate = (type) => {
     const newDate = new Date(date);
@@ -162,53 +150,63 @@ const handleEdit = (task) => {
 };
 
   // ADD + UPDATE
-  const handleAddTask = () => {
-    if (!title || !fromTime) return;
+const handleAddTask = () => {
+  if (!title || !fromTime) return;
 
-    const colors = [
-      "linear-gradient(135deg, #43e97b, #38f9d7)",
-      "linear-gradient(135deg, #fa709a, #fee140)",
-      "linear-gradient(135deg, #30cfd0, #330867)",
-      "linear-gradient(135deg, #f093fb, #f5576c)",
-    ];
+  const colors = [
+    "linear-gradient(135deg, #43e97b, #38f9d7)",
+    "linear-gradient(135deg, #fa709a, #fee140)",
+    "linear-gradient(135deg, #30cfd0, #330867)",
+    "linear-gradient(135deg, #f093fb, #f5576c)",
+  ];
 
-    let finalTo = "";
+  const formattedFrom = formatTime(fromTime);
+  const formattedTo = toTime ? formatTime(toTime) : "";
 
-    if (title.toLowerCase().includes("sleep")) {
-      finalTo = wakeUpTime;
-    } else {
-      finalTo = toTime ? formatTime(toTime) : "";
-    }
+  let updatedTasks = [...tasks];
 
-    const newTask = {
-      id: editTask ? editTask.id : Date.now(),
-      title,
-      from: formatTime(fromTime),
-      to: finalTo,
-      icon: image ? (
-        <img src={URL.createObjectURL(image)} width="25" />
-      ) : (
-        <FaBook />
-      ),
-      color: editTask
-        ? editTask.color
-        : colors[Math.floor(Math.random() * colors.length)],
-      completed: false,
-    };
+  // 🔥 SLEEP → UPDATE WAKE UP
+  if (title.toLowerCase().includes("sleep")) {
+    updatedTasks = updatedTasks.map((t) =>
+      t.title === "Wake Up"
+        ? { ...t, time: formattedTo }
+        : t
+    );
+  }
 
-    if (editTask) {
-      setTasks(tasks.map((t) => (t.id === editTask.id ? newTask : t)));
-    } else {
-      setTasks([...tasks, newTask]);
-    }
-
-    setEditTask(null);
-    setShowModal(false);
-    setTitle("");
-    setFromTime("");
-    setToTime("");
-    setImage(null);
+  const newTask = {
+    id: editTask ? editTask.id : Date.now(),
+    title,
+    from: formattedFrom,
+    to: formattedTo,
+    icon: image ? (
+      <img src={URL.createObjectURL(image)} width="25" />
+    ) : (
+      <FaBook />
+    ),
+    color: editTask
+      ? editTask.color
+      : colors[Math.floor(Math.random() * colors.length)],
+    completed: false,
   };
+
+  if (editTask) {
+    updatedTasks = updatedTasks.map((t) =>
+      t.id === editTask.id ? newTask : t
+    );
+  } else {
+    updatedTasks.push(newTask);
+  }
+
+  setTasks(updatedTasks);
+
+  setEditTask(null);
+  setShowModal(false);
+  setTitle("");
+  setFromTime("");
+  setToTime("");
+  setImage(null);
+};
 
   return (
     <div className="dashboard">
@@ -245,7 +243,7 @@ const handleEdit = (task) => {
                     {task.title === "Wake Up"
                       ? task.time
                       : task.title.toLowerCase().includes("sleep")
-                      ? `${task.from} - ${wakeUpTime}`
+                      ? `${task.from} - ${task.to}`
                       : `${task.from} - ${task.to}`}
                   </p>
                 </div>
@@ -300,7 +298,7 @@ const handleEdit = (task) => {
   type="time"
   value={toTime}
   onChange={(e) => setToTime(e.target.value)}
-  disabled={title.toLowerCase().includes("sleep")}
+  disabled={false}
 />
             </div>
 
