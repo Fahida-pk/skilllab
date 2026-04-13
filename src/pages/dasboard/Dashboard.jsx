@@ -148,7 +148,12 @@ const handleEdit = (task) => {
     setToTime(convertToInputTime(task.to));
   }
 };
+const isNextDay = (from, to) => {
+  const [fh, fm] = from.split(":").map(Number);
+  const [th, tm] = to.split(":").map(Number);
 
+  return th < fh || (th === fh && tm < fm);
+};
   // ADD + UPDATE
 const handleAddTask = () => {
   if (!title || !fromTime) return;
@@ -160,8 +165,11 @@ const handleAddTask = () => {
     "linear-gradient(135deg, #f093fb, #f5576c)",
   ];
 
-  const formattedFrom = formatTime(fromTime);
-  const formattedTo = toTime ? formatTime(toTime) : "";
+  let formattedTo = toTime ? formatTime(toTime) : "";
+
+if (toTime && isNextDay(fromTime, toTime)) {
+  formattedTo += " (Next Day)";
+}
 
   let updatedTasks = [...tasks];
 
