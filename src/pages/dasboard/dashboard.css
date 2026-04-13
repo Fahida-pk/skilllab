@@ -34,7 +34,6 @@
 .task-wrapper {
   width: 100%;        /* 🔥 instead of 400px */
   max-width: 400px;   /* desktop-il limit */
-  height: auto;       /* 🔥 remove fixed height */
   background: #fff;
   border-radius: 20px;
   padding: 15px;
