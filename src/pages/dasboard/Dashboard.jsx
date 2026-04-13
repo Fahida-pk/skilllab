@@ -28,7 +28,9 @@ const isNextDay = (from, to) => {
 
   return t <= f; // 🔥 key logic
 };
-
+useEffect(() => {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}, [tasks]);
   const [tasks, setTasks] = useState(() => {
   const saved = localStorage.getItem("tasks");
   return saved ? JSON.parse(saved) : [
@@ -78,11 +80,14 @@ const isNextDay = (from, to) => {
     },
   ];
 });
-
 useEffect(() => {
   const nextWake = localStorage.getItem("nextWakeUp");
 
-  if (nextWake) {
+  const today = new Date().toDateString();
+  const selectedDate = date.toDateString();
+
+  // Apply only when going to next day
+  if (nextWake && selectedDate !== today) {
     setTasks((prev) =>
       prev.map((t) =>
         t.title === "Wake Up"
@@ -91,12 +96,10 @@ useEffect(() => {
       )
     );
 
+    // remove after applying
     localStorage.removeItem("nextWakeUp");
   }
-}, []);
-
-    // remove after applying
-   
+}, [date]);
   // 🔥 FORMAT TIME
   const formatTime = (t) => {
     if (!t) return "";
