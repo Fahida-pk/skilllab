@@ -26,7 +26,7 @@ const user = JSON.parse(localStorage.getItem("user"));
 
   // ✅ DATE-WISE TASKS
 const [tasks, setTasks] = useState([]);
-const defaultTasks = [
+const [defaultTasks, setDefaultTasks] = useState([
   {
     id: "d1",
     title: "Wake Up",
@@ -72,7 +72,7 @@ const defaultTasks = [
     completed: false,
     nextDay: true,
   },
-];
+]);
   // ✅ DEFAULT TASKS LOAD
  useEffect(() => {
   fetchTasks();
