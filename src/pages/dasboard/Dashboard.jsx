@@ -418,13 +418,7 @@ if (isOverlap) {
           style={{ background: task.color }}
         >
           <div className="icon-box">
-           {task.icon === "book" ? (
-  <FaBook />
-) : typeof task.icon === "string" && task.icon.startsWith("http") ? (
-  <img src={task.icon} width="25" alt="icon" />
-) : (
-  task.icon || <FaBook />
-)}
+            {task.icon}
           </div>
 
           <div className="card-content">
