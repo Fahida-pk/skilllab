@@ -287,7 +287,7 @@ fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
   body: JSON.stringify({
     action: editTask ? "update" : "add",
     id: editTask ? editTask.id : null,
-    email,
+    
     title,
     from: fromTime,   // ✅ use 24hr
     to: toTime,
