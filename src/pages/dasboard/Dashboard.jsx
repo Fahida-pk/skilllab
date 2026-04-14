@@ -388,37 +388,29 @@ if (isOverlap) {
   <div className="cards">
     {[...defaultTasks, ...tasks]
       .sort((a, b) => {
-        const getTime = (t) => {
-          if (!t) return 0;
-          const getTime = (t) => {
-  if (!t) return 0;
+  const getTime = (t) => {
+    if (!t) return 0;
 
-  try {
-    const [time, mod] = t.split(" ");
-    let [h, m] = time.split(":").map(Number);
+    try {
+      const [time, mod] = t.split(" ");
+      let [h, m] = time.split(":").map(Number);
 
-    if (mod === "PM" && h !== 12) h += 12;
-    if (mod === "AM" && h === 12) h = 0;
+      if (mod === "PM" && h !== 12) h += 12;
+      if (mod === "AM" && h === 12) h = 0;
 
-    return h * 60 + m;
-  } catch {
-    return 0;
-  }
-};
-          let [h, m] = time.split(":").map(Number);
+      return h * 60 + m;
+    } catch {
+      return 0;
+    }
+  };
 
-          if (mod === "PM" && h !== 12) h += 12;
-          if (mod === "AM" && h === 12) h = 0;
+  // 🌙 Sleep last
+  if (a.nextDay && !b.nextDay) return 1;
+  if (!a.nextDay && b.nextDay) return -1;
 
-          return h * 60 + m;
-        };
-
-        // 🌙 Sleep last
-        if (a.nextDay && !b.nextDay) return 1;
-        if (!a.nextDay && b.nextDay) return -1;
-
-        return getTime(a.from || a.time) - getTime(b.from || b.time);
-      })
+  return getTime(a.from || a.time) - getTime(b.from || b.time);
+})
+     
       .map((task) => (
         <div
           className={`card ${task.completed ? "done" : ""}`}
