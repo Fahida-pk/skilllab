@@ -25,55 +25,61 @@ const user = JSON.parse(localStorage.getItem("user"));
   const currentKey = getDateKey(date);
 
   // ✅ DATE-WISE TASKS
-const [tasks, setTasks] = useState([]);
-const [defaultTasks, setDefaultTasks] = useState([
-  {
-    id: "d1",
-    title: "Wake Up",
-    time: "5:00 AM",
-    icon: <FaSun />,
-    color: "linear-gradient(135deg, #f6d365, #fda085)",
-    completed: false,
-  },
-  {
-    id: "d2",
-    title: "Study MERN",
-    from: "5:00 AM",
-    to: "10:00 AM",
-    icon: <FaBook />,
-    color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-    completed: false,
-  },
-  {
-    id: "d3",
-    title: "Practice English",
-    from: "1:00 PM",
-    to: "4:00 PM",
-    icon: <FaLanguage />,
-    color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-    completed: false,
-  },
-  {
-    id: "d4",
-    title: "Workout",
-    from: "6:00 PM",
-    to: "7:00 PM",
-    icon: <FaDumbbell />,
-    color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-    completed: false,
-  },
-  {
-    id: "d5",
-    title: "Sleep",
-    from: "10:00 PM",
-    to: "8:00 AM",
-    icon: "🌙",
-    color: "linear-gradient(135deg, #141e30, #243b55)",
-    completed: false,
-    nextDay: true,
-  },
-]);
+const [defaultTasks, setDefaultTasks] = useState(() => {
+  const saved = localStorage.getItem("defaultTasks");
 
+  if (saved) {
+    return JSON.parse(saved);
+  }
+
+  return [
+    {
+      id: "d1",
+      title: "Wake Up",
+      time: "5:00 AM",
+      icon: <FaSun />,
+      color: "linear-gradient(135deg, #f6d365, #fda085)",
+      completed: false,
+    },
+    {
+      id: "d2",
+      title: "Study MERN",
+      from: "5:00 AM",
+      to: "10:00 AM",
+      icon: <FaBook />,
+      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+      completed: false,
+    },
+    {
+      id: "d3",
+      title: "Practice English",
+      from: "1:00 PM",
+      to: "4:00 PM",
+      icon: <FaLanguage />,
+      color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+      completed: false,
+    },
+    {
+      id: "d4",
+      title: "Workout",
+      from: "6:00 PM",
+      to: "7:00 PM",
+      icon: <FaDumbbell />,
+      color: "linear-gradient(135deg, #fccb90, #d57eeb)",
+      completed: false,
+    },
+    {
+      id: "d5",
+      title: "Sleep",
+      from: "10:00 PM",
+      to: "8:00 AM",
+      icon: "🌙",
+      color: "linear-gradient(135deg, #141e30, #243b55)",
+      completed: false,
+      nextDay: true,
+    },
+  ];
+}); // ✅ LOAD FROM LOCALSTORAGE (ADD THIS HERE)
   // ✅ DEFAULT TASKS LOAD
  useEffect(() => {
   fetchTasks();
@@ -276,8 +282,8 @@ const toMin = (time) => {
   return h * 60 + m;
 };
 
-const isOverlap = [...defaultTasks, ...tasks].some((t) => {
-  if (!t.from || !t.to) return false;
+const isOverlap = [...tasks].some((t) => {
+    if (!t.from || !t.to) return false;
 
   if (editTask && t.id === editTask.id) return false;
 
@@ -307,13 +313,16 @@ if (isOverlap) {
     formattedTo &&
     nextDay
   ) {
-    setDefaultTasks((prev) =>
-      prev.map((t) =>
-        t.title?.toLowerCase() === "wake up"
-          ? { ...t, time: formattedTo }
-          : t
-      )
-    );
+   setDefaultTasks((prev) => {
+  const updated = prev.map((t) =>
+    t.title?.toLowerCase() === "wake up"
+      ? { ...t, time: formattedTo }
+      : t
+  );
+
+  localStorage.setItem("defaultTasks", JSON.stringify(updated)); // ✅ SAVE
+  return updated;
+});
   }
 
   // =========================
