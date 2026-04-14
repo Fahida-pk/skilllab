@@ -224,16 +224,17 @@ setTasks(formatted);
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      action: "add",
-      email: user?.email,
-      title,
-      from: formattedFrom,
-      to: formattedTo,
-      task_date: currentKey,
-      nextDay,
-      color: randomColor,
-    }),
+body: JSON.stringify({
+  action: editTask ? "update" : "add",
+  id: editTask?.id,
+  email: user?.email,
+  title,
+  from: formattedFrom,
+  to: formattedTo,
+  task_date: currentKey,
+  nextDay,
+  color: randomColor,
+}),
   });
 
   fetchTasks();
@@ -263,13 +264,14 @@ setTasks(formatted);
           </button>
         </div>
 
-        <div className="task-wrapper">
-          <div className="cards">
-{(tasks.length > 0 ? tasks : defaultTasks).map((task) => (              <div
-                className={`card ${task.completed ? "done" : ""}`}
-                key={task.id}
-                style={{ background: task.color }}
-              >
+       <div className="task-wrapper">
+  <div className="cards">
+    {[...defaultTasks, ...tasks].map((task) => (
+      <div
+        className={`card ${task.completed ? "done" : ""}`}
+        key={task.id}
+        style={{ background: task.color }}
+      >
 <div className="icon-box">
   {task.icon === "book" ? (
     <FaBook />
