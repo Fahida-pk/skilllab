@@ -33,59 +33,62 @@ const [tasksByDate, setTasksByDate] = useState(() => {
 
   // ✅ DEFAULT TASKS LOAD
   useEffect(() => {
-    if (!tasksByDate[currentKey]) {
-      setTasksByDate((prev) => ({
-        ...prev,
-        [currentKey]: [
-          {
-            id: 1,
-            title: "Wake Up",
-            time: "5:00 AM",
-            icon: <FaSun />,
-            color: "linear-gradient(135deg, #f6d365, #fda085)",
-            completed: false,
-          },
-          {
-            id: 2,
-            title: "Study MERN",
-            from: "5:00 AM",
-            to: "10:00 AM",
-            icon: <FaBook />,
-            color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-            completed: false,
-          },
-          {
-            id: 3,
-            title: "Practice English",
-            from: "1:00 PM",
-            to: "4:00 PM",
-            icon: <FaLanguage />,
-            color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-            completed: false,
-          },
-          {
-            id: 4,
-            title: "Workout",
-            from: "6:00 PM",
-            to: "7:00 PM",
-            icon: <FaDumbbell />,
-            color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-            completed: false,
-          },
-          {
-            id: 5,
-            title: "Sleep",
-            from: "10:00 PM",
-            to: "5:00 AM",
-            icon: "🌙",
-            color: "linear-gradient(135deg, #141e30, #243b55)",
-            completed: false,
-            nextDay: true,
-          },
-        ],
-      }));
-    }
-  }, [date]);
+  if (
+    !tasksByDate[currentKey] ||
+    tasksByDate[currentKey].length === 0
+  ) {
+    setTasksByDate((prev) => ({
+      ...prev,
+      [currentKey]: [
+        {
+          id: 1,
+          title: "Wake Up",
+          time: "5:00 AM",
+          icon: <FaSun />,
+          color: "linear-gradient(135deg, #f6d365, #fda085)",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "Study MERN",
+          from: "5:00 AM",
+          to: "10:00 AM",
+          icon: <FaBook />,
+          color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "Practice English",
+          from: "1:00 PM",
+          to: "4:00 PM",
+          icon: <FaLanguage />,
+          color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+          completed: false,
+        },
+        {
+          id: 4,
+          title: "Workout",
+          from: "6:00 PM",
+          to: "7:00 PM",
+          icon: <FaDumbbell />,
+          color: "linear-gradient(135deg, #fccb90, #d57eeb)",
+          completed: false,
+        },
+        {
+          id: 5,
+          title: "Sleep",
+          from: "10:00 PM",
+          to: "5:00 AM",
+          icon: "🌙",
+          color: "linear-gradient(135deg, #141e30, #243b55)",
+          completed: false,
+          nextDay: true,
+        },
+      ],
+    }));
+  }
+}, [currentKey]); // 🔥 IMPORTANT change (date → currentKey)
 useEffect(() => {
   localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
 }, [tasksByDate]);
