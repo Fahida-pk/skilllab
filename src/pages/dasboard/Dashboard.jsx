@@ -20,52 +20,33 @@ function Dashboard() {
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
 
+  // ✅ DATE KEY
   const getDateKey = (d) => d.toISOString().split("T")[0];
   const currentKey = getDateKey(date);
 
-  const [tasksByDate, setTasksByDate] = useState({});
+  // ✅ DATE-WISE TASKS
+const [tasksByDate, setTasksByDate] = useState(() => {
+  const saved = localStorage.getItem("tasksByDate");
+  return saved ? JSON.parse(saved) : {};
+});
   const tasks = tasksByDate[currentKey] || [];
 
-  // =========================
-  // ✅ FETCH + DEFAULT MERGE
-  // =========================
+  // ✅ DEFAULT TASKS LOAD
   useEffect(() => {
-    const fetchTasks = async () => {
-      const token = localStorage.getItem("token");
-
-      try {
-        const res = await fetch("https://zyntaweb.com/skilllab/dashboard.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            token,
-            action: "get",
-            task_date: currentKey,
-          }),
-        });
-
-const text = await res.text();
-console.log("ADD RESPONSE RAW:", text);
-
-let data;
-try {
-  data = JSON.parse(text);
-} catch (e) {
-  alert("Server error while adding");
-  return;
-}
- 
-        const defaultTasks = [
+    if (!tasksByDate[currentKey]) {
+      setTasksByDate((prev) => ({
+        ...prev,
+        [currentKey]: [
           {
-            id: "d1",
+            id: 1,
             title: "Wake Up",
-            time: "5:45 AM",
+            time: "5:00 AM",
             icon: <FaSun />,
             color: "linear-gradient(135deg, #f6d365, #fda085)",
             completed: false,
           },
           {
-            id: "d2",
+            id: 2,
             title: "Study MERN",
             from: "5:00 AM",
             to: "10:00 AM",
@@ -74,7 +55,7 @@ try {
             completed: false,
           },
           {
-            id: "d3",
+            id: 3,
             title: "Practice English",
             from: "1:00 PM",
             to: "4:00 PM",
@@ -83,7 +64,7 @@ try {
             completed: false,
           },
           {
-            id: "d4",
+            id: 4,
             title: "Workout",
             from: "6:00 PM",
             to: "7:00 PM",
@@ -92,52 +73,59 @@ try {
             completed: false,
           },
           {
-            id: "d5",
+            id: 5,
             title: "Sleep",
             from: "10:00 PM",
-            to: "5:20 AM",
+            to: "5:00 AM",
             icon: "🌙",
             color: "linear-gradient(135deg, #141e30, #243b55)",
             completed: false,
             nextDay: true,
           },
-        ];
-
-        const merged = [...defaultTasks, ...(data.tasks || [])];
-
-        setTasksByDate((prev) => ({
-          ...prev,
-          [currentKey]: merged,
-        }));
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    fetchTasks();
+        ],
+      }));
+    }
   }, [date]);
+useEffect(() => {
+  localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
+}, [tasksByDate]);
+  // 🔥 CHECK NEXT DAY
+  const isNextDay = (from, to) => {
+    if (!from || !to) return false;
+    const f = new Date(`2024-01-01 ${from}`);
+    const t = new Date(`2024-01-01 ${to}`);
+    return t <= f;
+  };
 
-  // =========================
-  // FORMAT
-  // =========================
+  // FORMAT TIME
   const formatTime = (t) => {
-    const [h, m] = t.split(":");
-    let hour = parseInt(h);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12 || 12;
-    return `${hour}:${m} ${ampm}`;
+    if (!t) return "";
+    const [hour, minute] = t.split(":");
+    let h = parseInt(hour);
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12;
+    if (h === 0) h = 12;
+    return `${h}:${minute} ${ampm}`;
   };
 
   const convertToInputTime = (timeStr) => {
     if (!timeStr) return "";
-    const [time, mod] = timeStr.split(" ");
-    let [h, m] = time.split(":");
-    h = parseInt(h);
-    if (mod === "PM" && h !== 12) h += 12;
-    if (mod === "AM" && h === 12) h = 0;
-    return `${h.toString().padStart(2, "0")}:${m}`;
+    try {
+      const [time, modifier] = timeStr.split(" ");
+      let [hours, minutes] = time.split(":");
+
+      hours = parseInt(hours);
+
+      if (modifier === "PM" && hours !== 12) hours += 12;
+      if (modifier === "AM" && hours === 12) hours = 0;
+
+      return `${hours.toString().padStart(2, "0")}:${minutes}`;
+    } catch {
+      return "";
+    }
   };
 
+  // DATE CHANGE
   const changeDate = (type) => {
     const newDate = new Date(date);
     type === "prev"
@@ -146,31 +134,17 @@ try {
     setDate(newDate);
   };
 
-  // =========================
-  // DELETE (DB + UI)
-  // =========================
-  const deleteTask = async (id) => {
-    await fetch("https://zyntaweb.com/skilllab/dashboard.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token: localStorage.getItem("token"),
-        action: "delete",
-        id,
-      }),
-    });
+  // DELETE
+  const deleteTask = (id) => {
+    const updated = tasks.filter((t) => t.id !== id);
 
     setTasksByDate((prev) => ({
       ...prev,
-      [currentKey]: tasks.filter((t) => t.id !== id),
+      [currentKey]: updated,
     }));
   };
 
-  // =========================
   // TOGGLE
-  // =========================
   const toggleTask = (id) => {
     const updated = tasks.map((t) =>
       t.id === id ? { ...t, completed: !t.completed } : t
@@ -182,81 +156,103 @@ try {
     }));
   };
 
-  // =========================
   // EDIT
-  // =========================
   const handleEdit = (task) => {
     setShowModal(true);
     setEditTask(task);
+
     setTitle(task.title);
     setFromTime(convertToInputTime(task.from));
     setToTime(convertToInputTime(task.to));
   };
 
-  // =========================
-  // ADD / UPDATE (DB + UI)
-  // =========================
-  const handleAddTask = async () => {
-  if (!title || !fromTime) return;
+  // ADD / UPDATE
+  const handleAddTask = () => {
+    if (!title || !fromTime) return;
 
-  const formattedFrom = formatTime(fromTime);
-  const formattedTo = toTime ? formatTime(toTime) : "";
+    const colors = [
+      "linear-gradient(135deg, #43e97b, #38f9d7)",
+      "linear-gradient(135deg, #fa709a, #fee140)",
+      "linear-gradient(135deg, #30cfd0, #330867)",
+      "linear-gradient(135deg, #f093fb, #f5576c)",
+    ];
 
-  const token = localStorage.getItem("token");
+    const formattedFrom = formatTime(fromTime);
+    const formattedTo = toTime ? formatTime(toTime) : "";
 
-  console.log("TOKEN:", token); // 🔥 DEBUG
+    let updatedTasks = [...tasks];
 
-  const res = await fetch("https://zyntaweb.com/skilllab/dashboard.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      token,
-      action: editTask ? "update" : "add",
-      id: editTask ? editTask.id : null,
+    const nextDay = isNextDay(fromTime, toTime);
+
+    // ✅ Sleep → next day wake update
+    if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
+      const nextDate = new Date(date);
+      nextDate.setDate(date.getDate() + 1);
+
+      const nextKey = getDateKey(nextDate);
+
+      setTasksByDate((prev) => {
+        const nextTasks = prev[nextKey] || [];
+
+        const updatedNextTasks =
+          nextTasks.length > 0
+            ? nextTasks.map((t) =>
+                t.title === "Wake Up"
+                  ? { ...t, time: formattedTo }
+                  : t
+              )
+            : [
+                {
+                  id: 1,
+                  title: "Wake Up",
+                  time: formattedTo,
+                  icon: <FaSun />,
+                  color: "linear-gradient(135deg, #f6d365, #fda085)",
+                  completed: false,
+                },
+              ];
+
+        return {
+          ...prev,
+          [nextKey]: updatedNextTasks,
+        };
+      });
+    }
+
+    const newTask = {
+      id: editTask ? editTask.id : Date.now(),
       title,
       from: formattedFrom,
       to: formattedTo,
-      task_date: currentKey,
-    }),
-  });
+      nextDay,
+      icon: image ? URL.createObjectURL(image) : "book",
+      color: editTask
+        ? editTask.color
+        : colors[Math.floor(Math.random() * colors.length)],
+      completed: false,
+    };
 
-  const data = await res.json();
-  console.log("ADD RESPONSE:", data);
+    if (editTask) {
+      updatedTasks = updatedTasks.map((t) =>
+        t.id === editTask.id ? newTask : t
+      );
+    } else {
+      updatedTasks.push(newTask);
+    }
 
-  // ❗ IMPORTANT CHECK
-  if (!data.success) {
-    alert(data.message);
-    return;
-  }
+    setTasksByDate((prev) => ({
+      ...prev,
+      [currentKey]: updatedTasks,
+    }));
 
-  const newTask = {
-    id: editTask ? editTask.id : Date.now(),
-    title,
-    from: formattedFrom,
-    to: formattedTo,
-    color: "linear-gradient(135deg,#43e97b,#38f9d7)",
-    completed: false,
+    setEditTask(null);
+    setShowModal(false);
+    setTitle("");
+    setFromTime("");
+    setToTime("");
+    setImage(null);
   };
 
-  let updated = editTask
-    ? tasks.map((t) => (t.id === editTask.id ? newTask : t))
-    : [...tasks, newTask];
-
-  setTasksByDate((prev) => ({
-    ...prev,
-    [currentKey]: updated,
-  }));
-
-  setEditTask(null);
-  setShowModal(false);
-  setTitle("");
-  setFromTime("");
-  setToTime("");
-};
-
-    
   return (
     <div className="dashboard">
       <Sidebar />
