@@ -234,7 +234,9 @@ setTasks(formatted);
 
   const nextDay = isNextDay(fromTime, toTime);
 
-  // ✅ DEFAULT EDIT FIRST
+  // =========================
+  // ✅ DEFAULT EDIT (NO DB)
+  // =========================
   if (editTask && editTask.id.toString().startsWith("d")) {
     const updated = defaultTasks.map((t) =>
       t.id === editTask.id
@@ -243,7 +245,7 @@ setTasks(formatted);
             title,
             from: formattedFrom,
             to: formattedTo,
-            color: editTask.color,
+            color: t.color,
           }
         : t
     );
@@ -259,19 +261,21 @@ setTasks(formatted);
     return;
   }
 
-  // 🚨 OVERLAP CHECK (AFTER EDIT)
+  // =========================
+  // 🚨 OVERLAP CHECK
+  // =========================
+  const toMin = (time) => {
+    const [t1, mod] = time.split(" ");
+    let [h, m] = t1.split(":").map(Number);
+    if (mod === "PM" && h !== 12) h += 12;
+    if (mod === "AM" && h === 12) h = 0;
+    return h * 60 + m;
+  };
+
   const isOverlap = [...defaultTasks, ...tasks].some((t) => {
     if (!t.from || !t.to) return false;
 
     if (editTask && t.id === editTask.id) return false;
-
-    const toMin = (time) => {
-      const [t1, mod] = time.split(" ");
-      let [h, m] = t1.split(":").map(Number);
-      if (mod === "PM" && h !== 12) h += 12;
-      if (mod === "AM" && h === 12) h = 0;
-      return h * 60 + m;
-    };
 
     const newFrom = toMin(formattedFrom);
     const newTo = formattedTo ? toMin(formattedTo) : newFrom;
@@ -287,25 +291,32 @@ setTasks(formatted);
     return;
   }
 
-  // 🌙 Sleep → Wake update
+  // =========================
+  // 🌙 SLEEP → NEXT DAY WAKE
+  // =========================
   if (
     title?.toLowerCase().includes("sleep") &&
     formattedTo &&
     nextDay
   ) {
-    const updated = defaultTasks.map((t) =>
-      t.title === "Wake Up"
-        ? { ...t, time: formattedTo, from: formattedTo }
-        : t
+    setDefaultTasks((prev) =>
+      prev.map((t) =>
+        t.title?.toLowerCase() === "wake up"
+          ? { ...t, time: formattedTo, from: formattedTo }
+          : t
+      )
     );
-
-    setDefaultTasks(updated);
   }
 
-  // ✅ NORMAL TASK (DB SAVE)
+  // =========================
+  // 🎨 COLOR
+  // =========================
   const randomColor =
     colors[Math.floor(Math.random() * colors.length)];
 
+  // =========================
+  // ✅ API CALL (DB)
+  // =========================
   await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
     method: "POST",
     headers: {
@@ -324,8 +335,14 @@ setTasks(formatted);
     }),
   });
 
+  // =========================
+  // 🔄 REFRESH
+  // =========================
   fetchTasks();
 
+  // =========================
+  // 🧹 RESET
+  // =========================
   setEditTask(null);
   setShowModal(false);
   setTitle("");
@@ -333,7 +350,6 @@ setTasks(formatted);
   setToTime("");
   setImage(null);
 };
-
   return (
     <div className="dashboard">
       <Sidebar />
@@ -351,66 +367,76 @@ setTasks(formatted);
           </button>
         </div>
 
-       <div className="task-wrapper">
+  <div className="task-wrapper">
   <div className="cards">
     {[...defaultTasks, ...tasks]
-  .sort((a, b) => {
-    const getTime = (t) => {
-      if (!t) return 0;
-      const [time, mod] = t.split(" ");
-      let [h, m] = time.split(":").map(Number);
-      if (mod === "PM" && h !== 12) h += 12;
-      if (mod === "AM" && h === 12) h = 0;
-      return h * 60 + m;
-    };
+      .sort((a, b) => {
+        const getTime = (t) => {
+          if (!t) return 0;
+          const [time, mod] = t.split(" ");
+          let [h, m] = time.split(":").map(Number);
 
-    return getTime(a.from || a.time) - getTime(b.from || b.time);
-  })
-  .map((task) => (
-      <div
-        className={`card ${task.completed ? "done" : ""}`}
-        key={task.id}
-        style={{ background: task.color }}
-      >
-<div className="icon-box">
-  {task.icon === "book" ? (
-    <FaBook />
-  ) : typeof task.icon === "string" ? (
-    <img src={task.icon} width="25" />
-  ) : null}
-</div>
-                <div className="card-content">
-                  <h3>{task.title}</h3>
-                  <p>
-                   {task.title === "Wake Up"
-  ? task.time || task.from
-  : `${task.from || ""} - ${task.to || ""} ${
-                          task.nextDay ? "(Next Day)" : ""
-                        }`}
-                  </p>
-                </div>
+          if (mod === "PM" && h !== 12) h += 12;
+          if (mod === "AM" && h === 12) h = 0;
 
-                <div className="actions">
-                  <button onClick={() => handleEdit(task)}>✏️</button>
-                  <button onClick={() => deleteTask(task)}>✕</button>
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => toggleTask(task)}
-                  />
-                </div>
-              </div>
-            ))}
+          return h * 60 + m;
+        };
+
+        // 🌙 Sleep last
+        if (a.nextDay && !b.nextDay) return 1;
+        if (!a.nextDay && b.nextDay) return -1;
+
+        return getTime(a.from || a.time) - getTime(b.from || b.time);
+      })
+      .map((task) => (
+        <div
+          className={`card ${task.completed ? "done" : ""}`}
+          key={task.id}
+          style={{ background: task.color }}
+        >
+          <div className="icon-box">
+            {task.icon === "book" ? (
+              <FaBook />
+            ) : typeof task.icon === "string" ? (
+              <img src={task.icon} width="25" />
+            ) : (
+              task.icon
+            )}
           </div>
 
-          <button
-            className="fab-inside"
-            onClick={() => setShowModal(true)}
-          >
-            +
-          </button>
+          <div className="card-content">
+            <h3>{task.title}</h3>
+            <p>
+              {task.title === "Wake Up"
+                ? task.time || task.from
+                : `${task.from || ""} - ${task.to || ""} ${
+                    task.nextDay ? "(Next Day)" : ""
+                  }`}
+            </p>
+          </div>
+
+          <div className="actions">
+            <button onClick={() => handleEdit(task)}>✏️</button>
+            <button onClick={() => deleteTask(task)}>✕</button>
+            <input
+              type="checkbox"
+              checked={task.completed}
+              onChange={() => toggleTask(task)}
+            />
+          </div>
         </div>
-      </div>
+      ))}
+  </div>
+
+  <button
+    className="fab-inside"
+    onClick={() => setShowModal(true)}
+  >
+    +
+  </button>
+</div>
+
+       </div>
 
       {showModal && (
         <div className="modal">
