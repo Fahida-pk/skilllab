@@ -1,6 +1,7 @@
 import Sidebar from "./Sidebar";
 import "./dashboard.css";
 import { useState, useEffect } from "react";
+import { FaMoon } from "react-icons/fa";
 import {
   FaChevronLeft,
   FaChevronRight,
@@ -32,54 +33,53 @@ const [defaultTasks, setDefaultTasks] = useState(() => {
   if (saved) {
     return JSON.parse(saved);
   }
-
-  return [
-    {
-      id: "d1",
-      title: "Wake Up",
-      time: "5:00 AM",
-    icon: "sun",   // ✅ FIXED
-      color: "linear-gradient(135deg, #f6d365, #fda085)",
-      completed: false,
-    },
-    {
-      id: "d2",
-      title: "Study MERN",
-      from: "5:00 AM",
-      to: "10:00 AM",
-      icon: "book",
-      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-      completed: false,
-    },
-    {
-      id: "d3",
-      title: "Practice English",
-      from: "1:00 PM",
-      to: "4:00 PM",
-      icon: "language",
-      color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-      completed: false,
-    },
-    {
-      id: "d4",
-      title: "Workout",
-      from: "6:00 PM",
-      to: "7:00 PM",
-      icon: "dumbbell",
-      color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-      completed: false,
-    },
-    {
-      id: "d5",
-      title: "Sleep",
-      from: "10:00 PM",
-      to: "8:00 AM",
-      icon: "moon",
-      color: "linear-gradient(135deg, #141e30, #243b55)",
-      completed: false,
-      nextDay: true,
-    },
-  ];
+return [
+  {
+    id: "d1",
+    title: "Wake Up",
+    time: "5:00 AM",
+    icon: <FaSun />,
+    color: "linear-gradient(135deg, #f6d365, #fda085)",
+    completed: false,
+  },
+  {
+    id: "d2",
+    title: "Study MERN",
+    from: "5:00 AM",
+    to: "10:00 AM",
+    icon: <FaBook />,
+    color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+    completed: false,
+  },
+  {
+    id: "d3",
+    title: "Practice English",
+    from: "1:00 PM",
+    to: "4:00 PM",
+    icon: <FaLanguage />,
+    color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+    completed: false,
+  },
+  {
+    id: "d4",
+    title: "Workout",
+    from: "6:00 PM",
+    to: "7:00 PM",
+    icon: <FaDumbbell />,
+    color: "linear-gradient(135deg, #fccb90, #d57eeb)",
+    completed: false,
+  },
+  {
+    id: "d5",
+    title: "Sleep",
+    from: "10:00 PM",
+    to: "8:00 AM",
+    icon: <FaMoon />,
+    color: "linear-gradient(135deg, #141e30, #243b55)",
+    completed: false,
+    nextDay: true,
+  },
+];
 }); // ✅ LOAD FROM LOCALSTORAGE (ADD THIS HERE)
   // ✅ DEFAULT TASKS LOAD
  useEffect(() => {
