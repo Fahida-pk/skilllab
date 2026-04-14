@@ -30,78 +30,62 @@ const [tasksByDate, setTasksByDate] = useState(() => {
   return saved ? JSON.parse(saved) : {};
 });
   const tasks = tasksByDate[currentKey] || [];
-const user = JSON.parse(localStorage.getItem("user"));
-const email = user?.email;
-  // ✅ DEFAULT TASKS LOAD
-  const defaultTasks = [
-  {
-    id: "d1",
-    title: "Wake Up",
-    time: "5:00 AM",
-    icon: <FaSun />,
-    color: "linear-gradient(135deg, #f6d365, #fda085)",
-    completed: false,
-  },
-  {
-    id: "d2",
-    title: "Study MERN",
-    from: "5:00 AM",
-    to: "10:00 AM",
-    icon: <FaBook />,
-    color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-    completed: false,
-  },
-  {
-    id: "d3",
-    title: "Practice English",
-    from: "1:00 PM",
-    to: "4:00 PM",
-    icon: <FaLanguage />,
-    color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-    completed: false,
-  },
-  {
-    id: "d4",
-    title: "Workout",
-    from: "6:00 PM",
-    to: "7:00 PM",
-    icon: <FaDumbbell />,
-    color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-    completed: false,
-  },
-  {
-    id: "d5",
-    title: "Sleep",
-    from: "10:00 PM",
-    to: "5:00 AM",
-    icon: "🌙",
-    color: "linear-gradient(135deg, #141e30, #243b55)",
-    completed: false,
-    nextDay: true,
-  },
-];
-  useEffect(() => {
-  if (!email) return;
 
-  fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      action: "get",
-      email,
-      task_date: currentKey,
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
+  // ✅ DEFAULT TASKS LOAD
+  useEffect(() => {
+    if (!tasksByDate[currentKey]) {
       setTasksByDate((prev) => ({
         ...prev,
-        [currentKey]: data || [],
+        [currentKey]: [
+          {
+            id: 1,
+            title: "Wake Up",
+            time: "5:00 AM",
+            icon: <FaSun />,
+            color: "linear-gradient(135deg, #f6d365, #fda085)",
+            completed: false,
+          },
+          {
+            id: 2,
+            title: "Study MERN",
+            from: "5:00 AM",
+            to: "10:00 AM",
+            icon: <FaBook />,
+            color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+            completed: false,
+          },
+          {
+            id: 3,
+            title: "Practice English",
+            from: "1:00 PM",
+            to: "4:00 PM",
+            icon: <FaLanguage />,
+            color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+            completed: false,
+          },
+          {
+            id: 4,
+            title: "Workout",
+            from: "6:00 PM",
+            to: "7:00 PM",
+            icon: <FaDumbbell />,
+            color: "linear-gradient(135deg, #fccb90, #d57eeb)",
+            completed: false,
+          },
+          {
+            id: 5,
+            title: "Sleep",
+            from: "10:00 PM",
+            to: "5:00 AM",
+            icon: "🌙",
+            color: "linear-gradient(135deg, #141e30, #243b55)",
+            completed: false,
+            nextDay: true,
+          },
+        ],
       }));
-    });
-}, [date]);
+    }
+  }, [date]);
 useEffect(() => {
   localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
 }, [tasksByDate]);
@@ -151,60 +135,26 @@ useEffect(() => {
   };
 
   // DELETE
-const deleteTask = (id) => {
-  // ❌ default tasks skip
-  if (id.toString().startsWith("d")) return;
+  const deleteTask = (id) => {
+    const updated = tasks.filter((t) => t.id !== id);
 
-  const updated = tasks.filter((t) => t.id !== id);
-
-  setTasksByDate((prev) => ({
-    ...prev,
-    [currentKey]: updated,
-  }));
-
-  // 🔥 DELETE FROM DB
-  fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    action: "delete",
-    id,
-    email,
-  }),
-}).then(() => {
-  window.location.reload(); // 🔥 ADD THIS
-});
-};
+    setTasksByDate((prev) => ({
+      ...prev,
+      [currentKey]: updated,
+    }));
+  };
 
   // TOGGLE
- const toggleTask = (id) => {
-  const updated = tasks.map((t) =>
-    t.id === id ? { ...t, completed: !t.completed } : t
-  );
+  const toggleTask = (id) => {
+    const updated = tasks.map((t) =>
+      t.id === id ? { ...t, completed: !t.completed } : t
+    );
 
-  setTasksByDate((prev) => ({
-    ...prev,
-    [currentKey]: updated,
-  }));
-
-  // 🔥 SAVE STATUS TO DB
-  if (!id.toString().startsWith("d")) {
-    const task = updated.find((t) => t.id === id);
-
-    fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        action: "toggle",
-        id,
-        status: task.completed ? 1 : 0,
-        email,
-      }),
-    });
-  }
-};
+    setTasksByDate((prev) => ({
+      ...prev,
+      [currentKey]: updated,
+    }));
+  };
 
   // EDIT
   const handleEdit = (task) => {
@@ -270,10 +220,8 @@ const deleteTask = (id) => {
     }
 
     const newTask = {
-id:
-  editTask && !editTask.id.toString().startsWith("d")
-    ? editTask.id
-    : Date.now(),      title,
+      id: editTask ? editTask.id : Date.now(),
+      title,
       from: formattedFrom,
       to: formattedTo,
       nextDay,
@@ -296,35 +244,7 @@ id:
       ...prev,
       [currentKey]: updatedTasks,
     }));
-// 🔥 SAVE TO DB
-if (!email) {
-  alert("Login again");
-  return;
-}
 
-fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    action:
-      editTask &&
-      !editTask.id.toString().startsWith("d")
-        ? "update"
-        : "add",
-    id:
-      editTask &&
-      !editTask.id.toString().startsWith("d")
-        ? editTask.id
-        : null,
-    email,
-    title,
-    from: fromTime,
-    to: toTime,
-    task_date: currentKey,
-  }),
-});
     setEditTask(null);
     setShowModal(false);
     setTitle("");
