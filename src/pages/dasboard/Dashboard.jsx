@@ -162,8 +162,13 @@ setTasks(formatted);
 
   // DELETE
   const deleteTask = async (task) => {
-  if (task.id.toString().startsWith("d")) return;
+  // ✅ default task
+  if (task.id.toString().startsWith("d")) {
+    setDefaultTasks((prev) => prev.filter((t) => t.id !== task.id));
+    return;
+  }
 
+  // ✅ DB task
   await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -179,8 +184,16 @@ setTasks(formatted);
 
   // TOGGLE
   const toggleTask = async (task) => {
-  if (task.id.toString().startsWith("d")) return;
+  // ✅ default task
+  if (task.id.toString().startsWith("d")) {
+    const updated = defaultTasks.map((t) =>
+      t.id === task.id ? { ...t, completed: !t.completed } : t
+    );
+    setDefaultTasks(updated);
+    return;
+  }
 
+  // ✅ DB task
   await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -206,7 +219,7 @@ setTasks(formatted);
   };
 
   // ADD / UPDATE
-  const handleAddTask = async () => {
+ const handleAddTask = async () => {
   if (!title || !fromTime) return;
 
   const colors = [
@@ -221,6 +234,32 @@ setTasks(formatted);
 
   const nextDay = isNextDay(fromTime, toTime);
 
+  // ✅ DEFAULT TASK EDIT (IMPORTANT 🔥)
+  if (editTask && editTask.id.toString().startsWith("d")) {
+    const updated = defaultTasks.map((t) =>
+      t.id === editTask.id
+        ? {
+            ...t,
+            title,
+            from: formattedFrom,
+            to: formattedTo,
+            color: editTask.color, // keep same color
+          }
+        : t
+    );
+
+    setDefaultTasks(updated);
+
+    setShowModal(false);
+    setEditTask(null);
+    setTitle("");
+    setFromTime("");
+    setToTime("");
+
+    return; // ❌ stop API call
+  }
+
+  // ✅ NORMAL TASK (DB SAVE)
   const randomColor =
     colors[Math.floor(Math.random() * colors.length)];
 
@@ -229,17 +268,17 @@ setTasks(formatted);
     headers: {
       "Content-Type": "application/json",
     },
-body: JSON.stringify({
-  action: editTask ? "update" : "add",
-  id: editTask?.id,
-  email: user?.email,
-  title,
-  from: formattedFrom,
-  to: formattedTo,
-  task_date: currentKey,
-  nextDay,
-  color: randomColor,
-}),
+    body: JSON.stringify({
+      action: editTask ? "update" : "add",
+      id: editTask?.id,
+      email: user?.email,
+      title,
+      from: formattedFrom,
+      to: formattedTo,
+      task_date: currentKey,
+      nextDay,
+      color: editTask ? editTask.color : randomColor, // ✅ fix
+    }),
   });
 
   fetchTasks();
