@@ -25,7 +25,22 @@ const user = JSON.parse(localStorage.getItem("user"));
   const getDateKey = (d) => d.toISOString().split("T")[0];
   const currentKey = getDateKey(date);
 const [tasks, setTasks] = useState([]);
-
+const getIcon = (icon) => {
+  switch (icon) {
+    case "sun":
+      return <FaSun />;
+    case "book":
+      return <FaBook />;
+    case "language":
+      return <FaLanguage />;
+    case "dumbbell":
+      return <FaDumbbell />;
+    case "moon":
+      return <FaMoon />;
+    default:
+      return <FaBook />;
+  }
+};
   // ✅ DATE-WISE TASKS
 const [defaultTasks, setDefaultTasks] = useState(() => {
   const saved = localStorage.getItem("defaultTasks");
@@ -33,12 +48,13 @@ const [defaultTasks, setDefaultTasks] = useState(() => {
   if (saved) {
     return JSON.parse(saved);
   }
+ 
 return [
   {
     id: "d1",
     title: "Wake Up",
     time: "5:00 AM",
-    icon: <FaSun />,
+    icon: "sun",
     color: "linear-gradient(135deg, #f6d365, #fda085)",
     completed: false,
   },
@@ -47,7 +63,7 @@ return [
     title: "Study MERN",
     from: "5:00 AM",
     to: "10:00 AM",
-    icon: <FaBook />,
+    icon: "book",
     color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
     completed: false,
   },
@@ -56,7 +72,7 @@ return [
     title: "Practice English",
     from: "1:00 PM",
     to: "4:00 PM",
-    icon: <FaLanguage />,
+    icon: "language",
     color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
     completed: false,
   },
@@ -65,7 +81,7 @@ return [
     title: "Workout",
     from: "6:00 PM",
     to: "7:00 PM",
-    icon: <FaDumbbell />,
+    icon: "dumbbell",
     color: "linear-gradient(135deg, #fccb90, #d57eeb)",
     completed: false,
   },
@@ -74,7 +90,7 @@ return [
     title: "Sleep",
     from: "10:00 PM",
     to: "8:00 AM",
-    icon: <FaMoon />,
+    icon: "moon",
     color: "linear-gradient(135deg, #141e30, #243b55)",
     completed: false,
     nextDay: true,
@@ -419,7 +435,7 @@ if (isOverlap) {
           style={{ background: task.color }}
         >
           <div className="icon-box">
-            {task.icon}
+            {getIcon(task.icon)}
           </div>
 
           <div className="card-content">
