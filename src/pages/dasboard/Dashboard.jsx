@@ -96,12 +96,12 @@ const fetchTasks = async () => {
   if (data.success) {
 const formatted = data.tasks.map((t) => ({
   id: t.id,
-  title: t.task_name || "",
-  from: t.from_time || "",
-  to: t.to_time || "",
-  completed: t.status == 1,
+  title: t.title,
+  from: t.from,
+  to: t.to,
+  completed: t.completed,
   color: t.color || "linear-gradient(135deg,#ccc,#999)",
-  icon: "book", // 🔥 important fix
+  icon: "book",
 }));
 
 setTasks(formatted);
