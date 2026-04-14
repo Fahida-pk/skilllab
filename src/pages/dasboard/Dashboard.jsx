@@ -137,59 +137,33 @@ useEffect(() => {
 
   // DELETE
 const deleteTask = (id) => {
-  // ❌ default tasks skip
-  if (id.toString().startsWith("d")) return;
-
-  const updated = tasks.filter((t) => t.id !== id);
-
-  setTasksByDate((prev) => ({
-    ...prev,
-    [currentKey]: updated,
-  }));
-
-  // 🔥 DELETE FROM DB
   fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    action: "delete",
-    id,
-    email,
-  }),
-}).then(() => {
-  window.location.reload(); // 🔥 ADD THIS
-});
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "delete",
+      id,
+      email,
+    }),
+  }).then(() => {
+    loadTasks(); // ✅ instead of reload
+  });
 };
 
   // TOGGLE
- const toggleTask = (id) => {
-  const updated = tasks.map((t) =>
-    t.id === id ? { ...t, completed: !t.completed } : t
-  );
-
-  setTasksByDate((prev) => ({
-    ...prev,
-    [currentKey]: updated,
-  }));
-
-  // 🔥 SAVE STATUS TO DB
-  if (!id.toString().startsWith("d")) {
-    const task = updated.find((t) => t.id === id);
-
-    fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    action: "toggle",
-    id,
-    status: task.completed ? 1 : 0,
-    email,
-  }),
-}).then(() => {
-  window.location.reload(); // 🔥 ADD
-});
-    
-  }
+ const toggleTask = (task) => {
+  fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "toggle",
+      id: task.id,
+      status: task.completed ? 0 : 1,
+      email,
+    }),
+  }).then(() => {
+    loadTasks();
+  });
 };
 
   // EDIT
