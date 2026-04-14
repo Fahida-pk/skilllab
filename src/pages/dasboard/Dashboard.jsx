@@ -273,18 +273,35 @@ setTasks(formatted);
   };
 
   const isOverlap = [...defaultTasks, ...tasks].some((t) => {
-    if (!t.from || !t.to) return false;
+  if (!t.from || !t.to) return false;
 
-    if (editTask && t.id === editTask.id) return false;
+  if (editTask && t.id === editTask.id) return false;
 
-    const newFrom = toMin(formattedFrom);
-    const newTo = formattedTo ? toMin(formattedTo) : newFrom;
+  const toMin = (time) => {
+    const [t1, mod] = time.split(" ");
+    let [h, m] = t1.split(":").map(Number);
+    if (mod === "PM" && h !== 12) h += 12;
+    if (mod === "AM" && h === 12) h = 0;
+    return h * 60 + m;
+  };
 
-    const oldFrom = toMin(t.from);
-    const oldTo = toMin(t.to);
+  let newFrom = toMin(formattedFrom);
+  let newTo = formattedTo ? toMin(formattedTo) : newFrom;
 
-    return newFrom < oldTo && newTo > oldFrom;
-  });
+  let oldFrom = toMin(t.from);
+  let oldTo = toMin(t.to);
+
+  // 🌙 HANDLE NEXT DAY (SLEEP)
+  if (t.nextDay) {
+    oldTo += 24 * 60;
+  }
+
+  if (nextDay) {
+    newTo += 24 * 60;
+  }
+
+  return newFrom < oldTo && newTo > oldFrom;
+});
 
   if (isOverlap) {
     alert("⚠️ Time already exists! Change time");
