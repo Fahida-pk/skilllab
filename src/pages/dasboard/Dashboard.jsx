@@ -23,6 +23,7 @@ const user = JSON.parse(localStorage.getItem("user"));
   // ✅ DATE KEY
   const getDateKey = (d) => d.toISOString().split("T")[0];
   const currentKey = getDateKey(date);
+const [tasks, setTasks] = useState([]);
 
   // ✅ DATE-WISE TASKS
 const [defaultTasks, setDefaultTasks] = useState(() => {
