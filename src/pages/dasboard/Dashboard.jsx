@@ -146,7 +146,7 @@ useEffect(() => {
   // 🔥 BACKEND DELETE
   const token = localStorage.getItem("token");
 
-  fetch("https://zyntaweb.com/skilllab/dashboard.php", {
+  fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -265,7 +265,7 @@ useEffect(() => {
 // 🔥 BACKEND CALL (CORRECT PLACE)
 const token = localStorage.getItem("token");
 
-fetch("https://zyntaweb.com/skilllab/dashboard.php", {
+fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",

@@ -13,7 +13,7 @@ function Login() {
       console.log("Token:", token);
 
       // ✅ send token to backend
-      const response = await fetch("https://zyntaweb.com/skilllab/login.php", {
+      const response = await fetch("https://zyntaweb.com/skilllab/api/login.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
