@@ -136,13 +136,31 @@ useEffect(() => {
 
   // DELETE
   const deleteTask = (id) => {
-    const updated = tasks.filter((t) => t.id !== id);
+  const updated = tasks.filter((t) => t.id !== id);
 
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: updated,
-    }));
-  };
+  setTasksByDate((prev) => ({
+    ...prev,
+    [currentKey]: updated,
+  }));
+
+  // 🔥 BACKEND DELETE
+  const token = localStorage.getItem("token");
+
+  fetch("https://zyntaweb.com/skilllab/dashboard.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      token,
+      action: "delete",
+      id,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => console.log("Deleted:", data))
+    .catch((err) => console.log(err));
+};
 
   // TOGGLE
   const toggleTask = (id) => {
@@ -244,7 +262,27 @@ useEffect(() => {
       ...prev,
       [currentKey]: updatedTasks,
     }));
+// 🔥 BACKEND CALL (CORRECT PLACE)
+const token = localStorage.getItem("token");
 
+fetch("https://zyntaweb.com/skilllab/dashboard.php", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    token,
+    action: editTask ? "update" : "add",
+    id: editTask ? editTask.id : null,
+    title,
+    from: formattedFrom,
+    to: formattedTo,
+    task_date: currentKey,
+  }),
+})
+  .then((res) => res.json())
+  .then((data) => console.log("Saved:", data))
+  .catch((err) => console.log(err));
     setEditTask(null);
     setShowModal(false);
     setTitle("");
