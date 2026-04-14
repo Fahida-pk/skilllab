@@ -116,7 +116,7 @@ const formatted = data.tasks.map((t) => ({
   to: t.to,
   completed: t.completed,
   color: t.color || colors[Math.floor(Math.random() * colors.length)],
-  icon: "book",
+  icon: <FaBook />,
 }));
 
 setTasks(formatted);
