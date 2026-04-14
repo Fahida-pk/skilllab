@@ -32,7 +32,7 @@ const [tasksByDate, setTasksByDate] = useState(() => {
   const tasks = tasksByDate[currentKey] || [];
 
   // ✅ DEFAULT TASKS LOAD
-  const defaultTasks = [
+const defaultTasks = [
   {
     id: "d1",
     title: "Wake Up",
@@ -79,16 +79,13 @@ const [tasksByDate, setTasksByDate] = useState(() => {
     nextDay: true,
   },
 ];
-useEffect(() => {
-  const token = localStorage.getItem("token");
-
+  useEffect(() => {
   fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      token,
       action: "get",
       task_date: currentKey,
     }),
@@ -98,11 +95,13 @@ useEffect(() => {
       if (data.success) {
         setTasksByDate((prev) => ({
           ...prev,
-          [currentKey]: data.tasks,
+          [currentKey]: [
+            ...defaultTasks,   // ✅ always first
+            ...data.tasks,     // ✅ DB tasks
+          ],
         }));
       }
-    })
-    .catch((err) => console.log(err));
+    });
 }, [date]);
 useEffect(() => {
   localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
@@ -153,9 +152,10 @@ useEffect(() => {
   };
 
   // DELETE
-const deleteTask = (id) => {
-  // 🚫 block default tasks
-  if (id.toString().startsWith("d")) return;
+  const deleteTask = (id) => {
+
+  // ❌ default tasks skip
+  if (id <= 5) return;
 
   const updated = tasks.filter((t) => t.id !== id);
 
@@ -164,22 +164,17 @@ const deleteTask = (id) => {
     [currentKey]: updated,
   }));
 
-  const token = localStorage.getItem("token");
-
+  // 🔥 DELETE FROM DB
   fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      token,
       action: "delete",
       id,
     }),
-  })
-    .then((res) => res.json())
-    .then((data) => console.log("Deleted:", data))
-    .catch((err) => console.log(err));
+  });
 };
 
   // TOGGLE
@@ -282,27 +277,24 @@ const deleteTask = (id) => {
       ...prev,
       [currentKey]: updatedTasks,
     }));
-// 🔥 BACKEND CALL (CORRECT PLACE)
-const token = localStorage.getItem("token");
-
+// 🔥 SAVE TO DATABASE
 fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    token,
     action: editTask ? "update" : "add",
     id: editTask ? editTask.id : null,
     title,
-    from: formattedFrom,
-    to: formattedTo,
+    from: fromTime,   // ✅ use 24hr
+    to: toTime,
     task_date: currentKey,
   }),
 })
-  .then((res) => res.json())
-  .then((data) => console.log("Saved:", data))
-  .catch((err) => console.log(err));
+.then(res => res.json())
+.then(data => console.log("Saved:", data))
+.catch(err => console.log(err));
     setEditTask(null);
     setShowModal(false);
     setTitle("");
