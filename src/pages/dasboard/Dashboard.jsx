@@ -94,8 +94,17 @@ const fetchTasks = async () => {
   const data = await res.json();
 
   if (data.success) {
-    setTasks(data.tasks);
-  } else {
+const formatted = data.tasks.map((t) => ({
+  id: t.id,
+  title: t.task_name,
+  from: t.from_time,
+  to: t.to_time,
+  completed: t.status == 1,
+  color: t.color || "linear-gradient(135deg,#ccc,#999)",
+}));
+
+setTasks(formatted);
+} else {
     setTasks([]);
   }
 }; // 🔥 IMPORTANT change (date → currentKey)
@@ -284,7 +293,7 @@ const fetchTasks = async () => {
                   <input
                     type="checkbox"
                     checked={task.completed}
-                    onChange={() => toggleTask(task.id)}
+                    onChange={() => toggleTask(task)}
                   />
                 </div>
               </div>
