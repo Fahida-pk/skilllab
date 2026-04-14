@@ -234,7 +234,7 @@ setTasks(formatted);
 
   const nextDay = isNextDay(fromTime, toTime);
 
-  // ✅ DEFAULT TASK EDIT (IMPORTANT 🔥)
+  // ✅ DEFAULT EDIT FIRST
   if (editTask && editTask.id.toString().startsWith("d")) {
     const updated = defaultTasks.map((t) =>
       t.id === editTask.id
@@ -243,7 +243,7 @@ setTasks(formatted);
             title,
             from: formattedFrom,
             to: formattedTo,
-            color: editTask.color, // keep same color
+            color: editTask.color,
           }
         : t
     );
@@ -256,7 +256,50 @@ setTasks(formatted);
     setFromTime("");
     setToTime("");
 
-    return; // ❌ stop API call
+    return;
+  }
+
+  // 🚨 OVERLAP CHECK (AFTER EDIT)
+  const isOverlap = [...defaultTasks, ...tasks].some((t) => {
+    if (!t.from || !t.to) return false;
+
+    if (editTask && t.id === editTask.id) return false;
+
+    const toMin = (time) => {
+      const [t1, mod] = time.split(" ");
+      let [h, m] = t1.split(":").map(Number);
+      if (mod === "PM" && h !== 12) h += 12;
+      if (mod === "AM" && h === 12) h = 0;
+      return h * 60 + m;
+    };
+
+    const newFrom = toMin(formattedFrom);
+    const newTo = formattedTo ? toMin(formattedTo) : newFrom;
+
+    const oldFrom = toMin(t.from);
+    const oldTo = toMin(t.to);
+
+    return newFrom < oldTo && newTo > oldFrom;
+  });
+
+  if (isOverlap) {
+    alert("⚠️ Time already exists! Change time");
+    return;
+  }
+
+  // 🌙 Sleep → Wake update
+  if (
+    title?.toLowerCase().includes("sleep") &&
+    formattedTo &&
+    nextDay
+  ) {
+    const updated = defaultTasks.map((t) =>
+      t.title === "Wake Up"
+        ? { ...t, time: formattedTo, from: formattedTo }
+        : t
+    );
+
+    setDefaultTasks(updated);
   }
 
   // ✅ NORMAL TASK (DB SAVE)
@@ -277,7 +320,7 @@ setTasks(formatted);
       to: formattedTo,
       task_date: currentKey,
       nextDay,
-      color: editTask ? editTask.color : randomColor, // ✅ fix
+      color: editTask ? editTask.color : randomColor,
     }),
   });
 
@@ -310,7 +353,20 @@ setTasks(formatted);
 
        <div className="task-wrapper">
   <div className="cards">
-    {[...defaultTasks, ...tasks].map((task) => (
+    {[...defaultTasks, ...tasks]
+  .sort((a, b) => {
+    const getTime = (t) => {
+      if (!t) return 0;
+      const [time, mod] = t.split(" ");
+      let [h, m] = time.split(":").map(Number);
+      if (mod === "PM" && h !== 12) h += 12;
+      if (mod === "AM" && h === 12) h = 0;
+      return h * 60 + m;
+    };
+
+    return getTime(a.from || a.time) - getTime(b.from || b.time);
+  })
+  .map((task) => (
       <div
         className={`card ${task.completed ? "done" : ""}`}
         key={task.id}
