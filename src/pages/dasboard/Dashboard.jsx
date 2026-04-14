@@ -19,8 +19,8 @@ function Dashboard() {
   const [toTime, setToTime] = useState("");
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
-const email = localStorage.getItem("email");
-  // ✅ DATE KEY
+const user = JSON.parse(localStorage.getItem("user"));
+const email = user?.email;  // ✅ DATE KEY
   const getDateKey = (d) => d.toISOString().split("T")[0];
   const currentKey = getDateKey(date);
 
@@ -88,6 +88,7 @@ const defaultTasks = [
     body: JSON.stringify({
       action: "get",
       task_date: currentKey,
+       email,
     }),
   })
     .then((res) => res.json())
@@ -155,8 +156,7 @@ useEffect(() => {
   const deleteTask = (id) => {
 
   // ❌ default tasks skip
-  if (id <= 5) return;
-
+if (id.toString().startsWith("d")) return;
   const updated = tasks.filter((t) => t.id !== id);
 
   setTasksByDate((prev) => ({
@@ -287,7 +287,7 @@ fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
   body: JSON.stringify({
     action: editTask ? "update" : "add",
     id: editTask ? editTask.id : null,
-    
+   email, 
     title,
     from: fromTime,   // ✅ use 24hr
     to: toTime,
