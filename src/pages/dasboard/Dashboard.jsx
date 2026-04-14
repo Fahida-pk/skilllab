@@ -19,76 +19,86 @@ function Dashboard() {
   const [toTime, setToTime] = useState("");
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
-
+const user = JSON.parse(localStorage.getItem("user"));
   // ✅ DATE KEY
   const getDateKey = (d) => d.toISOString().split("T")[0];
   const currentKey = getDateKey(date);
 
   // ✅ DATE-WISE TASKS
-const [tasksByDate, setTasksByDate] = useState(() => {
-  const saved = localStorage.getItem("tasksByDate");
-  return saved ? JSON.parse(saved) : {};
-});
-  const tasks = tasksByDate[currentKey] || [];
-
+const [tasks, setTasks] = useState([]);
+const defaultTasks = [
+  {
+    id: "d1",
+    title: "Wake Up",
+    time: "5:00 AM",
+    icon: <FaSun />,
+    color: "linear-gradient(135deg, #f6d365, #fda085)",
+    completed: false,
+  },
+  {
+    id: "d2",
+    title: "Study MERN",
+    from: "5:00 AM",
+    to: "10:00 AM",
+    icon: <FaBook />,
+    color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+    completed: false,
+  },
+  {
+    id: "d3",
+    title: "Practice English",
+    from: "1:00 PM",
+    to: "4:00 PM",
+    icon: <FaLanguage />,
+    color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+    completed: false,
+  },
+  {
+    id: "d4",
+    title: "Workout",
+    from: "6:00 PM",
+    to: "7:00 PM",
+    icon: <FaDumbbell />,
+    color: "linear-gradient(135deg, #fccb90, #d57eeb)",
+    completed: false,
+  },
+  {
+    id: "d5",
+    title: "Sleep",
+    from: "10:00 PM",
+    to: "8:00 AM",
+    icon: "🌙",
+    color: "linear-gradient(135deg, #141e30, #243b55)",
+    completed: false,
+    nextDay: true,
+  },
+];
   // ✅ DEFAULT TASKS LOAD
-  useEffect(() => {
-  if (
-    !tasksByDate[currentKey] ||
-    tasksByDate[currentKey].length === 0
-  ) {
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: [
-        {
-          id: 1,
-          title: "Wake Up",
-          time: "5:00 AM",
-          icon: <FaSun />,
-          color: "linear-gradient(135deg, #f6d365, #fda085)",
-          completed: false,
-        },
-        {
-          id: 2,
-          title: "Study MERN",
-          from: "5:00 AM",
-          to: "10:00 AM",
-          icon: <FaBook />,
-          color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-          completed: false,
-        },
-        {
-          id: 3,
-          title: "Practice English",
-          from: "1:00 PM",
-          to: "4:00 PM",
-          icon: <FaLanguage />,
-          color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-          completed: false,
-        },
-        {
-          id: 4,
-          title: "Workout",
-          from: "6:00 PM",
-          to: "7:00 PM",
-          icon: <FaDumbbell />,
-          color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-          completed: false,
-        },
-        {
-          id: 5,
-          title: "Sleep",
-          from: "10:00 PM",
-          to: "5:00 AM",
-          icon: "🌙",
-          color: "linear-gradient(135deg, #141e30, #243b55)",
-          completed: false,
-          nextDay: true,
-        },
-      ],
-    }));
+ useEffect(() => {
+  fetchTasks();
+}, [currentKey]);
+
+const fetchTasks = async () => {
+  const res = await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      action: "get",
+      email: user?.email,
+      task_date: currentKey,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    setTasks(data.tasks);
+  } else {
+    setTasks([]);
   }
-}, [currentKey]); // 🔥 IMPORTANT change (date → currentKey)
+}; // 🔥 IMPORTANT change (date → currentKey)
 useEffect(() => {
   localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
 }, [tasksByDate]);
@@ -138,26 +148,39 @@ useEffect(() => {
   };
 
   // DELETE
-  const deleteTask = (id) => {
-    const updated = tasks.filter((t) => t.id !== id);
+  const deleteTask = async (task) => {
+  if (task.id.toString().startsWith("d")) return;
 
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: updated,
-    }));
-  };
+  await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "delete",
+      email: user?.email,
+      id: task.id,
+    }),
+  });
+
+  fetchTasks();
+};
 
   // TOGGLE
-  const toggleTask = (id) => {
-    const updated = tasks.map((t) =>
-      t.id === id ? { ...t, completed: !t.completed } : t
-    );
+  const toggleTask = async (task) => {
+  if (task.id.toString().startsWith("d")) return;
 
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: updated,
-    }));
-  };
+  await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "toggle",
+      email: user?.email,
+      id: task.id,
+      status: task.completed ? 0 : 1,
+    }),
+  });
+
+  fetchTasks();
+};
 
   // EDIT
   const handleEdit = (task) => {
@@ -197,17 +220,16 @@ useEffect(() => {
       setTasksByDate((prev) => {
         const nextTasks = prev[nextKey] || [];
 
-        const updatedNextTasks =
-          nextTasks.length > 0
-            ? nextTasks.map((t) =>
-                t.title === "Wake Up"
-                  ? { ...t, time: formattedTo }
-                  : t
-              )
-            : [
-                {
-                  id: 1,
-                  title: "Wake Up",
+        const updatedNextTasks = nextTasks.length > 0
+          ? nextTasks.map((t) =>
+              t.title === "Wake Up"
+                ? { ...t, time: formattedTo }
+                : t
+            )
+          : [
+              {
+                id: 1,
+                title: "Wake Up",
                   time: formattedTo,
                   icon: <FaSun />,
                   color: "linear-gradient(135deg, #f6d365, #fda085)",
@@ -275,8 +297,7 @@ useEffect(() => {
 
         <div className="task-wrapper">
           <div className="cards">
-            {tasks.map((task) => (
-              <div
+{(tasks.length > 0 ? tasks : defaultTasks).map((task) => (              <div
                 className={`card ${task.completed ? "done" : ""}`}
                 key={task.id}
                 style={{ background: task.color }}
