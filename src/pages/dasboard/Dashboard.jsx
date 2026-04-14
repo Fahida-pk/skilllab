@@ -19,7 +19,7 @@ function Dashboard() {
   const [toTime, setToTime] = useState("");
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
-
+const email = localStorage.getItem("email");
   // ✅ DATE KEY
   const getDateKey = (d) => d.toISOString().split("T")[0];
   const currentKey = getDateKey(date);
@@ -173,6 +173,7 @@ useEffect(() => {
     body: JSON.stringify({
       action: "delete",
       id,
+      email,
     }),
   });
 };
@@ -286,6 +287,7 @@ fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
   body: JSON.stringify({
     action: editTask ? "update" : "add",
     id: editTask ? editTask.id : null,
+    email,
     title,
     from: fromTime,   // ✅ use 24hr
     to: toTime,
