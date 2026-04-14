@@ -99,9 +99,7 @@ const fetchTasks = async () => {
     setTasks([]);
   }
 }; // 🔥 IMPORTANT change (date → currentKey)
-useEffect(() => {
-  localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
-}, [tasksByDate]);
+
   // 🔥 CHECK NEXT DAY
   const isNextDay = (from, to) => {
     if (!from || !to) return false;
@@ -193,90 +191,50 @@ useEffect(() => {
   };
 
   // ADD / UPDATE
-  const handleAddTask = () => {
-    if (!title || !fromTime) return;
+  const handleAddTask = async () => {
+  if (!title || !fromTime) return;
 
-    const colors = [
-      "linear-gradient(135deg, #43e97b, #38f9d7)",
-      "linear-gradient(135deg, #fa709a, #fee140)",
-      "linear-gradient(135deg, #30cfd0, #330867)",
-      "linear-gradient(135deg, #f093fb, #f5576c)",
-    ];
+  const colors = [
+    "linear-gradient(135deg, #43e97b, #38f9d7)",
+    "linear-gradient(135deg, #fa709a, #fee140)",
+    "linear-gradient(135deg, #30cfd0, #330867)",
+    "linear-gradient(135deg, #f093fb, #f5576c)",
+  ];
 
-    const formattedFrom = formatTime(fromTime);
-    const formattedTo = toTime ? formatTime(toTime) : "";
+  const formattedFrom = formatTime(fromTime);
+  const formattedTo = toTime ? formatTime(toTime) : "";
 
-    let updatedTasks = [...tasks];
+  const nextDay = isNextDay(fromTime, toTime);
 
-    const nextDay = isNextDay(fromTime, toTime);
+  const randomColor =
+    colors[Math.floor(Math.random() * colors.length)];
 
-    // ✅ Sleep → next day wake update
-    if (title.toLowerCase().includes("sleep") && formattedTo && nextDay) {
-      const nextDate = new Date(date);
-      nextDate.setDate(date.getDate() + 1);
-
-      const nextKey = getDateKey(nextDate);
-
-      setTasksByDate((prev) => {
-        const nextTasks = prev[nextKey] || [];
-
-        const updatedNextTasks = nextTasks.length > 0
-          ? nextTasks.map((t) =>
-              t.title === "Wake Up"
-                ? { ...t, time: formattedTo }
-                : t
-            )
-          : [
-              {
-                id: 1,
-                title: "Wake Up",
-                  time: formattedTo,
-                  icon: <FaSun />,
-                  color: "linear-gradient(135deg, #f6d365, #fda085)",
-                  completed: false,
-                },
-              ];
-
-        return {
-          ...prev,
-          [nextKey]: updatedNextTasks,
-        };
-      });
-    }
-
-    const newTask = {
-      id: editTask ? editTask.id : Date.now(),
+  await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      action: "add",
+      email: user?.email,
       title,
       from: formattedFrom,
       to: formattedTo,
+      task_date: currentKey,
       nextDay,
-      icon: image ? URL.createObjectURL(image) : "book",
-      color: editTask
-        ? editTask.color
-        : colors[Math.floor(Math.random() * colors.length)],
-      completed: false,
-    };
+      color: randomColor,
+    }),
+  });
 
-    if (editTask) {
-      updatedTasks = updatedTasks.map((t) =>
-        t.id === editTask.id ? newTask : t
-      );
-    } else {
-      updatedTasks.push(newTask);
-    }
+  fetchTasks();
 
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: updatedTasks,
-    }));
-
-    setEditTask(null);
-    setShowModal(false);
-    setTitle("");
-    setFromTime("");
-    setToTime("");
-    setImage(null);
-  };
+  setEditTask(null);
+  setShowModal(false);
+  setTitle("");
+  setFromTime("");
+  setToTime("");
+  setImage(null);
+};
 
   return (
     <div className="dashboard">
@@ -322,7 +280,7 @@ useEffect(() => {
 
                 <div className="actions">
                   <button onClick={() => handleEdit(task)}>✏️</button>
-                  <button onClick={() => deleteTask(task.id)}>✕</button>
+                  <button onClick={() => deleteTask(task)}>✕</button>
                   <input
                     type="checkbox"
                     checked={task.completed}
