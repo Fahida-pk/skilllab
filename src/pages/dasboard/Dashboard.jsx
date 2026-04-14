@@ -96,11 +96,12 @@ const fetchTasks = async () => {
   if (data.success) {
 const formatted = data.tasks.map((t) => ({
   id: t.id,
-  title: t.task_name,
-  from: t.from_time,
-  to: t.to_time,
+  title: t.task_name || "",
+  from: t.from_time || "",
+  to: t.to_time || "",
   completed: t.status == 1,
   color: t.color || "linear-gradient(135deg,#ccc,#999)",
+  icon: "book", // 🔥 important fix
 }));
 
 setTasks(formatted);
@@ -279,9 +280,9 @@ setTasks(formatted);
                 <div className="card-content">
                   <h3>{task.title}</h3>
                   <p>
-                    {task.title === "Wake Up"
-                      ? task.time
-                      : `${task.from} - ${task.to} ${
+                   {task.title === "Wake Up"
+  ? task.time || task.from
+  : `${task.from || ""} - ${task.to || ""} ${
                           task.nextDay ? "(Next Day)" : ""
                         }`}
                   </p>
