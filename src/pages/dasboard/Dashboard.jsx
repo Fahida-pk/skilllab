@@ -30,7 +30,8 @@ const [tasksByDate, setTasksByDate] = useState(() => {
   return saved ? JSON.parse(saved) : {};
 });
   const tasks = tasksByDate[currentKey] || [];
-
+const user = JSON.parse(localStorage.getItem("user"));
+const email = user?.email;
   // ✅ DEFAULT TASKS LOAD
   useEffect(() => {
     if (!tasksByDate[currentKey]) {
@@ -135,26 +136,60 @@ useEffect(() => {
   };
 
   // DELETE
-  const deleteTask = (id) => {
-    const updated = tasks.filter((t) => t.id !== id);
+const deleteTask = (id) => {
+  // ❌ default tasks skip
+  if (id.toString().startsWith("d")) return;
 
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: updated,
-    }));
-  };
+  const updated = tasks.filter((t) => t.id !== id);
+
+  setTasksByDate((prev) => ({
+    ...prev,
+    [currentKey]: updated,
+  }));
+
+  // 🔥 DELETE FROM DB
+  fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      action: "delete",
+      id,
+      email,
+    }),
+  });
+};
 
   // TOGGLE
-  const toggleTask = (id) => {
-    const updated = tasks.map((t) =>
-      t.id === id ? { ...t, completed: !t.completed } : t
-    );
+ const toggleTask = (id) => {
+  const updated = tasks.map((t) =>
+    t.id === id ? { ...t, completed: !t.completed } : t
+  );
 
-    setTasksByDate((prev) => ({
-      ...prev,
-      [currentKey]: updated,
-    }));
-  };
+  setTasksByDate((prev) => ({
+    ...prev,
+    [currentKey]: updated,
+  }));
+
+  // 🔥 SAVE STATUS TO DB
+  if (!id.toString().startsWith("d")) {
+    const task = updated.find((t) => t.id === id);
+
+    fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "toggle",
+        id,
+        status: task.completed ? 1 : 0,
+        email,
+      }),
+    });
+  }
+};
 
   // EDIT
   const handleEdit = (task) => {
@@ -220,8 +255,10 @@ useEffect(() => {
     }
 
     const newTask = {
-      id: editTask ? editTask.id : Date.now(),
-      title,
+id:
+  editTask && !editTask.id.toString().startsWith("d")
+    ? editTask.id
+    : Date.now(),      title,
       from: formattedFrom,
       to: formattedTo,
       nextDay,
@@ -244,7 +281,35 @@ useEffect(() => {
       ...prev,
       [currentKey]: updatedTasks,
     }));
+// 🔥 SAVE TO DB
+if (!email) {
+  alert("Login again");
+  return;
+}
 
+fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    action:
+      editTask &&
+      !editTask.id.toString().startsWith("d")
+        ? "update"
+        : "add",
+    id:
+      editTask &&
+      !editTask.id.toString().startsWith("d")
+        ? editTask.id
+        : null,
+    email,
+    title,
+    from: fromTime,
+    to: toTime,
+    task_date: currentKey,
+  }),
+});
     setEditTask(null);
     setShowModal(false);
     setTitle("");
