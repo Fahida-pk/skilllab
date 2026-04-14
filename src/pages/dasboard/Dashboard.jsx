@@ -32,6 +32,26 @@ const [tasksByDate, setTasksByDate] = useState(() => {
   const tasks = tasksByDate[currentKey] || [];
 const user = JSON.parse(localStorage.getItem("user"));
 const email = user?.email;
+const loadTasks = async () => {
+  const res = await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "get",
+      task_date: currentKey,
+      email,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    setTasksByDate((prev) => ({
+      ...prev,
+      [currentKey]: data.tasks,
+    }));
+  }
+};
   // ✅ DEFAULT TASKS LOAD
   useEffect(() => {
     if (!tasksByDate[currentKey]) {
@@ -342,7 +362,7 @@ fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
                   <input
                     type="checkbox"
                     checked={task.completed}
-                    onChange={() => toggleTask(task.id)}
+                    onChange={() => toggleTask(task)}
                   />
                 </div>
               </div>
