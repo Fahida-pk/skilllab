@@ -73,6 +73,16 @@ const [defaultTasks, setDefaultTasks] = useState([
     nextDay: true,
   },
 ]);
+useEffect(() => {
+  const saved = localStorage.getItem("defaultTasks");
+  if (saved) {
+    setDefaultTasks(JSON.parse(saved));
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("defaultTasks", JSON.stringify(defaultTasks));
+}, [defaultTasks]);
   // ✅ DEFAULT TASKS LOAD
  useEffect(() => {
   fetchTasks();
@@ -264,26 +274,21 @@ setTasks(formatted);
   // =========================
   // 🚨 OVERLAP CHECK
   // =========================
-  const toMin = (time) => {
-    const [t1, mod] = time.split(" ");
-    let [h, m] = t1.split(":").map(Number);
-    if (mod === "PM" && h !== 12) h += 12;
-    if (mod === "AM" && h === 12) h = 0;
-    return h * 60 + m;
-  };
+// =========================
+// 🚨 OVERLAP CHECK (FIXED)
+// =========================
+const toMin = (time) => {
+  const [t1, mod] = time.split(" ");
+  let [h, m] = t1.split(":").map(Number);
+  if (mod === "PM" && h !== 12) h += 12;
+  if (mod === "AM" && h === 12) h = 0;
+  return h * 60 + m;
+};
 
-  const isOverlap = [...defaultTasks, ...tasks].some((t) => {
+const isOverlap = [...defaultTasks, ...tasks].some((t) => {
   if (!t.from || !t.to) return false;
 
   if (editTask && t.id === editTask.id) return false;
-
-  const toMin = (time) => {
-    const [t1, mod] = time.split(" ");
-    let [h, m] = t1.split(":").map(Number);
-    if (mod === "PM" && h !== 12) h += 12;
-    if (mod === "AM" && h === 12) h = 0;
-    return h * 60 + m;
-  };
 
   let newFrom = toMin(formattedFrom);
   let newTo = formattedTo ? toMin(formattedTo) : newFrom;
@@ -291,22 +296,17 @@ setTasks(formatted);
   let oldFrom = toMin(t.from);
   let oldTo = toMin(t.to);
 
-  // 🌙 HANDLE NEXT DAY (SLEEP)
-  if (t.nextDay) {
-    oldTo += 24 * 60;
-  }
-
-  if (nextDay) {
-    newTo += 24 * 60;
-  }
+  // 🌙 next day fix
+  if (t.nextDay) oldTo += 1440;
+  if (nextDay) newTo += 1440;
 
   return newFrom < oldTo && newTo > oldFrom;
 });
 
-  if (isOverlap) {
-    alert("⚠️ Time already exists! Change time");
-    return;
-  }
+if (isOverlap) {
+  alert("⚠️ Time already exists! Change time");
+  return;
+}
 
   // =========================
   // 🌙 SLEEP → NEXT DAY WAKE
@@ -319,7 +319,7 @@ setTasks(formatted);
     setDefaultTasks((prev) =>
       prev.map((t) =>
         t.title?.toLowerCase() === "wake up"
-          ? { ...t, time: formattedTo, from: formattedTo }
+          ? { ...t, time: formattedTo }
           : t
       )
     );
