@@ -92,7 +92,12 @@ const fetchTasks = async () => {
   });
 
   const data = await res.json();
-
+const colors = [
+  "linear-gradient(135deg, #43e97b, #38f9d7)",
+  "linear-gradient(135deg, #fa709a, #fee140)",
+  "linear-gradient(135deg, #30cfd0, #330867)",
+  "linear-gradient(135deg, #f093fb, #f5576c)",
+];
   if (data.success) {
 const formatted = data.tasks.map((t) => ({
   id: t.id,
@@ -100,7 +105,7 @@ const formatted = data.tasks.map((t) => ({
   from: t.from,
   to: t.to,
   completed: t.completed,
-  color: t.color || "linear-gradient(135deg,#ccc,#999)",
+  color: t.color || colors[Math.floor(Math.random() * colors.length)],
   icon: "book",
 }));
 
