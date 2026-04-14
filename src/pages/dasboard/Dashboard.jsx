@@ -73,16 +73,7 @@ const [defaultTasks, setDefaultTasks] = useState([
     nextDay: true,
   },
 ]);
-useEffect(() => {
-  const saved = localStorage.getItem("defaultTasks");
-  if (saved) {
-    setDefaultTasks(JSON.parse(saved));
-  }
-}, []);
 
-useEffect(() => {
-  localStorage.setItem("defaultTasks", JSON.stringify(defaultTasks));
-}, [defaultTasks]);
   // ✅ DEFAULT TASKS LOAD
  useEffect(() => {
   fetchTasks();
