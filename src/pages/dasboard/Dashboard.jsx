@@ -149,16 +149,16 @@ const deleteTask = (id) => {
 
   // 🔥 DELETE FROM DB
   fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      action: "delete",
-      id,
-      email,
-    }),
-  });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    action: "delete",
+    id,
+    email,
+  }),
+}).then(() => {
+  window.location.reload(); // 🔥 ADD THIS
+});
 };
 
   // TOGGLE
@@ -177,17 +177,18 @@ const deleteTask = (id) => {
     const task = updated.find((t) => t.id === id);
 
     fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        action: "toggle",
-        id,
-        status: task.completed ? 1 : 0,
-        email,
-      }),
-    });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    action: "toggle",
+    id,
+    status: task.completed ? 1 : 0,
+    email,
+  }),
+}).then(() => {
+  window.location.reload(); // 🔥 ADD
+});
+    
   }
 };
 
