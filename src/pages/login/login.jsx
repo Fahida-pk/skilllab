@@ -55,7 +55,7 @@ localStorage.setItem("token", token);
         </div>
 
         <h1 className="title">Sign In</h1>
-        <p className="subtitle">Contin with Google</p>
+        <p className="subtitle">Continue with Google</p>
 
         <div className="google-btn">
           <GoogleLogin
