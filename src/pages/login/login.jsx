@@ -29,8 +29,8 @@ function Login() {
         // ✅ save user
         localStorage.setItem("user", JSON.stringify(data.user));
 localStorage.setItem("token", token);
-        // ✅ redirect to sidebar
-        navigate("/sidebar");
+        // ✅ redirect to dashboard
+        navigate("/dashboard");
       } else {
         alert(data.message);
       }
