@@ -1,82 +1,128 @@
-* {
-  box-sizing: border-box;
-}
+/* =========================================================
+   DASHBOARD PAGE
+========================================================= */
 
 .dashboard-page {
   min-height: 100vh;
-  background: #f6f7fb;
-  font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
+  background: #f7f8fc;
+  box-sizing: border-box;
 }
 
-/* =========================
-   MAIN
-========================= */
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
 
 .dashboard-main {
-  margin-left: 280px;
-  padding: 35px 45px 110px;
+  margin-left: 270px;
+  width: calc(100% - 270px);
   min-height: 100vh;
+
+  padding: 32px 45px 110px;
+
+  box-sizing: border-box;
+
+  background: #f7f8fc;
+
+  display: block;
 }
 
 
-/* =========================
-   DATE
-========================= */
+/* =========================================================
+   DATE NAVIGATION
+========================================================= */
 
 .date-navigation {
+  width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 60px;
+
+  gap: 55px;
+
   margin-bottom: 28px;
 }
 
 .date-arrow {
-  width: 62px;
-  height: 62px;
-  border: none;
+  width: 60px;
+  height: 60px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 17px;
+
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  font-size: 24px;
-  cursor: pointer;
-  color: #172033;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  font-size: 22px;
+  color: #172033;
+
+  cursor: pointer;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  transition: 0.2s ease;
 }
 
 .date-arrow:hover {
   transform: translateY(-2px);
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.09);
 }
 
 .selected-date {
   display: flex;
   align-items: center;
+  justify-content: center;
+
   gap: 12px;
-  font-size: 20px;
+
+  min-width: 220px;
+
+  font-size: 18px;
   font-weight: 700;
-  color: #172033;
+
+  color: #111827;
+}
+
+.selected-date svg {
+  font-size: 19px;
 }
 
 
-/* =========================
+/* =========================================================
    PROGRESS CARDS
-========================= */
+========================================================= */
 
 .progress-cards {
+  width: 100%;
+
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  max-width: 1150px;
-  margin: auto;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin-bottom: 24px;
 }
 
 .progress-card {
-  padding: 28px;
-  border-radius: 20px;
   min-height: 205px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+
+  padding: 25px;
+
+  border-radius: 22px;
+
+  box-sizing: border-box;
+
+  border: 1px solid rgba(0, 0, 0, 0.04);
+
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.04);
 }
 
 .today-card {
@@ -84,135 +130,198 @@
 }
 
 .week-card {
-  background: #edfff3;
+  background: #effff4;
 }
 
 .month-card {
-  background: #f7efff;
+  background: #faf1ff;
 }
+
+
+/* =========================================================
+   CARD TOP
+========================================================= */
 
 .card-top {
   display: flex;
   align-items: center;
-  gap: 16px;
+
+  gap: 15px;
 }
 
 .card-top h3 {
-  margin: 0 0 7px;
+  margin: 0;
+
   font-size: 18px;
   font-weight: 500;
+
+  color: #111827;
 }
 
 .card-top p {
-  margin: 0;
-  color: #667085;
-  font-size: 14px;
+  margin: 5px 0 0;
+
+  font-size: 13px;
+
+  color: #64748b;
 }
+
+
+/* =========================================================
+   CARD ICON
+========================================================= */
 
 .card-icon {
   width: 50px;
   height: 50px;
+
   border-radius: 14px;
-  color: white;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+
+  color: white;
+
+  font-size: 20px;
+
+  flex-shrink: 0;
 }
 
 .card-icon.blue {
-  background: #2785e8;
+  background: #2585e8;
 }
 
 .card-icon.green {
-  background: #18b957;
+  background: #20b958;
 }
 
 .card-icon.purple {
-  background: #6526d7;
+  background: #6327d8;
 }
 
+
+/* =========================================================
+   PERCENTAGE
+========================================================= */
+
 .percentage {
-  margin-top: 25px;
+  margin-top: 27px;
+
   font-size: 48px;
+  line-height: 1;
+
   font-weight: 700;
 }
 
 .blue-text {
-  color: #1976df;
+  color: #1476df;
 }
 
 .green-text {
-  color: #13ad50;
+  color: #16aa4d;
 }
 
 .purple-text {
-  color: #6027c9;
+  color: #6024ce;
 }
 
 .orange-text {
-  color: #ef9b16;
+  color: #ed9b16;
 }
 
+
+/* =========================================================
+   PROGRESS BAR
+========================================================= */
+
 .progress-bar {
+  width: 100%;
   height: 11px;
-  margin-top: 20px;
+
+  margin-top: 25px;
+
+  background: #dfe4ea;
+
   border-radius: 20px;
-  background: #dfe3e8;
+
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
+
   border-radius: 20px;
+
+  transition: width 0.4s ease;
 }
 
 .blue-fill {
-  background: #2383e8;
+  background: #2585e8;
 }
 
 .green-fill {
-  background: #13b34d;
+  background: #16b955;
 }
 
 .purple-fill {
-  background: #6626d3;
+  background: #6327d8;
 }
 
 
-/* =========================
-   PROGRESS STATUS
-========================= */
+/* =========================================================
+   COMMON SECTION
+========================================================= */
+
+.progress-section,
+.quick-section,
+.tasks-section {
+  width: 100%;
+
+  background: white;
+
+  border: 1px solid #e9edf3;
+
+  border-radius: 22px;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.035);
+
+  margin-bottom: 22px;
+}
 
 .progress-section {
-  background: white;
-  max-width: 1150px;
-  margin: 22px auto;
   padding: 28px;
-  border-radius: 20px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
 }
 
 .progress-section h2,
 .quick-section h2,
 .tasks-section h2 {
   margin: 0;
-  color: #172033;
-  font-size: 21px;
+
+  font-size: 22px;
+  font-weight: 500;
+
+  color: #111827;
 }
+
+
+/* =========================================================
+   PIE SECTION
+========================================================= */
 
 .progress-content {
   display: flex;
   align-items: center;
+
   justify-content: center;
-  gap: 110px;
-  padding: 25px 20px 5px;
+
+  gap: 90px;
+
+  padding: 20px 30px 10px;
 }
-
-
-/* =========================
-   PIE
-========================= */
 
 .pie-wrapper {
   display: flex;
@@ -221,69 +330,106 @@
 }
 
 .pie-chart {
-  width: 285px;
-  height: 285px;
+  width: 250px;
+  height: 250px;
+
   border-radius: 50%;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   position: relative;
 }
 
-.pie-center {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
+.pie-chart::after {
+  content: "";
+
+  position: absolute;
+
+  width: 130px;
+  height: 130px;
+
   background: white;
+
+  border-radius: 50%;
+}
+
+.pie-center {
+  position: relative;
+
+  z-index: 2;
+
   display: flex;
   flex-direction: column;
+
   align-items: center;
   justify-content: center;
 }
 
 .pie-center span {
   font-size: 14px;
-  color: #4b5563;
+
+  color: #374151;
 }
 
 .pie-center strong {
-  font-size: 34px;
-  margin: 5px 0;
-  color: #172033;
+  margin-top: 4px;
+
+  font-size: 31px;
+
+  color: #111827;
 }
 
 .pie-center small {
-  font-size: 14px;
+  margin-top: 2px;
+
+  font-size: 13px;
+
   color: #374151;
 }
 
 
-/* =========================
+/* =========================================================
    LEGEND
-========================= */
+========================================================= */
 
 .legend {
-  min-width: 320px;
+  min-width: 280px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 25px;
 }
 
 .legend-row {
   display: flex;
-  justify-content: space-between;
+
   align-items: center;
-  padding: 13px 0;
-  font-size: 17px;
+  justify-content: space-between;
+
+  gap: 50px;
+
+  font-size: 16px;
+
+  color: #172033;
 }
 
 .legend-name {
   display: flex;
   align-items: center;
-  gap: 14px;
+
+  gap: 12px;
 }
 
 .dot {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
+
   border-radius: 50%;
+
+  display: inline-block;
 }
 
 .completed-dot {
@@ -303,374 +449,699 @@
 }
 
 
-/* =========================
+/* =========================================================
    QUICK OVERVIEW
-========================= */
+========================================================= */
 
 .quick-section {
-  max-width: 1150px;
-  margin: 22px auto;
-  padding: 28px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  padding: 26px;
 }
 
 .quick-list {
   margin-top: 18px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 9px;
 }
 
 .quick-item {
-  min-height: 62px;
-  border: 1px solid #e6e8ed;
-  border-radius: 13px;
-  display: grid;
-  grid-template-columns: 45px 1fr auto 25px;
-  align-items: center;
-  gap: 12px;
+  min-height: 60px;
+
   padding: 10px 15px;
-  margin-bottom: 8px;
+
+  border: 1px solid #e7ebf0;
+
+  border-radius: 13px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+
+  box-sizing: border-box;
+}
+
+.quick-item span:not(.quick-icon) {
+  flex: 1;
+
+  font-size: 15px;
+
+  color: #1f2937;
+}
+
+.quick-item > strong {
+  font-size: 16px;
+}
+
+.quick-item > svg {
+  color: #64748b;
+  font-size: 14px;
 }
 
 .quick-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 35px;
+  height: 35px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 19px;
+
+  flex-shrink: 0;
 }
 
 .blue-icon {
-  color: #1879df;
-  background: #edf6ff;
+  color: #2585e8;
 }
 
 .green-icon {
-  color: #16ae51;
-  background: #edfff3;
+  color: #20b958;
 }
 
 .purple-icon {
-  color: #6428d1;
-  background: #f4edff;
+  color: #6327d8;
 }
 
 .orange-icon {
-  color: #ef9b16;
-  background: #fff6e7;
-}
-
-.quick-item span {
-  color: #172033;
-  font-size: 15px;
-}
-
-.quick-item strong {
-  font-size: 17px;
+  color: #ed9b16;
 }
 
 
-/* =========================
-   TASKS
-========================= */
+/* =========================================================
+   TODAY TASKS
+========================================================= */
 
 .tasks-section {
-  max-width: 1150px;
-  margin: 22px auto;
-  padding: 28px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  padding: 26px;
 }
 
 .section-heading {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 17px;
 }
 
 .task-count {
-  background: #f1ebff;
-  color: #6126ca;
-  padding: 9px 15px;
-  border-radius: 12px;
-  font-size: 14px;
+  padding: 7px 13px;
+
+  border-radius: 20px;
+
+  background: #f3edff;
+
+  color: #6327d8;
+
+  font-size: 13px;
   font-weight: 600;
 }
 
+
+/* =========================================================
+   TASK LIST
+========================================================= */
+
 .today-task-list {
-  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+
+  gap: 9px;
 }
 
 .dashboard-task {
-  min-height: 70px;
-  padding: 12px 16px;
-  border: 1px solid #e7e9ee;
-  border-left: 4px solid #aaa;
-  border-radius: 12px;
-  margin-bottom: 9px;
+  min-height: 65px;
+
+  padding: 11px 15px;
+
+  border: 1px solid #e7ebf0;
+
+  border-radius: 13px;
+
   display: flex;
+
   align-items: center;
   justify-content: space-between;
-}
 
-.dashboard-task.completed {
-  border-left-color: #22c55e;
-}
-
-.dashboard-task.in_progress {
-  border-left-color: #2f80ed;
-}
-
-.dashboard-task.pending {
-  border-left-color: #f5a623;
-}
-
-.dashboard-task.not_started {
-  border-left-color: #ef3340;
+  box-sizing: border-box;
 }
 
 .task-left {
   display: flex;
+
   align-items: center;
+
   gap: 14px;
+
+  min-width: 0;
 }
 
 .task-status-icon {
+  width: 31px;
+  height: 31px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
   font-size: 22px;
 }
 
-.completed .task-status-icon {
+.dashboard-task.completed {
+  border-left: 3px solid #22c55e;
+}
+
+.dashboard-task.completed .task-status-icon {
   color: #22c55e;
 }
 
-.in_progress .task-status-icon {
+.dashboard-task.in_progress {
+  border-left: 3px solid #2f80ed;
+}
+
+.dashboard-task.in_progress .task-status-icon {
   color: #2f80ed;
 }
 
-.pending .task-status-icon {
+.dashboard-task.pending {
+  border-left: 3px solid #f5a623;
+}
+
+.dashboard-task.pending .task-status-icon {
   color: #f5a623;
 }
 
-.not_started .task-status-icon {
-  color: #ef3340;
+.dashboard-task.not_started {
+  border-left: 3px solid #6327d8;
+}
+
+.dashboard-task.not_started .task-status-icon {
+  color: #6327d8;
 }
 
 .dashboard-task h3 {
-  margin: 0 0 5px;
-  font-size: 16px;
+  margin: 0;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  color: #172033;
 }
 
 .dashboard-task p {
-  margin: 0;
-  color: #667085;
+  margin: 5px 0 0;
+
   font-size: 13px;
+
+  color: #64748b;
 }
 
+
+/* =========================================================
+   STATUS BADGES
+========================================================= */
+
 .status-badge {
-  padding: 7px 12px;
+  padding: 6px 12px;
+
   border-radius: 20px;
-  font-size: 13px;
+
+  font-size: 12px;
+
   font-weight: 600;
+
+  white-space: nowrap;
 }
 
 .status-badge.completed {
-  background: #e9faef;
-  color: #16a34a;
+  background: #e8f9ee;
+  color: #20a94c;
 }
 
 .status-badge.in_progress {
   background: #eaf3ff;
-  color: #1976d2;
+  color: #2377d8;
 }
 
 .status-badge.pending {
   background: #fff5df;
-  color: #e99a0a;
+  color: #df9412;
 }
 
 .status-badge.not_started {
-  background: #ffebed;
-  color: #ed3340;
+  background: #f1eaff;
+  color: #6327d8;
 }
 
+
+/* =========================================================
+   EMPTY / LOADING
+========================================================= */
+
+.loading,
 .empty-tasks {
+  padding: 35px 20px;
+
   text-align: center;
-  padding: 40px 10px;
-  color: #667085;
+
+  color: #64748b;
 }
 
 .empty-tasks button {
+  margin-top: 12px;
+
   border: none;
-  background: #6526d3;
-  color: white;
+
   padding: 11px 18px;
+
   border-radius: 10px;
+
+  background: #6327d8;
+
+  color: white;
+
+  font-size: 14px;
+
   cursor: pointer;
+
   display: inline-flex;
   align-items: center;
+
   gap: 8px;
 }
 
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: #667085;
-}
 
-
-/* =========================
-   MOBILE BOTTOM
-========================= */
+/* =========================================================
+   MOBILE NAV
+========================================================= */
 
 .mobile-bottom-nav {
   display: none;
 }
 
 
-/* =========================
-   TABLET / MOBILE
-========================= */
+/* =========================================================
+   TABLET
+========================================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
 
   .dashboard-main {
-    margin-left: 0;
-    padding: 90px 15px 100px;
+    padding-left: 25px;
+    padding-right: 25px;
   }
 
   .progress-cards {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .month-card {
+    grid-column: span 2;
   }
 
   .progress-content {
-    flex-direction: column;
-    gap: 30px;
+    gap: 35px;
   }
 
-  .legend {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .pie-chart {
-    width: 240px;
-    height: 240px;
-  }
-
-  .date-navigation {
-    gap: 20px;
-  }
-
-  .date-arrow {
-    width: 48px;
-    height: 48px;
-  }
-
-  .selected-date {
-    font-size: 16px;
-  }
-
-  .mobile-bottom-nav {
-    position: fixed;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 72px;
-    background: white;
-    border-top: 1px solid #e5e7eb;
-    z-index: 1000;
-  }
-
-  .mobile-bottom-nav button {
-    border: none;
-    background: transparent;
-    color: #64748b;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    font-size: 12px;
-  }
-
-  .mobile-bottom-nav button span {
-    font-size: 22px;
-  }
-
-  .mobile-bottom-nav button.active {
-    color: #6526d3;
-  }
 }
 
 
-@media (max-width: 600px) {
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .dashboard-page {
+    width: 100%;
+    min-height: 100vh;
+  }
+
+
+  /* IMPORTANT:
+     mobile sidebar should not take page width
+  */
 
   .dashboard-main {
-    padding-left: 10px;
-    padding-right: 10px;
+
+    margin-left: 0;
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    padding:
+      82px
+      14px
+      85px;
+
+    box-sizing: border-box;
+
+    overflow-x: hidden;
+  }
+
+
+  /* DATE */
+
+  .date-navigation {
+
+    gap: 18px;
+
+    margin-bottom: 18px;
+  }
+
+  .date-arrow {
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 14px;
+
+    font-size: 18px;
+  }
+
+  .selected-date {
+
+    min-width: auto;
+
+    gap: 7px;
+
+    font-size: 14px;
+
+    white-space: nowrap;
+  }
+
+  .selected-date svg {
+    font-size: 15px;
+  }
+
+
+  /* CARDS */
+
+  .progress-cards {
+
+    grid-template-columns: 1fr;
+
+    gap: 14px;
+
+    margin-bottom: 16px;
   }
 
   .progress-card {
+
+    min-height: 170px;
+
     padding: 20px;
+
+    border-radius: 19px;
+  }
+
+  .month-card {
+    grid-column: auto;
+  }
+
+  .card-icon {
+
+    width: 46px;
+    height: 46px;
+
+    border-radius: 13px;
+  }
+
+  .card-top h3 {
+    font-size: 17px;
+  }
+
+  .card-top p {
+    font-size: 12px;
   }
 
   .percentage {
-    font-size: 40px;
+
+    margin-top: 22px;
+
+    font-size: 39px;
   }
+
+  .progress-bar {
+
+    height: 9px;
+
+    margin-top: 20px;
+  }
+
+
+  /* SECTIONS */
 
   .progress-section,
   .quick-section,
   .tasks-section {
-    padding: 20px 15px;
+
+    border-radius: 18px;
+
+    margin-bottom: 16px;
   }
 
+  .progress-section {
+
+    padding: 20px;
+  }
+
+  .quick-section,
+  .tasks-section {
+
+    padding: 20px;
+  }
+
+  .progress-section h2,
+  .quick-section h2,
+  .tasks-section h2 {
+
+    font-size: 19px;
+  }
+
+
+  /* PIE */
+
   .progress-content {
-    padding-left: 0;
-    padding-right: 0;
+
+    flex-direction: column;
+
+    gap: 25px;
+
+    padding:
+      20px
+      0
+      5px;
   }
 
   .pie-chart {
+
     width: 210px;
     height: 210px;
   }
 
-  .pie-center {
-    width: 120px;
-    height: 120px;
+  .pie-chart::after {
+
+    width: 112px;
+    height: 112px;
   }
 
   .pie-center strong {
+
     font-size: 28px;
   }
 
+  .legend {
+
+    width: 100%;
+    min-width: 0;
+
+    gap: 17px;
+  }
+
+  .legend-row {
+
+    font-size: 14px;
+
+    gap: 15px;
+  }
+
+
+  /* QUICK */
+
   .quick-item {
-    grid-template-columns: 38px 1fr auto;
+
+    min-height: 58px;
+
+    padding: 9px 10px;
+
+    gap: 9px;
   }
 
-  .quick-item > svg {
-    display: none;
-  }
+  .quick-item span:not(.quick-icon) {
 
-  .quick-item span {
     font-size: 13px;
   }
 
-  .quick-item strong {
-    font-size: 14px;
+  .quick-item > strong {
+
+    font-size: 13px;
+
+    white-space: nowrap;
   }
 
-  .dashboard-task {
-    align-items: flex-start;
+
+  /* TASKS */
+
+  .section-heading {
+
     gap: 10px;
   }
 
-  .status-badge {
+  .task-count {
+
     font-size: 11px;
-    padding: 6px 8px;
+
+    padding: 6px 9px;
   }
+
+  .dashboard-task {
+
+    padding: 11px;
+
+    min-height: 62px;
+  }
+
+  .task-left {
+
+    gap: 10px;
+  }
+
+  .dashboard-task h3 {
+
+    font-size: 14px;
+  }
+
+  .dashboard-task p {
+
+    font-size: 11px;
+  }
+
+  .status-badge {
+
+    font-size: 10px;
+
+    padding: 5px 8px;
+  }
+
+
+  /* MOBILE BOTTOM NAV */
+
+  .mobile-bottom-nav {
+
+    position: fixed;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 70px;
+
+    background: white;
+
+    border-top: 1px solid #e5e7eb;
+
+    z-index: 1000;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-around;
+
+    box-sizing: border-box;
+  }
+
+  .mobile-bottom-nav button {
+
+    border: none;
+
+    background: transparent;
+
+    color: #64748b;
+
+    font-size: 11px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    cursor: pointer;
+
+    min-width: 60px;
+  }
+
+  .mobile-bottom-nav button span {
+
+    font-size: 23px;
+
+    line-height: 1;
+  }
+
+  .mobile-bottom-nav button.active {
+
+    color: #6327d8;
+
+    font-weight: 600;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+  .dashboard-main {
+
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .date-navigation {
+
+    gap: 12px;
+  }
+
+  .date-arrow {
+
+    width: 43px;
+    height: 43px;
+  }
+
+  .selected-date {
+
+    font-size: 12px;
+  }
+
+  .progress-card {
+
+    padding: 17px;
+  }
+
 }
