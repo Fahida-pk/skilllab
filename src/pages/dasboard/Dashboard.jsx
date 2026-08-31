@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
+
 import {
-  FaBars,
-  FaBell,
   FaCalendarAlt,
   FaChevronLeft,
   FaChevronRight,
@@ -16,7 +15,7 @@ import {
 } from "react-icons/fa";
 
 import "./dashboard.css";
-
+import Sidebar from "./Sidebar";
 
 function Dashboard() {
 
@@ -35,9 +34,9 @@ function Dashboard() {
     useState(true);
 
 
-  /* =====================================
-     DATE KEY
-  ===================================== */
+  // =====================================
+  // DATE KEY
+  // =====================================
 
   const getDateKey = (date) => {
 
@@ -58,9 +57,9 @@ function Dashboard() {
   };
 
 
-  /* =====================================
-     FETCH DASHBOARD
-  ===================================== */
+  // =====================================
+  // FETCH DASHBOARD
+  // =====================================
 
   const fetchDashboard = async () => {
 
@@ -74,8 +73,7 @@ function Dashboard() {
           method: "POST",
 
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
 
           body: JSON.stringify({
@@ -120,8 +118,13 @@ function Dashboard() {
       setLoading(false);
 
     }
+
   };
 
+
+  // =====================================
+  // FETCH WHEN DATE CHANGES
+  // =====================================
 
   useEffect(() => {
 
@@ -130,9 +133,9 @@ function Dashboard() {
   }, [date]);
 
 
-  /* =====================================
-     DATE CHANGE
-  ===================================== */
+  // =====================================
+  // CHANGE DATE
+  // =====================================
 
   const changeDate = (type) => {
 
@@ -154,12 +157,13 @@ function Dashboard() {
     }
 
     setDate(newDate);
+
   };
 
 
-  /* =====================================
-     FORMAT DATE
-  ===================================== */
+  // =====================================
+  // FORMAT DATE
+  // =====================================
 
   const formatDate = () => {
 
@@ -172,12 +176,13 @@ function Dashboard() {
         year: "numeric",
       }
     );
+
   };
 
 
-  /* =====================================
-     STATUS
-  ===================================== */
+  // =====================================
+  // STATUS TEXT
+  // =====================================
 
   const getStatusText = (status) => {
 
@@ -194,69 +199,100 @@ function Dashboard() {
 
       default:
         return "Not Started";
+
     }
+
   };
 
 
-  /* =====================================
-     LOADING
-  ===================================== */
+  // =====================================
+  // LOADING
+  // =====================================
 
   if (loading && !dashboard) {
 
     return (
-      <div className="dashboard-loading">
-        Loading Dashboard...
+      <div className="dashboard-page">
+
+        <Sidebar />
+
+        <div className="dashboard-loading">
+          Loading Dashboard...
+        </div>
+
       </div>
     );
+
   }
 
+
+  // =====================================
+  // NO DATA
+  // =====================================
 
   if (!dashboard) {
 
     return (
-      <div className="dashboard-loading">
-        No dashboard data
+      <div className="dashboard-page">
+
+        <Sidebar />
+
+        <div className="dashboard-loading">
+          No dashboard data
+        </div>
+
       </div>
     );
+
   }
 
 
+  // =====================================
+  // DASHBOARD DATA
+  // =====================================
+
   const today =
-    dashboard.today;
+    dashboard.today || {};
 
   const week =
-    dashboard.week;
+    dashboard.week || {};
 
   const month =
-    dashboard.month;
+    dashboard.month || {};
 
   const studyHours =
-    dashboard.studyHours;
+    dashboard.studyHours || {
+      hours: 0,
+      minutes: 0,
+    };
 
   const tasks =
     dashboard.tasks || [];
 
 
-  /* =====================================
-     PIE CALCULATION
-  ===================================== */
+  // =====================================
+  // PIE DATA
+  // =====================================
 
   const total =
-    today.total || 0;
+    Number(today.total) || 0;
 
   const completed =
-    today.completed || 0;
+    Number(today.completed) || 0;
 
   const inProgress =
-    today.inProgress || 0;
+    Number(today.inProgress) || 0;
 
   const pending =
-    today.pending || 0;
+    Number(today.pending) || 0;
 
   const notStarted =
-    today.notStarted || 0;
+    Number(today.notStarted) || 0;
 
+
+  // =====================================
+  // PIE DEGREES
+  // =====================================
 
   const completedDeg =
     total
@@ -265,19 +301,28 @@ function Dashboard() {
 
   const inProgressDeg =
     total
-      ? ((completed + inProgress) / total) * 360
+      ? (
+          (completed + inProgress) /
+          total
+        ) * 360
       : 0;
 
   const pendingDeg =
     total
       ? (
-          (completed +
+          (
+            completed +
             inProgress +
-            pending) /
+            pending
+          ) /
           total
         ) * 360
       : 0;
 
+
+  // =====================================
+  // DONUT BACKGROUND
+  // =====================================
 
   const donutBackground = `
     conic-gradient(
@@ -289,44 +334,47 @@ function Dashboard() {
   `;
 
 
+  // =====================================
+  // PERCENTAGE HELPER
+  // =====================================
+
+  const getPercentage = (value) => {
+
+    return total
+      ? Math.round(
+          (Number(value) / total) * 100
+        )
+      : 0;
+
+  };
+
+
+  // =====================================
+  // MAIN
+  // =====================================
+
   return (
 
     <div className="dashboard-page">
 
 
       {/* =================================
-          HEADER
+          SIDEBAR
       ================================= */}
 
-      <header className="dashboard-header">
-
-        <button className="header-menu">
-          <FaBars />
-        </button>
-
-        <div className="brand">
-          SKILL LAB
-        </div>
-
-        <button className="header-notification">
-
-          <FaBell />
-
-          <span></span>
-
-        </button>
-
-      </header>
+      <Sidebar />
 
 
       {/* =================================
-          CONTENT
+          DASHBOARD CONTENT
       ================================= */}
 
       <main className="dashboard-content">
 
 
-        {/* DATE */}
+        {/* =================================
+            DATE NAVIGATION
+        ================================= */}
 
         <div className="date-navigation">
 
@@ -335,7 +383,9 @@ function Dashboard() {
               changeDate("prev")
             }
           >
+
             <FaChevronLeft />
+
           </button>
 
 
@@ -355,7 +405,9 @@ function Dashboard() {
               changeDate("next")
             }
           >
+
             <FaChevronRight />
+
           </button>
 
         </div>
@@ -375,19 +427,28 @@ function Dashboard() {
             <div className="card-heading">
 
               <div className="card-icon blue">
+
                 <FaCalendarAlt />
+
               </div>
 
               <div>
-                <h3>Today</h3>
-                <p>Overall Progress</p>
+
+                <h3>
+                  Today
+                </h3>
+
+                <p>
+                  Overall Progress
+                </p>
+
               </div>
 
             </div>
 
 
             <strong>
-              {today.percentage}%
+              {today.percentage || 0}%
             </strong>
 
 
@@ -397,7 +458,7 @@ function Dashboard() {
                 className="progress-bar blue-bar"
                 style={{
                   width:
-                    `${today.percentage}%`
+                    `${today.percentage || 0}%`,
                 }}
               />
 
@@ -406,26 +467,35 @@ function Dashboard() {
           </div>
 
 
-          {/* WEEK */}
+          {/* THIS WEEK */}
 
           <div className="progress-card green-card">
 
             <div className="card-heading">
 
               <div className="card-icon green">
+
                 <FaCalendarAlt />
+
               </div>
 
               <div>
-                <h3>This Week</h3>
-                <p>Overall Progress</p>
+
+                <h3>
+                  This Week
+                </h3>
+
+                <p>
+                  Overall Progress
+                </p>
+
               </div>
 
             </div>
 
 
             <strong>
-              {week.percentage}%
+              {week.percentage || 0}%
             </strong>
 
 
@@ -435,7 +505,7 @@ function Dashboard() {
                 className="progress-bar green-bar"
                 style={{
                   width:
-                    `${week.percentage}%`
+                    `${week.percentage || 0}%`,
                 }}
               />
 
@@ -444,26 +514,35 @@ function Dashboard() {
           </div>
 
 
-          {/* MONTH */}
+          {/* THIS MONTH */}
 
           <div className="progress-card purple-card">
 
             <div className="card-heading">
 
               <div className="card-icon purple">
+
                 <FaCalendarAlt />
+
               </div>
 
               <div>
-                <h3>This Month</h3>
-                <p>Overall Progress</p>
+
+                <h3>
+                  This Month
+                </h3>
+
+                <p>
+                  Overall Progress
+                </p>
+
               </div>
 
             </div>
 
 
             <strong>
-              {month.percentage}%
+              {month.percentage || 0}%
             </strong>
 
 
@@ -473,7 +552,7 @@ function Dashboard() {
                 className="progress-bar purple-bar"
                 style={{
                   width:
-                    `${month.percentage}%`
+                    `${month.percentage || 0}%`,
                 }}
               />
 
@@ -506,7 +585,7 @@ function Dashboard() {
                 className="donut-chart"
                 style={{
                   background:
-                    donutBackground
+                    donutBackground,
                 }}
               >
 
@@ -517,7 +596,7 @@ function Dashboard() {
                   </span>
 
                   <strong>
-                    {today.percentage}%
+                    {today.percentage || 0}%
                   </strong>
 
                   <small>
@@ -535,64 +614,74 @@ function Dashboard() {
 
             <div className="legend">
 
+
+              {/* COMPLETED */}
+
               <div>
+
                 <span className="dot completed"></span>
-                <span>Completed</span>
+
+                <span>
+                  Completed
+                </span>
+
                 <strong>
-                  {total
-                    ? Math.round(
-                        completed /
-                        total *
-                        100
-                      )
-                    : 0}%
+                  {getPercentage(completed)}%
                 </strong>
+
               </div>
 
 
+              {/* IN PROGRESS */}
+
               <div>
+
                 <span className="dot progress"></span>
-                <span>In Progress</span>
+
+                <span>
+                  In Progress
+                </span>
+
                 <strong>
-                  {total
-                    ? Math.round(
-                        inProgress /
-                        total *
-                        100
-                      )
-                    : 0}%
+                  {getPercentage(inProgress)}%
                 </strong>
+
               </div>
 
 
+              {/* PENDING */}
+
               <div>
+
                 <span className="dot pending"></span>
-                <span>Pending</span>
+
+                <span>
+                  Pending
+                </span>
+
                 <strong>
-                  {total
-                    ? Math.round(
-                        pending /
-                        total *
-                        100
-                      )
-                    : 0}%
+                  {getPercentage(pending)}%
                 </strong>
+
               </div>
 
+
+              {/* NOT STARTED */}
 
               <div>
+
                 <span className="dot not-started"></span>
-                <span>Not Started</span>
+
+                <span>
+                  Not Started
+                </span>
+
                 <strong>
-                  {total
-                    ? Math.round(
-                        notStarted /
-                        total *
-                        100
-                      )
-                    : 0}%
+                  {getPercentage(notStarted)}%
                 </strong>
+
               </div>
+
 
             </div>
 
@@ -615,16 +704,22 @@ function Dashboard() {
           <div className="overview-list">
 
 
+            {/* TODAY */}
+
             <div className="overview-row">
 
-              <FaCalendarAlt className="overview-blue" />
+              <FaCalendarAlt
+                className="overview-blue"
+              />
 
               <span>
                 Tasks Completed Today
               </span>
 
               <strong>
-                {today.completed} / {today.total}
+                {today.completed || 0}
+                {" / "}
+                {today.total || 0}
               </strong>
 
               <FaChevronRight />
@@ -632,16 +727,24 @@ function Dashboard() {
             </div>
 
 
+            {/* WEEK */}
+
             <div className="overview-row">
 
-              <FaChartLine className="overview-green" />
+              <FaChartLine
+                className="overview-green"
+              />
 
               <span>
                 Tasks Completed This Week
               </span>
 
               <strong className="green-text">
-                {week.completed} / {week.total}
+
+                {week.completed || 0}
+                {" / "}
+                {week.total || 0}
+
               </strong>
 
               <FaChevronRight />
@@ -649,16 +752,22 @@ function Dashboard() {
             </div>
 
 
+            {/* MONTH */}
+
             <div className="overview-row">
 
-              <FaBullseye className="overview-purple" />
+              <FaBullseye
+                className="overview-purple"
+              />
 
               <span>
                 Monthly Goal Progress
               </span>
 
               <strong className="purple-text">
-                {month.percentage}%
+
+                {month.percentage || 0}%
+
               </strong>
 
               <FaChevronRight />
@@ -666,22 +775,30 @@ function Dashboard() {
             </div>
 
 
+            {/* STUDY HOURS */}
+
             <div className="overview-row">
 
-              <FaClock className="overview-orange" />
+              <FaClock
+                className="overview-orange"
+              />
 
               <span>
                 Total Study Hours (This Week)
               </span>
 
               <strong className="orange-text">
-                {studyHours.hours}h{" "}
-                {studyHours.minutes}m
+
+                {studyHours.hours || 0}h{" "}
+
+                {studyHours.minutes || 0}m
+
               </strong>
 
               <FaChevronRight />
 
             </div>
+
 
           </div>
 
@@ -689,10 +806,11 @@ function Dashboard() {
 
 
         {/* =================================
-            TODAY TASKS
+            TODAY'S TASKS
         ================================= */}
 
         <section className="dashboard-section">
+
 
           <div className="tasks-title">
 
@@ -701,8 +819,12 @@ function Dashboard() {
             </h2>
 
             <span>
-              {today.completed} /{" "}
-              {today.total} Completed
+
+              {today.completed || 0}
+              {" / "}
+              {today.total || 0}
+              {" Completed"}
+
             </span>
 
           </div>
@@ -710,10 +832,13 @@ function Dashboard() {
 
           <div className="dashboard-tasks">
 
+
             {tasks.length === 0 ? (
 
               <div className="empty-task">
+
                 No tasks for this date.
+
               </div>
 
             ) : (
@@ -721,9 +846,14 @@ function Dashboard() {
               tasks.map((task) => (
 
                 <div
-                  className={`dashboard-task-row ${task.taskStatus}`}
+                  className={
+                    `dashboard-task-row ${task.taskStatus || ""}`
+                  }
                   key={task.id}
                 >
+
+
+                  {/* STATUS ICON */}
 
                   <div className="task-status-icon">
 
@@ -741,6 +871,8 @@ function Dashboard() {
                   </div>
 
 
+                  {/* TASK NAME */}
+
                   <div className="task-name">
 
                     <strong>
@@ -748,20 +880,17 @@ function Dashboard() {
                     </strong>
 
                     <span>
-                      {task.taskStatus ===
-                      "completed"
-                        ? "Completed"
-                        : task.taskStatus ===
-                          "in_progress"
-                        ? "In Progress"
-                        : task.taskStatus ===
-                          "pending"
-                        ? "Pending"
-                        : "Not Started"}
+
+                      {getStatusText(
+                        task.taskStatus
+                      )}
+
                     </span>
 
                   </div>
 
+
+                  {/* TIME */}
 
                   <div className="task-time">
 
@@ -775,13 +904,20 @@ function Dashboard() {
                   </div>
 
 
+                  {/* STATUS BADGE */}
+
                   <div
-                    className={`status-badge ${task.taskStatus}`}
+                    className={
+                      `status-badge ${task.taskStatus || ""}`
+                    }
                   >
+
                     {getStatusText(
                       task.taskStatus
                     )}
+
                   </div>
+
 
                 </div>
 
@@ -794,13 +930,21 @@ function Dashboard() {
 
           {/* ADD TASK */}
 
-          <button className="add-task-dashboard">
+          <button
+            className="add-task-dashboard"
+            onClick={() =>
+              window.location.href = "/task"
+            }
+          >
 
-            <span>+</span>
+            <span>
+              +
+            </span>
 
             Add New Task
 
           </button>
+
 
         </section>
 
@@ -809,12 +953,21 @@ function Dashboard() {
 
 
       {/* =================================
-          BOTTOM NAV
+          MOBILE BOTTOM NAV
       ================================= */}
 
       <nav className="bottom-nav">
 
-        <button className="active">
+
+        {/* DASHBOARD */}
+
+        <button
+          className="active"
+          onClick={() =>
+            window.location.href =
+              "/dashboard"
+          }
+        >
 
           <FaThLarge />
 
@@ -824,6 +977,8 @@ function Dashboard() {
 
         </button>
 
+
+        {/* MY SCHEDULE */}
 
         <button>
 
@@ -836,7 +991,14 @@ function Dashboard() {
         </button>
 
 
-        <button>
+        {/* TASKS */}
+
+        <button
+          onClick={() =>
+            window.location.href =
+              "/task"
+          }
+        >
 
           <FaTasks />
 
@@ -846,6 +1008,8 @@ function Dashboard() {
 
         </button>
 
+
+        {/* PROGRESS */}
 
         <button>
 
@@ -858,6 +1022,8 @@ function Dashboard() {
         </button>
 
 
+        {/* PROFILE */}
+
         <button>
 
           <FaUserCircle />
@@ -868,10 +1034,15 @@ function Dashboard() {
 
         </button>
 
+
       </nav>
 
+
     </div>
+
   );
+
 }
+
 
 export default Dashboard;
