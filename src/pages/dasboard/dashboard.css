@@ -1042,3 +1042,40 @@ body {
     font-size: 11px;
   }
 }
+/* =====================================
+   DESKTOP DASHBOARD SCROLL
+===================================== */
+
+@media (min-width: 601px) {
+  .dashboard-page {
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .dashboard-main {
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    scrollbar-width: thin;
+    scrollbar-color: #8b5cf6 #f1f3f7;
+  }
+
+  /* Chrome / Edge */
+  .dashboard-main::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .dashboard-main::-webkit-scrollbar-track {
+    background: #f1f3f7;
+  }
+
+  .dashboard-main::-webkit-scrollbar-thumb {
+    background: #8b5cf6;
+    border-radius: 10px;
+  }
+
+  .dashboard-main::-webkit-scrollbar-thumb:hover {
+    background: #6327d8;
+  }
+}
