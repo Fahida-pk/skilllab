@@ -1,147 +1,139 @@
+/* =========================================
+   SKILL LAB DASHBOARD
+========================================= */
+
 * {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  background: #f8f9fc;
-  font-family: Arial, sans-serif;
+.dashboard-page {
+  min-height: 100vh;
+  width: 100%;
+  background: #f7f8fc;
   color: #172033;
 }
 
-.dashboard-page {
-  min-height: 100vh;
-  background: #f8f9fc;
-  padding-bottom: 90px;
-}
-
-
-/* HEADER */
-
-.dashboard-header {
-  height: 75px;
-  background: white;
-  display: flex;
-  align-items: center;
-  padding: 0 30px;
-  border-bottom: 1px solid #edf0f4;
-}
-
-.header-menu,
-.header-notification {
-  border: 0;
-  background: transparent;
-  font-size: 24px;
-  cursor: pointer;
-  color: #182235;
-}
-
-.brand {
-  margin-left: 30px;
-  flex: 1;
-  font-size: 27px;
-  font-weight: 800;
-  color: #5d25c9;
-}
-
-.header-notification {
-  position: relative;
-}
-
-.header-notification span {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background: #f0293c;
-  border-radius: 50%;
-  right: 1px;
-  top: 1px;
-}
-
-
-/* CONTENT */
+/* =========================================
+   MAIN CONTENT
+========================================= */
 
 .dashboard-content {
-  width: calc(100% - 40px);
-  max-width: 1050px;
-  margin: auto;
+  margin-left: 270px;
+  width: calc(100% - 270px);
+  min-height: 100vh;
+  padding: 32px 45px 100px;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
-
-/* DATE */
+/* =========================================
+   DATE NAVIGATION
+========================================= */
 
 .date-navigation {
+  width: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   gap: 55px;
-  padding: 25px 0;
+  margin-bottom: 28px;
 }
 
 .date-navigation button {
-  width: 54px;
-  height: 54px;
-  background: white;
-  border: 1px solid #e8ebf0;
-  border-radius: 15px;
-  font-size: 20px;
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #182337;
+  font-size: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  box-shadow: 0 5px 15px rgba(0,0,0,.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.date-navigation button:hover {
+  transform: translateY(-2px);
 }
 
 .dashboard-date {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 700;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
+.dashboard-date svg {
+  font-size: 19px;
+}
 
-/* PROGRESS CARDS */
+/* =========================================
+   PROGRESS CARDS
+========================================= */
 
 .progress-cards {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+  gap: 18px;
+  margin-bottom: 22px;
 }
 
 .progress-card {
-  border-radius: 18px;
-  padding: 21px;
-  border: 1px solid #e9edf2;
-  box-shadow: 0 5px 18px rgba(0,0,0,.05);
+  min-height: 205px;
+  border-radius: 22px;
+  padding: 25px;
+  background: white;
+  box-shadow: 0 5px 20px rgba(30, 40, 60, 0.07);
 }
 
 .blue-card {
-  background: #f1f7ff;
+  background: #eef6ff;
 }
 
 .green-card {
-  background: #f1fff5;
+  background: #effff4;
 }
 
 .purple-card {
-  background: #faf4ff;
+  background: #faf2ff;
 }
 
 .card-heading {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
+}
+
+.card-heading h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.card-heading p {
+  margin: 5px 0 0;
+  font-size: 14px;
+  color: #64748b;
 }
 
 .card-icon {
-  width: 45px;
-  height: 45px;
-  border-radius: 13px;
-  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 21px;
 }
 
 .card-icon.blue {
-  background: #2080e8;
+  background: #2785e8;
 }
 
 .card-icon.green {
@@ -149,103 +141,115 @@ body {
 }
 
 .card-icon.purple {
-  background: #6325d3;
-}
-
-.card-heading h3 {
-  margin: 0 0 5px;
-  font-size: 16px;
-}
-
-.card-heading p {
-  margin: 0;
-  color: #667085;
-  font-size: 12px;
+  background: #6626d9;
 }
 
 .progress-card > strong {
   display: block;
-  font-size: 44px;
-  margin: 17px 0 12px;
+  margin-top: 25px;
+  font-size: 48px;
+  line-height: 1;
 }
 
 .blue-card > strong {
-  color: #1678df;
+  color: #2079dc;
 }
 
 .green-card > strong {
-  color: #16ad4c;
+  color: #18aa4e;
 }
 
 .purple-card > strong {
-  color: #6227ce;
+  color: #6024c8;
 }
 
 .progress-track {
-  height: 10px;
-  background: #e2e6eb;
+  width: 100%;
+  height: 11px;
+  margin-top: 25px;
   border-radius: 20px;
+  background: #dfe4ea;
   overflow: hidden;
 }
 
 .progress-bar {
   height: 100%;
   border-radius: 20px;
+  transition: width 0.5s ease;
 }
 
 .blue-bar {
-  background: #1680ea;
+  background: #2785e8;
 }
 
 .green-bar {
-  background: #16b84d;
+  background: #20b957;
 }
 
 .purple-bar {
-  background: #6825d4;
+  background: #6827d6;
 }
 
-
-/* SECTION */
+/* =========================================
+   COMMON SECTION
+========================================= */
 
 .dashboard-section {
-  margin-top: 18px;
-  background: white;
-  border: 1px solid #e8ebf0;
-  border-radius: 18px;
-  padding: 21px;
-  box-shadow: 0 5px 18px rgba(0,0,0,.05);
+  width: 100%;
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 25px;
+  margin-bottom: 22px;
+  box-shadow: 0 5px 20px rgba(30, 40, 60, 0.07);
 }
 
 .dashboard-section h2 {
-  margin: 0 0 18px;
-  font-size: 19px;
+  margin: 0 0 22px;
+  font-size: 21px;
+  font-weight: 600;
 }
 
-
-/* PIE */
+/* =========================================
+   PROGRESS STATUS / DONUT
+========================================= */
 
 .progress-status {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 90px;
+  gap: 100px;
+  min-height: 300px;
+}
+
+.donut {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .donut-chart {
-  width: 260px;
-  height: 260px;
+  width: 285px;
+  height: 285px;
   border-radius: 50%;
+  position: relative;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+}
+
+.donut-chart::after {
+  content: "";
+  position: absolute;
+  width: 155px;
+  height: 155px;
+  border-radius: 50%;
+  background: white;
 }
 
 .donut-center {
-  width: 150px;
-  height: 150px;
-  background: white;
-  border-radius: 50%;
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -253,33 +257,42 @@ body {
 }
 
 .donut-center span {
-  font-size: 13px;
+  font-size: 15px;
+  color: #334155;
 }
 
 .donut-center strong {
-  font-size: 34px;
-  margin: 3px 0;
+  font-size: 38px;
+  margin: 5px 0;
 }
 
 .donut-center small {
-  font-weight: 600;
+  font-size: 14px;
+  color: #334155;
 }
 
 .legend {
-  width: 280px;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
 }
 
 .legend > div {
   display: grid;
-  grid-template-columns: 15px 1fr auto;
+  grid-template-columns: 18px 1fr auto;
   align-items: center;
   gap: 12px;
-  margin: 20px 0;
+  font-size: 17px;
+}
+
+.legend strong {
+  font-size: 17px;
 }
 
 .dot {
-  width: 15px;
-  height: 15px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
 }
 
@@ -299,67 +312,67 @@ body {
   background: #ef3039;
 }
 
-
-/* OVERVIEW */
+/* =========================================
+   QUICK OVERVIEW
+========================================= */
 
 .overview-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .overview-row {
-  min-height: 58px;
-  border: 1px solid #e7eaf0;
-  border-radius: 11px;
-  display: flex;
+  min-height: 62px;
+  border: 1px solid #e6e9ef;
+  border-radius: 13px;
+  display: grid;
+  grid-template-columns: 35px 1fr auto 20px;
   align-items: center;
-  gap: 14px;
-  padding: 8px 14px;
-}
-
-.overview-row span {
-  flex: 1;
-}
-
-.overview-row strong {
+  gap: 12px;
+  padding: 0 17px;
   font-size: 16px;
 }
 
+.overview-row > svg {
+  font-size: 22px;
+}
+
 .overview-blue {
-  color: #1680e8;
-  font-size: 20px;
+  color: #2785e8;
 }
 
 .overview-green {
   color: #20b957;
-  font-size: 20px;
 }
 
 .overview-purple {
-  color: #6325d3;
-  font-size: 20px;
+  color: #6827d6;
 }
 
 .overview-orange {
-  color: #ed9a16;
-  font-size: 20px;
+  color: #f4a51c;
+}
+
+.overview-row strong {
+  font-size: 17px;
 }
 
 .green-text {
-  color: #20ad51;
+  color: #20b957;
 }
 
 .purple-text {
-  color: #6325d3;
+  color: #6827d6;
 }
 
 .orange-text {
-  color: #ed9a16;
+  color: #f4a51c;
 }
 
-
-/* TASKS */
+/* =========================================
+   TODAY TASKS
+========================================= */
 
 .tasks-title {
   display: flex;
@@ -367,30 +380,31 @@ body {
   align-items: center;
 }
 
-.tasks-title > span {
-  background: #f2ebff;
-  color: #6325d3;
-  padding: 8px 13px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 700;
+.tasks-title span {
+  padding: 8px 15px;
+  border-radius: 15px;
+  background: #f3edff;
+  color: #6727ce;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .dashboard-tasks {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 9px;
 }
 
 .dashboard-task-row {
-  min-height: 62px;
-  display: flex;
+  min-height: 65px;
+  border: 1px solid #e5e8ee;
+  border-left: 4px solid #2581e8;
+  border-radius: 12px;
+  padding: 10px 15px;
+  display: grid;
+  grid-template-columns: 35px 1fr auto auto;
   align-items: center;
-  gap: 12px;
-  padding: 8px 13px;
-  border: 1px solid #e7eaf0;
-  border-left: 3px solid #ef3039;
-  border-radius: 11px;
+  gap: 15px;
 }
 
 .dashboard-task-row.completed {
@@ -406,24 +420,21 @@ body {
 }
 
 .dashboard-task-row.not_started {
-  border-left-color: #6325d3;
+  border-left-color: #6827d6;
 }
 
 .task-status-icon {
-  width: 27px;
-  min-width: 27px;
-  height: 27px;
-  border-radius: 50%;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 }
 
-.completed .task-status-icon {
+.task-status-icon svg {
   color: #20b957;
+  font-size: 23px;
 }
 
-.task-status-icon > span {
+.task-status-icon span {
   width: 20px;
   height: 20px;
   border: 2px solid #2581e8;
@@ -431,252 +442,256 @@ body {
 }
 
 .task-name {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
 .task-name strong {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .task-name span {
-  display: none;
+  font-size: 13px;
+  color: #64748b;
 }
 
 .task-time {
   display: flex;
   align-items: center;
-  gap: 5px;
-  color: #687386;
-  font-size: 12px;
+  gap: 6px;
+  color: #64748b;
+  font-size: 14px;
 }
 
 .status-badge {
-  padding: 7px 10px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 13px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .status-badge.completed {
+  color: #16a34a;
   background: #eaf9ef;
-  color: #20a94d;
 }
 
 .status-badge.in_progress {
-  background: #eaf3ff;
-  color: #2078d5;
+  color: #1475dc;
+  background: #eaf4ff;
 }
 
 .status-badge.pending {
-  background: #fff5df;
-  color: #ed9a16;
+  color: #e99b00;
+  background: #fff6df;
 }
 
 .status-badge.not_started {
-  background: #f2eaff;
-  color: #6325d3;
+  color: #ef3039;
+  background: #fff0f0;
 }
 
-
-/* ADD TASK */
+.empty-task {
+  padding: 35px;
+  text-align: center;
+  color: #64748b;
+  border: 1px dashed #d5d9e0;
+  border-radius: 12px;
+}
 
 .add-task-dashboard {
   width: 100%;
-  height: 47px;
-  margin-top: 8px;
-  border: 1px solid #e3e6ec;
-  border-radius: 11px;
+  min-height: 55px;
+  margin-top: 12px;
+  border: 1px solid #e0d5ff;
   background: white;
-  color: #6325d3;
+  color: #6827d6;
+  border-radius: 12px;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .add-task-dashboard span {
-  font-size: 24px;
-  margin-right: 7px;
+  font-size: 27px;
+  margin-right: 8px;
+  vertical-align: middle;
 }
 
+/* =========================================
+   LOADING
+========================================= */
 
-/* BOTTOM */
+.dashboard-loading {
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  color: #6827d6;
+}
+
+/* =========================================
+   BOTTOM NAV
+========================================= */
 
 .bottom-nav {
   position: fixed;
-  bottom: 0;
   left: 0;
   right: 0;
-  height: 80px;
+  bottom: 0;
+  height: 86px;
   background: white;
-  border-top: 1px solid #e7e9ee;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  z-index: 100;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
 }
 
 .bottom-nav button {
-  border: 0;
+  border: none;
   background: transparent;
-  color: #687083;
+  color: #64748b;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 5px;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
 }
 
 .bottom-nav button svg {
-  font-size: 21px;
-}
-
-.bottom-nav button span {
-  font-size: 11px;
+  font-size: 22px;
 }
 
 .bottom-nav button.active {
-  color: #6325d3;
+  color: #6827d6;
 }
 
+/* =========================================
+   MOBILE
+========================================= */
 
-/* LOADING */
-
-.dashboard-loading {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-/* MOBILE */
-
-@media (max-width: 700px) {
-
-  .dashboard-header {
-    height: 68px;
-    padding: 0 18px;
-  }
-
-  .brand {
-    margin-left: 18px;
-    font-size: 23px;
-  }
+@media (max-width: 900px) {
 
   .dashboard-content {
-    width: calc(100% - 28px);
-  }
-
-  .date-navigation {
-    gap: 25px;
-    padding: 18px 0;
-  }
-
-  .date-navigation button {
-    width: 46px;
-    height: 46px;
-  }
-
-  .dashboard-date {
-    font-size: 13px;
+    margin-left: 0;
+    width: 100%;
+    padding: 20px 15px 100px;
   }
 
   .progress-cards {
     grid-template-columns: 1fr;
-    gap: 10px;
   }
 
   .progress-card {
-    padding: 16px;
-  }
-
-  .progress-card > strong {
-    font-size: 36px;
-    margin: 12px 0;
-  }
-
-  .dashboard-section {
-    padding: 16px;
-    margin-top: 12px;
+    min-height: 180px;
   }
 
   .progress-status {
     flex-direction: column;
-    gap: 20px;
-  }
-
-  .donut-chart {
-    width: 210px;
-    height: 210px;
-  }
-
-  .donut-center {
-    width: 120px;
-    height: 120px;
-  }
-
-  .donut-center strong {
-    font-size: 28px;
+    gap: 30px;
   }
 
   .legend {
     width: 100%;
+    min-width: 0;
   }
 
-  .legend > div {
-    margin: 12px 0;
+  .donut-chart {
+    width: 250px;
+    height: 250px;
   }
 
-  .overview-row {
-    min-height: 55px;
-    padding: 7px 9px;
-    gap: 9px;
-  }
-
-  .overview-row span {
-    font-size: 12px;
-  }
-
-  .overview-row strong {
-    font-size: 13px;
-  }
-
-  .tasks-title h2 {
-    font-size: 17px;
-  }
-
-  .tasks-title > span {
-    font-size: 9px;
-    padding: 7px;
+  .donut-chart::after {
+    width: 135px;
+    height: 135px;
   }
 
   .dashboard-task-row {
-    min-height: 60px;
-    padding: 7px;
-    gap: 7px;
-  }
-
-  .task-name strong {
-    font-size: 12px;
+    grid-template-columns: 30px 1fr auto;
   }
 
   .task-time {
-    font-size: 9px;
-    white-space: nowrap;
+    grid-column: 2;
   }
 
   .status-badge {
-    font-size: 8px;
-    padding: 6px;
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+
+  .date-navigation {
+    gap: 25px;
+  }
+
+  .date-navigation button {
+    width: 48px;
+    height: 48px;
+  }
+
+  .dashboard-date {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .dashboard-content {
+    padding: 15px 10px 100px;
+  }
+
+  .dashboard-section {
+    padding: 17px;
+    border-radius: 16px;
+  }
+
+  .progress-card {
+    padding: 20px;
+    border-radius: 17px;
+  }
+
+  .progress-card > strong {
+    font-size: 40px;
+  }
+
+  .overview-row {
+    grid-template-columns: 28px 1fr auto;
+    padding: 10px;
+    min-height: 58px;
+  }
+
+  .overview-row > svg:last-child {
+    display: none;
+  }
+
+  .overview-row span {
+    font-size: 14px;
+  }
+
+  .overview-row strong {
+    font-size: 14px;
+  }
+
+  .dashboard-task-row {
+    grid-template-columns: 28px 1fr;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .task-time {
+    grid-column: 2;
+  }
+
+  .status-badge {
+    grid-column: 2;
+    grid-row: auto;
+    justify-self: start;
   }
 
   .bottom-nav {
-    height: 70px;
+    height: 75px;
   }
-
-  .bottom-nav button span {
-    font-size: 9px;
-  }
-
 }
