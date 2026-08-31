@@ -1,0 +1,309 @@
+/* LAYOUT */
+.dashboard {
+  display: flex;
+  height: 100vh;
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f4f4f4;
+}
+
+/* DATE */
+.date-bar {
+  margin: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.date-bar button {
+  background: black;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+/* TASK BOX */
+.task-wrapper {
+   width: 400px;
+  height: 600px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 15px;
+
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+  display: flex;
+  flex-direction: column;
+
+  position: relative; /* 🔥 important for + button */
+}
+
+/* SCROLL */
+.cards {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* SCROLLBAR */
+.cards::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cards::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 10px;
+}
+
+/* CARD */
+.card {
+  display: flex;
+  align-items: center;
+
+  padding: 15px;
+  border-radius: 18px;
+
+  margin-bottom: 15px;
+
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* ICON */
+.icon-box {
+  width: 45px;
+  height: 45px;
+  background: rgba(255, 255, 255, 0.3);
+
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 15px;
+  font-size: 18px;
+}
+
+/* TEXT */
+.card-content h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.card-content p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #f1f1f1;
+}
+
+/* ACTIONS */
+.actions {
+  margin-left: auto;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  height: 50px;
+}
+
+.actions button {
+  border: none;
+  background: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.actions input {
+  width: 20px;
+  height: 20px;
+  accent-color: white;
+}
+
+/* DONE TASK */
+.card.done h3 {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.card.done p {
+  opacity: 0.6;
+}
+
+/* 🔥 ROUND + BUTTON */
+.fab-inside {
+  position: absolute;
+  bottom: 20px;
+  right: 70px;
+
+  width: 40px;
+  height: 40px;
+
+  border-radius: 50%;
+  border: none;
+
+  background: linear-gradient(135deg, #6c63ff, #5a54e6);
+  color: white;
+
+  font-size: 40px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 12px 25px rgba(0,0,0,0.3);
+  transition: 0.3s ease;
+}
+
+.fab-inside:hover {
+  transform: scale(1.15);
+}
+
+/* MODAL BACKGROUND */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(6px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* MODAL BOX */
+.modal-box {
+  width: 360px;
+
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+
+  padding: 25px;
+  border-radius: 20px;
+
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+
+  animation: popup 0.3s ease;
+}
+
+/* ANIMATION */
+@keyframes popup {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-box h2 {
+  margin-bottom: 15px;
+}
+
+/* INPUT GROUP */
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  font-size: 13px;
+  color: gray;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+
+  border-radius: 12px;
+  border: 1px solid #ddd;
+
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-group input:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 2px rgba(108,99,255,0.2);
+}
+
+/* MODAL BUTTONS */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.modal-actions .cancel {
+  background: none;
+  border: none;
+  color: gray;
+  cursor: pointer;
+}
+
+.modal-actions .ok {
+  background: linear-gradient(135deg, #6c63ff, #5a54e6);
+  color: white;
+  border: none;
+
+  padding: 10px 18px;
+  border-radius: 12px;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.modal-actions .ok:hover {
+  transform: scale(1.05);
+}
+/* FIXED MOBILE */
+@media (max-width: 768px) {
+
+  html, body {
+    height: auto;
+    overflow-y: auto;   /* 🔥 FORCE SCROLL */
+  }
+
+  .dashboard {
+    display: block;
+    height: auto;
+    min-height: 100vh;  /* 🔥 IMPORTANT */
+  }
+
+  .main {
+    width: 100%;
+    align-items: stretch;
+    overflow: visible;  /* 🔥 NOT overflow-y */
+  }
+
+  .task-wrapper {
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+  }
+
+  .cards {
+    overflow: visible;
+  }
+
+}

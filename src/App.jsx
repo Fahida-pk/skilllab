@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/login/login.jsx";
 import Dashboard  from "./pages/dasboard/Dashboard.jsx";
+import Task  from "./pages/task/task.jsx";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
 
       {/* ✅ MUST */}
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/task" element={<Task />} />
     </Routes>
   );
 }

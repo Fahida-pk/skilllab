@@ -1,524 +1,875 @@
-import Sidebar from "./Sidebar";
-import "./dashboard.css";
-import { useState, useEffect } from "react";
-import { FaMoon } from "react-icons/fa";
+import { useEffect, useState } from "react";
 import {
+  FaBars,
+  FaBell,
+  FaCalendarAlt,
   FaChevronLeft,
   FaChevronRight,
-  FaSun,
-  FaBook,
-  FaLanguage,
-  FaDumbbell,
+  FaCheckCircle,
+  FaClock,
+  FaChartLine,
+  FaBullseye,
+  FaThLarge,
+  FaTasks,
+  FaUserCircle,
+  FaChartBar,
 } from "react-icons/fa";
 
+import "./dashboard.css";
+
+
 function Dashboard() {
-  const [date, setDate] = useState(new Date());
 
-  const [showModal, setShowModal] = useState(false);
-  const [title, setTitle] = useState("");
-  const [fromTime, setFromTime] = useState("");
-  const [toTime, setToTime] = useState("");
-  const [image, setImage] = useState(null);
-  const [editTask, setEditTask] = useState(null);
-const user = JSON.parse(localStorage.getItem("user"));
-  // ✅ DATE KEY
-  const getDateKey = (d) => d.toISOString().split("T")[0];
-  const currentKey = getDateKey(date);
-const [tasks, setTasks] = useState([]);
-const getIcon = (icon) => {
-  switch (icon) {
-    case "sun":
-      return <FaSun />;
-    case "book":
-      return <FaBook />;
-    case "language":
-      return <FaLanguage />;
-    case "dumbbell":
-      return <FaDumbbell />;
-    case "moon":
-      return <FaMoon />;
-    default:
-      return <FaBook />;
-  }
-};
-  // ✅ DATE-WISE TASKS
-const [defaultTasks, setDefaultTasks] = useState(() => {
-  const saved = localStorage.getItem("defaultTasks");
+  const user = JSON.parse(
+    localStorage.getItem("user")
+  );
 
-  if (saved) {
-    return JSON.parse(saved);
-  }
- 
-return [
-  {
-    id: "d1",
-    title: "Wake Up",
-    time: "5:00 AM",
-    icon: "sun",
-    color: "linear-gradient(135deg, #f6d365, #fda085)",
-    completed: false,
-  },
-  {
-    id: "d2",
-    title: "Study MERN",
-    from: "5:00 AM",
-    to: "10:00 AM",
-    icon: "book",
-    color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-    completed: false,
-  },
-  {
-    id: "d3",
-    title: "Practice English",
-    from: "1:00 PM",
-    to: "4:00 PM",
-    icon: "language",
-    color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-    completed: false,
-  },
-  {
-    id: "d4",
-    title: "Workout",
-    from: "6:00 PM",
-    to: "7:00 PM",
-    icon: "dumbbell",
-    color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-    completed: false,
-  },
-  {
-    id: "d5",
-    title: "Sleep",
-    from: "10:00 PM",
-    to: "8:00 AM",
-    icon: "moon",
-    color: "linear-gradient(135deg, #141e30, #243b55)",
-    completed: false,
-    nextDay: true,
-  },
-];
-}); // ✅ LOAD FROM LOCALSTORAGE (ADD THIS HERE)
-  // ✅ DEFAULT TASKS LOAD
- useEffect(() => {
-  fetchTasks();
-}, [currentKey]);
+  const [date, setDate] = useState(
+    new Date()
+  );
 
-const fetchTasks = async () => {
-  const res = await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      action: "get",
-      email: user?.email,
-      task_date: currentKey,
-    }),
-  });
+  const [dashboard, setDashboard] =
+    useState(null);
 
-  const data = await res.json();
-const colors = [
-  "linear-gradient(135deg, #43e97b, #38f9d7)",
-  "linear-gradient(135deg, #fa709a, #fee140)",
-  "linear-gradient(135deg, #30cfd0, #330867)",
-  "linear-gradient(135deg, #f093fb, #f5576c)",
-];
-  if (data.success) {
-const formatted = data.tasks.map((t) => ({
-  id: t.id,
-  title: t.title,
-  from: t.from,
-  to: t.to,
-  completed: t.completed,
-  color: t.color || colors[Math.floor(Math.random() * colors.length)],
-  icon: <FaBook />,
-}));
+  const [loading, setLoading] =
+    useState(true);
 
-setTasks(formatted);
-} else {
-    setTasks([]);
-  }
-}; // 🔥 IMPORTANT change (date → currentKey)
 
-  // 🔥 CHECK NEXT DAY
-  const isNextDay = (from, to) => {
-    if (!from || !to) return false;
-    const f = new Date(`2024-01-01 ${from}`);
-    const t = new Date(`2024-01-01 ${to}`);
-    return t <= f;
+  /* =====================================
+     DATE KEY
+  ===================================== */
+
+  const getDateKey = (date) => {
+
+    const year =
+      date.getFullYear();
+
+    const month =
+      String(
+        date.getMonth() + 1
+      ).padStart(2, "0");
+
+    const day =
+      String(
+        date.getDate()
+      ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
   };
 
-  // FORMAT TIME
-  const formatTime = (t) => {
-    if (!t) return "";
-    const [hour, minute] = t.split(":");
-    let h = parseInt(hour);
-    const ampm = h >= 12 ? "PM" : "AM";
-    h = h % 12;
-    if (h === 0) h = 12;
-    return `${h}:${minute} ${ampm}`;
-  };
 
-  const convertToInputTime = (timeStr) => {
-    if (!timeStr) return "";
+  /* =====================================
+     FETCH DASHBOARD
+  ===================================== */
+
+  const fetchDashboard = async () => {
+
     try {
-      const [time, modifier] = timeStr.split(" ");
-      let [hours, minutes] = time.split(":");
 
-      hours = parseInt(hours);
+      setLoading(true);
 
-      if (modifier === "PM" && hours !== 12) hours += 12;
-      if (modifier === "AM" && hours === 12) hours = 0;
+      const response = await fetch(
+        "https://zyntaweb.com/skilllab/api/dashboard.php",
+        {
+          method: "POST",
 
-      return `${hours.toString().padStart(2, "0")}:${minutes}`;
-    } catch {
-      return "";
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+
+            action: "dashboard",
+
+            email: user?.email,
+
+            date:
+              getDateKey(date),
+
+          }),
+        }
+      );
+
+
+      const data =
+        await response.json();
+
+
+      console.log(
+        "Dashboard:",
+        data
+      );
+
+
+      if (data.success) {
+
+        setDashboard(data);
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Dashboard error:",
+        error
+      );
+
+    } finally {
+
+      setLoading(false);
+
     }
   };
 
-  // DATE CHANGE
+
+  useEffect(() => {
+
+    fetchDashboard();
+
+  }, [date]);
+
+
+  /* =====================================
+     DATE CHANGE
+  ===================================== */
+
   const changeDate = (type) => {
-    const newDate = new Date(date);
-    type === "prev"
-      ? newDate.setDate(date.getDate() - 1)
-      : newDate.setDate(date.getDate() + 1);
+
+    const newDate =
+      new Date(date);
+
+    if (type === "prev") {
+
+      newDate.setDate(
+        newDate.getDate() - 1
+      );
+
+    } else {
+
+      newDate.setDate(
+        newDate.getDate() + 1
+      );
+
+    }
+
     setDate(newDate);
   };
 
-  // DELETE
-  const deleteTask = async (task) => {
-  // ✅ default task
-  if (task.id.toString().startsWith("d")) {
-    setDefaultTasks((prev) => prev.filter((t) => t.id !== task.id));
-    return;
-  }
 
-  // ✅ DB task
-  await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      action: "delete",
-      email: user?.email,
-      id: task.id,
-    }),
-  });
+  /* =====================================
+     FORMAT DATE
+  ===================================== */
 
-  fetchTasks();
-};
+  const formatDate = () => {
 
-  // TOGGLE
-  const toggleTask = async (task) => {
-  // ✅ default task
-  if (task.id.toString().startsWith("d")) {
-    const updated = defaultTasks.map((t) =>
-      t.id === task.id ? { ...t, completed: !t.completed } : t
+    return date.toLocaleDateString(
+      "en-US",
+      {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }
     );
-    setDefaultTasks(updated);
-    return;
-  }
-
-  // ✅ DB task
-  await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      action: "toggle",
-      email: user?.email,
-      id: task.id,
-      status: task.completed ? 0 : 1,
-    }),
-  });
-
-  fetchTasks();
-};
-
-  // EDIT
-  const handleEdit = (task) => {
-    setShowModal(true);
-    setEditTask(task);
-
-    setTitle(task.title);
-    setFromTime(convertToInputTime(task.from));
-    setToTime(convertToInputTime(task.to));
   };
 
-  // ADD / UPDATE
- const handleAddTask = async () => {
-  if (!title || !fromTime) return;
 
-  const colors = [
-    "linear-gradient(135deg, #43e97b, #38f9d7)",
-    "linear-gradient(135deg, #fa709a, #fee140)",
-    "linear-gradient(135deg, #30cfd0, #330867)",
-    "linear-gradient(135deg, #f093fb, #f5576c)",
-  ];
+  /* =====================================
+     STATUS
+  ===================================== */
 
-  const formattedFrom = formatTime(fromTime);
-  const formattedTo = toTime ? formatTime(toTime) : "";
+  const getStatusText = (status) => {
 
-  const nextDay = isNextDay(fromTime, toTime);
+    switch (status) {
 
-  // =========================
-  // ✅ DEFAULT EDIT (NO DB)
-  // =========================
-  if (editTask && editTask.id.toString().startsWith("d")) {
-    const updated = defaultTasks.map((t) =>
-      t.id === editTask.id
-        ? {
-            ...t,
-            title,
-            from: formattedFrom,
-            to: formattedTo,
-            color: t.color,
-          }
-        : t
-    );
+      case "completed":
+        return "Completed";
 
-    setDefaultTasks(updated);
+      case "in_progress":
+        return "In Progress";
 
-    setShowModal(false);
-    setEditTask(null);
-    setTitle("");
-    setFromTime("");
-    setToTime("");
+      case "pending":
+        return "Pending";
 
-    return;
-  }
-
-  // =========================
-  // 🚨 OVERLAP CHECK
-  // =========================
-// =========================
-// 🚨 OVERLAP CHECK (FIXED)
-// =========================
-const toMin = (time) => {
-  const [t1, mod] = time.split(" ");
-  let [h, m] = t1.split(":").map(Number);
-  if (mod === "PM" && h !== 12) h += 12;
-  if (mod === "AM" && h === 12) h = 0;
-  return h * 60 + m;
-};
-
-const isOverlap = [...tasks].some((t) => {
-    if (!t.from || !t.to) return false;
-
-  if (editTask && t.id === editTask.id) return false;
-
-  let newFrom = toMin(formattedFrom);
-  let newTo = formattedTo ? toMin(formattedTo) : newFrom;
-
-  let oldFrom = toMin(t.from);
-  let oldTo = toMin(t.to);
-
-  // 🌙 next day fix
-  if (t.nextDay) oldTo += 1440;
-  if (nextDay) newTo += 1440;
-
-  return newFrom < oldTo && newTo > oldFrom;
-});
-
-if (isOverlap) {
-  alert("⚠️ Time already exists! Change time");
-  return;
-}
-
-  // =========================
-  // 🌙 SLEEP → NEXT DAY WAKE
-  // =========================
-  if (
-    title?.toLowerCase().includes("sleep") &&
-    formattedTo &&
-    nextDay
-  ) {
-   setDefaultTasks((prev) => {
-  const updated = prev.map((t) =>
-    t.title?.toLowerCase() === "wake up"
-      ? { ...t, time: formattedTo }
-      : t
-  );
-
-  localStorage.setItem("defaultTasks", JSON.stringify(updated)); // ✅ SAVE
-  return updated;
-});
-  }
-
-  // =========================
-  // 🎨 COLOR
-  // =========================
-  const randomColor =
-    colors[Math.floor(Math.random() * colors.length)];
-
-  // =========================
-  // ✅ API CALL (DB)
-  // =========================
-  await fetch("https://zyntaweb.com/skilllab/api/dashboard.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      action: editTask ? "update" : "add",
-      id: editTask?.id,
-      email: user?.email,
-      title,
-      from: formattedFrom,
-      to: formattedTo,
-      task_date: currentKey,
-      nextDay,
-      color: editTask ? editTask.color : randomColor,
-    }),
-  });
-
-  // =========================
-  // 🔄 REFRESH
-  // =========================
-  fetchTasks();
-
-  // =========================
-  // 🧹 RESET
-  // =========================
-  setEditTask(null);
-  setShowModal(false);
-  setTitle("");
-  setFromTime("");
-  setToTime("");
-  setImage(null);
-};
-  return (
-    <div className="dashboard">
-      <Sidebar />
-
-      <div className="main">
-        <div className="date-bar">
-          <button onClick={() => changeDate("prev")}>
-            <FaChevronLeft />
-          </button>
-
-          <span>{date.toDateString()}</span>
-
-          <button onClick={() => changeDate("next")}>
-            <FaChevronRight />
-          </button>
-        </div>
-
-  <div className="task-wrapper">
-  <div className="cards">
-    {[...defaultTasks, ...tasks]
-      .sort((a, b) => {
-  const getTime = (t) => {
-    if (!t) return 0;
-
-    try {
-      const [time, mod] = t.split(" ");
-      let [h, m] = time.split(":").map(Number);
-
-      if (mod === "PM" && h !== 12) h += 12;
-      if (mod === "AM" && h === 12) h = 0;
-
-      return h * 60 + m;
-    } catch {
-      return 0;
+      default:
+        return "Not Started";
     }
   };
 
-  // 🌙 Sleep last
-  if (a.nextDay && !b.nextDay) return 1;
-  if (!a.nextDay && b.nextDay) return -1;
 
-  return getTime(a.from || a.time) - getTime(b.from || b.time);
-})
-     
-      .map((task) => (
-        <div
-          className={`card ${task.completed ? "done" : ""}`}
-          key={task.id}
-          style={{ background: task.color }}
-        >
-          <div className="icon-box">
-            {getIcon(task.icon)}
-          </div>
+  /* =====================================
+     LOADING
+  ===================================== */
 
-          <div className="card-content">
-            <h3>{task.title}</h3>
-            <p>
-              {task.title === "Wake Up"
-                ? task.time || task.from
-                : `${task.from || ""} - ${task.to || ""} ${
-                    task.nextDay ? "(Next Day)" : ""
-                  }`}
-            </p>
-          </div>
+  if (loading && !dashboard) {
 
-          <div className="actions">
-            <button onClick={() => handleEdit(task)}>✏️</button>
-            <button onClick={() => deleteTask(task)}>✕</button>
-            <input
-              type="checkbox"
-              checked={task.completed}
-              onChange={() => toggleTask(task)}
-            />
-          </div>
+    return (
+      <div className="dashboard-loading">
+        Loading Dashboard...
+      </div>
+    );
+  }
+
+
+  if (!dashboard) {
+
+    return (
+      <div className="dashboard-loading">
+        No dashboard data
+      </div>
+    );
+  }
+
+
+  const today =
+    dashboard.today;
+
+  const week =
+    dashboard.week;
+
+  const month =
+    dashboard.month;
+
+  const studyHours =
+    dashboard.studyHours;
+
+  const tasks =
+    dashboard.tasks || [];
+
+
+  /* =====================================
+     PIE CALCULATION
+  ===================================== */
+
+  const total =
+    today.total || 0;
+
+  const completed =
+    today.completed || 0;
+
+  const inProgress =
+    today.inProgress || 0;
+
+  const pending =
+    today.pending || 0;
+
+  const notStarted =
+    today.notStarted || 0;
+
+
+  const completedDeg =
+    total
+      ? (completed / total) * 360
+      : 0;
+
+  const inProgressDeg =
+    total
+      ? ((completed + inProgress) / total) * 360
+      : 0;
+
+  const pendingDeg =
+    total
+      ? (
+          (completed +
+            inProgress +
+            pending) /
+          total
+        ) * 360
+      : 0;
+
+
+  const donutBackground = `
+    conic-gradient(
+      #20b957 0deg ${completedDeg}deg,
+      #2581e8 ${completedDeg}deg ${inProgressDeg}deg,
+      #ffb321 ${inProgressDeg}deg ${pendingDeg}deg,
+      #ef3039 ${pendingDeg}deg 360deg
+    )
+  `;
+
+
+  return (
+
+    <div className="dashboard-page">
+
+
+      {/* =================================
+          HEADER
+      ================================= */}
+
+      <header className="dashboard-header">
+
+        <button className="header-menu">
+          <FaBars />
+        </button>
+
+        <div className="brand">
+          SKILL LAB
         </div>
-      ))}
-  </div>
 
-  <button
-    className="fab-inside"
-    onClick={() => setShowModal(true)}
-  >
-    +
-  </button>
-</div>
+        <button className="header-notification">
 
-       </div>
+          <FaBell />
 
-      {showModal && (
-        <div className="modal">
-          <div className="modal-box">
-            <h2>{editTask ? "Edit Task" : "Add New Task"}</h2>
+          <span></span>
 
-            <div className="input-group">
-              <label>Task Title</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
+        </button>
 
-            <div className="input-group">
-              <label>From Time</label>
-              <input
-                type="time"
-                value={fromTime}
-                onChange={(e) => setFromTime(e.target.value)}
-              />
+      </header>
 
-              <label>To Time</label>
-              <input
-                type="time"
-                value={toTime}
-                onChange={(e) => setToTime(e.target.value)}
-              />
-            </div>
 
-            <div className="input-group">
-              <label>Upload Icon</label>
-              <input
-                type="file"
-                onChange={(e) => setImage(e.target.files[0])}
-              />
-            </div>
+      {/* =================================
+          CONTENT
+      ================================= */}
 
-            <div className="modal-actions">
-              <button onClick={() => setShowModal(false)}>Cancel</button>
-              <button onClick={handleAddTask}>
-                {editTask ? "Update" : "Add"}
-              </button>
-            </div>
+      <main className="dashboard-content">
+
+
+        {/* DATE */}
+
+        <div className="date-navigation">
+
+          <button
+            onClick={() =>
+              changeDate("prev")
+            }
+          >
+            <FaChevronLeft />
+          </button>
+
+
+          <div className="dashboard-date">
+
+            <FaCalendarAlt />
+
+            <span>
+              {formatDate()}
+            </span>
+
           </div>
+
+
+          <button
+            onClick={() =>
+              changeDate("next")
+            }
+          >
+            <FaChevronRight />
+          </button>
+
         </div>
-      )}
+
+
+        {/* =================================
+            PROGRESS CARDS
+        ================================= */}
+
+        <section className="progress-cards">
+
+
+          {/* TODAY */}
+
+          <div className="progress-card blue-card">
+
+            <div className="card-heading">
+
+              <div className="card-icon blue">
+                <FaCalendarAlt />
+              </div>
+
+              <div>
+                <h3>Today</h3>
+                <p>Overall Progress</p>
+              </div>
+
+            </div>
+
+
+            <strong>
+              {today.percentage}%
+            </strong>
+
+
+            <div className="progress-track">
+
+              <div
+                className="progress-bar blue-bar"
+                style={{
+                  width:
+                    `${today.percentage}%`
+                }}
+              />
+
+            </div>
+
+          </div>
+
+
+          {/* WEEK */}
+
+          <div className="progress-card green-card">
+
+            <div className="card-heading">
+
+              <div className="card-icon green">
+                <FaCalendarAlt />
+              </div>
+
+              <div>
+                <h3>This Week</h3>
+                <p>Overall Progress</p>
+              </div>
+
+            </div>
+
+
+            <strong>
+              {week.percentage}%
+            </strong>
+
+
+            <div className="progress-track">
+
+              <div
+                className="progress-bar green-bar"
+                style={{
+                  width:
+                    `${week.percentage}%`
+                }}
+              />
+
+            </div>
+
+          </div>
+
+
+          {/* MONTH */}
+
+          <div className="progress-card purple-card">
+
+            <div className="card-heading">
+
+              <div className="card-icon purple">
+                <FaCalendarAlt />
+              </div>
+
+              <div>
+                <h3>This Month</h3>
+                <p>Overall Progress</p>
+              </div>
+
+            </div>
+
+
+            <strong>
+              {month.percentage}%
+            </strong>
+
+
+            <div className="progress-track">
+
+              <div
+                className="progress-bar purple-bar"
+                style={{
+                  width:
+                    `${month.percentage}%`
+                }}
+              />
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* =================================
+            PROGRESS STATUS
+        ================================= */}
+
+        <section className="dashboard-section">
+
+          <h2>
+            Progress Status
+          </h2>
+
+
+          <div className="progress-status">
+
+
+            {/* DONUT */}
+
+            <div className="donut">
+
+              <div
+                className="donut-chart"
+                style={{
+                  background:
+                    donutBackground
+                }}
+              >
+
+                <div className="donut-center">
+
+                  <span>
+                    Overall
+                  </span>
+
+                  <strong>
+                    {today.percentage}%
+                  </strong>
+
+                  <small>
+                    Completed
+                  </small>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            {/* LEGEND */}
+
+            <div className="legend">
+
+              <div>
+                <span className="dot completed"></span>
+                <span>Completed</span>
+                <strong>
+                  {total
+                    ? Math.round(
+                        completed /
+                        total *
+                        100
+                      )
+                    : 0}%
+                </strong>
+              </div>
+
+
+              <div>
+                <span className="dot progress"></span>
+                <span>In Progress</span>
+                <strong>
+                  {total
+                    ? Math.round(
+                        inProgress /
+                        total *
+                        100
+                      )
+                    : 0}%
+                </strong>
+              </div>
+
+
+              <div>
+                <span className="dot pending"></span>
+                <span>Pending</span>
+                <strong>
+                  {total
+                    ? Math.round(
+                        pending /
+                        total *
+                        100
+                      )
+                    : 0}%
+                </strong>
+              </div>
+
+
+              <div>
+                <span className="dot not-started"></span>
+                <span>Not Started</span>
+                <strong>
+                  {total
+                    ? Math.round(
+                        notStarted /
+                        total *
+                        100
+                      )
+                    : 0}%
+                </strong>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* =================================
+            QUICK OVERVIEW
+        ================================= */}
+
+        <section className="dashboard-section">
+
+          <h2>
+            Quick Overview
+          </h2>
+
+
+          <div className="overview-list">
+
+
+            <div className="overview-row">
+
+              <FaCalendarAlt className="overview-blue" />
+
+              <span>
+                Tasks Completed Today
+              </span>
+
+              <strong>
+                {today.completed} / {today.total}
+              </strong>
+
+              <FaChevronRight />
+
+            </div>
+
+
+            <div className="overview-row">
+
+              <FaChartLine className="overview-green" />
+
+              <span>
+                Tasks Completed This Week
+              </span>
+
+              <strong className="green-text">
+                {week.completed} / {week.total}
+              </strong>
+
+              <FaChevronRight />
+
+            </div>
+
+
+            <div className="overview-row">
+
+              <FaBullseye className="overview-purple" />
+
+              <span>
+                Monthly Goal Progress
+              </span>
+
+              <strong className="purple-text">
+                {month.percentage}%
+              </strong>
+
+              <FaChevronRight />
+
+            </div>
+
+
+            <div className="overview-row">
+
+              <FaClock className="overview-orange" />
+
+              <span>
+                Total Study Hours (This Week)
+              </span>
+
+              <strong className="orange-text">
+                {studyHours.hours}h{" "}
+                {studyHours.minutes}m
+              </strong>
+
+              <FaChevronRight />
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* =================================
+            TODAY TASKS
+        ================================= */}
+
+        <section className="dashboard-section">
+
+          <div className="tasks-title">
+
+            <h2>
+              Today's Tasks
+            </h2>
+
+            <span>
+              {today.completed} /{" "}
+              {today.total} Completed
+            </span>
+
+          </div>
+
+
+          <div className="dashboard-tasks">
+
+            {tasks.length === 0 ? (
+
+              <div className="empty-task">
+                No tasks for this date.
+              </div>
+
+            ) : (
+
+              tasks.map((task) => (
+
+                <div
+                  className={`dashboard-task-row ${task.taskStatus}`}
+                  key={task.id}
+                >
+
+                  <div className="task-status-icon">
+
+                    {task.taskStatus ===
+                    "completed" ? (
+
+                      <FaCheckCircle />
+
+                    ) : (
+
+                      <span></span>
+
+                    )}
+
+                  </div>
+
+
+                  <div className="task-name">
+
+                    <strong>
+                      {task.title}
+                    </strong>
+
+                    <span>
+                      {task.taskStatus ===
+                      "completed"
+                        ? "Completed"
+                        : task.taskStatus ===
+                          "in_progress"
+                        ? "In Progress"
+                        : task.taskStatus ===
+                          "pending"
+                        ? "Pending"
+                        : "Not Started"}
+                    </span>
+
+                  </div>
+
+
+                  <div className="task-time">
+
+                    <FaClock />
+
+                    {task.from}
+
+                    {task.to &&
+                      ` - ${task.to}`}
+
+                  </div>
+
+
+                  <div
+                    className={`status-badge ${task.taskStatus}`}
+                  >
+                    {getStatusText(
+                      task.taskStatus
+                    )}
+                  </div>
+
+                </div>
+
+              ))
+
+            )}
+
+          </div>
+
+
+          {/* ADD TASK */}
+
+          <button className="add-task-dashboard">
+
+            <span>+</span>
+
+            Add New Task
+
+          </button>
+
+        </section>
+
+
+      </main>
+
+
+      {/* =================================
+          BOTTOM NAV
+      ================================= */}
+
+      <nav className="bottom-nav">
+
+        <button className="active">
+
+          <FaThLarge />
+
+          <span>
+            Dashboard
+          </span>
+
+        </button>
+
+
+        <button>
+
+          <FaCalendarAlt />
+
+          <span>
+            My Schedule
+          </span>
+
+        </button>
+
+
+        <button>
+
+          <FaTasks />
+
+          <span>
+            Tasks
+          </span>
+
+        </button>
+
+
+        <button>
+
+          <FaChartBar />
+
+          <span>
+            Progress
+          </span>
+
+        </button>
+
+
+        <button>
+
+          <FaUserCircle />
+
+          <span>
+            Profile
+          </span>
+
+        </button>
+
+      </nav>
+
     </div>
   );
 }
