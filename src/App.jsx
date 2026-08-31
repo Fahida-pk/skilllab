@@ -1,18 +1,43 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/login/login.jsx";
-import Dashboard  from "./pages/dasboard/Dashboard.jsx";
-import Task  from "./pages/task/task.jsx";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Login from "./pages/login/Login";
+import Dashboard from "./pages/dashboard/Dashboard";
+import Task from "./pages/task/task";
+import Sidebar from "./pages/dashboard/Sidebar";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
-      <Route path="/login" element={<Login />} />
+    <BrowserRouter>
 
-      {/* ✅ MUST */}
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/task" element={<Task />} />
-    </Routes>
+      <Routes>
+
+        {/* LOGIN */}
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+        {/* SIDEBAR */}
+        <Route
+          path="/sidebar"
+          element={<Sidebar />}
+        />
+
+        {/* DASHBOARD */}
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
+
+        {/* TASKS */}
+        <Route
+          path="/task"
+          element={<Task />}
+        />
+
+      </Routes>
+
+    </BrowserRouter>
   );
 }
 
