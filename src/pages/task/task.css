@@ -260,7 +260,61 @@
   color: gray;
   cursor: pointer;
 }
+.task-checkbox {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 50;
+  flex-shrink: 0;
+}
 
+.task-checkbox input {
+  position: absolute;
+  opacity: 0;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  cursor: pointer;
+  z-index: 51;
+}
+
+.task-checkbox .checkmark {
+  width: 19px;
+  height: 19px;
+  border: 2px solid #ffffff;
+  border-radius: 4px;
+  background: #ffffff;
+  display: block;
+  position: relative;
+  pointer-events: none;
+}
+
+.task-checkbox input:checked + .checkmark {
+  background: #22c55e;
+  border-color: #22c55e;
+}
+
+.task-checkbox input:checked + .checkmark::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 6px;
+  height: 11px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.card.done h3,
+.card.done p {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
 .modal-actions .ok {
   background: linear-gradient(135deg, #6c63ff, #5a54e6);
   color: white;
