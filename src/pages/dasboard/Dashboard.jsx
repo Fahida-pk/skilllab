@@ -1,48 +1,32 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import Sidebar from "./Sidebar";
+import "./dashboard.css";
+
 import {
-  FaCalendarAlt,
   FaChevronLeft,
   FaChevronRight,
+  FaCalendarAlt,
   FaCheckCircle,
   FaClock,
-  FaChartLine,
-  FaBullseye,
-  FaThLarge,
-  FaTasks,
-  FaUserCircle,
-  FaChartBar,
+  FaHourglassHalf,
+  FaTimesCircle,
+  FaPlus,
 } from "react-icons/fa";
 
-import "./dashboard.css";
-import Sidebar from "./Sidebar";
+const API_URL = "https://zyntaweb.com/skilllab/api/dashboard.php";
 
 function Dashboard() {
   const navigate = useNavigate();
 
-  const getStoredUser = () => {
-    try {
-      return JSON.parse(localStorage.getItem("user") || "null");
-    } catch {
-      return null;
-    }
-  };
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
-  const user = getStoredUser();
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
-  const [date, setDate] = useState(new Date());
-  const [dashboard, setDashboard] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const getDateKey = (value) => {
-    const year = value.getFullYear();
-    const month = String(value.getMonth() + 1).padStart(2, "0");
-    const day = String(value.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
-
-  const emptyDashboard = {
+  const [dashboard, setDashboard] = useState({
     today: {
       total: 0,
       completed: 0,
@@ -57,6 +41,8 @@ function Dashboard() {
       percentage: 0,
     },
     month: {
+      total: 0,
+      completed: 0,
       percentage: 0,
     },
     studyHours: {
@@ -64,193 +50,219 @@ function Dashboard() {
       minutes: 0,
     },
     tasks: [],
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  /* =========================
+     DATE FORMAT
+  ========================= */
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString + "T00:00:00");
+
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    });
   };
 
-  const fetchDashboard = async () => {
+  /* =========================
+     LOAD DASHBOARD
+  ========================= */
+
+  const loadDashboard = async (date = selectedDate) => {
+    if (!user?.email) {
+      navigate("/login");
+      return;
+    }
+
     try {
       setLoading(true);
 
-      if (!user?.email) {
-        setDashboard(emptyDashboard);
-        return;
-      }
-
-      const response = await fetch(
-        "https://zyntaweb.com/skilllab/api/dashboard.php",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            action: "dashboard",
-            email: user.email,
-            date: getDateKey(date),
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "dashboard",
+          email: user.email,
+          date: date,
+        }),
+      });
 
       const data = await response.json();
 
-      console.log("Dashboard API Response:", data);
+      console.log("DASHBOARD API:", data);
 
       if (data.success) {
-        setDashboard({
-          ...emptyDashboard,
-          ...data,
-          today: {
-            ...emptyDashboard.today,
-            ...(data.today || {}),
-          },
-          week: {
-            ...emptyDashboard.week,
-            ...(data.week || {}),
-          },
-          month: {
-            ...emptyDashboard.month,
-            ...(data.month || {}),
-          },
-          studyHours: {
-            ...emptyDashboard.studyHours,
-            ...(data.studyHours || {}),
-          },
-          tasks: Array.isArray(data.tasks) ? data.tasks : [],
-        });
+        setDashboard(data);
       } else {
-        console.error("Dashboard API Error:", data.message);
-        setDashboard(emptyDashboard);
+        console.log("Dashboard error:", data.message);
       }
     } catch (error) {
-      console.error("Dashboard Fetch Error:", error);
-      setDashboard(emptyDashboard);
+      console.error("Dashboard API error:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDashboard();
-  }, [date]);
+    loadDashboard(selectedDate);
+  }, [selectedDate]);
 
-  const changeDate = (type) => {
-    const newDate = new Date(date);
+  /* =========================
+     PREVIOUS DAY
+  ========================= */
 
-    if (type === "prev") {
-      newDate.setDate(newDate.getDate() - 1);
-    } else {
-      newDate.setDate(newDate.getDate() + 1);
-    }
+  const previousDay = () => {
+    const date = new Date(selectedDate + "T00:00:00");
 
-    setDate(newDate);
-  };
+    date.setDate(date.getDate() - 1);
 
-  const formatDate = () => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case "completed":
-        return "Completed";
-      case "in_progress":
-        return "In Progress";
-      case "pending":
-        return "Pending";
-      default:
-        return "Not Started";
-    }
-  };
-
-  if (loading && !dashboard) {
-    return (
-      <div className="dashboard-page">
-        <Sidebar />
-        <main className="dashboard-content">
-          <div className="dashboard-loading">Loading Dashboard...</div>
-        </main>
-      </div>
+    setSelectedDate(
+      date.toISOString().split("T")[0]
     );
-  }
+  };
 
-  const data = dashboard || emptyDashboard;
+  /* =========================
+     NEXT DAY
+  ========================= */
 
-  const today = data.today || emptyDashboard.today;
-  const week = data.week || emptyDashboard.week;
-  const month = data.month || emptyDashboard.month;
-  const studyHours = data.studyHours || emptyDashboard.studyHours;
-  const tasks = Array.isArray(data.tasks) ? data.tasks : [];
+  const nextDay = () => {
+    const date = new Date(selectedDate + "T00:00:00");
 
-  const total = Number(today.total) || 0;
-  const completed = Number(today.completed) || 0;
-  const inProgress = Number(today.inProgress) || 0;
-  const pending = Number(today.pending) || 0;
-  const notStarted = Number(today.notStarted) || 0;
+    date.setDate(date.getDate() + 1);
 
-  const completedDeg = total ? (completed / total) * 360 : 0;
-  const inProgressDeg = total
-    ? ((completed + inProgress) / total) * 360
-    : 0;
-  const pendingDeg = total
-    ? ((completed + inProgress + pending) / total) * 360
-    : 0;
+    setSelectedDate(
+      date.toISOString().split("T")[0]
+    );
+  };
 
-  const donutBackground = `
-    conic-gradient(
-      #20b957 0deg ${completedDeg}deg,
-      #2581e8 ${completedDeg}deg ${inProgressDeg}deg,
-      #ffb321 ${inProgressDeg}deg ${pendingDeg}deg,
-      #ef3039 ${pendingDeg}deg 360deg
-    )
-  `;
+  /* =========================
+     PIE VALUES
+  ========================= */
+
+  const completed =
+    dashboard.today?.completed || 0;
+
+  const inProgress =
+    dashboard.today?.inProgress || 0;
+
+  const pending =
+    dashboard.today?.pending || 0;
+
+  const notStarted =
+    dashboard.today?.notStarted || 0;
+
+  const total =
+    completed +
+    inProgress +
+    pending +
+    notStarted;
+
+  const completedDeg =
+    total > 0 ? (completed / total) * 360 : 0;
+
+  const inProgressDeg =
+    total > 0 ? (inProgress / total) * 360 : 0;
+
+  const pendingDeg =
+    total > 0 ? (pending / total) * 360 : 0;
+
+  const pieStyle =
+    total > 0
+      ? {
+          background: `conic-gradient(
+            #22c55e 0deg ${completedDeg}deg,
+            #2f80ed ${completedDeg}deg ${
+            completedDeg + inProgressDeg
+          }deg,
+            #f5a623 ${
+              completedDeg + inProgressDeg
+            }deg ${
+              completedDeg +
+              inProgressDeg +
+              pendingDeg
+            }deg,
+            #ef3340 ${
+              completedDeg +
+              inProgressDeg +
+              pendingDeg
+            }deg 360deg
+          )`,
+        }
+      : {
+          background: "#e5e7eb",
+        };
+
+  /* =========================
+     STATUS %
+  ========================= */
 
   const getPercentage = (value) => {
-    return total
-      ? Math.round((Number(value) / total) * 100)
-      : 0;
+    if (!total) return 0;
+
+    return Math.round((value / total) * 100);
   };
 
   return (
     <div className="dashboard-page">
+
+      {/* SIDEBAR */}
+
       <Sidebar />
 
-      <main className="dashboard-content">
-        {/* DATE NAVIGATION */}
+      {/* MAIN CONTENT */}
+
+      <main className="dashboard-main">
+
+        {/* =========================
+            DATE HEADER
+        ========================= */}
+
         <div className="date-navigation">
+
           <button
-            type="button"
-            onClick={() => changeDate("prev")}
-            aria-label="Previous day"
+            className="date-arrow"
+            onClick={previousDay}
           >
             <FaChevronLeft />
           </button>
 
-          <div className="dashboard-date">
+          <div className="selected-date">
             <FaCalendarAlt />
-            <span>{formatDate()}</span>
+
+            <span>
+              {formatDate(selectedDate)}
+            </span>
           </div>
 
           <button
-            type="button"
-            onClick={() => changeDate("next")}
-            aria-label="Next day"
+            className="date-arrow"
+            onClick={nextDay}
           >
             <FaChevronRight />
           </button>
+
         </div>
 
-        {/* PROGRESS CARDS */}
-        <section className="progress-cards">
-          <div className="progress-card blue-card">
-            <div className="card-heading">
+
+        {/* =========================
+            PROGRESS CARDS
+        ========================= */}
+
+        <div className="progress-cards">
+
+          {/* TODAY */}
+
+          <div className="progress-card today-card">
+
+            <div className="card-top">
+
               <div className="card-icon blue">
                 <FaCalendarAlt />
               </div>
@@ -259,25 +271,33 @@ function Dashboard() {
                 <h3>Today</h3>
                 <p>Overall Progress</p>
               </div>
+
             </div>
 
-            <strong>{Number(today.percentage) || 0}%</strong>
+            <div className="percentage blue-text">
+              {dashboard.today?.percentage || 0}%
+            </div>
 
-            <div className="progress-track">
+            <div className="progress-bar">
               <div
-                className="progress-bar blue-bar"
+                className="progress-fill blue-fill"
                 style={{
-                  width: `${Math.min(
-                    100,
-                    Math.max(0, Number(today.percentage) || 0)
-                  )}%`,
+                  width: `${
+                    dashboard.today?.percentage || 0
+                  }%`,
                 }}
               />
             </div>
+
           </div>
 
-          <div className="progress-card green-card">
-            <div className="card-heading">
+
+          {/* WEEK */}
+
+          <div className="progress-card week-card">
+
+            <div className="card-top">
+
               <div className="card-icon green">
                 <FaCalendarAlt />
               </div>
@@ -286,25 +306,33 @@ function Dashboard() {
                 <h3>This Week</h3>
                 <p>Overall Progress</p>
               </div>
+
             </div>
 
-            <strong>{Number(week.percentage) || 0}%</strong>
+            <div className="percentage green-text">
+              {dashboard.week?.percentage || 0}%
+            </div>
 
-            <div className="progress-track">
+            <div className="progress-bar">
               <div
-                className="progress-bar green-bar"
+                className="progress-fill green-fill"
                 style={{
-                  width: `${Math.min(
-                    100,
-                    Math.max(0, Number(week.percentage) || 0)
-                  )}%`,
+                  width: `${
+                    dashboard.week?.percentage || 0
+                  }%`,
                 }}
               />
             </div>
+
           </div>
 
-          <div className="progress-card purple-card">
-            <div className="card-heading">
+
+          {/* MONTH */}
+
+          <div className="progress-card month-card">
+
+            <div className="card-top">
+
               <div className="card-icon purple">
                 <FaCalendarAlt />
               </div>
@@ -313,213 +341,381 @@ function Dashboard() {
                 <h3>This Month</h3>
                 <p>Overall Progress</p>
               </div>
+
             </div>
 
-            <strong>{Number(month.percentage) || 0}%</strong>
+            <div className="percentage purple-text">
+              {dashboard.month?.percentage || 0}%
+            </div>
 
-            <div className="progress-track">
+            <div className="progress-bar">
               <div
-                className="progress-bar purple-bar"
+                className="progress-fill purple-fill"
                 style={{
-                  width: `${Math.min(
-                    100,
-                    Math.max(0, Number(month.percentage) || 0)
-                  )}%`,
+                  width: `${
+                    dashboard.month?.percentage || 0
+                  }%`,
                 }}
               />
             </div>
-          </div>
-        </section>
 
-        {/* PROGRESS STATUS */}
-        <section className="dashboard-section">
+          </div>
+
+        </div>
+
+
+        {/* =========================
+            PROGRESS STATUS
+        ========================= */}
+
+        <section className="progress-section">
+
           <h2>Progress Status</h2>
 
-          <div className="progress-status">
-            <div className="donut">
+          <div className="progress-content">
+
+            {/* PIE */}
+
+            <div className="pie-wrapper">
+
               <div
-                className="donut-chart"
-                style={{ background: donutBackground }}
+                className="pie-chart"
+                style={pieStyle}
               >
-                <div className="donut-center">
+
+                <div className="pie-center">
+
                   <span>Overall</span>
-                  <strong>{Number(today.percentage) || 0}%</strong>
-                  <small>Completed</small>
+
+                  <strong>
+                    {dashboard.today?.percentage || 0}%
+                  </strong>
+
+                  <small>
+                    Completed
+                  </small>
+
                 </div>
+
               </div>
+
             </div>
+
+
+            {/* LEGEND */}
 
             <div className="legend">
-              <div>
-                <span className="dot completed" />
-                <span>Completed</span>
-                <strong>{getPercentage(completed)}%</strong>
+
+              <div className="legend-row">
+
+                <div className="legend-name">
+                  <span className="dot completed-dot" />
+                  Completed
+                </div>
+
+                <strong>
+                  {getPercentage(completed)}%
+                </strong>
+
               </div>
 
-              <div>
-                <span className="dot progress" />
-                <span>In Progress</span>
-                <strong>{getPercentage(inProgress)}%</strong>
+
+              <div className="legend-row">
+
+                <div className="legend-name">
+                  <span className="dot progress-dot" />
+                  In Progress
+                </div>
+
+                <strong>
+                  {getPercentage(inProgress)}%
+                </strong>
+
               </div>
 
-              <div>
-                <span className="dot pending" />
-                <span>Pending</span>
-                <strong>{getPercentage(pending)}%</strong>
+
+              <div className="legend-row">
+
+                <div className="legend-name">
+                  <span className="dot pending-dot" />
+                  Pending
+                </div>
+
+                <strong>
+                  {getPercentage(pending)}%
+                </strong>
+
               </div>
 
-              <div>
-                <span className="dot not-started" />
-                <span>Not Started</span>
-                <strong>{getPercentage(notStarted)}%</strong>
+
+              <div className="legend-row">
+
+                <div className="legend-name">
+                  <span className="dot notstarted-dot" />
+                  Not Started
+                </div>
+
+                <strong>
+                  {getPercentage(notStarted)}%
+                </strong>
+
               </div>
+
             </div>
+
           </div>
+
         </section>
 
-        {/* QUICK OVERVIEW */}
-        <section className="dashboard-section">
+
+        {/* =========================
+            QUICK OVERVIEW
+        ========================= */}
+
+        <section className="quick-section">
+
           <h2>Quick Overview</h2>
 
-          <div className="overview-list">
-            <div className="overview-row">
-              <FaCalendarAlt className="overview-blue" />
-              <span>Tasks Completed Today</span>
-              <strong>
-                {today.completed || 0} / {today.total || 0}
-              </strong>
-              <FaChevronRight />
-            </div>
 
-            <div className="overview-row">
-              <FaChartLine className="overview-green" />
-              <span>Tasks Completed This Week</span>
-              <strong className="green-text">
-                {week.completed || 0} / {week.total || 0}
-              </strong>
-              <FaChevronRight />
-            </div>
+          <div className="quick-list">
 
-            <div className="overview-row">
-              <FaBullseye className="overview-purple" />
-              <span>Monthly Goal Progress</span>
-              <strong className="purple-text">
-                {Number(month.percentage) || 0}%
-              </strong>
-              <FaChevronRight />
-            </div>
+            <div className="quick-item">
 
-            <div className="overview-row">
-              <FaClock className="overview-orange" />
-              <span>Total Study Hours (This Week)</span>
-              <strong className="orange-text">
-                {studyHours.hours || 0}h {studyHours.minutes || 0}m
-              </strong>
-              <FaChevronRight />
-            </div>
-          </div>
-        </section>
-
-        {/* TODAY'S TASKS */}
-        <section className="dashboard-section">
-          <div className="tasks-title">
-            <h2>Today's Tasks</h2>
-
-            <span>
-              {today.completed || 0} / {today.total || 0} Completed
-            </span>
-          </div>
-
-          <div className="dashboard-tasks">
-            {tasks.length === 0 ? (
-              <div className="empty-task">
-                No tasks for this date.
+              <div className="quick-icon blue-icon">
+                <FaCheckCircle />
               </div>
-            ) : (
-              tasks.map((task) => {
-                const status = task.taskStatus || "not_started";
 
-                return (
-                  <div
-                    className={`dashboard-task-row ${status}`}
-                    key={task.id}
-                  >
-                    <div className="task-status-icon">
-                      {status === "completed" ? (
-                        <FaCheckCircle />
-                      ) : (
-                        <span />
-                      )}
-                    </div>
+              <span>
+                Tasks Completed Today
+              </span>
 
-                    <div className="task-name">
-                      <strong>{task.title}</strong>
-                      <span>{getStatusText(status)}</span>
-                    </div>
+              <strong className="blue-text">
+                {completed} / {total}
+              </strong>
 
-                    <div className="task-time">
-                      <FaClock />
-                      {task.from}
-                      {task.to && ` - ${task.to}`}
-                    </div>
+              <FaChevronRight />
 
-                    <div className={`status-badge ${status}`}>
-                      {getStatusText(status)}
-                    </div>
-                  </div>
-                );
-              })
-            )}
+            </div>
+
+
+            <div className="quick-item">
+
+              <div className="quick-icon green-icon">
+                <FaCheckCircle />
+              </div>
+
+              <span>
+                Tasks Completed This Week
+              </span>
+
+              <strong className="green-text">
+                {dashboard.week?.completed || 0} /{" "}
+                {dashboard.week?.total || 0}
+              </strong>
+
+              <FaChevronRight />
+
+            </div>
+
+
+            <div className="quick-item">
+
+              <div className="quick-icon purple-icon">
+                <FaCalendarAlt />
+              </div>
+
+              <span>
+                Monthly Goal Progress
+              </span>
+
+              <strong className="purple-text">
+                {dashboard.month?.percentage || 0}%
+              </strong>
+
+              <FaChevronRight />
+
+            </div>
+
+
+            <div className="quick-item">
+
+              <div className="quick-icon orange-icon">
+                <FaClock />
+              </div>
+
+              <span>
+                Total Study Hours (This Week)
+              </span>
+
+              <strong className="orange-text">
+                {dashboard.studyHours?.hours || 0}h{" "}
+                {dashboard.studyHours?.minutes || 0}m
+              </strong>
+
+              <FaChevronRight />
+
+            </div>
+
           </div>
 
-          <button
-            type="button"
-            className="add-task-dashboard"
-            onClick={() => navigate("/task")}
-          >
-            <span>+</span>
-            Add New Task
-          </button>
         </section>
+
+
+        {/* =========================
+            TODAY TASKS
+        ========================= */}
+
+        <section className="tasks-section">
+
+          <div className="section-heading">
+
+            <h2>
+              Today's Tasks
+            </h2>
+
+            <span className="task-count">
+              {completed} / {total} Completed
+            </span>
+
+          </div>
+
+
+          {loading ? (
+
+            <div className="loading">
+              Loading tasks...
+            </div>
+
+          ) : dashboard.tasks?.length === 0 ? (
+
+            <div className="empty-tasks">
+              <p>
+                No tasks for this day
+              </p>
+
+              <button
+                onClick={() => navigate("/task")}
+              >
+                <FaPlus />
+                Add New Task
+              </button>
+            </div>
+
+          ) : (
+
+            <div className="today-task-list">
+
+              {dashboard.tasks.map((task) => (
+
+                <div
+                  className={`dashboard-task ${task.taskStatus}`}
+                  key={task.id}
+                >
+
+                  <div className="task-left">
+
+                    <div className="task-status-icon">
+
+                      {task.taskStatus ===
+                      "completed" ? (
+                        <FaCheckCircle />
+                      ) : task.taskStatus ===
+                        "in_progress" ? (
+                        <FaClock />
+                      ) : task.taskStatus ===
+                        "pending" ? (
+                        <FaHourglassHalf />
+                      ) : (
+                        <FaTimesCircle />
+                      )}
+
+                    </div>
+
+                    <div>
+
+                      <h3>
+                        {task.title}
+                      </h3>
+
+                      <p>
+                        {task.from || "--"}{" "}
+                        {task.to
+                          ? `- ${task.to}`
+                          : ""}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+
+                  <span
+                    className={`status-badge ${task.taskStatus}`}
+                  >
+                    {task.taskStatus ===
+                      "in_progress"
+                      ? "In Progress"
+                      : task.taskStatus ===
+                        "not_started"
+                      ? "Not Started"
+                      : task.taskStatus
+                          .charAt(0)
+                          .toUpperCase() +
+                        task.taskStatus.slice(1)}
+                  </span>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          )}
+
+        </section>
+
       </main>
 
-      {/* MOBILE BOTTOM NAV */}
-      <nav className="bottom-nav">
+
+      {/* =========================
+          MOBILE BOTTOM NAV
+      ========================= */}
+
+      <div className="mobile-bottom-nav">
+
         <button
-          type="button"
           className="active"
-          onClick={() => navigate("/dashboard")}
+          onClick={() =>
+            navigate("/dashboard")
+          }
         >
-          <FaThLarge />
-          <span>Dashboard</span>
-        </button>
-
-        <button type="button">
-          <FaCalendarAlt />
-          <span>My Schedule</span>
+          <span>▦</span>
+          Dashboard
         </button>
 
         <button
-          type="button"
-          onClick={() => navigate("/task")}
+          onClick={() =>
+            navigate("/task")
+          }
         >
-          <FaTasks />
-          <span>Tasks</span>
+          <span>☷</span>
+          Tasks
         </button>
 
-        <button type="button">
-          <FaChartBar />
-          <span>Progress</span>
+        <button>
+          <span>▥</span>
+          Progress
         </button>
 
-        <button type="button">
-          <FaUserCircle />
-          <span>Profile</span>
+        <button>
+          <span>◉</span>
+          Profile
         </button>
-      </nav>
+
+      </div>
+
     </div>
   );
 }
-
 
 export default Dashboard;
