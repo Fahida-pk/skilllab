@@ -47,7 +47,9 @@ function Dashboard() {
 
   const [loading, setLoading] =
     useState(true);
-
+// Re-render every second so task status
+// changes automatically according to current time.
+const [, setTimeTick] = useState(0);
   const [dashboard, setDashboard] =
     useState({
       today: {
@@ -556,12 +558,51 @@ function Dashboard() {
       return tasks;
     };
 
-  /* =====================================================
-     TASK STATUS
-  ===================================================== */
+/* =====================================================
+   TASK STATUS
+   ===================================================== */
 
- const getTaskStatus = (task) => {
-  // COMPLETED
+const getTaskDateTime = (dateKey, time, addDay = false) => {
+  if (!dateKey || !time) return null;
+
+  const normalized = normalizeTime(time);
+
+  const parts = normalized.split(":");
+
+  if (parts.length < 2) {
+    return null;
+  }
+
+  const hours = Number(parts[0]);
+  const minutes = Number(parts[1]);
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return null;
+  }
+
+  const date = new Date(`${dateKey}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  if (addDay) {
+    date.setDate(date.getDate() + 1);
+  }
+
+  date.setHours(hours, minutes, 0, 0);
+
+  return date;
+};
+
+const getTaskStatus = (task) => {
+
+  /*
+   * COMPLETED ALWAYS WINS
+   *
+   * User tick cheythal time kazhinjalum
+   * Completed thanne ayirikkum.
+   */
   if (
     task.taskStatus === "completed" ||
     task.status === "completed" ||
@@ -573,32 +614,129 @@ function Dashboard() {
     return "completed";
   }
 
-  // IN PROGRESS
-  if (
-    task.taskStatus === "in_progress" ||
-    task.status === "in_progress" ||
-    task.task_status === "in_progress" ||
-    task.taskStatus === "in progress" ||
-    task.status === "in progress" ||
-    task.task_status === "in progress"
-  ) {
-    return "in_progress";
-  }
+  const now = new Date();
+  const today = getLocalDate();
 
-  // PENDING
-  if (
-    task.taskStatus === "pending" ||
-    task.status === "pending" ||
-    task.task_status === "pending"
-  ) {
+  /*
+   * Previous date
+   * unfinished task = Pending
+   */
+  if (selectedDate < today) {
     return "pending";
   }
 
-  // NOT STARTED
-  return "not_started";
-};
+  /*
+   * Future date
+   * task = Not Started
+   */
+  if (selectedDate > today) {
+    return "not_started";
+  }
 
-  /* =====================================================
+  /*
+   * Today task
+   */
+  const startTime = task.from || task.time;
+  const endTime = task.to;
+
+  /*
+   * No time available
+   */
+  if (!startTime) {
+
+    if (
+      task.taskStatus === "in_progress" ||
+      task.status === "in_progress" ||
+      task.task_status === "in_progress" ||
+      task.taskStatus === "in progress" ||
+      task.status === "in progress" ||
+      task.task_status === "in progress"
+    ) {
+      return "in_progress";
+    }
+
+    if (
+      task.taskStatus === "pending" ||
+      task.status === "pending" ||
+      task.task_status === "pending"
+    ) {
+      return "pending";
+    }
+
+    return "not_started";
+  }
+
+  const start = getTaskDateTime(
+    selectedDate,
+    startTime
+  );
+
+  if (!start) {
+    return "not_started";
+  }
+
+  let end = null;
+
+  if (endTime) {
+
+    /*
+     * Sleep pole midnight cross cheyyunna
+     * task handle cheyyunnu.
+     */
+    const endIsNextDay =
+      task.nextDay === true ||
+      task.isSleep === true ||
+      getSortMinutes(endTime) <=
+        getSortMinutes(startTime);
+
+    end = getTaskDateTime(
+      selectedDate,
+      endTime,
+      endIsNextDay
+    );
+  }
+
+  /*
+   * Start time mathram undenkil
+   */
+  if (!end) {
+    return now >= start
+      ? "in_progress"
+      : "not_started";
+  }
+
+  /*
+   * Before start
+   * ----------------
+   * 5:10 AM
+   * Task: 5:13 - 5:18
+   * => Not Started
+   */
+  if (now < start) {
+    return "not_started";
+  }
+
+  /*
+   * During task time
+   * ----------------
+   * 5:15 AM
+   * Task: 5:13 - 5:18
+   * => In Progress
+   */
+  if (now < end) {
+    return "in_progress";
+  }
+
+  /*
+   * Time finished but user did NOT tick
+   * => Pending
+   *
+   * 5:19 AM
+   * Task: 5:13 - 5:18
+   * => Pending
+   */
+  return "pending";
+};  /* =====================================================
      TODAY STATS
   ===================================================== */
 
@@ -869,7 +1007,15 @@ function Dashboard() {
       setLoading(false);
     }
   };
+useEffect(() => {
+  const timer = setInterval(() => {
+    setTimeTick((value) => value + 1);
+  }, 1000);
 
+  return () => {
+    clearInterval(timer);
+  };
+}, []);
   /* =====================================================
      INITIAL LOAD
   ===================================================== */
@@ -985,96 +1131,84 @@ function Dashboard() {
   };
 
   /* =====================================================
-     PIE
-  ===================================================== */
+   PIE
+   ===================================================== */
 
-  const completed =
-    dashboard.today
-      ?.completed || 0;
+// Always calculate status using current time.
+const liveTodayStats = getTodayStats(
+  dashboard.tasks || []
+);
 
-  const inProgress =
-    dashboard.today
-      ?.inProgress || 0;
+const completed =
+  liveTodayStats.completed;
 
-  const pending =
-    dashboard.today
-      ?.pending || 0;
+const inProgress =
+  liveTodayStats.inProgress;
 
-  const notStarted =
-    dashboard.today
-      ?.notStarted || 0;
+const pending =
+  liveTodayStats.pending;
 
-  const total =
-    completed +
-    inProgress +
-    pending +
-    notStarted;
+const notStarted =
+  liveTodayStats.notStarted;
 
-  const completedDeg =
-    total > 0
-      ? (completed /
-          total) *
-        360
-      : 0;
+const total =
+  liveTodayStats.total;
 
-  const inProgressDeg =
-    total > 0
-      ? (inProgress /
-          total) *
-        360
-      : 0;
+const completedDeg =
+  total > 0
+    ? (completed / total) * 360
+    : 0;
 
-  const pendingDeg =
-    total > 0
-      ? (pending /
-          total) *
-        360
-      : 0;
+const inProgressDeg =
+  total > 0
+    ? (inProgress / total) * 360
+    : 0;
 
-  const pieStyle =
-    total > 0
-      ? {
-          background:
-            `conic-gradient(
-              #22c55e 0deg ${completedDeg}deg,
-              #2f80ed ${completedDeg}deg ${
-                completedDeg +
-                inProgressDeg
-              }deg,
-              #f5a623 ${
-                completedDeg +
-                inProgressDeg
-              }deg ${
-                completedDeg +
-                inProgressDeg +
-                pendingDeg
-              }deg,
-              #ef3340 ${
-                completedDeg +
-                inProgressDeg +
-                pendingDeg
-              }deg 360deg
-            )`,
-        }
-      : {
-          background:
-            "#e5e7eb",
-        };
+const pendingDeg =
+  total > 0
+    ? (pending / total) * 360
+    : 0;
 
-  /* =====================================================
-     PERCENTAGE
-  ===================================================== */
-
-  const getPercentage =
-    (value) => {
-      if (!total) {
-        return 0;
+const pieStyle =
+  total > 0
+    ? {
+        background:
+          `conic-gradient(
+            #22c55e 0deg ${completedDeg}deg,
+            #2f80ed ${completedDeg}deg ${
+              completedDeg + inProgressDeg
+            }deg,
+            #f5a623 ${
+              completedDeg + inProgressDeg
+            }deg ${
+              completedDeg +
+              inProgressDeg +
+              pendingDeg
+            }deg,
+            #ef3340 ${
+              completedDeg +
+              inProgressDeg +
+              pendingDeg
+            }deg 360deg
+          )`,
       }
+    : {
+        background: "#e5e7eb",
+      };
 
-      return Math.round(
-        (value / total) * 100
-      );
-    };
+/* =====================================================
+   PERCENTAGE
+   ===================================================== */
+
+const getPercentage = (value) => {
+  if (!total) {
+    return 0;
+  }
+
+  return Math.round(
+    (value / total) * 100
+  );
+};
 
   /* =====================================================
      RENDER
