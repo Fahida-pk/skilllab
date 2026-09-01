@@ -980,7 +980,115 @@ body,
 
   border-radius: 5px;
 }
+/* =========================================
+   TASK ICON - MODERN STYLE
+========================================= */
 
+.task-icon {
+  width: 58px;
+  height: 58px;
+
+  min-width: 58px;
+
+  border-radius: 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.28);
+
+  border: 1px solid rgba(255, 255, 255, 0.38);
+
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.45),
+    0 5px 12px rgba(0, 0, 0, 0.08);
+
+  backdrop-filter: blur(8px);
+
+  font-size: 27px;
+
+  color: #ffffff;
+
+  transition: all 0.25s ease;
+}
+
+
+/* Icon itself */
+
+.task-icon svg {
+  width: 27px;
+  height: 27px;
+
+  color: #ffffff;
+
+  filter:
+    drop-shadow(
+      0 2px 3px rgba(0, 0, 0, 0.12)
+    );
+}
+
+
+/* Hover */
+
+.card:hover .task-icon {
+  transform: translateY(-2px) scale(1.04);
+
+  background: rgba(255, 255, 255, 0.36);
+
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.5),
+    0 7px 16px rgba(0, 0, 0, 0.10);
+}
+
+
+/* =========================================
+   DIFFERENT ICON LOOK
+========================================= */
+
+.card:nth-child(1) .task-icon {
+  border-radius: 50%;
+}
+
+.card:nth-child(2) .task-icon {
+  border-radius: 16px 22px 16px 22px;
+}
+
+.card:nth-child(3) .task-icon {
+  border-radius: 20px;
+}
+
+.card:nth-child(4) .task-icon {
+  border-radius: 14px 20px 20px 14px;
+}
+
+.card:nth-child(5) .task-icon {
+  border-radius: 18px 18px 10px 10px;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .task-icon {
+    width: 52px;
+    height: 52px;
+
+    min-width: 52px;
+
+    border-radius: 15px;
+
+    font-size: 24px;
+  }
+
+  .task-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+}
 
 /* MOBILE */
 @media (max-width: 600px) {
