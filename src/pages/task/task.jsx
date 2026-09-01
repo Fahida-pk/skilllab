@@ -141,6 +141,55 @@ function Task() {
   const getDefaultCompletionKey = (dateKey) =>
     `defaultTaskCompleted_${dateKey}`;
 
+  // =========================================================
+  // DATE-WISE DEFAULT TASK SCHEDULES
+  // =========================================================
+  // Default task definitions are shared across all dates, but
+  // their edited times are stored per date.
+  //
+  // Sleep on Sep 1: 9:00 PM -> 2:00 AM (Next Day)
+  // automatically makes Sep 2 Wake Up: 2:00 AM.
+  // Editing Sep 2 Sleep will NOT change Sep 1 Wake Up.
+  // =========================================================
+
+  const getDefaultScheduleKey = (dateKey) =>
+    `defaultTaskSchedule_${dateKey}`;
+
+  const getDateDefaultSchedules = (dateKey) => {
+    try {
+      const saved = localStorage.getItem(getDefaultScheduleKey(dateKey));
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  };
+
+  const getDateDefaultTasks = (dateKey) => {
+    const schedules = getDateDefaultSchedules(dateKey);
+
+    return defaultTasks.map((task) => ({
+      ...task,
+      ...(schedules[String(task.id)] || {}),
+      completed: false,
+    }));
+  };
+
+  const saveDateDefaultSchedule = (dateKey, taskId, values) => {
+    const key = getDefaultScheduleKey(dateKey);
+    const current = getDateDefaultSchedules(dateKey);
+
+    const updated = {
+      ...current,
+      [String(taskId)]: {
+        ...(current[String(taskId)] || {}),
+        ...values,
+      },
+    };
+
+    localStorage.setItem(key, JSON.stringify(updated));
+    return updated;
+  };
+
   const [defaultCompleted, setDefaultCompleted] = useState({});
 
   useEffect(() => {
@@ -462,32 +511,51 @@ function Task() {
     // DEFAULT TASK EDIT
     // =========================
     if (editTask && String(editTask.id).startsWith("d")) {
-      const updated = defaultTasks.map((t) =>
-        t.id === editTask.id
-          ? {
-              ...t,
-              title: title.trim(),
-              from:
-                title.trim().toLowerCase() === "wake up"
-                  ? undefined
-                  : formattedFrom,
-              time:
-                title.trim().toLowerCase() === "wake up"
-                  ? formattedFrom
-                  : undefined,
-              to: formattedTo,
-              nextDay,
-              completed: false,
-            }
-          : t
-      );
+      const taskId = String(editTask.id);
+      const taskTitle = title.trim().toLowerCase();
 
-      setDefaultTasks(updated);
+      // Save this default task's schedule ONLY for the selected date.
+      saveDateDefaultSchedule(currentKey, taskId, {
+        title: title.trim(),
+        from: taskTitle === "wake up" ? undefined : formattedFrom,
+        time: taskTitle === "wake up" ? formattedFrom : undefined,
+        to: formattedTo,
+        nextDay,
+      });
 
+      // If Sleep crosses midnight, its TO time becomes the
+      // Wake Up time for the NEXT calendar day.
+      if (taskTitle === "sleep" && formattedTo && nextDay) {
+        const nextDate = new Date(date);
+        nextDate.setDate(nextDate.getDate() + 1);
+        const nextDateKey = getDateKey(nextDate);
+
+        saveDateDefaultSchedule(nextDateKey, "d1", {
+          title: "Wake Up",
+          time: formattedTo,
+          from: undefined,
+          to: undefined,
+          nextDay: false,
+        });
+      }
+
+      // If Wake Up is edited directly, only that date changes.
+      if (taskTitle === "wake up") {
+        saveDateDefaultSchedule(currentKey, taskId, {
+          title: "Wake Up",
+          time: formattedFrom,
+          from: undefined,
+          to: undefined,
+          nextDay: false,
+        });
+      }
+
+      // Editing Sleep must not change today's Wake Up.
+      // The next day's Wake Up is updated above.
       setDefaultCompleted((prev) => {
         const updatedCompletion = {
           ...prev,
-          [editTask.id]: false,
+          [taskId]: false,
         };
 
         localStorage.setItem(
@@ -497,41 +565,6 @@ function Task() {
 
         return updatedCompletion;
       });
-
-      // If Sleep changes, update Wake Up time too.
-      if (
-        title.trim().toLowerCase().includes("sleep") &&
-        formattedTo &&
-        nextDay
-      ) {
-        const wakeTask = updated.find(
-          (t) => t.title?.toLowerCase() === "wake up"
-        );
-
-        if (wakeTask) {
-          setDefaultTasks((prev) =>
-            prev.map((t) =>
-              t.id === wakeTask.id
-                ? { ...t, time: formattedTo, completed: false }
-                : t
-            )
-          );
-
-          setDefaultCompleted((prev) => {
-            const completion = {
-              ...prev,
-              [wakeTask.id]: false,
-            };
-
-            localStorage.setItem(
-              getDefaultCompletionKey(currentKey),
-              JSON.stringify(completion)
-            );
-
-            return completion;
-          });
-        }
-      }
 
       resetModal();
       notifyTaskUpdated();
@@ -601,9 +634,9 @@ function Task() {
 
   const displayTasks = useMemo(
     () => [
-      // Filter again at render time as a safety net.
-      // A deleted default task can never appear again.
-      ...defaultTasks
+      // Default tasks exist on every date. Their edited times are
+      // applied from date-wise schedules.
+      ...getDateDefaultTasks(currentKey)
         .filter((task) => !deletedDefaultIds.includes(String(task.id)))
         .map((task) => ({
           ...task,
@@ -611,7 +644,7 @@ function Task() {
         })),
       ...tasks,
     ],
-    [defaultTasks, deletedDefaultIds, defaultCompleted, tasks]
+    [defaultTasks, currentKey, deletedDefaultIds, defaultCompleted, tasks]
   );
 
   const getSortMinutes = (time) => {
@@ -630,85 +663,7 @@ function Task() {
     }
   };
 
-  // =========================================================
-  // WAKE UP TIME
-  // =========================================================
-  // Sleep belongs to the selected date, but its "to" time is
-  // the Wake Up time of the NEXT day.
-  //
-  // Example:
-  // Sep 1  -> Sleep 9:00 PM - 2:00 AM (Next Day)
-  // Sep 2  -> Wake Up 2:00 AM
-  //
-  // This is date-based, so changing Sep 2 Sleep will NOT change
-  // Sep 2 Wake Up. It will affect Sep 3 Wake Up instead.
-  // =========================================================
-
-  const getPreviousDateKey = (dateKey) => {
-    const d = new Date(`${dateKey}T00:00:00`);
-    d.setDate(d.getDate() - 1);
-    return getDateKey(d);
-  };
-
-  const getWakeUpFromPreviousSleep = (dateKey) => {
-    const previousKey = getPreviousDateKey(dateKey);
-
-    try {
-      const saved = localStorage.getItem(
-        getDefaultCompletionKey(previousKey)
-      );
-
-      // Sleep time is stored in the defaultTasks definition.
-      // Only use it if Sleep is configured as an overnight task.
-      const sleepTask = defaultTasks.find(
-        (task) => task.title?.trim().toLowerCase() === "sleep"
-      );
-
-      if (!sleepTask?.to || !sleepTask?.nextDay) {
-        return null;
-      }
-
-      // The default Sleep definition is shared, so its "to" time
-      // represents the configured wake-up time for the following day.
-      return sleepTask.to;
-    } catch {
-      return null;
-    }
-  };
-
-  // =========================================================
-  // APPLY PREVIOUS-DAY SLEEP -> TODAY WAKE UP
-  // =========================================================
-
-  const wakeUpFromPreviousSleep =
-    getWakeUpFromPreviousSleep(currentKey);
-
-  const displayTasksWithWakeUp = displayTasks.map((task) => {
-    if (
-      task.title?.trim().toLowerCase() === "wake up" &&
-      wakeUpFromPreviousSleep
-    ) {
-      return {
-        ...task,
-        time: wakeUpFromPreviousSleep,
-        from: undefined,
-      };
-    }
-
-    return task;
-  });
-
-  const sortedTasks = [...displayTasksWithWakeUp].sort((a, b) => {
-    // Wake Up must always be the first card.
-    const aWakeUp =
-      a.title?.trim().toLowerCase() === "wake up";
-    const bWakeUp =
-      b.title?.trim().toLowerCase() === "wake up";
-
-    if (aWakeUp && !bWakeUp) return -1;
-    if (!aWakeUp && bWakeUp) return 1;
-
-    // Sleep / overnight tasks must always be the last card.
+  const sortedTasks = [...displayTasks].sort((a, b) => {
     if (a.nextDay && !b.nextDay) return 1;
     if (!a.nextDay && b.nextDay) return -1;
 
