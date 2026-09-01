@@ -81,6 +81,9 @@ const [, setTimeTick] = useState(0);
       tasks: [],
     });
 
+  // Monthly progress graph data
+  const [monthlyProgress, setMonthlyProgress] = useState([]);
+
   /* =====================================================
      DATE FORMAT
   ===================================================== */
@@ -1016,6 +1019,70 @@ useEffect(() => {
     clearInterval(timer);
   };
 }, []);
+
+  /* =====================================================
+     MONTHLY TASK PROGRESS GRAPH
+  ===================================================== */
+
+  const loadMonthlyProgress = async () => {
+    if (!user?.email) return;
+
+    try {
+      const now = new Date();
+      const months = [];
+
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(
+          now.getFullYear(),
+          now.getMonth() - i,
+          1
+        );
+
+        months.push({
+          date: `${d.getFullYear()}-${String(
+            d.getMonth() + 1
+          ).padStart(2, "0")}-01`,
+          label: d.toLocaleDateString("en-US", {
+            month: "short",
+          }),
+        });
+      }
+
+      const results = await Promise.all(
+        months.map(async ({ date, label }) => {
+          try {
+            const response = await fetch(API_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                action: "dashboard",
+                email: user.email,
+                date,
+              }),
+            });
+
+            const data = await response.json();
+
+            return {
+              label,
+              value: Number(data?.month?.percentage) || 0,
+            };
+          } catch (error) {
+            console.error("Monthly graph error:", error);
+            return { label, value: 0 };
+          }
+        })
+      );
+
+      setMonthlyProgress(results);
+    } catch (error) {
+      console.error("Monthly progress error:", error);
+      setMonthlyProgress([]);
+    }
+  };
+
   /* =====================================================
      INITIAL LOAD
   ===================================================== */
@@ -1024,6 +1091,7 @@ useEffect(() => {
     loadDashboard(
       selectedDate
     );
+    loadMonthlyProgress();
   }, [selectedDate]);
 
   /* =====================================================
@@ -1209,6 +1277,52 @@ const getPercentage = (value) => {
     (value / total) * 100
   );
 };
+
+
+  /* =====================================================
+     GRAPH CALCULATIONS
+  ===================================================== */
+
+  const graphWidth = 760;
+  const graphHeight = 260;
+  const graphPaddingX = 48;
+  const graphPaddingTop = 20;
+  const graphPaddingBottom = 38;
+
+  const graphInnerWidth =
+    graphWidth - graphPaddingX * 2;
+
+  const graphInnerHeight =
+    graphHeight -
+    graphPaddingTop -
+    graphPaddingBottom;
+
+  const graphPoints =
+    monthlyProgress.map((item, index) => {
+      const x =
+        monthlyProgress.length === 1
+          ? graphWidth / 2
+          : graphPaddingX +
+            (index / (monthlyProgress.length - 1)) *
+              graphInnerWidth;
+
+      const y =
+        graphPaddingTop +
+        ((100 - item.value) / 100) *
+          graphInnerHeight;
+
+      return { ...item, x, y };
+    });
+
+  const graphLinePath =
+    graphPoints.length > 0
+      ? graphPoints
+          .map(
+            (point, index) =>
+              `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`
+          )
+          .join(" ")
+      : "";
 
   /* =====================================================
      RENDER
