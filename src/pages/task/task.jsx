@@ -167,11 +167,51 @@ function Task() {
   const getDateDefaultTasks = (dateKey) => {
     const schedules = getDateDefaultSchedules(dateKey);
 
-    return defaultTasks.map((task) => ({
-      ...task,
-      ...(schedules[String(task.id)] || {}),
-      completed: false,
-    }));
+    // Wake Up is the first task of the selected day.
+    // When the previous day's Sleep crosses midnight, the Sleep TO time
+    // becomes the selected day's Wake Up time. This takes priority over
+    // any old/manual Wake Up value saved for the selected date.
+    const selectedDate = new Date(`${dateKey}T00:00:00`);
+    const previousDate = new Date(selectedDate);
+    previousDate.setDate(previousDate.getDate() - 1);
+
+    const previousDateKey = getDateKey(previousDate);
+    const previousSchedules = getDateDefaultSchedules(previousDateKey);
+    const previousSleep = previousSchedules["d5"];
+
+    let inheritedWakeUp = "";
+
+    if (
+      previousSleep &&
+      previousSleep.from &&
+      previousSleep.to &&
+      isNextDay(previousSleep.from, previousSleep.to)
+    ) {
+      inheritedWakeUp = previousSleep.to;
+    }
+
+    return defaultTasks.map((task) => {
+      const savedSchedule = schedules[String(task.id)] || {};
+
+      if (String(task.id) === "d1" && inheritedWakeUp) {
+        return {
+          ...task,
+          ...savedSchedule,
+          title: "Wake Up",
+          time: inheritedWakeUp,
+          from: undefined,
+          to: undefined,
+          nextDay: false,
+          completed: false,
+        };
+      }
+
+      return {
+        ...task,
+        ...savedSchedule,
+        completed: false,
+      };
+    });
   };
 
   const saveDateDefaultSchedule = (dateKey, taskId, values) => {
@@ -664,6 +704,14 @@ function Task() {
   };
 
   const sortedTasks = [...displayTasks].sort((a, b) => {
+    const aTitle = String(a.title || "").trim().toLowerCase();
+    const bTitle = String(b.title || "").trim().toLowerCase();
+
+    // Wake Up must always be the first task of the selected day.
+    if (aTitle === "wake up" && bTitle !== "wake up") return -1;
+    if (bTitle === "wake up" && aTitle !== "wake up") return 1;
+
+    // Sleep is an overnight task, so it stays at the end of the day.
     if (a.nextDay && !b.nextDay) return 1;
     if (!a.nextDay && b.nextDay) return -1;
 

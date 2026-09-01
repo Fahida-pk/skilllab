@@ -13,22 +13,40 @@ body,
 /* Main page */
 .dashboard {
   min-height: 100vh;
+  height: 100vh;
   width: 100%;
+  overflow: hidden;
 }
 
-/* Desktop main */
+/* ================================
+   DESKTOP MAIN SCROLL
+   ================================ */
+
 .main {
-  min-height: 100vh;
+  min-height: 0;
+  height: 100vh;
   box-sizing: border-box;
   padding-bottom: 40px;
 
-  /* IMPORTANT:
-     Don't create a separate locked scroll area */
-  height: auto;
+  /* Desktop: the main content scrolls */
   overflow-x: hidden;
-  overflow-y: visible;
+  overflow-y: auto;
 
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.main::-webkit-scrollbar {
+  width: 7px;
+}
+
+.main::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.main::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* ================================
@@ -640,9 +658,7 @@ body,
   .dashboard {
     width: 100%;
     min-height: 100vh;
-
     height: auto;
-
     overflow: visible;
   }
 
