@@ -303,28 +303,6 @@ body,
 }
 
 
-/* SMALL BRAND LINE */
-
-.skill-lab-title::after {
-  content: "";
-
-  display: block;
-
-  width: 48px;
-  height: 3px;
-
-  margin: 9px auto 0;
-
-  border-radius: 20px;
-
-  background:
-    linear-gradient(
-      90deg,
-      #5420c9,
-      #e91e8f
-    );
-}
-
 
 /* =========================================
    SIGN IN
@@ -363,6 +341,7 @@ body,
 
   z-index: 2;
 
+  margin: 9px 0 27px;
 
   color: rgba(255, 255, 255, 0.88);
 
