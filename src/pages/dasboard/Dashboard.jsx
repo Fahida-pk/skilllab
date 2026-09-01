@@ -81,6 +81,7 @@ const [, setTimeTick] = useState(0);
       tasks: [],
     });
 
+  const [weeklyProgress, setWeeklyProgress] = useState([]);
   const [monthlyProgress, setMonthlyProgress] = useState([]);
 
   /* =====================================================
@@ -1019,6 +1020,92 @@ useEffect(() => {
   };
 }, []);
   /* =====================================================
+     WEEKLY TASK PROGRESS GRAPH
+     Mon -> Sun, using each day's actual completion %
+  ===================================================== */
+
+  const loadWeeklyProgress = async () => {
+    if (!user?.email) return;
+
+    try {
+      const selected = new Date(
+        selectedDate + "T00:00:00"
+      );
+
+      // Start from Monday of the selected date's week.
+      const day = selected.getDay();
+      const mondayOffset = day === 0 ? -6 : 1 - day;
+
+      const monday = new Date(selected);
+      monday.setDate(
+        selected.getDate() + mondayOffset
+      );
+
+      const days = [];
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+
+        days.push({
+          date: `${d.getFullYear()}-${String(
+            d.getMonth() + 1
+          ).padStart(2, "0")}-${String(
+            d.getDate()
+          ).padStart(2, "0")}`,
+          label: d.toLocaleDateString("en-US", {
+            weekday: "short",
+          }),
+        });
+      }
+
+      const result = await Promise.all(
+        days.map(async ({ date, label }) => {
+          try {
+            const response = await fetch(API_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                action: "dashboard",
+                email: user.email,
+                date,
+              }),
+            });
+
+            const data = await response.json();
+
+            return {
+              label,
+              value: Number(
+                data?.today?.percentage
+              ) || 0,
+            };
+          } catch (error) {
+            console.error(
+              "Weekly graph error:",
+              error
+            );
+
+            return {
+              label,
+              value: 0,
+            };
+          }
+        })
+      );
+
+      setWeeklyProgress(result);
+    } catch (error) {
+      console.error(
+        "Weekly progress error:",
+        error
+      );
+    }
+  };
+
+  /* =====================================================
      MONTHLY TASK PROGRESS GRAPH
   ===================================================== */
 
@@ -1088,6 +1175,7 @@ useEffect(() => {
     loadDashboard(
       selectedDate
     );
+    loadWeeklyProgress();
     loadMonthlyProgress();
   }, [selectedDate, user?.email]);
 
@@ -1682,6 +1770,124 @@ const getPercentage = (value) => {
 
           </div>
 
+        </section>
+
+        {/* WEEKLY TASK PROGRESS GRAPH */}
+        <section className="task-graph-section weekly-graph-section">
+          <div className="task-graph-header">
+            <div>
+              <h2 className="task-graph-title">
+                Weekly Task Progress
+              </h2>
+              <p className="task-graph-subtitle">
+                Daily task completion for this week
+              </p>
+            </div>
+
+            <div className="task-graph-legend">
+              <span className="task-graph-legend-dot" />
+              Task Progress
+            </div>
+          </div>
+
+          <div className="task-graph-scroll">
+            <svg
+              className="task-graph"
+              viewBox="0 0 760 280"
+              preserveAspectRatio="none"
+              role="img"
+              aria-label="Weekly task progress"
+            >
+              {[0, 25, 50, 75, 100].map((value) => {
+                const y = 225 - value * 1.8;
+
+                return (
+                  <g key={value}>
+                    <line
+                      x1="55"
+                      x2="735"
+                      y1={y}
+                      y2={y}
+                      className="task-graph-grid"
+                    />
+                    <text
+                      x="5"
+                      y={y + 4}
+                      className="task-graph-y-label"
+                    >
+                      {value}%
+                    </text>
+                  </g>
+                );
+              })}
+
+              {weeklyProgress.length > 0 && (
+                <>
+                  <polyline
+                    className="task-graph-line"
+                    points={weeklyProgress
+                      .map((item, index) => {
+                        const x =
+                          weeklyProgress.length === 1
+                            ? 395
+                            : 55 +
+                              (index /
+                                (weeklyProgress.length - 1)) *
+                                680;
+
+                        const y =
+                          225 -
+                          Number(item.value) * 1.8;
+
+                        return `${x},${y}`;
+                      })
+                      .join(" ")}
+                  />
+
+                  {weeklyProgress.map((item, index) => {
+                    const x =
+                      weeklyProgress.length === 1
+                        ? 395
+                        : 55 +
+                          (index /
+                            (weeklyProgress.length - 1)) *
+                            680;
+
+                    const y =
+                      225 -
+                      Number(item.value) * 1.8;
+
+                    return (
+                      <g key={`${item.label}-${index}`}>
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="6"
+                          className="task-graph-point"
+                        />
+                        <text
+                          x={x}
+                          y={Math.max(y - 14, 15)}
+                          textAnchor="middle"
+                          className="task-graph-value"
+                        >
+                          {item.value}%
+                        </text>
+                        <text
+                          x={x}
+                          y="258"
+                          textAnchor="middle"
+                          className="task-graph-label"
+                        >
+                          {item.label}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </>
+              )}
+            </svg>
+          </div>
         </section>
 
         {/* MONTHLY TASK PROGRESS GRAPH */}

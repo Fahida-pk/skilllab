@@ -1,6 +1,3 @@
-
-  
-
 html,
 body,
 #root {
@@ -1169,9 +1166,10 @@ body {
 
 
 /* =====================================
-   MONTHLY TASK PROGRESS GRAPH
+   WEEKLY + MONTHLY TASK PROGRESS GRAPHS
 ===================================== */
 
+.task-graph-section,
 .monthly-graph-section {
   width: 100%;
   background: #ffffff;
@@ -1180,8 +1178,10 @@ body {
   padding: 25px;
   margin-bottom: 22px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.035);
+  box-sizing: border-box;
 }
 
+.task-graph-header,
 .monthly-graph-header {
   display: flex;
   align-items: center;
@@ -1190,6 +1190,7 @@ body {
   margin-bottom: 18px;
 }
 
+.task-graph-title,
 .monthly-graph-title {
   margin: 0;
   font-size: 21px;
@@ -1197,12 +1198,14 @@ body {
   color: #172033;
 }
 
+.task-graph-subtitle,
 .monthly-graph-subtitle {
   margin: 5px 0 0;
   font-size: 13px;
   color: #64748b;
 }
 
+.task-graph-legend,
 .monthly-graph-legend {
   display: flex;
   align-items: center;
@@ -1212,6 +1215,7 @@ body {
   white-space: nowrap;
 }
 
+.task-graph-legend-dot,
 .monthly-graph-legend-dot {
   width: 10px;
   height: 10px;
@@ -1219,12 +1223,14 @@ body {
   background: #7c3aed;
 }
 
+.task-graph-scroll,
 .monthly-graph-scroll {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
 }
 
+.task-graph,
 .monthly-graph {
   display: block;
   width: 100%;
@@ -1232,11 +1238,13 @@ body {
   height: auto;
 }
 
+.task-graph-grid,
 .monthly-graph-grid {
   stroke: #e5e7eb;
   stroke-width: 1;
 }
 
+.task-graph-line,
 .monthly-graph-line {
   fill: none;
   stroke: #7c3aed;
@@ -1245,23 +1253,27 @@ body {
   stroke-linejoin: round;
 }
 
+.task-graph-point,
 .monthly-graph-point {
   fill: #ffffff;
   stroke: #7c3aed;
   stroke-width: 3;
 }
 
+.task-graph-value,
 .monthly-graph-value {
   fill: #374151;
   font-size: 12px;
   font-weight: 700;
 }
 
+.task-graph-label,
 .monthly-graph-label {
   fill: #6b7280;
   font-size: 13px;
 }
 
+.task-graph-y-label,
 .monthly-graph-y-label {
   fill: #6b7280;
   font-size: 12px;
@@ -1269,17 +1281,19 @@ body {
 
 
 /* =====================================
-   MONTHLY GRAPH MOBILE
+   GRAPH MOBILE
 ===================================== */
 
 @media (max-width: 600px) {
 
+  .task-graph-section,
   .monthly-graph-section {
     padding: 18px;
     border-radius: 18px;
     margin-bottom: 15px;
   }
 
+  .task-graph-header,
   .monthly-graph-header {
     align-items: flex-start;
     flex-direction: column;
@@ -1287,18 +1301,22 @@ body {
     margin-bottom: 12px;
   }
 
+  .task-graph-title,
   .monthly-graph-title {
     font-size: 18px;
   }
 
+  .task-graph-subtitle,
   .monthly-graph-subtitle {
     font-size: 12px;
   }
 
+  .task-graph-legend,
   .monthly-graph-legend {
     font-size: 12px;
   }
 
+  .task-graph,
   .monthly-graph {
     min-width: 580px;
   }
