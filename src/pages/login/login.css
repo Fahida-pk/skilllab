@@ -34,21 +34,23 @@ html, body, #root {
   z-index: 0;
 }
 .skill-lab-title {
-  margin: 12px 0 8px;
+  margin: 10px 0 10px;
 
-  font-size: 25px;
-  font-weight: 800;
+  font-size: 27px;
+  font-weight: 900;
 
-  letter-spacing: 3px;
-
-  line-height: 1.1;
+  letter-spacing: 5px;
+  line-height: 1;
 
   text-align: center;
 
   color: #ffffff;
 
+  text-transform: uppercase;
+
   text-shadow:
-    0 2px 8px rgba(70, 30, 130, 0.22);
+    0 2px 4px rgba(60, 20, 120, 0.20),
+    0 0 14px rgba(255, 255, 255, 0.18);
 }
 .login-page::before {
   background: #4f8cff;
