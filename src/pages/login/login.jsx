@@ -53,8 +53,7 @@ localStorage.setItem("token", token);
         <div className="profile-icon">
           <FaUser />
         </div>
-<h2 className="skill-lab-title">SKILL LAB</h2>
-
+<h1 className="title skill-lab-title">SKILL LAB</h1>
         <h1 className="title">Sign In</h1>
         <p className="subtitle">Continue with Google</p>
 

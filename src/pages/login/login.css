@@ -33,6 +33,29 @@ html, body, #root {
   filter: blur(100px);
   z-index: 0;
 }
+/* =========================================
+   SKILL LAB - TWO COLOR TEXT
+========================================= */
+
+.login-card .title.skill-lab-title {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+
+  background: linear-gradient(
+    90deg,
+    #5420c9 0%,
+    #8a2be2 45%,
+    #e91e8f 100%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  margin-bottom: 18px;
+}
 .skill-lab-title {
   margin: 10px 0 10px;
 
