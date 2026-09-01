@@ -637,7 +637,124 @@ body {
 .mobile-bottom-nav {
   display: none;
 }
+/* =========================================
+   ADD TASK BUTTON - RIGHT SIDE
+========================================= */
 
+.add-task-btn {
+  position: fixed !important;
+
+  right: 22px !important;
+  bottom: 22px !important;
+
+  width: 58px !important;
+  height: 58px !important;
+
+  border: none !important;
+  border-radius: 50% !important;
+
+  background: #6547f5 !important;
+  color: white !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 34px !important;
+  font-weight: 400 !important;
+
+  cursor: pointer;
+
+  z-index: 9999 !important;
+
+  box-shadow: 0 8px 22px rgba(101, 71, 245, 0.35);
+
+  transition: 0.2s ease;
+}
+
+.add-task-btn:hover {
+  transform: scale(1.06);
+}
+
+.add-task-btn:active {
+  transform: scale(0.96);
+}
+
+
+/* =========================================
+   TASK CARD - MORE SPACE FOR CONTENT
+========================================= */
+
+.card {
+  min-height: 120px !important;
+  padding: 18px 22px !important;
+
+  position: relative !important;
+
+  margin-bottom: 14px !important;
+}
+
+
+/* =========================================
+   CARD ACTIONS
+========================================= */
+
+.card .actions {
+  position: absolute;
+
+  right: 16px;
+  top: 16px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 7px;
+
+  z-index: 5;
+}
+
+
+/* Keep task text away from right actions */
+
+.card .task-info,
+.card .task-content {
+  padding-right: 55px;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .card {
+    min-height: 125px !important;
+
+    padding: 17px 18px !important;
+
+    padding-right: 65px !important;
+
+    margin-bottom: 13px !important;
+  }
+
+  .add-task-btn {
+    width: 56px !important;
+    height: 56px !important;
+
+    right: 16px !important;
+    bottom: 18px !important;
+
+    font-size: 32px !important;
+  }
+
+  .card .actions {
+    right: 13px;
+    top: 13px;
+  }
+}
 /* =====================================
    TABLET
 ===================================== */
