@@ -309,8 +309,28 @@ function Task() {
     return <FaHeart />;
   }
 
-  /* Final fallback */
-  return <FaCalendarAlt />;
+  /* Final fallback - variety icon for unmatched task names */
+  const varietyIcons = [
+    <FaCalendarAlt />,
+    <FaCode />,
+    <FaGamepad />,
+    <FaFilm />,
+    <FaBicycle />,
+    <FaWater />,
+    <FaAppleAlt />,
+    <FaCoffee />,
+    <FaPen />,
+    <FaHeart />,
+    <FaCar />,
+    <FaPlane />,
+  ];
+
+  const hash = Array.from(text).reduce(
+    (sum, char) => sum + char.charCodeAt(0),
+    0
+  );
+
+  return varietyIcons[hash % varietyIcons.length];
 };
 
   // =========================================================
@@ -565,7 +585,7 @@ function Task() {
             t.completed === 1 ||
             t.completed === "1",
           color: t.color || colors[index % colors.length],
-          icon: t.icon || "book",
+          icon: t.icon || null,
           nextDay: isNextDay(t.from, t.to),
         }));
 
@@ -1180,7 +1200,7 @@ function Task() {
                   key={task.id}
                   style={{ background: task.color }}
                 >
-                  <div className="icon-box">{getIcon(task.icon)}</div>
+                  <div className="icon-box">{getIcon(task.icon, task.title)}</div>
 
                   <div className="card-content">
                     <h3>{task.title}</h3>
