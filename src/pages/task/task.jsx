@@ -1,6 +1,34 @@
 import Sidebar from "../dasboard/Sidebar.jsx";
 import { useState, useEffect, useMemo } from "react";
-import { FaMoon, FaChevronLeft, FaChevronRight, FaSun, FaBook, FaLanguage, FaDumbbell, FaCheck } from "react-icons/fa";
+import {
+  FaMoon,
+  FaChevronLeft,
+  FaChevronRight,
+  FaSun,
+  FaBook,
+  FaLanguage,
+  FaDumbbell,
+  FaCheck,
+  FaCoffee,
+  FaUtensils,
+  FaLaptop,
+  FaBriefcase,
+  FaHome,
+  FaRunning,
+  FaMusic,
+  FaPen,
+  FaHeart,
+  FaShoppingCart,
+  FaCar,
+  FaPlane,
+  FaCalendarAlt,
+  FaCode,
+  FaGamepad,
+  FaFilm,
+  FaBicycle,
+  FaWater,
+  FaAppleAlt
+} from "react-icons/fa";
 import "./task.css";
 
 const API_URL = "https://zyntaweb.com/skilllab/api/task.php";
@@ -25,16 +53,265 @@ function Task() {
 
   const currentKey = getDateKey(date);
 
-  const getIcon = (icon) => {
-    switch (icon) {
-      case "sun": return <FaSun />;
-      case "book": return <FaBook />;
-      case "language": return <FaLanguage />;
-      case "dumbbell": return <FaDumbbell />;
-      case "moon": return <FaMoon />;
-      default: return <FaBook />;
-    }
-  };
+  const getIcon = (icon, title = "") => {
+
+  const key = String(
+    icon || title || ""
+  ).toLowerCase().trim();
+
+  /* Explicit icon */
+  switch (key) {
+
+    case "sun":
+      return <FaSun />;
+
+    case "book":
+    case "study":
+      return <FaBook />;
+
+    case "language":
+    case "english":
+      return <FaLanguage />;
+
+    case "dumbbell":
+    case "workout":
+    case "gym":
+      return <FaDumbbell />;
+
+    case "moon":
+    case "sleep":
+      return <FaMoon />;
+
+    case "coffee":
+    case "breakfast":
+      return <FaCoffee />;
+
+    case "food":
+    case "lunch":
+    case "dinner":
+      return <FaUtensils />;
+
+    case "laptop":
+    case "computer":
+    case "coding":
+    case "code":
+    case "mern":
+      return <FaLaptop />;
+
+    case "work":
+    case "office":
+      return <FaBriefcase />;
+
+    case "home":
+      return <FaHome />;
+
+    case "running":
+    case "run":
+      return <FaRunning />;
+
+    case "music":
+      return <FaMusic />;
+
+    case "write":
+    case "writing":
+      return <FaPen />;
+
+    case "health":
+    case "love":
+      return <FaHeart />;
+
+    case "shopping":
+      return <FaShoppingCart />;
+
+    case "travel":
+    case "trip":
+      return <FaPlane />;
+
+    case "car":
+    case "drive":
+      return <FaCar />;
+
+    case "calendar":
+    case "meeting":
+      return <FaCalendarAlt />;
+
+    case "game":
+    case "gaming":
+      return <FaGamepad />;
+
+    case "movie":
+    case "film":
+      return <FaFilm />;
+
+    case "cycling":
+    case "bicycle":
+      return <FaBicycle />;
+
+    case "water":
+      return <FaWater />;
+
+    case "fruit":
+    case "apple":
+      return <FaAppleAlt />;
+
+    default:
+      break;
+  }
+
+  /* Automatic icon based on task title */
+  const text = String(title).toLowerCase();
+
+  if (
+    text.includes("wake") ||
+    text.includes("morning")
+  ) {
+    return <FaSun />;
+  }
+
+  if (
+    text.includes("study") ||
+    text.includes("learn") ||
+    text.includes("read")
+  ) {
+    return <FaBook />;
+  }
+
+  if (
+    text.includes("english") ||
+    text.includes("language")
+  ) {
+    return <FaLanguage />;
+  }
+
+  if (
+    text.includes("workout") ||
+    text.includes("gym") ||
+    text.includes("exercise") ||
+    text.includes("fitness")
+  ) {
+    return <FaDumbbell />;
+  }
+
+  if (
+    text.includes("sleep") ||
+    text.includes("rest")
+  ) {
+    return <FaMoon />;
+  }
+
+  if (
+    text.includes("coffee") ||
+    text.includes("breakfast")
+  ) {
+    return <FaCoffee />;
+  }
+
+  if (
+    text.includes("lunch") ||
+    text.includes("dinner") ||
+    text.includes("food") ||
+    text.includes("eat")
+  ) {
+    return <FaUtensils />;
+  }
+
+  if (
+    text.includes("code") ||
+    text.includes("coding") ||
+    text.includes("mern") ||
+    text.includes("program")
+  ) {
+    return <FaLaptop />;
+  }
+
+  if (
+    text.includes("work") ||
+    text.includes("office") ||
+    text.includes("job")
+  ) {
+    return <FaBriefcase />;
+  }
+
+  if (
+    text.includes("home") ||
+    text.includes("house")
+  ) {
+    return <FaHome />;
+  }
+
+  if (
+    text.includes("run") ||
+    text.includes("running")
+  ) {
+    return <FaRunning />;
+  }
+
+  if (
+    text.includes("music") ||
+    text.includes("song")
+  ) {
+    return <FaMusic />;
+  }
+
+  if (
+    text.includes("write") ||
+    text.includes("writing")
+  ) {
+    return <FaPen />;
+  }
+
+  if (
+    text.includes("shopping") ||
+    text.includes("buy")
+  ) {
+    return <FaShoppingCart />;
+  }
+
+  if (
+    text.includes("travel") ||
+    text.includes("trip")
+  ) {
+    return <FaPlane />;
+  }
+
+  if (
+    text.includes("movie") ||
+    text.includes("film")
+  ) {
+    return <FaFilm />;
+  }
+
+  if (
+    text.includes("game") ||
+    text.includes("gaming")
+  ) {
+    return <FaGamepad />;
+  }
+
+  if (
+    text.includes("cycle") ||
+    text.includes("bicycle")
+  ) {
+    return <FaBicycle />;
+  }
+
+  if (
+    text.includes("water") ||
+    text.includes("drink")
+  ) {
+    return <FaWater />;
+  }
+
+  if (
+    text.includes("health") ||
+    text.includes("love")
+  ) {
+    return <FaHeart />;
+  }
+
+  /* Final fallback */
+  return <FaCalendarAlt />;
+};
 
   // =========================================================
   // DEFAULT TASKS
