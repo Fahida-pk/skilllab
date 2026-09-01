@@ -49,6 +49,83 @@ function Dashboard() {
     useState(getLocalDate());
 
   /* =========================
+     DEFAULT TASKS (same source as Task page)
+     ========================= */
+
+  const getDefaultTasks = () => {
+    try {
+      const saved = localStorage.getItem("defaultTasks");
+      const deletedSaved = localStorage.getItem("deletedDefaultTaskIds");
+      const deletedIds = deletedSaved ? JSON.parse(deletedSaved) : [];
+
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.filter(
+          (task) => !deletedIds.includes(String(task.id))
+        );
+      }
+    } catch (error) {
+      console.error("Default task read error:", error);
+    }
+
+    return [];
+  };
+
+  const getDefaultCompletion = (dateKey) => {
+    try {
+      const saved = localStorage.getItem(
+        `defaultTaskCompleted_${dateKey}`
+      );
+      return saved ? JSON.parse(saved) : {};
+    } catch (error) {
+      return {};
+    }
+  };
+
+  const getTimeMinutes = (value) => {
+    if (!value) return null;
+
+    try {
+      const [time, modifier] = value.split(" ");
+      let [h, m] = time.split(":").map(Number);
+      if (modifier === "PM" && h !== 12) h += 12;
+      if (modifier === "AM" && h === 12) h = 0;
+      return h * 60 + m;
+    } catch {
+      return null;
+    }
+  };
+
+  const getDefaultStatus = (task, dateKey, completed) => {
+    if (completed) return "completed";
+
+    const todayKey = getLocalDate();
+    if (dateKey > todayKey) return "not_started";
+    if (dateKey < todayKey) return "pending";
+
+    const from = getTimeMinutes(task.from || task.time);
+    const to = getTimeMinutes(task.to);
+    if (from === null) return "not_started";
+
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    if (to === null) {
+      return nowMinutes >= from ? "in_progress" : "not_started";
+    }
+
+    if (task.nextDay || to < from) {
+      return nowMinutes >= from || nowMinutes <= to
+        ? "in_progress"
+        : "pending";
+    }
+
+    if (nowMinutes >= from && nowMinutes <= to) return "in_progress";
+    if (nowMinutes > to) return "pending";
+    return "not_started";
+  };
+
+  /* =========================
      DASHBOARD DATA
   ========================= */
 
@@ -147,25 +224,78 @@ function Dashboard() {
       );
 
       if (data.success) {
+        const defaultTasks = getDefaultTasks();
+        const defaultCompletion = getDefaultCompletion(date);
+
+        const defaultDashboardTasks = defaultTasks.map((task) => ({
+          id: task.id,
+          title: task.title,
+          from: task.from || task.time || "",
+          to: task.to || "",
+          completed: defaultCompletion[task.id] === true,
+          taskStatus: getDefaultStatus(
+            task,
+            date,
+            defaultCompletion[task.id] === true
+          ),
+        }));
+
+        const dbTasks = data.tasks || [];
+        const mergedTasks = [...defaultDashboardTasks, ...dbTasks];
+
+        const defaultCompleted = defaultDashboardTasks.filter(
+          (task) => task.completed
+        ).length;
+        const defaultTotal = defaultDashboardTasks.length;
+
+        const mergedTodayTotal =
+          (data.today?.total || 0) + defaultTotal;
+        const mergedTodayCompleted =
+          (data.today?.completed || 0) + defaultCompleted;
+
+        const mergedTodayInProgress =
+          (data.today?.inProgress || 0) +
+          defaultDashboardTasks.filter(
+            (task) => task.taskStatus === "in_progress"
+          ).length;
+
+        const mergedTodayPending =
+          (data.today?.pending || 0) +
+          defaultDashboardTasks.filter(
+            (task) => task.taskStatus === "pending"
+          ).length;
+
+        const mergedTodayNotStarted =
+          (data.today?.notStarted || 0) +
+          defaultDashboardTasks.filter(
+            (task) => task.taskStatus === "not_started"
+          ).length;
+
+        const mergedTodayPercentage = mergedTodayTotal
+          ? Math.round(
+              (mergedTodayCompleted / mergedTodayTotal) * 100
+            )
+          : 0;
+
         setDashboard({
           today: {
             total:
-              data.today?.total || 0,
+              mergedTodayTotal,
 
             completed:
-              data.today?.completed || 0,
+              mergedTodayCompleted,
 
             inProgress:
-              data.today?.inProgress || 0,
+              mergedTodayInProgress,
 
             pending:
-              data.today?.pending || 0,
+              mergedTodayPending,
 
             notStarted:
-              data.today?.notStarted || 0,
+              mergedTodayNotStarted,
 
             percentage:
-              data.today?.percentage || 0,
+              mergedTodayPercentage,
           },
 
           week: {
@@ -199,7 +329,7 @@ function Dashboard() {
           },
 
           tasks:
-            data.tasks || [],
+            mergedTasks,
         });
       } else {
         console.log(
@@ -239,12 +369,16 @@ function Dashboard() {
       "taskUpdated",
       refresh
     );
+    window.addEventListener("storage", refresh);
+    window.addEventListener("focus", refresh);
 
     return () => {
       window.removeEventListener(
         "taskUpdated",
         refresh
       );
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("focus", refresh);
     };
   }, [selectedDate]);
 

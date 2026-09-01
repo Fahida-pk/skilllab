@@ -36,13 +36,37 @@ function Task() {
     }
   };
 
+  // Permanently deleted default-task IDs.
+  // Once a default task is deleted, it must not come back after
+  // refresh, date change, or component remount.
+  const [deletedDefaultIds, setDeletedDefaultIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem("deletedDefaultTaskIds");
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error("Deleted default task data error:", error);
+      return [];
+    }
+  });
+
   const [defaultTasks, setDefaultTasks] = useState(() => {
     const saved = localStorage.getItem("defaultTasks");
 
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return parsed.map((task) => ({ ...task, completed: false }));
+        let deletedIds = [];
+
+        try {
+          const deletedSaved = localStorage.getItem("deletedDefaultTaskIds");
+          deletedIds = deletedSaved ? JSON.parse(deletedSaved) : [];
+        } catch (error) {
+          deletedIds = [];
+        }
+
+        return parsed
+          .filter((task) => !deletedIds.includes(String(task.id)))
+          .map((task) => ({ ...task, completed: false }));
       } catch (error) {
         console.error("Default task parse error:", error);
       }
@@ -238,20 +262,48 @@ function Task() {
     setImage(null);
   };
 
+  const notifyTaskUpdated = () => {
+    window.dispatchEvent(new Event("taskUpdated"));
+  };
+
   const deleteTask = async (task) => {
     if (String(task.id).startsWith("d")) {
-      setDefaultTasks((prev) => prev.filter((t) => t.id !== task.id));
+      const deletedId = String(task.id);
 
+      // 1. Remove from the current UI immediately.
+      setDefaultTasks((prev) =>
+        prev.filter((t) => String(t.id) !== deletedId)
+      );
+
+      // 2. Save the deleted ID permanently.
+      // This prevents the default task from being recreated later.
+      setDeletedDefaultIds((prev) => {
+        const updated = prev.includes(deletedId)
+          ? prev
+          : [...prev, deletedId];
+
+        localStorage.setItem(
+          "deletedDefaultTaskIds",
+          JSON.stringify(updated)
+        );
+
+        return updated;
+      });
+
+      // 3. Remove only this task's completion record for the current date.
       setDefaultCompleted((prev) => {
         const updated = { ...prev };
-        delete updated[task.id];
+        delete updated[deletedId];
+
         localStorage.setItem(
           getDefaultCompletionKey(currentKey),
           JSON.stringify(updated)
         );
+
         return updated;
       });
 
+      notifyTaskUpdated();
       return;
     }
 
@@ -274,6 +326,7 @@ function Task() {
       }
 
       await fetchTasks();
+      notifyTaskUpdated();
     } catch (error) {
       console.error("Delete error:", error);
       alert("Unable to delete task");
@@ -296,6 +349,7 @@ function Task() {
         return updated;
       });
 
+      notifyTaskUpdated();
       return;
     }
 
@@ -330,6 +384,10 @@ function Task() {
           )
         );
         alert(data.message || "Could not update task");
+      }
+
+      if (data.success) {
+        notifyTaskUpdated();
       }
     } catch (error) {
       console.error("Toggle error:", error);
@@ -465,6 +523,7 @@ function Task() {
       }
 
       resetModal();
+      notifyTaskUpdated();
       return;
     }
 
@@ -521,6 +580,7 @@ function Task() {
       }
 
       await fetchTasks();
+      notifyTaskUpdated();
       resetModal();
     } catch (error) {
       console.error("Add/update task error:", error);
@@ -530,13 +590,17 @@ function Task() {
 
   const displayTasks = useMemo(
     () => [
-      ...defaultTasks.map((task) => ({
-        ...task,
-        completed: defaultCompleted[task.id] === true,
-      })),
+      // Filter again at render time as a safety net.
+      // A deleted default task can never appear again.
+      ...defaultTasks
+        .filter((task) => !deletedDefaultIds.includes(String(task.id)))
+        .map((task) => ({
+          ...task,
+          completed: defaultCompleted[task.id] === true,
+        })),
       ...tasks,
     ],
-    [defaultTasks, defaultCompleted, tasks]
+    [defaultTasks, deletedDefaultIds, defaultCompleted, tasks]
   );
 
   const getSortMinutes = (time) => {
