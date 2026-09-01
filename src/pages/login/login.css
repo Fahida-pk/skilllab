@@ -33,7 +33,14 @@ html, body, #root {
   filter: blur(100px);
   z-index: 0;
 }
-
+.skill-lab-title {
+  margin: 8px 0 6px;
+  color: white;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-align: center;
+}
 .login-page::before {
   background: #4f8cff;
   left: -200px;
