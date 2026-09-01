@@ -36,90 +36,107 @@ function Task() {
     }
   };
 
-  // Permanently deleted default-task IDs.
-  // Once a default task is deleted, it must not come back after
-  // refresh, date change, or component remount.
+  // =========================================================
+  // DEFAULT TASKS
+  // Default tasks are definitions, so they must be available
+  // on every date. Deleting a default task is DATE-WISE only.
+  // =========================================================
+
+  const DEFAULT_TASKS = [
+    {
+      id: "d1",
+      title: "Wake Up",
+      time: "5:00 AM",
+      icon: "sun",
+      color: "linear-gradient(135deg, #f6d365, #fda085)",
+      completed: false,
+    },
+    {
+      id: "d2",
+      title: "Study MERN",
+      from: "5:00 AM",
+      to: "10:00 AM",
+      icon: "book",
+      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+      completed: false,
+    },
+    {
+      id: "d3",
+      title: "Practice English",
+      from: "1:00 PM",
+      to: "4:00 PM",
+      icon: "language",
+      color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+      completed: false,
+    },
+    {
+      id: "d4",
+      title: "Workout",
+      from: "6:00 PM",
+      to: "7:00 PM",
+      icon: "dumbbell",
+      color: "linear-gradient(135deg, #fccb90, #d57eeb)",
+      completed: false,
+    },
+    {
+      id: "d5",
+      title: "Sleep",
+      from: "10:00 PM",
+      to: "8:00 AM",
+      icon: "moon",
+      color: "linear-gradient(135deg, #141e30, #243b55)",
+      completed: false,
+      nextDay: true,
+    },
+  ];
+
+  const [defaultTasks, setDefaultTasks] = useState(() => {
+    try {
+      const saved = localStorage.getItem("defaultTasks");
+      const parsed = saved ? JSON.parse(saved) : [];
+
+      // Restore missing built-in defaults (for example, defaults
+      // deleted by the previous global-delete version).
+      const savedById = new Map(
+        Array.isArray(parsed) ? parsed.map((task) => [String(task.id), task]) : []
+      );
+
+      return DEFAULT_TASKS.map((baseTask) => ({
+        ...baseTask,
+        ...(savedById.get(String(baseTask.id)) || {}),
+        completed: false,
+      }));
+    } catch (error) {
+      console.error("Default task parse error:", error);
+      return DEFAULT_TASKS;
+    }
+  });
+
+  // Date-wise deleted default tasks. Deleting on one date does NOT
+  // remove the default definition from other dates.
+  const getDeletedDefaultKey = (dateKey) =>
+    `deletedDefaultTasks_${dateKey}`;
+
   const [deletedDefaultIds, setDeletedDefaultIds] = useState(() => {
     try {
-      const saved = localStorage.getItem("deletedDefaultTaskIds");
+      const saved = localStorage.getItem(
+        `deletedDefaultTasks_${getDateKey(new Date())}`
+      );
       return saved ? JSON.parse(saved) : [];
-    } catch (error) {
-      console.error("Deleted default task data error:", error);
+    } catch {
       return [];
     }
   });
 
-  const [defaultTasks, setDefaultTasks] = useState(() => {
-    const saved = localStorage.getItem("defaultTasks");
-
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        let deletedIds = [];
-
-        try {
-          const deletedSaved = localStorage.getItem("deletedDefaultTaskIds");
-          deletedIds = deletedSaved ? JSON.parse(deletedSaved) : [];
-        } catch (error) {
-          deletedIds = [];
-        }
-
-        return parsed
-          .filter((task) => !deletedIds.includes(String(task.id)))
-          .map((task) => ({ ...task, completed: false }));
-      } catch (error) {
-        console.error("Default task parse error:", error);
-      }
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(getDeletedDefaultKey(currentKey));
+      setDeletedDefaultIds(saved ? JSON.parse(saved) : []);
+    } catch (error) {
+      console.error("Deleted default task data error:", error);
+      setDeletedDefaultIds([]);
     }
-
-    return [
-      {
-        id: "d1",
-        title: "Wake Up",
-        time: "5:00 AM",
-        icon: "sun",
-        color: "linear-gradient(135deg, #f6d365, #fda085)",
-        completed: false,
-      },
-      {
-        id: "d2",
-        title: "Study MERN",
-        from: "5:00 AM",
-        to: "10:00 AM",
-        icon: "book",
-        color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-        completed: false,
-      },
-      {
-        id: "d3",
-        title: "Practice English",
-        from: "1:00 PM",
-        to: "4:00 PM",
-        icon: "language",
-        color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
-        completed: false,
-      },
-      {
-        id: "d4",
-        title: "Workout",
-        from: "6:00 PM",
-        to: "7:00 PM",
-        icon: "dumbbell",
-        color: "linear-gradient(135deg, #fccb90, #d57eeb)",
-        completed: false,
-      },
-      {
-        id: "d5",
-        title: "Sleep",
-        from: "10:00 PM",
-        to: "8:00 AM",
-        icon: "moon",
-        color: "linear-gradient(135deg, #141e30, #243b55)",
-        completed: false,
-        nextDay: true,
-      },
-    ];
-  });
+  }, [currentKey]);
 
   const getDefaultCompletionKey = (dateKey) =>
     `defaultTaskCompleted_${dateKey}`;
@@ -270,27 +287,21 @@ function Task() {
     if (String(task.id).startsWith("d")) {
       const deletedId = String(task.id);
 
-      // 1. Remove from the current UI immediately.
-      setDefaultTasks((prev) =>
-        prev.filter((t) => String(t.id) !== deletedId)
-      );
-
-      // 2. Save the deleted ID permanently.
-      // This prevents the default task from being recreated later.
+      // Delete ONLY for the selected date. The default task definition
+      // remains available when the user changes to another date.
       setDeletedDefaultIds((prev) => {
         const updated = prev.includes(deletedId)
           ? prev
           : [...prev, deletedId];
 
         localStorage.setItem(
-          "deletedDefaultTaskIds",
+          getDeletedDefaultKey(currentKey),
           JSON.stringify(updated)
         );
 
         return updated;
       });
 
-      // 3. Remove only this task's completion record for the current date.
       setDefaultCompleted((prev) => {
         const updated = { ...prev };
         delete updated[deletedId];
