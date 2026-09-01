@@ -630,7 +630,85 @@ function Task() {
     }
   };
 
-  const sortedTasks = [...displayTasks].sort((a, b) => {
+  // =========================================================
+  // WAKE UP TIME
+  // =========================================================
+  // Sleep belongs to the selected date, but its "to" time is
+  // the Wake Up time of the NEXT day.
+  //
+  // Example:
+  // Sep 1  -> Sleep 9:00 PM - 2:00 AM (Next Day)
+  // Sep 2  -> Wake Up 2:00 AM
+  //
+  // This is date-based, so changing Sep 2 Sleep will NOT change
+  // Sep 2 Wake Up. It will affect Sep 3 Wake Up instead.
+  // =========================================================
+
+  const getPreviousDateKey = (dateKey) => {
+    const d = new Date(`${dateKey}T00:00:00`);
+    d.setDate(d.getDate() - 1);
+    return getDateKey(d);
+  };
+
+  const getWakeUpFromPreviousSleep = (dateKey) => {
+    const previousKey = getPreviousDateKey(dateKey);
+
+    try {
+      const saved = localStorage.getItem(
+        getDefaultCompletionKey(previousKey)
+      );
+
+      // Sleep time is stored in the defaultTasks definition.
+      // Only use it if Sleep is configured as an overnight task.
+      const sleepTask = defaultTasks.find(
+        (task) => task.title?.trim().toLowerCase() === "sleep"
+      );
+
+      if (!sleepTask?.to || !sleepTask?.nextDay) {
+        return null;
+      }
+
+      // The default Sleep definition is shared, so its "to" time
+      // represents the configured wake-up time for the following day.
+      return sleepTask.to;
+    } catch {
+      return null;
+    }
+  };
+
+  // =========================================================
+  // APPLY PREVIOUS-DAY SLEEP -> TODAY WAKE UP
+  // =========================================================
+
+  const wakeUpFromPreviousSleep =
+    getWakeUpFromPreviousSleep(currentKey);
+
+  const displayTasksWithWakeUp = displayTasks.map((task) => {
+    if (
+      task.title?.trim().toLowerCase() === "wake up" &&
+      wakeUpFromPreviousSleep
+    ) {
+      return {
+        ...task,
+        time: wakeUpFromPreviousSleep,
+        from: undefined,
+      };
+    }
+
+    return task;
+  });
+
+  const sortedTasks = [...displayTasksWithWakeUp].sort((a, b) => {
+    // Wake Up must always be the first card.
+    const aWakeUp =
+      a.title?.trim().toLowerCase() === "wake up";
+    const bWakeUp =
+      b.title?.trim().toLowerCase() === "wake up";
+
+    if (aWakeUp && !bWakeUp) return -1;
+    if (!aWakeUp && bWakeUp) return 1;
+
+    // Sleep / overnight tasks must always be the last card.
     if (a.nextDay && !b.nextDay) return 1;
     if (!a.nextDay && b.nextDay) return -1;
 
