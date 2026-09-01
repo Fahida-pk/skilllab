@@ -692,6 +692,56 @@ function Task() {
     circumference - (completionPercentage / 100) * circumference;
 
   return (
+    <>
+
+<style>{`
+  .task-page-scroll {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    min-height: 0 !important;
+  }
+
+  .task-page-scroll .cards {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    min-height: 0 !important;
+    padding-bottom: 90px;
+  }
+
+  /* Mobile: let the browser page scroll normally */
+  @media (max-width: 768px) {
+    html, body, #root {
+      height: auto !important;
+      min-height: 100% !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+    }
+
+    .dashboard,
+    .main {
+      height: auto !important;
+      min-height: 100vh !important;
+      overflow: visible !important;
+    }
+
+    .task-page-scroll {
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      padding-bottom: 20px;
+    }
+
+    .task-page-scroll .cards {
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      padding-bottom: 110px;
+    }
+  }
+`}</style>
+
     <div className="dashboard">
       <Sidebar />
 
@@ -709,7 +759,7 @@ function Task() {
           </button>
         </div>
 
-        <div className="task-wrapper">
+        <div className="task-wrapper task-page-scroll">
           {/* =========================
               COMPLETION GRAPH
           ========================= */}
@@ -908,6 +958,7 @@ function Task() {
         </div>
       )}
     </div>
+    </>
   );
 }
 
