@@ -277,47 +277,99 @@ function Dashboard() {
             )
           : 0;
 
+        // Default tasks are recurring daily tasks. Count them for the
+        // elapsed days of the selected week/month, not future days.
+        const getDateKeyFromDate = (d) => {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          return `${y}-${m}-${day}`;
+        };
+
+        const getRangeDefaultStats = (startDate, endDate) => {
+          let total = 0;
+          let completedCount = 0;
+          const cursor = new Date(startDate + "T00:00:00");
+          const end = new Date(endDate + "T00:00:00");
+
+          while (cursor <= end) {
+            const key = getDateKeyFromDate(cursor);
+            const completion = getDefaultCompletion(key);
+
+            total += defaultTasks.length;
+            completedCount += defaultTasks.filter(
+              (task) => completion[task.id] === true
+            ).length;
+
+            cursor.setDate(cursor.getDate() + 1);
+          }
+
+          return {
+            total,
+            completed: completedCount,
+          };
+        };
+
+        const selected = new Date(date + "T00:00:00");
+
+        const weekStartDate = new Date(selected);
+        const dayOfWeek = weekStartDate.getDay();
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        weekStartDate.setDate(weekStartDate.getDate() + mondayOffset);
+
+        const weekStartKey = getDateKeyFromDate(weekStartDate);
+        const weekDefaultStats = getRangeDefaultStats(
+          weekStartKey,
+          date
+        );
+
+        const monthStartDate = new Date(
+          selected.getFullYear(),
+          selected.getMonth(),
+          1
+        );
+        const monthStartKey = getDateKeyFromDate(monthStartDate);
+        const monthDefaultStats = getRangeDefaultStats(
+          monthStartKey,
+          date
+        );
+
+        const weekTotal =
+          (data.week?.total || 0) + weekDefaultStats.total;
+        const weekCompleted =
+          (data.week?.completed || 0) + weekDefaultStats.completed;
+        const weekPercentage = weekTotal
+          ? Math.round((weekCompleted / weekTotal) * 100)
+          : 0;
+
+        const monthTotal =
+          (data.month?.total || 0) + monthDefaultStats.total;
+        const monthCompleted =
+          (data.month?.completed || 0) + monthDefaultStats.completed;
+        const monthPercentage = monthTotal
+          ? Math.round((monthCompleted / monthTotal) * 100)
+          : 0;
+
         setDashboard({
           today: {
-            total:
-              mergedTodayTotal,
-
-            completed:
-              mergedTodayCompleted,
-
-            inProgress:
-              mergedTodayInProgress,
-
-            pending:
-              mergedTodayPending,
-
-            notStarted:
-              mergedTodayNotStarted,
-
-            percentage:
-              mergedTodayPercentage,
+            total: mergedTodayTotal,
+            completed: mergedTodayCompleted,
+            inProgress: mergedTodayInProgress,
+            pending: mergedTodayPending,
+            notStarted: mergedTodayNotStarted,
+            percentage: mergedTodayPercentage,
           },
 
           week: {
-            total:
-              data.week?.total || 0,
-
-            completed:
-              data.week?.completed || 0,
-
-            percentage:
-              data.week?.percentage || 0,
+            total: weekTotal,
+            completed: weekCompleted,
+            percentage: weekPercentage,
           },
 
           month: {
-            total:
-              data.month?.total || 0,
-
-            completed:
-              data.month?.completed || 0,
-
-            percentage:
-              data.month?.percentage || 0,
+            total: monthTotal,
+            completed: monthCompleted,
+            percentage: monthPercentage,
           },
 
           studyHours: {
