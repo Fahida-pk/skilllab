@@ -560,37 +560,43 @@ function Dashboard() {
      TASK STATUS
   ===================================================== */
 
-  const getTaskStatus = (
-    task
-  ) => {
-    if (
-      task.taskStatus ===
-        "completed" ||
-      task.completed === true ||
-      task.completed === 1 ||
-      task.completed === "1"
-    ) {
-      return "completed";
-    }
+ const getTaskStatus = (task) => {
+  // COMPLETED
+  if (
+    task.taskStatus === "completed" ||
+    task.status === "completed" ||
+    task.task_status === "completed" ||
+    task.completed === true ||
+    task.completed === 1 ||
+    task.completed === "1"
+  ) {
+    return "completed";
+  }
 
-    if (
-      task.taskStatus ===
-        "in_progress" ||
-      task.status === "in_progress"
-    ) {
-      return "in_progress";
-    }
+  // IN PROGRESS
+  if (
+    task.taskStatus === "in_progress" ||
+    task.status === "in_progress" ||
+    task.task_status === "in_progress" ||
+    task.taskStatus === "in progress" ||
+    task.status === "in progress" ||
+    task.task_status === "in progress"
+  ) {
+    return "in_progress";
+  }
 
-    if (
-      task.taskStatus ===
-        "pending" ||
-      task.status === "pending"
-    ) {
-      return "pending";
-    }
+  // PENDING
+  if (
+    task.taskStatus === "pending" ||
+    task.status === "pending" ||
+    task.task_status === "pending"
+  ) {
+    return "pending";
+  }
 
-    return "not_started";
-  };
+  // NOT STARTED
+  return "not_started";
+};
 
   /* =====================================================
      TODAY STATS
