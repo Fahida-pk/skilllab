@@ -1755,41 +1755,7 @@ const getPercentage = (value) => {
 
       </main>
 
-      {/* MOBILE NAV */}
-      <div className="mobile-bottom-nav">
-
-        <button
-          className="active"
-          onClick={() =>
-            navigate(
-              "/dashboard"
-            )
-          }
-        >
-          <span>▦</span>
-          Dashboard
-        </button>
-
-        <button
-          onClick={() =>
-            navigate("/task")
-          }
-        >
-          <span>☷</span>
-          Tasks
-        </button>
-
-        <button>
-          <span>▥</span>
-          Progress
-        </button>
-
-        <button>
-          <span>◉</span>
-          Profile
-        </button>
-
-      </div>
+      
 
     </div>
   );
