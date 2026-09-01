@@ -1,285 +1,456 @@
-/* RESET */
-html, body, #root {
+/* =========================================
+   RESET
+========================================= */
+
+html,
+body,
+#root {
   margin: 0;
   padding: 0;
-  height: 100%;
   width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
-/* BACKGROUND FULL SCREEN */
+
+/* =========================================
+   LOGIN PAGE
+========================================= */
+
 .login-page {
+  position: relative;
+
   width: 100vw;
   height: 100vh;
 
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 
-  background: linear-gradient(135deg, #5f8cff, #8b5cf6, #ec4899);
-
-  position: relative;
   overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 15% 50%,
+      rgba(79, 140, 255, 0.95),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 85% 50%,
+      rgba(255, 60, 172, 0.95),
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      #5f8cff 0%,
+      #7c5cf5 45%,
+      #ec4899 100%
+    );
 }
 
-/* GLOW BLOBS */
-.login-page::before,
-.login-page::after {
-  content: "";
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  border-radius: 50%;
-  filter: blur(100px);
-  z-index: 0;
-}
+
 /* =========================================
-   SKILL LAB - TWO COLOR TEXT
+   BACKGROUND GLOW
 ========================================= */
 
-.login-card .title.skill-lab-title {
-  font-size: 32px;
-  font-weight: 900;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-
-  background: linear-gradient(
-    90deg,
-    #5420c9 0%,
-    #8a2be2 45%,
-    #e91e8f 100%
-  );
-
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-
-  margin-bottom: 18px;
-}
-.skill-lab-title {
-  margin: 10px 0 10px;
-
-  font-size: 27px;
-  font-weight: 900;
-
-  letter-spacing: 5px;
-  line-height: 1;
-
-  text-align: center;
-
-  color: #ffffff;
-
-  text-transform: uppercase;
-
-  text-shadow:
-    0 2px 4px rgba(60, 20, 120, 0.20),
-    0 0 14px rgba(255, 255, 255, 0.18);
-}
 .login-page::before {
-  background: #4f8cff;
-  left: -200px;
-  top: 50px;
-}
-
-.login-page::after {
-  background: #ff3cac;
-  right: -200px;
-  bottom: 50px;
-}
-
-/* EXTRA BACK SHAPE */
-.bg-shape {
-  position: absolute;
-  width: 500px;
-  height: 600px;
-
-  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
-
-  background: linear-gradient(135deg, #4facfe, #ff3cac);
-  opacity: 0.35;
-  filter: blur(60px);
-
-  z-index: 0;
-}
-
-/* MAIN GLASS BLOB */
-.login-card {
-  position: relative;
-  z-index: 2;
-
-  width: 420px;
-  height: 300px;
-
-  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  padding-top: 60px;
-
-  background: rgba(255, 255, 255, 0.18);
-
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
-
-  border: 1px solid rgba(255,255,255,0.35);
-
-  box-shadow: 
-    0 30px 100px rgba(0,0,0,0.3),
-    inset 0 0 40px rgba(255,255,255,0.3);
-
-  transition: 0.4s ease;
-}
-
-.login-card:hover {
-  transform: translateY(-10px);
-}
-
-/* INNER LIGHT EFFECT */
-.login-card::before {
   content: "";
+
   position: absolute;
-  inset: 0;
 
-  border-radius: inherit;
+  width: 650px;
+  height: 650px;
 
-  background: linear-gradient(
-    120deg,
-    rgba(255,255,255,0.4),
-    rgba(255,255,255,0.05)
-  );
+  left: -280px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  border-radius: 50%;
+
+  background: rgba(72, 139, 255, 0.55);
+
+  filter: blur(110px);
 
   pointer-events: none;
 }
 
-/* PROFILE ICON (TOP FLOAT) */
-.profile-icon {
-  position: absolute;
-  top: -5px;
 
-  width: 90px;
-  height: 90px;
+.login-page::after {
+  content: "";
+
+  position: absolute;
+
+  width: 650px;
+  height: 650px;
+
+  right: -280px;
+  bottom: -150px;
+
   border-radius: 50%;
 
-  background: linear-gradient(135deg, #6a11cb, #ff3cac);
+  background: rgba(255, 45, 170, 0.55);
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  filter: blur(110px);
 
-  color: white;
-  font-size: 40px;
-
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  pointer-events: none;
 }
 
-/* TEXT */
-.title {
-  color: white;
-  font-size: 28px;
-  font-weight: bold;
-}
 
-.subtitle {
-  color: rgba(255,255,255,0.8);
-  margin-bottom: 30px;
-}
+/* =========================================
+   EXTRA BACK SHAPE
+========================================= */
 
-/* GOOGLE BUTTON */
-.google-btn {
-  display: flex;
-  justify-content: center;
-}
-
-.google-btn div {
-  border-radius: 30px !important;
-  overflow: hidden;
-}
-/* COMMON SHAPE */
-.blob {
+.bg-shape {
   position: absolute;
-  width: 420px;
-  height: 520px;
 
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  width: 430px;
+  height: 430px;
 
-  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(79, 172, 254, 0.55),
+      rgba(255, 60, 172, 0.55)
+    );
+
+  filter: blur(70px);
+
+  opacity: 0.45;
+
+  z-index: 0;
 }
 
-/* 🔥 BACK (COLORED SHAPE) */
-.blob.back {
-  background: linear-gradient(135deg, #4facfe, #ff3cac);
 
-  transform: translate(-50%, -50%) rotate(-12deg) scale(1.05);
+/* =========================================
+   MAIN GLASS CARD
+========================================= */
 
-  opacity: 0.6;
-  filter: blur(10px);
+.login-card {
+  position: relative;
 
-  z-index: 1;
-}
+  z-index: 5;
 
-/* 🔥 FRONT (GLASS CARD) */
-.blob.front {
-  z-index: 2;
+  width: 440px;
+  min-height: 320px;
+
+  padding: 80px 45px 45px;
+
+  box-sizing: border-box;
 
   display: flex;
   flex-direction: column;
-  justify-content: center;
+
   align-items: center;
+  justify-content: center;
 
-  padding-top: 70px;
+  text-align: center;
 
-  background: rgba(255, 255, 255, 0.18);
+  /* GLASS */
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.34),
+      rgba(255, 255, 255, 0.12)
+    );
 
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
 
-  border: 1px solid rgba(255,255,255,0.3);
+  /* GLASS BORDER */
+  border: 1px solid rgba(255, 255, 255, 0.48);
 
-  box-shadow: 
-    0 30px 100px rgba(0,0,0,0.3),
-    inset 0 0 50px rgba(255,255,255,0.25);
+  /* BLOB SHAPE */
+  border-radius:
+    58% 42% 55% 45%
+    / 48% 58% 42% 52%;
+
+  /* PREMIUM SHADOW */
+  box-shadow:
+    0 35px 90px rgba(39, 20, 100, 0.35),
+    0 10px 35px rgba(255, 255, 255, 0.12),
+    inset 0 2px 2px rgba(255, 255, 255, 0.45),
+    inset 0 -20px 50px rgba(255, 255, 255, 0.08);
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
-/* PROFILE ICON */
+
+/* CARD HOVER */
+
+.login-card:hover {
+  transform: translateY(-6px);
+
+  box-shadow:
+    0 45px 110px rgba(35, 15, 100, 0.42),
+    0 15px 40px rgba(255, 255, 255, 0.14),
+    inset 0 2px 2px rgba(255, 255, 255, 0.5),
+    inset 0 -20px 55px rgba(255, 255, 255, 0.1);
+}
+
+
+/* =========================================
+   GLASS SHINE
+========================================= */
+
+.login-card::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.32) 0%,
+      rgba(255, 255, 255, 0.08) 35%,
+      transparent 65%
+    );
+
+  pointer-events: none;
+}
+
+
+/* =========================================
+   PROFILE ICON
+========================================= */
+
 .profile-icon {
   position: absolute;
-  top: -40px;
 
-  width: 90px;
-  height: 90px;
+  top: -45px;
+
+  width: 92px;
+  height: 92px;
+
   border-radius: 50%;
-
-  background: linear-gradient(135deg, #6a11cb, #ff3cac);
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   color: white;
-  font-size: 36px;
 
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  font-size: 38px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6714d9 0%,
+      #a323d8 45%,
+      #ef2397 100%
+    );
+
+  border: 3px solid rgba(255, 255, 255, 0.25);
+
+  box-shadow:
+    0 15px 35px rgba(35, 10, 90, 0.35),
+    inset 0 2px 5px rgba(255, 255, 255, 0.25);
+
+  z-index: 10;
 }
 
-/* TEXT */
+
+/* =========================================
+   SKILL LAB
+========================================= */
+
+.skill-lab-title {
+  position: relative;
+
+  z-index: 2;
+
+  margin: 0 0 14px;
+
+  font-size: 31px;
+
+  font-weight: 950;
+
+  letter-spacing: 5px;
+
+  line-height: 1;
+
+  text-transform: uppercase;
+
+  text-align: center;
+
+  /* TWO COLOR */
+  background:
+    linear-gradient(
+      90deg,
+      #5420c9 0%,
+      #8a2be2 48%,
+      #e91e8f 100%
+    );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  background-clip: text;
+
+  /* subtle depth */
+  filter:
+    drop-shadow(
+      0 3px 5px rgba(65, 20, 130, 0.22)
+    );
+}
+
+
+/* SMALL BRAND LINE */
+
+.skill-lab-title::after {
+  content: "";
+
+  display: block;
+
+  width: 48px;
+  height: 3px;
+
+  margin: 9px auto 0;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #5420c9,
+      #e91e8f
+    );
+}
+
+
+/* =========================================
+   SIGN IN
+========================================= */
+
 .title {
-  color: white;
-  font-size: 28px;
-  font-weight: bold;
+  position: relative;
+
+  z-index: 2;
+
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 31px;
+
+  font-weight: 850;
+
+  line-height: 1.15;
+
+  letter-spacing: 0.2px;
+
+  text-align: center;
+
+  text-shadow:
+    0 3px 8px rgba(50, 20, 100, 0.18);
 }
+
+
+/* =========================================
+   SUBTITLE
+========================================= */
 
 .subtitle {
-  color: rgba(255,255,255,0.8);
-  margin-bottom: 30px;
+  position: relative;
+
+  z-index: 2;
+
+  margin: 9px 0 27px;
+
+  color: rgba(255, 255, 255, 0.88);
+
+  font-size: 18px;
+
+  font-weight: 500;
+
+  line-height: 1.3;
+
+  text-align: center;
+
+  text-shadow:
+    0 2px 5px rgba(60, 20, 100, 0.15);
 }
 
-/* GOOGLE BUTTON */
-.google-btn div {
+
+/* =========================================
+   GOOGLE BUTTON
+========================================= */
+
+.google-btn {
+  position: relative;
+
+  z-index: 5;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+}
+
+
+/* Google button rounded */
+
+.google-btn > div {
   border-radius: 30px !important;
+
   overflow: hidden;
+
+  box-shadow:
+    0 6px 18px rgba(50, 20, 100, 0.16);
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .login-card {
+    width: 88vw;
+
+    min-height: 300px;
+
+    padding:
+      75px 25px 38px;
+  }
+
+
+  .profile-icon {
+    width: 82px;
+    height: 82px;
+
+    top: -40px;
+
+    font-size: 34px;
+  }
+
+
+  .skill-lab-title {
+    font-size: 24px;
+
+    letter-spacing: 3px;
+  }
+
+
+  .title {
+    font-size: 27px;
+  }
+
+
+  .subtitle {
+    font-size: 16px;
+
+    margin-bottom: 24px;
+  }
 }
