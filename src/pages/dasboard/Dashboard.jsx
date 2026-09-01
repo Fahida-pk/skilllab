@@ -81,6 +81,8 @@ const [, setTimeTick] = useState(0);
       tasks: [],
     });
 
+  const [monthlyProgress, setMonthlyProgress] = useState([]);
+
   /* =====================================================
      DATE FORMAT
   ===================================================== */
@@ -1017,6 +1019,68 @@ useEffect(() => {
   };
 }, []);
   /* =====================================================
+     MONTHLY TASK PROGRESS GRAPH
+  ===================================================== */
+
+  const loadMonthlyProgress = async () => {
+    if (!user?.email) return;
+
+    try {
+      const now = new Date();
+      const months = [];
+
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(
+          now.getFullYear(),
+          now.getMonth() - i,
+          1
+        );
+
+        months.push({
+          date: `${d.getFullYear()}-${String(
+            d.getMonth() + 1
+          ).padStart(2, "0")}-01`,
+          label: d.toLocaleDateString("en-US", {
+            month: "short",
+          }),
+        });
+      }
+
+      const result = await Promise.all(
+        months.map(async ({ date, label }) => {
+          try {
+            const response = await fetch(API_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                action: "dashboard",
+                email: user.email,
+                date,
+              }),
+            });
+
+            const data = await response.json();
+
+            return {
+              label,
+              value: Number(data?.month?.percentage) || 0,
+            };
+          } catch (error) {
+            console.error("Monthly graph error:", error);
+            return { label, value: 0 };
+          }
+        })
+      );
+
+      setMonthlyProgress(result);
+    } catch (error) {
+      console.error("Monthly progress error:", error);
+    }
+  };
+
+  /* =====================================================
      INITIAL LOAD
   ===================================================== */
 
@@ -1024,7 +1088,8 @@ useEffect(() => {
     loadDashboard(
       selectedDate
     );
-  }, [selectedDate]);
+    loadMonthlyProgress();
+  }, [selectedDate, user?.email]);
 
   /* =====================================================
      REFRESH AFTER TASK UPDATE
@@ -1617,6 +1682,125 @@ const getPercentage = (value) => {
 
           </div>
 
+        </section>
+
+        {/* MONTHLY TASK PROGRESS GRAPH */}
+        <section className="monthly-graph-section">
+          <div className="monthly-graph-header">
+            <div>
+              <h2 className="monthly-graph-title">
+                Monthly Task Progress
+              </h2>
+              <p className="monthly-graph-subtitle">
+                Overall task completion for the last 6 months
+              </p>
+            </div>
+
+            <div className="monthly-graph-legend">
+              <span className="monthly-graph-legend-dot" />
+              Task Progress
+            </div>
+          </div>
+
+          <div className="monthly-graph-scroll">
+            <svg
+              className="monthly-graph"
+              viewBox="0 0 760 280"
+              preserveAspectRatio="none"
+              role="img"
+              aria-label="Monthly task progress"
+            >
+              {[0, 25, 50, 75, 100].map((value) => {
+                const y = 225 - value * 1.8;
+
+                return (
+                  <g key={value}>
+                    <line
+                      x1="55"
+                      x2="735"
+                      y1={y}
+                      y2={y}
+                      className="monthly-graph-grid"
+                    />
+
+                    <text
+                      x="5"
+                      y={y + 4}
+                      className="monthly-graph-y-label"
+                    >
+                      {value}%
+                    </text>
+                  </g>
+                );
+              })}
+
+              {monthlyProgress.length > 0 && (
+                <>
+                  <polyline
+                    className="monthly-graph-line"
+                    points={monthlyProgress
+                      .map((item, index) => {
+                        const x =
+                          monthlyProgress.length === 1
+                            ? 395
+                            : 55 +
+                              (index /
+                                (monthlyProgress.length - 1)) *
+                                680;
+
+                        const y =
+                          225 - Number(item.value) * 1.8;
+
+                        return `${x},${y}`;
+                      })
+                      .join(" ")}
+                  />
+
+                  {monthlyProgress.map((item, index) => {
+                    const x =
+                      monthlyProgress.length === 1
+                        ? 395
+                        : 55 +
+                          (index /
+                            (monthlyProgress.length - 1)) *
+                            680;
+
+                    const y =
+                      225 - Number(item.value) * 1.8;
+
+                    return (
+                      <g key={`${item.label}-${index}`}>
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="6"
+                          className="monthly-graph-point"
+                        />
+
+                        <text
+                          x={x}
+                          y={Math.max(y - 14, 15)}
+                          textAnchor="middle"
+                          className="monthly-graph-value"
+                        >
+                          {item.value}%
+                        </text>
+
+                        <text
+                          x={x}
+                          y="258"
+                          textAnchor="middle"
+                          className="monthly-graph-label"
+                        >
+                          {item.label}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </>
+              )}
+            </svg>
+          </div>
         </section>
 
         {/* TODAY TASKS */}
