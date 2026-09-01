@@ -793,128 +793,169 @@ const getTaskStatus = (task) => {
   /* =====================================================
      MERGE DATABASE + DEFAULT TASKS
   ===================================================== */
+const mergeDashboardTasks = (
+  apiTasks,
+  dateKey
+) => {
+  /*
+   * =====================================================
+   * DATE-WISE TASK FILTER
+   * =====================================================
+   *
+   * Only show tasks belonging to selected date.
+   */
 
-  const mergeDashboardTasks = (
-    apiTasks,
-    dateKey
-  ) => {
-    const customTasks =
-      Array.isArray(apiTasks)
-        ? apiTasks.map(
-            (task) => ({
-              ...task,
+  const customTasks = Array.isArray(apiTasks)
+    ? apiTasks
+        .filter((task) => {
+          // Database task date
+          if (task.task_date) {
+            return (
+              String(task.task_date) ===
+              String(dateKey)
+            );
+          }
 
-              id: task.id,
+          // Fallback if API uses "date"
+          if (task.date) {
+            return (
+              String(task.date) ===
+              String(dateKey)
+            );
+          }
 
-              title:
-                task.title ||
-                task.task_name,
+          /*
+           * If there is no date in API response,
+           * don't show it as a date-specific task.
+           */
+          return false;
+        })
+        .map((task) => ({
+          ...task,
 
-              from:
-                task.from ||
-                task.from_time,
+          id: task.id,
 
-              to:
-                task.to ||
-                task.to_time,
+          title:
+            task.title ||
+            task.task_name,
 
-              completed:
-                task.completed ===
-                  true ||
-                task.completed === 1 ||
-                task.completed ===
-                  "1",
+          from:
+            task.from ||
+            task.from_time,
 
-              taskStatus:
-                task.taskStatus ||
-                getTaskStatus(task),
-            })
-          )
-        : [];
+          to:
+            task.to ||
+            task.to_time,
 
-    const defaultTasks =
-      getTodayDefaultTasks(
-        dateKey
-      );
+          completed:
+            task.completed === true ||
+            task.completed === 1 ||
+            task.completed === "1",
 
-    /*
-     * Prevent duplicate custom/default
-     * task if same ID somehow appears.
-     */
-    const defaultIds =
-      new Set(
-        defaultTasks.map(
-          (task) =>
-            String(task.id)
+          taskStatus:
+            task.taskStatus ||
+            task.task_status ||
+            getTaskStatus(task),
+        }))
+    : [];
+
+
+  /*
+   * =====================================================
+   * DEFAULT TASKS
+   * =====================================================
+   *
+   * Do NOT automatically add default tasks for every date.
+   *
+   * Default tasks are added only if that selected date
+   * has date-specific localStorage information.
+   */
+
+  const hasDateSpecificDefaultData =
+    localStorage.getItem(
+      getDeletedDefaultKey(dateKey)
+    ) !== null ||
+    localStorage.getItem(
+      getDefaultScheduleKey(dateKey)
+    ) !== null ||
+    localStorage.getItem(
+      getDefaultCompletionKey(dateKey)
+    ) !== null;
+
+
+  const defaultTasks =
+    hasDateSpecificDefaultData
+      ? getTodayDefaultTasks(dateKey)
+      : [];
+
+
+  /*
+   * =====================================================
+   * REMOVE DUPLICATES
+   * =====================================================
+   */
+
+  const defaultIds = new Set(
+    defaultTasks.map(
+      (task) => String(task.id)
+    )
+  );
+
+
+  const filteredCustomTasks =
+    customTasks.filter(
+      (task) =>
+        !defaultIds.has(
+          String(task.id)
+        )
+    );
+
+
+  /*
+   * =====================================================
+   * FINAL TASK LIST
+   * =====================================================
+   */
+
+  const merged = [
+    ...defaultTasks,
+    ...filteredCustomTasks,
+  ];
+
+
+  /*
+   * =====================================================
+   * SORT BY TIME
+   * =====================================================
+   */
+
+  return merged.sort(
+    (a, b) => {
+      if (
+        a.nextDay &&
+        !b.nextDay
+      ) {
+        return 1;
+      }
+
+      if (
+        !a.nextDay &&
+        b.nextDay
+      ) {
+        return -1;
+      }
+
+      return (
+        getSortMinutes(
+          a.from || a.time
+        ) -
+        getSortMinutes(
+          b.from || b.time
         )
       );
-
-    const filteredCustomTasks =
-      customTasks.filter(
-        (task) =>
-          !defaultIds.has(
-            String(task.id)
-          )
-      );
-
-    const merged = [
-      ...defaultTasks,
-      ...filteredCustomTasks,
-    ];
-
-    /*
-     * ==================================================
-     * ORDER
-     * ==================================================
-     *
-     * Normal tasks first according to time.
-     *
-     * Wake Up is marked nextDay when it comes
-     * from Sleep's ending time, therefore it is
-     * kept at the end.
-     *
-     * This avoids:
-     *
-     * Wake Up
-     * Study MERN
-     *
-     * and gives:
-     *
-     * Study MERN
-     * Practice English
-     * Workout
-     * Sleep
-     * Wake Up
-     */
-
-    return merged.sort(
-      (a, b) => {
-        if (
-          a.nextDay &&
-          !b.nextDay
-        ) {
-          return 1;
-        }
-
-        if (
-          !a.nextDay &&
-          b.nextDay
-        ) {
-          return -1;
-        }
-
-        return (
-          getSortMinutes(
-            a.from || a.time
-          ) -
-          getSortMinutes(
-            b.from || b.time
-          )
-        );
-      }
-    );
-  };
-
+    }
+  );
+};
   /* =====================================================
      LOAD DASHBOARD
   ===================================================== */
