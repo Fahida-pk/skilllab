@@ -15,16 +15,119 @@ import {
   FaPlus,
 } from "react-icons/fa";
 
-const API_URL = "https://zyntaweb.com/skilllab/api/dashboard.php";
+const API_URL =
+  "https://zyntaweb.com/skilllab/api/dashboard.php";
 
 function Dashboard() {
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem("user") || "null");
-
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
+  const user = JSON.parse(
+    localStorage.getItem("user") || "null"
   );
+
+  /* =========================
+     SELECTED DATE
+  ========================= */
+
+  const getLocalDate = () => {
+    const date = new Date();
+
+    const year = date.getFullYear();
+
+    const month = String(
+      date.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+      date.getDate()
+    ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const [selectedDate, setSelectedDate] =
+    useState(getLocalDate());
+
+  /* =========================
+     DEFAULT TASKS (same source as Task page)
+     ========================= */
+
+  const getDefaultTasks = () => {
+    try {
+      const saved = localStorage.getItem("defaultTasks");
+      const deletedSaved = localStorage.getItem("deletedDefaultTaskIds");
+      const deletedIds = deletedSaved ? JSON.parse(deletedSaved) : [];
+
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.filter(
+          (task) => !deletedIds.includes(String(task.id))
+        );
+      }
+    } catch (error) {
+      console.error("Default task read error:", error);
+    }
+
+    return [];
+  };
+
+  const getDefaultCompletion = (dateKey) => {
+    try {
+      const saved = localStorage.getItem(
+        `defaultTaskCompleted_${dateKey}`
+      );
+      return saved ? JSON.parse(saved) : {};
+    } catch (error) {
+      return {};
+    }
+  };
+
+  const getTimeMinutes = (value) => {
+    if (!value) return null;
+
+    try {
+      const [time, modifier] = value.split(" ");
+      let [h, m] = time.split(":").map(Number);
+      if (modifier === "PM" && h !== 12) h += 12;
+      if (modifier === "AM" && h === 12) h = 0;
+      return h * 60 + m;
+    } catch {
+      return null;
+    }
+  };
+
+  const getDefaultStatus = (task, dateKey, completed) => {
+    if (completed) return "completed";
+
+    const todayKey = getLocalDate();
+    if (dateKey > todayKey) return "not_started";
+    if (dateKey < todayKey) return "pending";
+
+    const from = getTimeMinutes(task.from || task.time);
+    const to = getTimeMinutes(task.to);
+    if (from === null) return "not_started";
+
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    if (to === null) {
+      return nowMinutes >= from ? "in_progress" : "not_started";
+    }
+
+    if (task.nextDay || to < from) {
+      return nowMinutes >= from || nowMinutes <= to
+        ? "in_progress"
+        : "pending";
+    }
+
+    if (nowMinutes >= from && nowMinutes <= to) return "in_progress";
+    if (nowMinutes > to) return "pending";
+    return "not_started";
+  };
+
+  /* =========================
+     DASHBOARD DATA
+  ========================= */
 
   const [dashboard, setDashboard] = useState({
     today: {
@@ -35,183 +138,57 @@ function Dashboard() {
       notStarted: 0,
       percentage: 0,
     },
+
     week: {
       total: 0,
       completed: 0,
       percentage: 0,
     },
+
     month: {
       total: 0,
       completed: 0,
       percentage: 0,
     },
+
     studyHours: {
       hours: 0,
       minutes: 0,
     },
+
     tasks: [],
   });
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
   /* =========================
      DATE FORMAT
   ========================= */
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString + "T00:00:00");
+    const date = new Date(
+      dateString + "T00:00:00"
+    );
 
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "2-digit",
-      year: "numeric",
-    });
-  };
-
-
-  /* =========================
-     TASK PAGE LOCAL CHANGES
-     ========================= */
-
-  const getDeletedDefaultKey = (dateKey) =>
-    `deletedDefaultTasks_${dateKey}`;
-
-  const getDefaultScheduleKey = (dateKey) =>
-    `defaultTaskSchedule_${dateKey}`;
-
-  const getLocalDefaultChanges = (dateKey) => {
-    try {
-      const deleted = JSON.parse(
-        localStorage.getItem(getDeletedDefaultKey(dateKey)) || "[]"
-      );
-
-      const schedules = JSON.parse(
-        localStorage.getItem(getDefaultScheduleKey(dateKey)) || "{}"
-      );
-
-      return {
-        deleted: Array.isArray(deleted) ? deleted.map(String) : [],
-        schedules:
-          schedules && typeof schedules === "object"
-            ? schedules
-            : {},
-      };
-    } catch (error) {
-      console.error("Dashboard local default data error:", error);
-      return {
-        deleted: [],
-        schedules: {},
-      };
-    }
-  };
-
-  const applyTaskPageChanges = (apiTasks, dateKey) => {
-    const { deleted, schedules } =
-      getLocalDefaultChanges(dateKey);
-
-    return (Array.isArray(apiTasks) ? apiTasks : [])
-      .filter((task) => {
-        const id = String(task.id ?? "");
-
-        // Task.jsx uses d1, d2, ... for built-in default tasks.
-        return !deleted.includes(id);
-      })
-      .map((task) => {
-        const id = String(task.id ?? "");
-        const saved = schedules[id];
-
-        if (!saved) {
-          return task;
-        }
-
-        return {
-          ...task,
-          ...saved,
-          from:
-            saved.from !== undefined
-              ? saved.from
-              : task.from,
-          to:
-            saved.to !== undefined
-              ? saved.to
-              : task.to,
-          time:
-            saved.time !== undefined
-              ? saved.time
-              : task.time,
-          nextDay:
-            saved.nextDay !== undefined
-              ? saved.nextDay
-              : task.nextDay,
-        };
-      });
-  };
-
-  const getTaskStatus = (task) => {
-    if (
-      task.taskStatus === "completed" ||
-      task.completed === true ||
-      task.completed === 1 ||
-      task.completed === "1"
-    ) {
-      return "completed";
-    }
-
-    if (
-      task.taskStatus === "in_progress" ||
-      task.status === "in_progress"
-    ) {
-      return "in_progress";
-    }
-
-    if (
-      task.taskStatus === "pending" ||
-      task.status === "pending"
-    ) {
-      return "pending";
-    }
-
-    return "not_started";
-  };
-
-  const getLocalTodayStats = (taskList) => {
-    const stats = {
-      total: taskList.length,
-      completed: 0,
-      inProgress: 0,
-      pending: 0,
-      notStarted: 0,
-      percentage: 0,
-    };
-
-    taskList.forEach((task) => {
-      const status = getTaskStatus(task);
-
-      if (status === "completed") {
-        stats.completed += 1;
-      } else if (status === "in_progress") {
-        stats.inProgress += 1;
-      } else if (status === "pending") {
-        stats.pending += 1;
-      } else {
-        stats.notStarted += 1;
+    return date.toLocaleDateString(
+      "en-US",
+      {
+        weekday: "short",
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
       }
-    });
-
-    stats.percentage =
-      stats.total > 0
-        ? Math.round((stats.completed / stats.total) * 100)
-        : 0;
-
-    return stats;
+    );
   };
 
   /* =========================
      LOAD DASHBOARD
   ========================= */
 
-  const loadDashboard = async (date = selectedDate) => {
+  const loadDashboard = async (
+    date = selectedDate
+  ) => {
     if (!user?.email) {
       navigate("/login");
       return;
@@ -220,68 +197,240 @@ function Dashboard() {
     try {
       setLoading(true);
 
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: "dashboard",
-          email: user.email,
-          date: date,
-        }),
-      });
+      const response = await fetch(
+        API_URL,
+        {
+          method: "POST",
 
-      const data = await response.json();
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
 
-      console.log("DASHBOARD API:", data);
+          body: JSON.stringify({
+            action: "dashboard",
+            email: user.email,
+            date: date,
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      console.log(
+        "DASHBOARD API:",
+        data
+      );
 
       if (data.success) {
-        // Apply the same date-wise default-task changes used by Task.jsx.
-        // This makes Dashboard reflect deletes and time edits immediately.
-        const fixedTasks = applyTaskPageChanges(
-          data.tasks,
+        const defaultTasks = getDefaultTasks();
+        const defaultCompletion = getDefaultCompletion(date);
+
+        const defaultDashboardTasks = defaultTasks.map((task) => ({
+          id: task.id,
+          title: task.title,
+          from: task.from || task.time || "",
+          to: task.to || "",
+          completed: defaultCompletion[task.id] === true,
+          taskStatus: getDefaultStatus(
+            task,
+            date,
+            defaultCompletion[task.id] === true
+          ),
+        }));
+
+        const dbTasks = data.tasks || [];
+        const mergedTasks = [...defaultDashboardTasks, ...dbTasks];
+
+        const defaultCompleted = defaultDashboardTasks.filter(
+          (task) => task.completed
+        ).length;
+        const defaultTotal = defaultDashboardTasks.length;
+
+        const mergedTodayTotal =
+          (data.today?.total || 0) + defaultTotal;
+        const mergedTodayCompleted =
+          (data.today?.completed || 0) + defaultCompleted;
+
+        const mergedTodayInProgress =
+          (data.today?.inProgress || 0) +
+          defaultDashboardTasks.filter(
+            (task) => task.taskStatus === "in_progress"
+          ).length;
+
+        const mergedTodayPending =
+          (data.today?.pending || 0) +
+          defaultDashboardTasks.filter(
+            (task) => task.taskStatus === "pending"
+          ).length;
+
+        const mergedTodayNotStarted =
+          (data.today?.notStarted || 0) +
+          defaultDashboardTasks.filter(
+            (task) => task.taskStatus === "not_started"
+          ).length;
+
+        const mergedTodayPercentage = mergedTodayTotal
+          ? Math.round(
+              (mergedTodayCompleted / mergedTodayTotal) * 100
+            )
+          : 0;
+
+        // Default tasks are recurring daily tasks. Count them for the
+        // elapsed days of the selected week/month, not future days.
+        const getDateKeyFromDate = (d) => {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          return `${y}-${m}-${day}`;
+        };
+
+        const getRangeDefaultStats = (startDate, endDate) => {
+          let total = 0;
+          let completedCount = 0;
+          const cursor = new Date(startDate + "T00:00:00");
+          const end = new Date(endDate + "T00:00:00");
+
+          while (cursor <= end) {
+            const key = getDateKeyFromDate(cursor);
+            const completion = getDefaultCompletion(key);
+
+            total += defaultTasks.length;
+            completedCount += defaultTasks.filter(
+              (task) => completion[task.id] === true
+            ).length;
+
+            cursor.setDate(cursor.getDate() + 1);
+          }
+
+          return {
+            total,
+            completed: completedCount,
+          };
+        };
+
+        const selected = new Date(date + "T00:00:00");
+
+        const weekStartDate = new Date(selected);
+        const dayOfWeek = weekStartDate.getDay();
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        weekStartDate.setDate(weekStartDate.getDate() + mondayOffset);
+
+        const weekStartKey = getDateKeyFromDate(weekStartDate);
+        const weekDefaultStats = getRangeDefaultStats(
+          weekStartKey,
           date
         );
 
-        const fixedToday = getLocalTodayStats(
-          fixedTasks
+        const monthStartDate = new Date(
+          selected.getFullYear(),
+          selected.getMonth(),
+          1
+        );
+        const monthStartKey = getDateKeyFromDate(monthStartDate);
+        const monthDefaultStats = getRangeDefaultStats(
+          monthStartKey,
+          date
         );
 
+        const weekTotal =
+          (data.week?.total || 0) + weekDefaultStats.total;
+        const weekCompleted =
+          (data.week?.completed || 0) + weekDefaultStats.completed;
+        const weekPercentage = weekTotal
+          ? Math.round((weekCompleted / weekTotal) * 100)
+          : 0;
+
+        const monthTotal =
+          (data.month?.total || 0) + monthDefaultStats.total;
+        const monthCompleted =
+          (data.month?.completed || 0) + monthDefaultStats.completed;
+        const monthPercentage = monthTotal
+          ? Math.round((monthCompleted / monthTotal) * 100)
+          : 0;
+
         setDashboard({
-          ...data,
-          tasks: fixedTasks,
           today: {
-            ...data.today,
-            ...fixedToday,
+            total: mergedTodayTotal,
+            completed: mergedTodayCompleted,
+            inProgress: mergedTodayInProgress,
+            pending: mergedTodayPending,
+            notStarted: mergedTodayNotStarted,
+            percentage: mergedTodayPercentage,
           },
+
+          week: {
+            total: weekTotal,
+            completed: weekCompleted,
+            percentage: weekPercentage,
+          },
+
+          month: {
+            total: monthTotal,
+            completed: monthCompleted,
+            percentage: monthPercentage,
+          },
+
+          studyHours: {
+            hours:
+              data.studyHours?.hours || 0,
+
+            minutes:
+              data.studyHours?.minutes || 0,
+          },
+
+          tasks:
+            mergedTasks,
         });
       } else {
-        console.log("Dashboard error:", data.message);
+        console.log(
+          "Dashboard error:",
+          data.message
+        );
       }
     } catch (error) {
-      console.error("Dashboard API error:", error);
+      console.error(
+        "Dashboard API error:",
+        error
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  /* =========================
+     INITIAL LOAD
+  ========================= */
+
   useEffect(() => {
     loadDashboard(selectedDate);
   }, [selectedDate]);
 
-  /* Refresh Dashboard after Task page add/edit/delete/complete. */
+  /* =========================
+     AUTO REFRESH
+     AFTER TASK COMPLETION
+  ========================= */
+
   useEffect(() => {
-    const refreshDashboard = () => {
+    const refresh = () => {
       loadDashboard(selectedDate);
     };
 
-    window.addEventListener("taskUpdated", refreshDashboard);
-    window.addEventListener("focus", refreshDashboard);
+    window.addEventListener(
+      "taskUpdated",
+      refresh
+    );
+    window.addEventListener("storage", refresh);
+    window.addEventListener("focus", refresh);
 
     return () => {
-      window.removeEventListener("taskUpdated", refreshDashboard);
-      window.removeEventListener("focus", refreshDashboard);
+      window.removeEventListener(
+        "taskUpdated",
+        refresh
+      );
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("focus", refresh);
     };
   }, [selectedDate]);
 
@@ -290,12 +439,27 @@ function Dashboard() {
   ========================= */
 
   const previousDay = () => {
-    const date = new Date(selectedDate + "T00:00:00");
+    const date = new Date(
+      selectedDate + "T00:00:00"
+    );
 
-    date.setDate(date.getDate() - 1);
+    date.setDate(
+      date.getDate() - 1
+    );
+
+    const year =
+      date.getFullYear();
+
+    const month = String(
+      date.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+      date.getDate()
+    ).padStart(2, "0");
 
     setSelectedDate(
-      date.toISOString().split("T")[0]
+      `${year}-${month}-${day}`
     );
   };
 
@@ -304,30 +468,45 @@ function Dashboard() {
   ========================= */
 
   const nextDay = () => {
-    const date = new Date(selectedDate + "T00:00:00");
+    const date = new Date(
+      selectedDate + "T00:00:00"
+    );
 
-    date.setDate(date.getDate() + 1);
+    date.setDate(
+      date.getDate() + 1
+    );
+
+    const year =
+      date.getFullYear();
+
+    const month = String(
+      date.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+      date.getDate()
+    ).padStart(2, "0");
 
     setSelectedDate(
-      date.toISOString().split("T")[0]
+      `${year}-${month}-${day}`
     );
   };
 
   /* =========================
-     PIE VALUES
+     PIE DATA
   ========================= */
 
   const completed =
-    dashboard.today?.completed || 0;
+    dashboard.today.completed;
 
   const inProgress =
-    dashboard.today?.inProgress || 0;
+    dashboard.today.inProgress;
 
   const pending =
-    dashboard.today?.pending || 0;
+    dashboard.today.pending;
 
   const notStarted =
-    dashboard.today?.notStarted || 0;
+    dashboard.today.notStarted;
 
   const total =
     completed +
@@ -336,13 +515,19 @@ function Dashboard() {
     notStarted;
 
   const completedDeg =
-    total > 0 ? (completed / total) * 360 : 0;
+    total > 0
+      ? (completed / total) * 360
+      : 0;
 
   const inProgressDeg =
-    total > 0 ? (inProgress / total) * 360 : 0;
+    total > 0
+      ? (inProgress / total) * 360
+      : 0;
 
   const pendingDeg =
-    total > 0 ? (pending / total) * 360 : 0;
+    total > 0
+      ? (pending / total) * 360
+      : 0;
 
   const pieStyle =
     total > 0
@@ -350,10 +535,12 @@ function Dashboard() {
           background: `conic-gradient(
             #22c55e 0deg ${completedDeg}deg,
             #2f80ed ${completedDeg}deg ${
-            completedDeg + inProgressDeg
-          }deg,
+              completedDeg +
+              inProgressDeg
+            }deg,
             #f5a623 ${
-              completedDeg + inProgressDeg
+              completedDeg +
+              inProgressDeg
             }deg ${
               completedDeg +
               inProgressDeg +
@@ -374,25 +561,33 @@ function Dashboard() {
      STATUS %
   ========================= */
 
-  const getPercentage = (value) => {
+  const getPercentage = (
+    value
+  ) => {
     if (!total) return 0;
 
-    return Math.round((value / total) * 100);
+    return Math.round(
+      (value / total) * 100
+    );
   };
 
   return (
     <div className="dashboard-page">
 
-      {/* SIDEBAR */}
+      {/* =========================
+          SIDEBAR
+      ========================= */}
 
       <Sidebar />
 
-      {/* MAIN CONTENT */}
+      {/* =========================
+          MAIN
+      ========================= */}
 
       <main className="dashboard-main">
 
         {/* =========================
-            DATE HEADER
+            DATE
         ========================= */}
 
         <div className="date-navigation">
@@ -405,11 +600,15 @@ function Dashboard() {
           </button>
 
           <div className="selected-date">
+
             <FaCalendarAlt />
 
             <span>
-              {formatDate(selectedDate)}
+              {formatDate(
+                selectedDate
+              )}
             </span>
+
           </div>
 
           <button
@@ -420,7 +619,6 @@ function Dashboard() {
           </button>
 
         </div>
-
 
         {/* =========================
             PROGRESS CARDS
@@ -440,28 +638,30 @@ function Dashboard() {
 
               <div>
                 <h3>Today</h3>
-                <p>Overall Progress</p>
+                <p>
+                  Overall Progress
+                </p>
               </div>
 
             </div>
 
             <div className="percentage blue-text">
-              {dashboard.today?.percentage || 0}%
+              {dashboard.today.percentage}%
             </div>
 
             <div className="progress-bar">
+
               <div
                 className="progress-fill blue-fill"
                 style={{
-                  width: `${
-                    dashboard.today?.percentage || 0
-                  }%`,
+                  width:
+                    `${dashboard.today.percentage}%`,
                 }}
               />
+
             </div>
 
           </div>
-
 
           {/* WEEK */}
 
@@ -474,29 +674,34 @@ function Dashboard() {
               </div>
 
               <div>
-                <h3>This Week</h3>
-                <p>Overall Progress</p>
+                <h3>
+                  This Week
+                </h3>
+
+                <p>
+                  Overall Progress
+                </p>
               </div>
 
             </div>
 
             <div className="percentage green-text">
-              {dashboard.week?.percentage || 0}%
+              {dashboard.week.percentage}%
             </div>
 
             <div className="progress-bar">
+
               <div
                 className="progress-fill green-fill"
                 style={{
-                  width: `${
-                    dashboard.week?.percentage || 0
-                  }%`,
+                  width:
+                    `${dashboard.week.percentage}%`,
                 }}
               />
+
             </div>
 
           </div>
-
 
           {/* MONTH */}
 
@@ -509,31 +714,36 @@ function Dashboard() {
               </div>
 
               <div>
-                <h3>This Month</h3>
-                <p>Overall Progress</p>
+                <h3>
+                  This Month
+                </h3>
+
+                <p>
+                  Overall Progress
+                </p>
               </div>
 
             </div>
 
             <div className="percentage purple-text">
-              {dashboard.month?.percentage || 0}%
+              {dashboard.month.percentage}%
             </div>
 
             <div className="progress-bar">
+
               <div
                 className="progress-fill purple-fill"
                 style={{
-                  width: `${
-                    dashboard.month?.percentage || 0
-                  }%`,
+                  width:
+                    `${dashboard.month.percentage}%`,
                 }}
               />
+
             </div>
 
           </div>
 
         </div>
-
 
         {/* =========================
             PROGRESS STATUS
@@ -541,7 +751,9 @@ function Dashboard() {
 
         <section className="progress-section">
 
-          <h2>Progress Status</h2>
+          <h2>
+            Progress Status
+          </h2>
 
           <div className="progress-content">
 
@@ -556,10 +768,12 @@ function Dashboard() {
 
                 <div className="pie-center">
 
-                  <span>Overall</span>
+                  <span>
+                    Overall
+                  </span>
 
                   <strong>
-                    {dashboard.today?.percentage || 0}%
+                    {dashboard.today.percentage}%
                   </strong>
 
                   <small>
@@ -571,7 +785,6 @@ function Dashboard() {
               </div>
 
             </div>
-
 
             {/* LEGEND */}
 
@@ -585,11 +798,12 @@ function Dashboard() {
                 </div>
 
                 <strong>
-                  {getPercentage(completed)}%
+                  {getPercentage(
+                    completed
+                  )}%
                 </strong>
 
               </div>
-
 
               <div className="legend-row">
 
@@ -599,11 +813,12 @@ function Dashboard() {
                 </div>
 
                 <strong>
-                  {getPercentage(inProgress)}%
+                  {getPercentage(
+                    inProgress
+                  )}%
                 </strong>
 
               </div>
-
 
               <div className="legend-row">
 
@@ -613,11 +828,12 @@ function Dashboard() {
                 </div>
 
                 <strong>
-                  {getPercentage(pending)}%
+                  {getPercentage(
+                    pending
+                  )}%
                 </strong>
 
               </div>
-
 
               <div className="legend-row">
 
@@ -627,7 +843,9 @@ function Dashboard() {
                 </div>
 
                 <strong>
-                  {getPercentage(notStarted)}%
+                  {getPercentage(
+                    notStarted
+                  )}%
                 </strong>
 
               </div>
@@ -638,15 +856,15 @@ function Dashboard() {
 
         </section>
 
-
         {/* =========================
             QUICK OVERVIEW
         ========================= */}
 
         <section className="quick-section">
 
-          <h2>Quick Overview</h2>
-
+          <h2>
+            Quick Overview
+          </h2>
 
           <div className="quick-list">
 
@@ -668,7 +886,6 @@ function Dashboard() {
 
             </div>
 
-
             <div className="quick-item">
 
               <div className="quick-icon green-icon">
@@ -680,14 +897,13 @@ function Dashboard() {
               </span>
 
               <strong className="green-text">
-                {dashboard.week?.completed || 0} /{" "}
-                {dashboard.week?.total || 0}
+                {dashboard.week.completed} /{" "}
+                {dashboard.week.total}
               </strong>
 
               <FaChevronRight />
 
             </div>
-
 
             <div className="quick-item">
 
@@ -700,13 +916,12 @@ function Dashboard() {
               </span>
 
               <strong className="purple-text">
-                {dashboard.month?.percentage || 0}%
+                {dashboard.month.percentage}%
               </strong>
 
               <FaChevronRight />
 
             </div>
-
 
             <div className="quick-item">
 
@@ -715,12 +930,13 @@ function Dashboard() {
               </div>
 
               <span>
-                Total Study Hours (This Week)
+                Total Study Hours
+                {" "} (This Week)
               </span>
 
               <strong className="orange-text">
-                {dashboard.studyHours?.hours || 0}h{" "}
-                {dashboard.studyHours?.minutes || 0}m
+                {dashboard.studyHours.hours}h{" "}
+                {dashboard.studyHours.minutes}m
               </strong>
 
               <FaChevronRight />
@@ -730,7 +946,6 @@ function Dashboard() {
           </div>
 
         </section>
-
 
         {/* =========================
             TODAY TASKS
@@ -745,11 +960,11 @@ function Dashboard() {
             </h2>
 
             <span className="task-count">
-              {completed} / {total} Completed
+              {completed} / {total}
+              {" "}Completed
             </span>
 
           </div>
-
 
           {loading ? (
 
@@ -757,87 +972,106 @@ function Dashboard() {
               Loading tasks...
             </div>
 
-          ) : dashboard.tasks?.length === 0 ? (
+          ) : dashboard.tasks.length === 0 ? (
 
             <div className="empty-tasks">
+
               <p>
                 No tasks for this day
               </p>
 
               <button
-                onClick={() => navigate("/task")}
+                onClick={() =>
+                  navigate("/task")
+                }
               >
                 <FaPlus />
                 Add New Task
               </button>
+
             </div>
 
           ) : (
 
             <div className="today-task-list">
 
-              {dashboard.tasks.map((task) => (
+              {dashboard.tasks.map(
+                (task) => (
 
-                <div
-                  className={`dashboard-task ${task.taskStatus}`}
-                  key={task.id}
-                >
+                  <div
+                    className={`dashboard-task ${
+                      task.taskStatus ||
+                      "not_started"
+                    }`}
+                    key={task.id}
+                  >
 
-                  <div className="task-left">
+                    <div className="task-left">
 
-                    <div className="task-status-icon">
+                      <div className="task-status-icon">
 
+                        {task.taskStatus ===
+                        "completed" ? (
+                          <FaCheckCircle />
+                        ) : task.taskStatus ===
+                          "in_progress" ? (
+                          <FaClock />
+                        ) : task.taskStatus ===
+                          "pending" ? (
+                          <FaHourglassHalf />
+                        ) : (
+                          <FaTimesCircle />
+                        )}
+
+                      </div>
+
+                      <div>
+
+                        <h3>
+                          {task.title}
+                        </h3>
+
+                        <p>
+                          {task.from ||
+                            "--"}
+
+                          {task.to
+                            ? ` - ${task.to}`
+                            : ""}
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                    <span
+                      className={`status-badge ${
+                        task.taskStatus ||
+                        "not_started"
+                      }`}
+                    >
                       {task.taskStatus ===
-                      "completed" ? (
-                        <FaCheckCircle />
-                      ) : task.taskStatus ===
-                        "in_progress" ? (
-                        <FaClock />
-                      ) : task.taskStatus ===
-                        "pending" ? (
-                        <FaHourglassHalf />
-                      ) : (
-                        <FaTimesCircle />
-                      )}
-
-                    </div>
-
-                    <div>
-
-                      <h3>
-                        {task.title}
-                      </h3>
-
-                      <p>
-                        {task.from || "--"}{" "}
-                        {task.to
-                          ? `- ${task.to}`
-                          : ""}
-                      </p>
-
-                    </div>
+                      "in_progress"
+                        ? "In Progress"
+                        : task.taskStatus ===
+                          "not_started"
+                        ? "Not Started"
+                        : (
+                            task.taskStatus ||
+                            "Pending"
+                          )
+                            .charAt(0)
+                            .toUpperCase() +
+                          (
+                            task.taskStatus ||
+                            "pending"
+                          ).slice(1)}
+                    </span>
 
                   </div>
 
-
-                  <span
-                    className={`status-badge ${task.taskStatus}`}
-                  >
-                    {task.taskStatus ===
-                      "in_progress"
-                      ? "In Progress"
-                      : task.taskStatus ===
-                        "not_started"
-                      ? "Not Started"
-                      : task.taskStatus
-                          .charAt(0)
-                          .toUpperCase() +
-                        task.taskStatus.slice(1)}
-                  </span>
-
-                </div>
-
-              ))}
+                )
+              )}
 
             </div>
 
@@ -846,7 +1080,6 @@ function Dashboard() {
         </section>
 
       </main>
-
 
       {/* =========================
           MOBILE BOTTOM NAV
