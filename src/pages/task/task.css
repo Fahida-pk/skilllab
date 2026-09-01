@@ -1,9 +1,34 @@
 /* ================================
-   TASK PAGE
+   TASK PAGE / SCROLL FIX
 ================================ */
+
+/* The task list must scroll when there are many tasks. */
+.dashboard {
+  min-height: 100vh;
+}
 
 .main {
   min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  padding-bottom: 32px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.main::-webkit-scrollbar {
+  width: 7px;
+}
+
+.main::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.main::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .task-wrapper {
@@ -15,6 +40,7 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   position: relative;
   box-sizing: border-box;
+  margin-bottom: 24px;
 }
 
 /* ================================
@@ -454,6 +480,13 @@
 ================================ */
 
 @media (max-width: 600px) {
+  .main {
+    height: 100vh;
+    min-height: 100vh;
+    overflow-y: auto;
+    padding-bottom: 28px;
+  }
+
   .date-bar {
     gap: 12px;
     margin: 15px auto;
