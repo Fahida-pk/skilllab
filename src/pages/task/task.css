@@ -721,78 +721,220 @@ body,
   padding-right: 55px;
 }
 /* =========================================
-   PROGRESS AREA
-========================================= */
-
-.progress-area {
-  position: relative;
-
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-
-  margin-bottom: 18px;
-}
-
-
-/* =========================================
-   TODAY'S PROGRESS BOX
+   TODAY'S PROGRESS - FINAL DESIGN
 ========================================= */
 
 .task-progress {
   width: 100%;
+  box-sizing: border-box;
 
   position: relative;
 
   display: flex;
   align-items: center;
 
-  background: #ffffff;
+  gap: 14px;
 
-  border-radius: 24px;
+  /* Right side space for + button */
+  padding: 14px 72px 14px 18px;
 
-  padding: 20px 28px;
+  min-height: 116px;
+
+  background: linear-gradient(
+    135deg,
+    #f8f8ff,
+    #ffffff
+  );
+
+  border-radius: 20px;
 
   box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.08);
+    0 6px 18px rgba(0, 0, 0, 0.06);
+
+  margin-bottom: 14px;
 }
 
 
 /* =========================================
-   ADD BUTTON OUTSIDE
+   PROGRESS CIRCLE
+========================================= */
+
+.progress-circle {
+  width: 96px;
+  height: 96px;
+
+  flex: 0 0 96px;
+
+  position: relative;
+}
+
+.progress-circle svg {
+  width: 100%;
+  height: 100%;
+
+  transform: rotate(-90deg);
+}
+
+.progress-bg,
+.progress-value {
+  fill: none;
+  stroke-width: 10;
+}
+
+.progress-bg {
+  stroke: #ececf3;
+}
+
+.progress-value {
+  stroke: #6857ff;
+  stroke-linecap: round;
+
+  transition: stroke-dashoffset 0.35s ease;
+}
+
+.progress-number {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-number strong {
+  font-size: 22px;
+  line-height: 1;
+
+  color: #29225f;
+}
+
+.progress-number span {
+  margin-top: 5px;
+
+  font-size: 11px;
+  color: #777;
+
+  font-weight: 600;
+}
+
+
+/* =========================================
+   PROGRESS INFORMATION
+========================================= */
+
+.progress-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.progress-info h2 {
+  margin: 0 0 4px;
+
+  font-size: 17px;
+
+  color: #202020;
+}
+
+.progress-info p {
+  margin: 0 0 10px;
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+
+/* =========================================
+   PROGRESS BAR
+========================================= */
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  background: #ededf4;
+}
+
+.progress-bar-fill {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: linear-gradient(
+    90deg,
+    #6857ff,
+    #b04cff
+  );
+
+  transition: width 0.35s ease;
+}
+
+
+/* =========================================
+   COMPLETED COUNT
+========================================= */
+
+.progress-count {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  margin-top: 8px;
+
+  font-size: 12px;
+}
+
+.progress-count span {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+
+  color: #666;
+}
+
+.progress-count span svg {
+  font-size: 10px;
+}
+
+
+/* =========================================
+   + ADD BUTTON
+   INSIDE PROGRESS CARD
 ========================================= */
 
 .progress-add-btn {
   position: absolute;
 
-  right: -28px;
-
+  right: 12px;
   top: 50%;
 
   transform: translateY(-50%);
 
-  width: 58px;
-  height: 58px;
+  width: 48px;
+  height: 48px;
 
   border: none;
-
   border-radius: 50%;
 
-  background: #6755f5;
+  background: #6857ff;
 
   color: #ffffff;
 
-  font-size: 36px;
-
+  font-size: 30px;
   font-weight: 400;
 
   line-height: 1;
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
 
   cursor: pointer;
@@ -800,11 +942,9 @@ body,
   z-index: 20;
 
   box-shadow:
-    0 8px 20px rgba(103, 85, 245, 0.35);
+    0 7px 18px rgba(104, 87, 255, 0.35);
 
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: 0.2s ease;
 }
 
 .progress-add-btn:hover {
@@ -813,7 +953,7 @@ body,
     scale(1.06);
 
   box-shadow:
-    0 10px 25px rgba(103, 85, 245, 0.45);
+    0 10px 24px rgba(104, 87, 255, 0.45);
 }
 
 .progress-add-btn:active {
@@ -829,23 +969,102 @@ body,
 
 @media (max-width: 600px) {
 
-  .progress-area {
-    padding-right: 10px;
+  .task-progress {
+    width: 100%;
+
+    min-height: 100px;
+
+    padding: 10px 58px 10px 12px;
+
+    gap: 9px;
+
+    border-radius: 18px;
   }
 
-  .task-progress {
-    padding: 18px 22px;
+  .progress-circle {
+    width: 82px;
+    height: 82px;
 
-    border-radius: 22px;
+    flex: 0 0 82px;
+  }
+
+  .progress-number strong {
+    font-size: 18px;
+  }
+
+  .progress-number span {
+    font-size: 10px;
+  }
+
+  .progress-info h2 {
+    font-size: 15px;
+  }
+
+  .progress-info p {
+    font-size: 11px;
+
+    margin-bottom: 8px;
+  }
+
+  .progress-bar {
+    height: 7px;
+  }
+
+  .progress-count {
+    font-size: 11px;
+
+    margin-top: 6px;
   }
 
   .progress-add-btn {
-    right: -18px;
+    right: 8px;
 
-    width: 52px;
-    height: 52px;
+    width: 44px;
+    height: 44px;
 
-    font-size: 32px;
+    font-size: 28px;
+  }
+}
+
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 380px) {
+
+  .task-progress {
+    padding: 8px 54px 8px 9px;
+
+    gap: 7px;
+  }
+
+  .progress-circle {
+    width: 76px;
+    height: 76px;
+
+    flex-basis: 76px;
+  }
+
+  .progress-number strong {
+    font-size: 17px;
+  }
+
+  .progress-info h2 {
+    font-size: 14px;
+  }
+
+  .progress-info p {
+    font-size: 10px;
+  }
+
+  .progress-add-btn {
+    right: 7px;
+
+    width: 42px;
+    height: 42px;
+
+    font-size: 27px;
   }
 }
 
