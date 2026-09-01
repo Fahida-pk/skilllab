@@ -1171,7 +1171,9 @@ body {
 
 .task-graph-section,
 .monthly-graph-section {
-  width: 100%;
+  width: calc(50% - 11px);
+  display: inline-block;
+  vertical-align: top;
   background: #ffffff;
   border: 1px solid #e9edf3;
   border-radius: 20px;
@@ -1288,6 +1290,8 @@ body {
 
   .task-graph-section,
   .monthly-graph-section {
+    width: 100%;
+    display: block;
     padding: 18px;
     border-radius: 18px;
     margin-bottom: 15px;
