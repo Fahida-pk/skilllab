@@ -721,71 +721,131 @@ body,
   padding-right: 55px;
 }
 /* =========================================
-   ADD BUTTON INSIDE TODAY'S PROGRESS
+   PROGRESS AREA
+========================================= */
+
+.progress-area {
+  position: relative;
+
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  margin-bottom: 18px;
+}
+
+
+/* =========================================
+   TODAY'S PROGRESS BOX
 ========================================= */
 
 .task-progress {
+  width: 100%;
+
   position: relative;
-  padding-right: 65px;
+
+  display: flex;
+  align-items: center;
+
+  background: #ffffff;
+
+  border-radius: 24px;
+
+  padding: 20px 28px;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.08);
 }
+
+
+/* =========================================
+   ADD BUTTON OUTSIDE
+========================================= */
 
 .progress-add-btn {
   position: absolute;
 
-  right: 14px;
+  right: -28px;
+
   top: 50%;
 
   transform: translateY(-50%);
 
-  width: 48px;
-  height: 48px;
+  width: 58px;
+  height: 58px;
 
   border: none;
+
   border-radius: 50%;
 
-  background: #6857ff;
-  color: #fff;
+  background: #6755f5;
 
-  font-size: 32px;
+  color: #ffffff;
+
+  font-size: 36px;
+
   font-weight: 400;
+
   line-height: 1;
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   cursor: pointer;
 
-  box-shadow: 0 7px 18px rgba(104, 87, 255, 0.35);
+  z-index: 20;
 
-  z-index: 10;
+  box-shadow:
+    0 8px 20px rgba(103, 85, 245, 0.35);
 
-  transition: 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .progress-add-btn:hover {
-  transform: translateY(-50%) scale(1.06);
+  transform:
+    translateY(-50%)
+    scale(1.06);
+
+  box-shadow:
+    0 10px 25px rgba(103, 85, 245, 0.45);
 }
 
 .progress-add-btn:active {
-  transform: translateY(-50%) scale(0.96);
+  transform:
+    translateY(-50%)
+    scale(0.95);
 }
 
 
-/* MOBILE */
+/* =========================================
+   MOBILE
+========================================= */
+
 @media (max-width: 600px) {
 
+  .progress-area {
+    padding-right: 10px;
+  }
+
   .task-progress {
-    padding-right: 58px;
+    padding: 18px 22px;
+
+    border-radius: 22px;
   }
 
   .progress-add-btn {
-    right: 9px;
+    right: -18px;
 
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
 
-    font-size: 29px;
+    font-size: 32px;
   }
 }
 

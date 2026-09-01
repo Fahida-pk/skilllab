@@ -811,7 +811,67 @@ function Task() {
           {/* =========================
               COMPLETION GRAPH
           ========================= */}
-         <div className="task-progress">
+       <div className="progress-area">
+
+  <div className="task-progress">
+
+    <div className="progress-circle">
+      <svg viewBox="0 0 120 120">
+        <circle
+          className="progress-bg"
+          cx="60"
+          cy="60"
+          r={radius}
+        />
+
+        <circle
+          className="progress-value"
+          cx="60"
+          cy="60"
+          r={radius}
+          strokeDasharray={circumference}
+          strokeDashoffset={dashOffset}
+        />
+      </svg>
+
+      <div className="progress-number">
+        <strong>{completionPercentage}%</strong>
+        <span>Done</span>
+      </div>
+    </div>
+
+    <div className="progress-info">
+
+      <h2>Today's Progress</h2>
+
+      <p>
+        {completedTasks} of {totalTasks} tasks completed
+      </p>
+
+      <div className="progress-bar">
+        <div
+          className="progress-bar-fill"
+          style={{
+            width: `${completionPercentage}%`,
+          }}
+        />
+      </div>
+
+      <div className="progress-count">
+        <span>
+          <FaCheck /> Completed
+        </span>
+
+        <b>
+          {completedTasks}/{totalTasks}
+        </b>
+      </div>
+
+    </div>
+
+  </div>
+
+  {/* ADD TASK BUTTON - OUTSIDE PROGRESS BOX */}
   <button
     className="progress-add-btn"
     onClick={() => {
@@ -827,54 +887,8 @@ function Task() {
   >
     +
   </button>
-            <div className="progress-circle">
-              <svg viewBox="0 0 120 120">
-                <circle
-                  className="progress-bg"
-                  cx="60"
-                  cy="60"
-                  r={radius}
-                />
-                <circle
-                  className="progress-value"
-                  cx="60"
-                  cy="60"
-                  r={radius}
-                  strokeDasharray={circumference}
-                  strokeDashoffset={dashOffset}
-                />
-              </svg>
 
-              <div className="progress-number">
-                <strong>{completionPercentage}%</strong>
-                <span>Done</span>
-              </div>
-            </div>
-
-            <div className="progress-info">
-              <h2>Today&apos;s Progress</h2>
-              <p>
-                {completedTasks} of {totalTasks} tasks completed
-              </p>
-
-              <div className="progress-bar">
-                <div
-                  className="progress-bar-fill"
-                  style={{ width: `${completionPercentage}%` }}
-                />
-              </div>
-
-              <div className="progress-count">
-                <span>
-                  <FaCheck /> Completed
-                </span>
-                <b>
-                  {completedTasks}/{totalTasks}
-                </b>
-              </div>
-            </div>
-          </div>
-
+</div>
           {/* TASK CARDS */}
           <div className="cards">
             {sortedTasks.length === 0 ? (
