@@ -2,45 +2,57 @@
    TASK PAGE / SCROLL FIX
 ================================ */
 
-/* The task list must scroll when there are many tasks. */
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Main page */
 .dashboard {
   min-height: 100vh;
+  width: 100%;
 }
 
+/* Desktop main */
 .main {
   min-height: 100vh;
-  height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
   box-sizing: border-box;
-  padding-bottom: 32px;
+  padding-bottom: 40px;
+
+  /* IMPORTANT:
+     Don't create a separate locked scroll area */
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: visible;
+
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
 }
 
-.main::-webkit-scrollbar {
-  width: 7px;
-}
-
-.main::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.18);
-}
-
-.main::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* ================================
+   TASK WRAPPER
+================================ */
 
 .task-wrapper {
   width: min(450px, calc(100% - 24px));
-  margin: 0 auto;
+  margin: 0 auto 24px;
+
   background: #fff;
   border-radius: 22px;
   padding: 16px;
+
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
   position: relative;
   box-sizing: border-box;
-  margin-bottom: 24px;
+
+  /* IMPORTANT */
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
 }
 
 /* ================================
@@ -51,6 +63,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
   gap: 22px;
   margin: 22px auto;
 }
@@ -59,6 +72,7 @@
   font-size: 18px;
   font-weight: 700;
   color: #171717;
+
   min-width: 160px;
   text-align: center;
 }
@@ -66,14 +80,19 @@
 .date-bar button {
   width: 46px;
   height: 46px;
+
   border: 0;
   border-radius: 9px;
+
   background: #000;
   color: #fff;
+
   font-size: 19px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   cursor: pointer;
 }
 
@@ -88,24 +107,35 @@
 .task-progress {
   display: flex;
   align-items: center;
+
   gap: 16px;
   padding: 13px;
   margin-bottom: 14px;
+
   border-radius: 18px;
-  background: linear-gradient(135deg, #f8f8ff, #ffffff);
+
+  background: linear-gradient(
+    135deg,
+    #f8f8ff,
+    #ffffff
+  );
+
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
 .progress-circle {
   width: 108px;
   height: 108px;
+
   flex: 0 0 108px;
+
   position: relative;
 }
 
 .progress-circle svg {
   width: 100%;
   height: 100%;
+
   transform: rotate(-90deg);
 }
 
@@ -122,14 +152,17 @@
 .progress-value {
   stroke: #6857ff;
   stroke-linecap: round;
+
   transition: stroke-dashoffset 0.35s ease;
 }
 
 .progress-number {
   position: absolute;
   inset: 0;
+
   display: flex;
   flex-direction: column;
+
   align-items: center;
   justify-content: center;
 }
@@ -137,11 +170,13 @@
 .progress-number strong {
   font-size: 22px;
   line-height: 1;
+
   color: #29225f;
 }
 
 .progress-number span {
   margin-top: 5px;
+
   font-size: 11px;
   color: #777;
   font-weight: 600;
@@ -154,12 +189,14 @@
 
 .progress-info h2 {
   margin: 0 0 4px;
+
   font-size: 17px;
   color: #202020;
 }
 
 .progress-info p {
   margin: 0 0 12px;
+
   color: #777;
   font-size: 13px;
 }
@@ -167,15 +204,24 @@
 .progress-bar {
   width: 100%;
   height: 8px;
+
   overflow: hidden;
   border-radius: 20px;
+
   background: #ededf4;
 }
 
 .progress-bar-fill {
   height: 100%;
+
   border-radius: inherit;
-  background: linear-gradient(90deg, #6857ff, #b04cff);
+
+  background: linear-gradient(
+    90deg,
+    #6857ff,
+    #b04cff
+  );
+
   transition: width 0.35s ease;
 }
 
@@ -183,13 +229,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   margin-top: 9px;
+
   font-size: 12px;
 }
 
 .progress-count span {
   display: flex;
   align-items: center;
+
   gap: 5px;
   color: #666;
 }
@@ -205,20 +254,40 @@
 .cards {
   display: flex;
   flex-direction: column;
+
   gap: 12px;
+
+  /* IMPORTANT */
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
 }
 
 .card {
   min-height: 88px;
+
   padding: 12px 10px 12px 16px;
+
   border-radius: 20px;
+
   display: flex;
   align-items: center;
+
   gap: 14px;
+
   box-sizing: border-box;
+
   color: #fff;
+
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    filter 0.2s ease;
+
+  flex-shrink: 0;
 }
 
 .card:hover {
@@ -238,12 +307,17 @@
 .icon-box {
   width: 50px;
   height: 50px;
+
   flex: 0 0 50px;
+
   border-radius: 14px;
+
   background: rgba(255, 255, 255, 0.27);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 22px;
 }
 
@@ -254,8 +328,10 @@
 
 .card-content h3 {
   margin: 0 0 5px;
+
   font-size: 18px;
   font-weight: 700;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -263,18 +339,26 @@
 
 .card-content p {
   margin: 0;
+
   font-size: 13px;
   opacity: 0.95;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* ================================
+   ACTIONS
+================================ */
+
 .actions {
   width: 30px;
   flex: 0 0 30px;
+
   display: flex;
   flex-direction: column;
+
   align-items: center;
   gap: 5px;
 }
@@ -282,13 +366,19 @@
 .actions button {
   width: 27px;
   height: 25px;
+
   padding: 0;
+
   border: 0;
   background: transparent;
+
   color: #fff;
+
   cursor: pointer;
+
   font-size: 18px;
   line-height: 1;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -302,12 +392,18 @@
   font-size: 21px;
 }
 
+/* ================================
+   CHECKBOX
+================================ */
+
 .complete-check {
   width: 27px;
   height: 25px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   cursor: pointer;
 }
 
@@ -320,12 +416,17 @@
 .custom-check {
   width: 14px;
   height: 14px;
+
   border: 2px solid rgba(255, 255, 255, 0.95);
+
   border-radius: 3px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   background: rgba(255, 255, 255, 0.05);
+
   transition: 0.18s ease;
 }
 
@@ -350,6 +451,7 @@
 .empty-task {
   text-align: center;
   padding: 38px 15px;
+
   color: #777;
 }
 
@@ -369,23 +471,35 @@
 
 .fab-inside {
   position: sticky;
+
   float: right;
+
   bottom: 18px;
+
   margin-top: 18px;
   margin-right: 2px;
+
   width: 52px;
   height: 52px;
+
   border: 0;
   border-radius: 50%;
+
   background: #6857ff;
   color: #fff;
+
   font-size: 36px;
   line-height: 1;
+
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(104, 87, 255, 0.35);
+
+  box-shadow:
+    0 8px 20px rgba(104, 87, 255, 0.35);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   z-index: 5;
 }
 
@@ -400,22 +514,35 @@
 .modal {
   position: fixed;
   inset: 0;
+
   z-index: 1000;
+
   background: rgba(0, 0, 0, 0.55);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 20px;
+
   box-sizing: border-box;
+
+  overflow-y: auto;
 }
 
 .modal-box {
   width: min(430px, 100%);
+
   background: #fff;
+
   border-radius: 20px;
+
   padding: 24px;
+
   box-sizing: border-box;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.25);
 }
 
 .modal-box h2 {
@@ -426,23 +553,32 @@
 .input-group {
   display: flex;
   flex-direction: column;
+
   gap: 7px;
+
   margin-bottom: 16px;
 }
 
 .input-group label {
   font-size: 13px;
   font-weight: 700;
+
   color: #444;
 }
 
 .input-group input {
   width: 100%;
+
   box-sizing: border-box;
+
   border: 1px solid #ddd;
+
   border-radius: 10px;
+
   padding: 11px 12px;
+
   font-size: 14px;
+
   outline: none;
 }
 
@@ -452,16 +588,23 @@
 
 .modal-actions {
   display: flex;
+
   justify-content: flex-end;
+
   gap: 10px;
+
   margin-top: 20px;
 }
 
 .modal-actions button {
   border: 0;
+
   border-radius: 10px;
+
   padding: 11px 20px;
+
   font-weight: 700;
+
   cursor: pointer;
 }
 
@@ -480,12 +623,44 @@
 ================================ */
 
 @media (max-width: 600px) {
-  .main {
-    height: 100vh;
-    min-height: 100vh;
+
+  /* IMPORTANT:
+     Mobile page itself must scroll */
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-height: 100%;
+    height: auto;
+
+    overflow-x: hidden;
     overflow-y: auto;
-    padding-bottom: 28px;
   }
+
+  .dashboard {
+    width: 100%;
+    min-height: 100vh;
+
+    height: auto;
+
+    overflow: visible;
+  }
+
+  .main {
+    width: 100%;
+
+    min-height: 100vh;
+    height: auto;
+
+    padding-bottom: 100px;
+
+    overflow-x: hidden;
+    overflow-y: visible;
+
+    box-sizing: border-box;
+  }
+
+  /* DATE */
 
   .date-bar {
     gap: 12px;
@@ -502,11 +677,25 @@
     height: 40px;
   }
 
+  /* TASK WRAPPER */
+
   .task-wrapper {
     width: calc(100% - 16px);
+
     padding: 12px;
+
     border-radius: 18px;
+
+    margin-bottom: 30px;
+
+    height: auto;
+    min-height: 0;
+    max-height: none;
+
+    overflow: visible;
   }
+
+  /* PROGRESS */
 
   .task-progress {
     gap: 10px;
@@ -516,6 +705,7 @@
   .progress-circle {
     width: 92px;
     height: 92px;
+
     flex-basis: 92px;
   }
 
@@ -531,18 +721,38 @@
     font-size: 12px;
   }
 
+  /* CARDS */
+
+  .cards {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+
+    overflow: visible;
+
+    gap: 12px;
+  }
+
   .card {
     min-height: 82px;
+
     padding-left: 12px;
+
     gap: 10px;
+
     border-radius: 17px;
+
+    flex-shrink: 0;
   }
 
   .icon-box {
     width: 44px;
     height: 44px;
+
     flex-basis: 44px;
+
     border-radius: 12px;
+
     font-size: 19px;
   }
 
@@ -559,9 +769,72 @@
     flex-basis: 27px;
   }
 
+  /* FLOATING BUTTON */
+
   .fab-inside {
     width: 48px;
     height: 48px;
+
     font-size: 31px;
+
+    bottom: 15px;
+  }
+
+  /* MODAL MOBILE */
+
+  .modal {
+    align-items: flex-start;
+
+    padding: 15px;
+
+    overflow-y: auto;
+  }
+
+  .modal-box {
+    margin: 20px auto;
+  }
+}
+
+/* ================================
+   EXTRA SMALL MOBILE
+================================ */
+
+@media (max-width: 380px) {
+
+  .task-wrapper {
+    width: calc(100% - 10px);
+    padding: 9px;
+  }
+
+  .task-progress {
+    gap: 7px;
+    padding: 8px;
+  }
+
+  .progress-circle {
+    width: 82px;
+    height: 82px;
+
+    flex-basis: 82px;
+  }
+
+  .card {
+    padding-left: 9px;
+    gap: 7px;
+  }
+
+  .icon-box {
+    width: 40px;
+    height: 40px;
+
+    flex-basis: 40px;
+  }
+
+  .card-content h3 {
+    font-size: 15px;
+  }
+
+  .card-content p {
+    font-size: 11px;
   }
 }
