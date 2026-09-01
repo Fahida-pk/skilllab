@@ -805,59 +805,36 @@ const mergeDashboardTasks = (
    * Only show tasks belonging to selected date.
    */
 
-  const customTasks = Array.isArray(apiTasks)
-    ? apiTasks
-        .filter((task) => {
-          // Database task date
-          if (task.task_date) {
-            return (
-              String(task.task_date) ===
-              String(dateKey)
-            );
-          }
+ const customTasks = Array.isArray(apiTasks)
+  ? apiTasks.map((task) => ({
+      ...task,
 
-          // Fallback if API uses "date"
-          if (task.date) {
-            return (
-              String(task.date) ===
-              String(dateKey)
-            );
-          }
+      id: task.id,
 
-          /*
-           * If there is no date in API response,
-           * don't show it as a date-specific task.
-           */
-          return false;
-        })
-        .map((task) => ({
-          ...task,
+      title:
+        task.title ||
+        task.task_name,
 
-          id: task.id,
+      from:
+        task.from ||
+        task.from_time,
 
-          title:
-            task.title ||
-            task.task_name,
+      to:
+        task.to ||
+        task.to_time,
 
-          from:
-            task.from ||
-            task.from_time,
+      completed:
+        task.completed === true ||
+        task.completed === 1 ||
+        task.completed === "1",
 
-          to:
-            task.to ||
-            task.to_time,
-
-          completed:
-            task.completed === true ||
-            task.completed === 1 ||
-            task.completed === "1",
-
-          taskStatus:
-            task.taskStatus ||
-            task.task_status ||
-            getTaskStatus(task),
-        }))
-    : [];
+      taskStatus:
+        task.taskStatus ||
+        task.task_status ||
+        getTaskStatus(task),
+    }))
+  : [];
+        
 
 
   /*
