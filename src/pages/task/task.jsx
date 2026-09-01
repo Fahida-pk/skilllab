@@ -811,7 +811,22 @@ function Task() {
           {/* =========================
               COMPLETION GRAPH
           ========================= */}
-          <div className="task-progress">
+         <div className="task-progress">
+  <button
+    className="progress-add-btn"
+    onClick={() => {
+      setEditTask(null);
+      setTitle("");
+      setFromTime("");
+      setToTime("");
+      setImage(null);
+      setShowModal(true);
+    }}
+    type="button"
+    title="Add task"
+  >
+    +
+  </button>
             <div className="progress-circle">
               <svg viewBox="0 0 120 120">
                 <circle
@@ -933,22 +948,7 @@ function Task() {
             )}
           </div>
 
-          {/* ADD BUTTON */}
-          <button
-            className="fab-inside"
-            onClick={() => {
-              setEditTask(null);
-              setTitle("");
-              setFromTime("");
-              setToTime("");
-              setImage(null);
-              setShowModal(true);
-            }}
-            type="button"
-            title="Add task"
-          >
-            +
-          </button>
+       
         </div>
       </div>
 

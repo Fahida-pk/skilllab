@@ -720,7 +720,74 @@ body,
 .card .task-content {
   padding-right: 55px;
 }
+/* =========================================
+   ADD BUTTON INSIDE TODAY'S PROGRESS
+========================================= */
 
+.task-progress {
+  position: relative;
+  padding-right: 65px;
+}
+
+.progress-add-btn {
+  position: absolute;
+
+  right: 14px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 48px;
+  height: 48px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #6857ff;
+  color: #fff;
+
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  box-shadow: 0 7px 18px rgba(104, 87, 255, 0.35);
+
+  z-index: 10;
+
+  transition: 0.2s ease;
+}
+
+.progress-add-btn:hover {
+  transform: translateY(-50%) scale(1.06);
+}
+
+.progress-add-btn:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+
+/* MOBILE */
+@media (max-width: 600px) {
+
+  .task-progress {
+    padding-right: 58px;
+  }
+
+  .progress-add-btn {
+    right: 9px;
+
+    width: 44px;
+    height: 44px;
+
+    font-size: 29px;
+  }
+}
 
 /* =========================================
    MOBILE
