@@ -1394,40 +1394,7 @@ const getPercentage = (value) => {
       {/* MAIN */}
       <main className="dashboard-main">
 
-        {/* DATE NAVIGATION */}
-        <div className="date-navigation">
-
-          <button
-            className="date-arrow"
-            onClick={
-              previousDay
-            }
-          >
-            <FaChevronLeft />
-          </button>
-
-          <div className="selected-date">
-
-            <FaCalendarAlt />
-
-            <span>
-              {formatDate(
-                selectedDate
-              )}
-            </span>
-
-          </div>
-
-          <button
-            className="date-arrow"
-            onClick={
-              nextDay
-            }
-          >
-            <FaChevronRight />
-          </button>
-
-        </div>
+       
 
         {/* PROGRESS CARDS */}
         <div className="progress-cards">

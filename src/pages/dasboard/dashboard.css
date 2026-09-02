@@ -1245,7 +1245,9 @@ body {
   stroke: #e5e7eb;
   stroke-width: 1;
 }
-
+.date-navigation {
+  display: none !important;
+}
 .task-graph-line,
 .monthly-graph-line {
   fill: none;
