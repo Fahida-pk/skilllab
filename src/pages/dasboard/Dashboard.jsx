@@ -906,32 +906,61 @@ const mergeDashboardTasks = (
    * =====================================================
    */
 
-  return merged.sort(
-    (a, b) => {
-      if (
-        a.nextDay &&
-        !b.nextDay
-      ) {
-        return 1;
-      }
+   /*
+   * =====================================================
+   * SORT TASKS
+   * =====================================================
+   */
 
-      if (
-        !a.nextDay &&
-        b.nextDay
-      ) {
-        return -1;
-      }
+  return merged.sort((a, b) => {
+    const aTitle = String(a.title || "")
+      .trim()
+      .toLowerCase();
 
-      return (
-        getSortMinutes(
-          a.from || a.time
-        ) -
-        getSortMinutes(
-          b.from || b.time
-        )
-      );
+    const bTitle = String(b.title || "")
+      .trim()
+      .toLowerCase();
+
+    // Wake Up always FIRST
+    if (
+      aTitle === "wake up" &&
+      bTitle !== "wake up"
+    ) {
+      return -1;
     }
-  );
+
+    if (
+      bTitle === "wake up" &&
+      aTitle !== "wake up"
+    ) {
+      return 1;
+    }
+
+    // Sleep always LAST
+    const aIsSleep =
+      a.nextDay === true ||
+      a.isSleep === true ||
+      aTitle === "sleep";
+
+    const bIsSleep =
+      b.nextDay === true ||
+      b.isSleep === true ||
+      bTitle === "sleep";
+
+    if (aIsSleep && !bIsSleep) {
+      return 1;
+    }
+
+    if (!aIsSleep && bIsSleep) {
+      return -1;
+    }
+
+    // Other tasks → time order
+    return (
+      getSortMinutes(a.from || a.time) -
+      getSortMinutes(b.from || b.time)
+    );
+  });
 };
   /* =====================================================
      LOAD DASHBOARD
