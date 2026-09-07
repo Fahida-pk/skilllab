@@ -1212,27 +1212,27 @@ function Task() {
                             task.nextDay ? "(Next Day)" : ""
                           }`}
                     </p>
-                  </div>
 
-                  {/* EDIT + CLOSE — left of the checkbox */}
-                  <div className="actions">
-                    <button
-                      onClick={() => handleEdit(task)}
-                      type="button"
-                      title="Edit task"
-                      className="edit-btn"
-                    >
-                      ✏️
-                    </button>
+                    {/* EDIT + CLOSE directly below the time */}
+                    <div className="actions">
+                      <button
+                        onClick={() => handleEdit(task)}
+                        type="button"
+                        title="Edit task"
+                        className="edit-btn"
+                      >
+                        ✏️
+                      </button>
 
-                    <button
-                      onClick={() => deleteTask(task)}
-                      type="button"
-                      title="Delete task"
-                      className="delete-btn"
-                    >
-                      ✕
-                    </button>
+                      <button
+                        onClick={() => deleteTask(task)}
+                        type="button"
+                        title="Delete task"
+                        className="delete-btn"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
 
                   {/* LARGE COMPLETE CHECKBOX — far right */}
