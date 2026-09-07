@@ -43,7 +43,7 @@ function Task() {
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
   const [tasks, setTasks] = useState([]);
-
+const [deleteConfirm, setDeleteConfirm] = useState(null);
   const getDateKey = (d) => {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -1319,16 +1319,16 @@ function Task() {
                         ✏️
                       </button>
 
-                      {task.title !== "Wake Up" && task.title !== "Sleep" && (
-                        <button
-                          onClick={() => deleteTask(task)}
-                          type="button"
-                          title="Delete task"
-                          className="delete-btn"
-                        >
-                          ✕
-                        </button>
-                      )}
+                  {task.title !== "Wake Up" && task.title !== "Sleep" && (
+  <button
+    onClick={() => setDeleteConfirm(task)}
+    type="button"
+    title="Delete task"
+    className="delete-btn"
+  >
+    ✕
+  </button>
+)}
                     </div>
                   </div>
 
@@ -1426,6 +1426,45 @@ function Task() {
           </div>
         </div>
       )}
+      {deleteConfirm && (
+  <div
+    className="delete-confirm-overlay"
+    onClick={() => setDeleteConfirm(null)}
+  >
+    <div
+      className="delete-confirm-box"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h3>Do you want to delete?</h3>
+
+      <p>
+        Are you sure you want to delete "{deleteConfirm.title}"?
+      </p>
+
+      <div className="delete-confirm-actions">
+        <button
+          type="button"
+          className="delete-no-btn"
+          onClick={() => setDeleteConfirm(null)}
+        >
+          No
+        </button>
+
+        <button
+          type="button"
+          className="delete-yes-btn"
+          onClick={async () => {
+            const task = deleteConfirm;
+            setDeleteConfirm(null);
+            await deleteTask(task);
+          }}
+        >
+          Yes
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
     </>
   );
