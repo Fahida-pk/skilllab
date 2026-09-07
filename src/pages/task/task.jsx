@@ -1214,8 +1214,8 @@ function Task() {
                     </p>
                   </div>
 
+                  {/* EDIT + CLOSE — left of the checkbox */}
                   <div className="actions">
-                    {/* EDIT */}
                     <button
                       onClick={() => handleEdit(task)}
                       type="button"
@@ -1225,7 +1225,6 @@ function Task() {
                       ✏️
                     </button>
 
-                    {/* DELETE */}
                     <button
                       onClick={() => deleteTask(task)}
                       type="button"
@@ -1234,26 +1233,26 @@ function Task() {
                     >
                       ✕
                     </button>
-
-                    {/* COMPLETE */}
-                    <label
-                      className="complete-check"
-                      title={
-                        task.completed
-                          ? "Mark as incomplete"
-                          : "Mark as complete"
-                      }
-                    >
-                      <input
-                        type="checkbox"
-                        checked={task.completed === true}
-                        onChange={() => toggleTask(task)}
-                      />
-                      <span className="custom-check">
-                        {task.completed && <FaCheck />}
-                      </span>
-                    </label>
                   </div>
+
+                  {/* LARGE COMPLETE CHECKBOX — far right */}
+                  <label
+                    className="complete-check"
+                    title={
+                      task.completed
+                        ? "Mark as incomplete"
+                        : "Mark as complete"
+                    }
+                  >
+                    <input
+                      type="checkbox"
+                      checked={task.completed === true}
+                      onChange={() => toggleTask(task)}
+                    />
+                    <span className="custom-check">
+                      {task.completed && <FaCheck />}
+                    </span>
+                  </label>
                 </div>
               ))
             )}
