@@ -1214,35 +1214,31 @@ function Task() {
                     </p>
 
                     {/* ACTIONS
-                        Wake Up: none
+                        Wake Up: edit only
                         Sleep: edit only
-                        Other tasks: edit + close in one box
+                        Other tasks: edit + close
                     */}
-                    {task.title !== "Wake Up" && (
-                      <div className="actions action-box">
-                        {/* EDIT — separate box */}
-                        <button
-                          onClick={() => handleEdit(task)}
-                          type="button"
-                          title="Edit task time"
-                          className="edit-btn"
-                        >
-                          ✏️
-                        </button>
+                    <div className="actions action-box">
+                      <button
+                        onClick={() => handleEdit(task)}
+                        type="button"
+                        title="Edit task time"
+                        className="edit-btn"
+                      >
+                        ✏️
+                      </button>
 
-                        {/* CLOSE — separate box */}
-                        {task.title !== "Sleep" && (
-                          <button
-                            onClick={() => deleteTask(task)}
-                            type="button"
-                            title="Delete task"
-                            className="delete-btn"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    )}
+                      {task.title !== "Wake Up" && task.title !== "Sleep" && (
+                        <button
+                          onClick={() => deleteTask(task)}
+                          type="button"
+                          title="Delete task"
+                          className="delete-btn"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* LARGE COMPLETE CHECKBOX — far right */}
@@ -1285,8 +1281,14 @@ function Task() {
                 value={title}
                 placeholder="Enter task name"
                 onChange={(e) => setTitle(e.target.value)}
-                readOnly={editTask?.title === "Sleep"}
-                className={editTask?.title === "Sleep" ? "sleep-locked-input" : ""}
+                readOnly={
+                  editTask?.title === "Sleep" || editTask?.title === "Wake Up"
+                }
+                className={
+                  editTask?.title === "Sleep" || editTask?.title === "Wake Up"
+                    ? "sleep-locked-input"
+                    : ""
+                }
               />
             </div>
 
@@ -1298,15 +1300,19 @@ function Task() {
                 onChange={(e) => setFromTime(e.target.value)}
               />
 
-              <label>To Time</label>
-              <input
-                type="time"
-                value={toTime}
-                onChange={(e) => setToTime(e.target.value)}
-              />
+              {editTask?.title !== "Wake Up" && (
+                <>
+                  <label>To Time</label>
+                  <input
+                    type="time"
+                    value={toTime}
+                    onChange={(e) => setToTime(e.target.value)}
+                  />
+                </>
+              )}
             </div>
 
-            {editTask?.title !== "Sleep" && (
+            {editTask?.title !== "Sleep" && editTask?.title !== "Wake Up" && (
               <div className="input-group">
                 <label>Upload Icon</label>
                 <input
