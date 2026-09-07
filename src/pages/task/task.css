@@ -1,6 +1,5 @@
-/* ================================
-   TASK PAGE / SCROLL FIX
-================================ */
+
+  
 
 html,
 body,
@@ -348,7 +347,7 @@ body,
 .card-content h3 {
   margin: 0 0 5px;
 
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
 
   white-space: nowrap;
@@ -359,7 +358,7 @@ body,
 .card-content p {
   margin: 0;
 
-  font-size: 13px;
+  font-size: 14px;
   opacity: 0.95;
 
   white-space: nowrap;
@@ -419,10 +418,10 @@ body,
 ================================ */
 
 .complete-check {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  flex: 0 0 44px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  flex: 0 0 48px;
 
   display: flex;
   align-items: center;
@@ -439,8 +438,8 @@ body,
 }
 
 .custom-check {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
 
   border: 2px solid rgba(255, 255, 255, 0.95);
 
@@ -691,8 +690,8 @@ body,
 ========================================= */
 
 .card {
-  min-height: 120px !important;
-  padding: 18px 22px !important;
+  min-height: 135px !important;
+  padding: 20px 24px !important;
 
   position: relative !important;
 
@@ -995,10 +994,10 @@ body,
 ========================================= */
 
 .task-icon {
-  width: 58px;
-  height: 58px;
+  width: 64px;
+  height: 64px;
 
-  min-width: 58px;
+  min-width: 64px;
 
   border-radius: 17px;
 
@@ -1027,8 +1026,8 @@ body,
 /* Icon itself */
 
 .task-icon svg {
-  width: 27px;
-  height: 27px;
+  width: 30px;
+  height: 30px;
 
   color: #e2dddd;
 
@@ -1239,9 +1238,9 @@ body,
 @media (max-width: 600px) {
 
   .card {
-    min-height: 125px !important;
+    min-height: 135px !important;
 
-    padding: 17px 18px !important;
+    padding: 19px 20px !important;
 
     padding-right: 65px !important;
 

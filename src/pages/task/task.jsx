@@ -1213,26 +1213,28 @@ function Task() {
                           }`}
                     </p>
 
-                    {/* EDIT + CLOSE directly below the time */}
-                    <div className="actions">
-                      <button
-                        onClick={() => handleEdit(task)}
-                        type="button"
-                        title="Edit task"
-                        className="edit-btn"
-                      >
-                        ✏️
-                      </button>
+                    {/* EDIT + CLOSE — hidden for Wake Up and Sleep */}
+                    {task.title !== "Wake Up" && task.title !== "Sleep" && (
+                      <div className="actions">
+                        <button
+                          onClick={() => handleEdit(task)}
+                          type="button"
+                          title="Edit task"
+                          className="edit-btn"
+                        >
+                          ✏️
+                        </button>
 
-                      <button
-                        onClick={() => deleteTask(task)}
-                        type="button"
-                        title="Delete task"
-                        className="delete-btn"
-                      >
-                        ✕
-                      </button>
-                    </div>
+                        <button
+                          onClick={() => deleteTask(task)}
+                          type="button"
+                          title="Delete task"
+                          className="delete-btn"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* LARGE COMPLETE CHECKBOX — far right */}
