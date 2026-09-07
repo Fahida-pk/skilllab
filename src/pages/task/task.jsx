@@ -916,20 +916,39 @@ function Task() {
 
     if (nextDay) newTo += 1440;
 
-    const isOverlap = tasks.some((t) => {
-      if (!t.from || !t.to) return false;
-      if (editTask && t.id === editTask.id) return false;
+    // Check ALL tasks visible on this date, including default tasks.
+    const isOverlap = displayTasks.some((t) => {
+      if (editTask && String(t.id) === String(editTask.id)) return false;
 
-      const oldFrom = toMin(t.from);
-      let oldTo = toMin(t.to);
+      const oldFrom = toMin(t.time || t.from);
+      if (Number.isNaN(oldFrom)) return false;
+
+      let oldTo = t.to ? toMin(t.to) : oldFrom + 1;
+      if (Number.isNaN(oldTo)) oldTo = oldFrom + 1;
 
       if (t.nextDay) oldTo += 1440;
 
-      return newFrom < oldTo && newTo > oldFrom;
+      // Safety for a stored cross-midnight range.
+      if (!t.nextDay && t.to && oldTo <= oldFrom) {
+        oldTo += 1440;
+      }
+
+      const ranges = [
+        [newFrom, newTo],
+        [newFrom + 1440, newTo + 1440],
+        [newFrom - 1440, newTo - 1440],
+      ];
+
+      return ranges.some(
+        ([candidateFrom, candidateTo]) =>
+          candidateFrom < oldTo && candidateTo > oldFrom
+      );
     });
 
     if (isOverlap) {
-      alert("⚠️ Time already exists! Change time.");
+      alert(
+        "⚠️ This time is already used by another task. Please choose a different time."
+      );
       return;
     }
 
