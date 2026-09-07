@@ -1,5 +1,5 @@
 
- 
+  
 
 html,
 body,
@@ -1486,4 +1486,47 @@ body,
   background: #f5f5f5;
   color: #555;
   cursor: not-allowed;
+}
+
+
+/* Edit + Close are grouped inside one compact box */
+.card .action-box {
+  display: inline-flex;
+  width: fit-content;
+  min-width: 58px;
+  height: 34px;
+  padding: 2px 5px;
+  margin-top: 7px;
+
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.14);
+  box-sizing: border-box;
+}
+
+.card .action-box .actions,
+.card .action-box button {
+  box-sizing: border-box;
+}
+
+.card .action-box button {
+  width: 26px;
+  height: 28px;
+  margin: 0;
+  border-radius: 6px;
+}
+
+.card .action-box button:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* Sleep has only Edit, so keep its box compact */
+.card .action-box:has(.edit-btn:only-child) {
+  min-width: 34px;
+  padding: 2px;
 }

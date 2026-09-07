@@ -1215,11 +1215,11 @@ function Task() {
 
                     {/* ACTIONS
                         Wake Up: none
-                        Sleep: edit time only
-                        Other tasks: edit + close
+                        Sleep: edit only
+                        Other tasks: edit + close in one box
                     */}
                     {task.title !== "Wake Up" && (
-                      <div className="actions">
+                      <div className="actions action-box">
                         <button
                           onClick={() => handleEdit(task)}
                           type="button"
