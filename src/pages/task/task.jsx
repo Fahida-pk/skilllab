@@ -1038,6 +1038,78 @@ function Task() {
   });
 
   // =========================
+  // TASK TIME NOTIFICATIONS
+  // =========================
+  // Ask for browser notification permission once.
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().catch(() => {});
+    }
+  }, []);
+
+  // Check every second so the notification appears when the task starts.
+  // A localStorage key prevents the same task from notifying repeatedly
+  // during the same minute.
+  useEffect(() => {
+    if (!("Notification" in window)) return;
+
+    const getTaskMinutes = (time) => {
+      if (!time) return null;
+
+      const parts = String(time).trim().split(" ");
+      const timePart = parts[0];
+      const modifier = parts[1];
+
+      if (!timePart || !modifier) return null;
+
+      let [h, m] = timePart.split(":").map(Number);
+
+      if (!Number.isFinite(h) || !Number.isFinite(m)) return null;
+
+      if (modifier === "PM" && h !== 12) h += 12;
+      if (modifier === "AM" && h === 12) h = 0;
+
+      return h * 60 + m;
+    };
+
+    const checkTaskTimes = () => {
+      const now = new Date();
+      const todayKey = getDateKey(now);
+
+      // Only notify for the currently selected day.
+      if (todayKey !== currentKey) return;
+
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      displayTasks.forEach((task) => {
+        const taskTime = task.from || task.time;
+        const taskMinutes = getTaskMinutes(taskTime);
+
+        if (taskMinutes === null || taskMinutes !== currentMinutes) return;
+
+        const notificationKey =
+          `taskNotification_${todayKey}_${task.id}_${taskMinutes}`;
+
+        if (localStorage.getItem(notificationKey)) return;
+
+        localStorage.setItem(notificationKey, "1");
+
+        if (Notification.permission === "granted") {
+          new Notification(`⏰ ${task.title}`, {
+            body: `${task.title} time is now — ${taskTime}`,
+            tag: notificationKey,
+          });
+        }
+      });
+    };
+
+    checkTaskTimes();
+    const intervalId = window.setInterval(checkTaskTimes, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [displayTasks, currentKey]);
+
+  // =========================
   // COMPLETION GRAPH
   // =========================
   const totalTasks = displayTasks.length;
