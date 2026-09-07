@@ -1220,6 +1220,7 @@ function Task() {
                     */}
                     {task.title !== "Wake Up" && (
                       <div className="actions action-box">
+                        {/* EDIT — separate box */}
                         <button
                           onClick={() => handleEdit(task)}
                           type="button"
@@ -1229,6 +1230,7 @@ function Task() {
                           ✏️
                         </button>
 
+                        {/* CLOSE — separate box */}
                         {task.title !== "Sleep" && (
                           <button
                             onClick={() => deleteTask(task)}

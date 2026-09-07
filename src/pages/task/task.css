@@ -1,5 +1,6 @@
-
-  
+/* ================================
+   TASK PAGE / SCROLL FIX
+================================ */
 
 html,
 body,
@@ -1489,44 +1490,86 @@ body,
 }
 
 
-/* Edit + Close are grouped inside one compact box */
+
+/* =========================================
+   SEPARATE EDIT + CLOSE BUTTON BOXES
+   ========================================= */
+
 .card .action-box {
-  display: inline-flex;
+  display: flex;
   width: fit-content;
-  min-width: 58px;
-  height: 34px;
-  padding: 2px 5px;
-  margin-top: 7px;
+  height: 42px;
+  padding: 0;
+  margin-top: 8px;
 
   flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 2px;
+  justify-content: flex-start;
+  gap: 8px;
 
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.14);
-  box-sizing: border-box;
-}
-
-.card .action-box .actions,
-.card .action-box button {
+  background: transparent;
+  border: 0;
   box-sizing: border-box;
 }
 
 .card .action-box button {
-  width: 26px;
-  height: 28px;
+  width: 42px;
+  height: 42px;
   margin: 0;
-  border-radius: 6px;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.card .action-box .edit-btn {
+  font-size: 22px;
+}
+
+.card .action-box .delete-btn {
+  font-size: 25px;
 }
 
 .card .action-box button:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.24);
+  transform: translateY(-1px);
 }
 
-/* Sleep has only Edit, so keep its box compact */
-.card .action-box:has(.edit-btn:only-child) {
-  min-width: 34px;
-  padding: 2px;
+/* Sleep has only the Edit box */
+.card .action-box .edit-btn:only-child {
+  width: 42px;
+  height: 42px;
+}
+
+/* Keep action boxes comfortable on small screens */
+@media (max-width: 600px) {
+  .card .action-box {
+    height: 40px;
+    gap: 7px;
+    margin-top: 7px;
+  }
+
+  .card .action-box button,
+  .card .action-box .edit-btn:only-child {
+    width: 40px;
+    height: 40px;
+  }
+
+  .card .action-box .edit-btn {
+    font-size: 21px;
+  }
+
+  .card .action-box .delete-btn {
+    font-size: 24px;
+  }
 }
