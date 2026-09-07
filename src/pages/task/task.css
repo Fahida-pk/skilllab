@@ -1,5 +1,5 @@
 
-  
+ 
 
 html,
 body,
@@ -1479,4 +1479,11 @@ body,
   .card-content p {
     font-size: 11px;
   }
+}
+
+/* Sleep edit: title is locked because only the time should be editable */
+.sleep-locked-input {
+  background: #f5f5f5;
+  color: #555;
+  cursor: not-allowed;
 }

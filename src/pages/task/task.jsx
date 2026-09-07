@@ -1213,26 +1213,32 @@ function Task() {
                           }`}
                     </p>
 
-                    {/* EDIT + CLOSE — hidden for Wake Up and Sleep */}
-                    {task.title !== "Wake Up" && task.title !== "Sleep" && (
+                    {/* ACTIONS
+                        Wake Up: none
+                        Sleep: edit time only
+                        Other tasks: edit + close
+                    */}
+                    {task.title !== "Wake Up" && (
                       <div className="actions">
                         <button
                           onClick={() => handleEdit(task)}
                           type="button"
-                          title="Edit task"
+                          title="Edit task time"
                           className="edit-btn"
                         >
                           ✏️
                         </button>
 
-                        <button
-                          onClick={() => deleteTask(task)}
-                          type="button"
-                          title="Delete task"
-                          className="delete-btn"
-                        >
-                          ✕
-                        </button>
+                        {task.title !== "Sleep" && (
+                          <button
+                            onClick={() => deleteTask(task)}
+                            type="button"
+                            title="Delete task"
+                            className="delete-btn"
+                          >
+                            ✕
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1277,6 +1283,8 @@ function Task() {
                 value={title}
                 placeholder="Enter task name"
                 onChange={(e) => setTitle(e.target.value)}
+                readOnly={editTask?.title === "Sleep"}
+                className={editTask?.title === "Sleep" ? "sleep-locked-input" : ""}
               />
             </div>
 
@@ -1296,14 +1304,16 @@ function Task() {
               />
             </div>
 
-            <div className="input-group">
-              <label>Upload Icon</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImage(e.target.files?.[0] || null)}
-              />
-            </div>
+            {editTask?.title !== "Sleep" && (
+              <div className="input-group">
+                <label>Upload Icon</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImage(e.target.files?.[0] || null)}
+                />
+              </div>
+            )}
 
             <div className="modal-actions">
               <button type="button" onClick={resetModal}>
