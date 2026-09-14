@@ -1622,9 +1622,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
               />
             </div>
 
-            <div className="performance-footer">
-              <b>{performancePercentage}%</b>
-            </div>
+           
           </div>
 
           {/* TASK CARDS */}
