@@ -804,40 +804,101 @@ const mergeDashboardTasks = (
    *
    * Only show tasks belonging to selected date.
    */
-
- const customTasks = Array.isArray(apiTasks)
-  ? apiTasks.map((task) => ({
-      ...task,
-
-      id: task.id,
-
-      title:
-        task.title ||
-        task.task_name,
-
-      from:
-        task.from ||
-        task.from_time,
-
-      to:
-        task.to ||
-        task.to_time,
-
-      completed:
-        task.completed === true ||
-        task.completed === 1 ||
-        task.completed === "1",
-
-      taskStatus:
-        task.taskStatus ||
-        task.task_status ||
-        getTaskStatus(task),
-    }))
-  : [];
-        
-
-
   /*
+   * API DUPLICATE PROTECTION
+   *
+   * Sometimes the dashboard API can return the same logical task
+   * more than once. We merge those rows before displaying them.
+   * If duplicate rows exist, the completed row wins.
+   */
+  const normalizeTaskTitle = (value) =>
+    String(value || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLowerCase();
+
+  const getTaskLogicalKey = (task) => {
+    const title = normalizeTaskTitle(
+      task.title || task.task_name
+    );
+
+    const from = normalizeTime(
+      task.from ||
+        task.from_time ||
+        task.time ||
+        task.start_time
+    );
+
+    const to = normalizeTime(
+      task.to ||
+        task.to_time ||
+        task.end_time
+    );
+
+    return `${title}__${from}__${to}`;
+  };
+
+  const isTaskCompleted = (task) =>
+    task.taskStatus === "completed" ||
+    task.status === "completed" ||
+    task.task_status === "completed" ||
+    task.completed === true ||
+    task.completed === 1 ||
+    task.completed === "1";
+
+  const buildCustomTask = (task) => ({
+    ...task,
+
+    id: task.id,
+
+    title:
+      task.title ||
+      task.task_name,
+
+    from:
+      task.from ||
+      task.from_time,
+
+    to:
+      task.to ||
+      task.to_time,
+
+    completed: isTaskCompleted(task),
+
+    taskStatus:
+      task.taskStatus ||
+      task.task_status ||
+      getTaskStatus(task),
+  });
+
+  const customTaskMap = new Map();
+
+  if (Array.isArray(apiTasks)) {
+    apiTasks.forEach((rawTask) => {
+      const task = buildCustomTask(rawTask);
+      const key = getTaskLogicalKey(task);
+      const existing = customTaskMap.get(key);
+
+      if (!existing) {
+        customTaskMap.set(key, task);
+        return;
+      }
+
+      // If the duplicate rows have different status,
+      // always keep the completed one.
+      if (
+        !isTaskCompleted(existing) &&
+        isTaskCompleted(task)
+      ) {
+        customTaskMap.set(key, task);
+      }
+    });
+  }
+
+  const customTasks = Array.from(
+    customTaskMap.values()
+  );
+/*
    * =====================================================
    * DEFAULT TASKS
    * =====================================================
@@ -2071,9 +2132,7 @@ const getPercentage = (value) => {
                   return (
                     <div
                       className={`dashboard-task ${status}`}
-                      key={
-                        `${task.id}-${selectedDate}`
-                      }
+                      key={`${getTaskLogicalKey(task)}-${selectedDate}`}
                     >
 
                       <div className="task-left">
