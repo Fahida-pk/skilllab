@@ -2596,3 +2596,26 @@ body,
     font-size: 11px !important;
   }
 }
+
+/* =========================================================
+   FINAL FIX: EDIT + CLOSE MUST STAY ON THE LEFT
+   Row 2: [Edit] [Close] [Slider] [Percentage]
+   ========================================================= */
+.card.task-modern-card .task-bottom-row .task-actions {
+  order: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  justify-content: flex-start !important;
+  align-self: center !important;
+}
+
+.card.task-modern-card .task-bottom-row .task-progress-inline {
+  order: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  align-self: center !important;
+}
+
+.card.task-modern-card .task-bottom-row {
+  justify-content: flex-start !important;
+}
