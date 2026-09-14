@@ -2198,3 +2198,202 @@ body,
     height: 6px !important;
   }
 }
+
+
+/* =========================================================
+   FINAL COMPACT TASK CARD OVERRIDE
+   Matches requested compact model:
+   Row 1: Icon + Title/Time + Tick
+   Row 2: Edit + Delete + Slider + Percentage
+   ========================================================= */
+.card.task-modern-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  min-height: 120px !important;
+  height: auto !important;
+  padding: 12px 13px !important;
+  box-sizing: border-box !important;
+}
+
+.card.task-modern-card .task-card-main {
+  width: 100% !important;
+  min-height: 46px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 7px !important;
+  margin: 0 !important;
+  position: relative !important;
+}
+
+.card.task-modern-card .task-card-left {
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.card.task-modern-card .task-icon-top {
+  position: static !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  flex: 0 0 44px !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.card.task-modern-card .task-card-content {
+  width: auto !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.card.task-modern-card .task-card-content h3 {
+  margin: 0 0 3px 0 !important;
+  font-size: 15px !important;
+  line-height: 1.15 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.card.task-modern-card .task-card-content p {
+  margin: 0 !important;
+  font-size: 11px !important;
+  line-height: 1.15 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.card.task-modern-card .task-check-right {
+  position: static !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  flex: 0 0 42px !important;
+  margin: 0 !important;
+  order: initial !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.card.task-modern-card .task-check-right .custom-check {
+  width: 38px !important;
+  height: 38px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.card.task-modern-card .task-bottom-row {
+  width: 100% !important;
+  min-height: 36px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin: 0 !important;
+}
+
+.card.task-modern-card .task-bottom-row .task-actions {
+  width: auto !important;
+  height: 36px !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 5px !important;
+  margin: 0 !important;
+}
+
+.card.task-modern-card .task-bottom-row .task-actions button {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  flex: 0 0 36px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgba(255,255,255,0.8) !important;
+  border-radius: 8px !important;
+  background: rgba(255,255,255,0.12) !important;
+  color: #fff !important;
+  box-sizing: border-box !important;
+}
+
+.card.task-modern-card .task-bottom-row .task-actions .edit-btn {
+  font-size: 19px !important;
+}
+
+.card.task-modern-card .task-bottom-row .task-actions .delete-btn {
+  font-size: 21px !important;
+}
+
+.card.task-modern-card .task-progress-inline {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 5px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.card.task-modern-card .task-progress-inline .task-percentage-range {
+  display: block !important;
+  width: auto !important;
+  flex: 1 1 auto !important;
+  min-width: 30px !important;
+  height: 6px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  accent-color: #ffffff !important;
+}
+
+.card.task-modern-card .task-progress-percent {
+  display: block !important;
+  flex: 0 0 30px !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: right !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+.card.task-modern-card .check-disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+}
+
+@media (max-width: 600px) {
+  .card.task-modern-card {
+    min-height: 116px !important;
+    padding: 12px 13px !important;
+    gap: 8px !important;
+  }
+}

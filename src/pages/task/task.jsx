@@ -1166,147 +1166,218 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     cursor: not-allowed;
   }
 
-  /* Modern task card layout */
-  .task-modern-card {
+  /* =========================================================
+     COMPACT TASK CARD
+     Row 1: Icon + Title + Time + Tick
+     Row 2: Edit + Delete + Slider + Percentage
+     ========================================================= */
+  .card.task-modern-card {
     position: relative !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 14px !important;
-    padding: 18px !important;
-    min-height: 220px !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    min-height: 120px !important;
+    height: auto !important;
+    padding: 12px 13px !important;
     box-sizing: border-box !important;
   }
 
-  .task-card-main {
-    position: relative !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: flex-start !important;
+  .card.task-modern-card .task-card-main {
     width: 100% !important;
-    min-height: 145px !important;
-  }
-
-  .task-card-left {
+    min-height: 46px !important;
     display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    min-width: 0 !important;
-    max-width: calc(100% - 75px) !important;
-  }
-
-  .task-icon-top {
-    position: static !important;
-    width: 54px !important;
-    height: 54px !important;
-    min-width: 54px !important;
-    margin: 0 0 12px 0 !important;
-    display: flex !important;
+    flex-direction: row !important;
     align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .task-card-content {
-    width: 100% !important;
-    padding: 0 !important;
-  }
-
-  .task-card-content h3 {
-    margin: 0 0 7px 0 !important;
-  }
-
-  .task-card-content p {
+    justify-content: space-between !important;
+    gap: 7px !important;
     margin: 0 !important;
+    position: relative !important;
   }
 
-  .task-actions {
-    margin-top: 12px !important;
+  .card.task-modern-card .task-card-left {
+    min-width: 0 !important;
+    max-width: none !important;
+    flex: 1 1 auto !important;
     display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
     gap: 8px !important;
   }
 
-  .task-check-right {
-    position: absolute !important;
-    right: 0 !important;
-    bottom: 8px !important;
+  .card.task-modern-card .task-icon-top {
+    position: static !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    flex: 0 0 44px !important;
     margin: 0 !important;
-    z-index: 3 !important;
-  }
-
-  .task-check-right .custom-check {
-    width: 48px !important;
-    height: 48px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
   }
 
-  .task-percentage {
-    width: 100% !important;
-    padding-top: 13px !important;
-    border-top: 1px solid rgba(255,255,255,0.35) !important;
+  .card.task-modern-card .task-card-content {
+    width: auto !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
   }
 
-  .task-percentage-head {
+  .card.task-modern-card .task-card-content h3 {
+    margin: 0 0 3px 0 !important;
+    font-size: 15px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .card.task-modern-card .task-card-content p {
+    margin: 0 !important;
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .card.task-modern-card .task-check-right {
+    position: static !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    flex: 0 0 42px !important;
+    margin: 0 !important;
+    order: initial !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    margin-bottom: 7px !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
+    justify-content: center !important;
   }
 
-  .task-percentage-range {
+  .card.task-modern-card .task-check-right .custom-check {
+    width: 38px !important;
+    height: 38px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .card.task-modern-card .task-bottom-row {
     width: 100% !important;
-    height: 8px !important;
+    min-height: 36px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 7px !important;
+    margin: 0 !important;
+  }
+
+  .card.task-modern-card .task-bottom-row .task-actions {
+    width: auto !important;
+    height: 36px !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 5px !important;
+    margin: 0 !important;
+  }
+
+  .card.task-modern-card .task-bottom-row .task-actions button {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    flex: 0 0 36px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid rgba(255,255,255,0.8) !important;
+    border-radius: 8px !important;
+    background: rgba(255,255,255,0.12) !important;
+    color: #fff !important;
+    box-sizing: border-box !important;
+  }
+
+  .card.task-modern-card .task-bottom-row .task-actions .edit-btn {
+    font-size: 19px !important;
+  }
+
+  .card.task-modern-card .task-bottom-row .task-actions .delete-btn {
+    font-size: 21px !important;
+  }
+
+  .card.task-modern-card .task-progress-inline {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 5px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .card.task-modern-card .task-progress-inline .task-percentage-range {
+    display: block !important;
+    width: auto !important;
+    flex: 1 1 auto !important;
+    min-width: 30px !important;
+    height: 6px !important;
     margin: 0 !important;
     padding: 0 !important;
     cursor: pointer !important;
     accent-color: #ffffff !important;
   }
 
+  .card.task-modern-card .task-progress-percent {
+    display: block !important;
+    flex: 0 0 30px !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: right !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+  }
+
+  .card.task-modern-card .task-progress-inline
   .task-percentage-range:disabled {
     cursor: not-allowed !important;
     opacity: 0.5 !important;
   }
 
-  @media (max-width: 768px) {
-    .task-modern-card {
-      min-height: 215px !important;
-      padding: 16px !important;
-    }
-
-    .task-card-main {
-      min-height: 140px !important;
-    }
-
-    .task-icon-top {
-      width: 50px !important;
-      height: 50px !important;
-      min-width: 50px !important;
-    }
-
-    .task-check-right {
-      right: 2px !important;
-      bottom: 5px !important;
-    }
+  .card.task-modern-card .check-disabled {
+    opacity: 0.45 !important;
+    cursor: not-allowed !important;
   }
 
+  /* Page scrolling */
   .task-page-scroll {
     height: auto !important;
     max-height: none !important;
-    overflow: visible !important;
     min-height: 0 !important;
+    overflow: visible !important;
   }
 
   .task-page-scroll .cards {
     height: auto !important;
     max-height: none !important;
-    overflow: visible !important;
     min-height: 0 !important;
-    padding-bottom: 90px;
+    overflow: visible !important;
+    padding-bottom: 90px !important;
   }
 
-  /* Mobile: let the browser page scroll normally */
   @media (max-width: 768px) {
     html, body, #root {
       height: auto !important;
@@ -1322,18 +1393,23 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       overflow: visible !important;
     }
 
+    .task-modern-card {
+      min-height: 116px !important;
+      padding: 12px 13px !important;
+    }
+
     .task-page-scroll {
       height: auto !important;
       max-height: none !important;
       overflow: visible !important;
-      padding-bottom: 20px;
+      padding-bottom: 20px !important;
     }
 
     .task-page-scroll .cards {
       height: auto !important;
       max-height: none !important;
       overflow: visible !important;
-      padding-bottom: 110px;
+      padding-bottom: 110px !important;
     }
   }
 `}</style>
