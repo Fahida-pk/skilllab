@@ -601,18 +601,17 @@ const getTaskDateTime = (dateKey, time, addDay = false) => {
 const getTaskStatus = (task) => {
 
   /*
-   * COMPLETED ALWAYS WINS
+   * COMPLETED ONLY WHEN USER TICKS THE CHECKBOX
    *
-   * User tick cheythal time kazhinjalum
-   * Completed thanne ayirikkum.
+   * Time must NEVER automatically mark a task as completed.
+   * The database/local task completion flag is the only source
+   * used for the Completed state.
    */
   if (
-    task.taskStatus === "completed" ||
-    task.status === "completed" ||
-    task.task_status === "completed" ||
     task.completed === true ||
     task.completed === 1 ||
-    task.completed === "1"
+    task.completed === "1" ||
+    task.completed === "true"
   ) {
     return "completed";
   }
