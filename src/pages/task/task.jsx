@@ -53,6 +53,17 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const currentKey = getDateKey(date);
 
+  // =========================================================
+  // DATE PERMISSIONS
+  // Previous day  -> Add/Edit/Delete/Tick disabled
+  // Today         -> Add/Edit/Delete/Tick enabled
+  // Future day    -> Add/Edit/Delete enabled, Tick disabled
+  // =========================================================
+  const todayKey = getDateKey(new Date());
+  const isPreviousDay = currentKey < todayKey;
+  const isToday = currentKey === todayKey;
+  const isFutureDay = currentKey > todayKey;
+
   const getIcon = (icon, title = "") => {
 
   const key = String(
@@ -670,6 +681,12 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
   const deleteTask = async (task) => {
+
+    if (isPreviousDay) {
+      alert("Previous day tasks cannot be deleted.");
+      return;
+    }
+
     if (String(task.id).startsWith("d")) {
       const deletedId = String(task.id);
 
@@ -731,6 +748,16 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
   const toggleTask = async (task) => {
+
+    if (!isToday) {
+      alert(
+        isPreviousDay
+          ? "Previous day tasks cannot be changed."
+          : "Future day tasks cannot be completed yet."
+      );
+      return;
+    }
+
     if (String(task.id).startsWith("d")) {
       setDefaultCompleted((prev) => {
         const updated = {
@@ -800,6 +827,12 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
   const handleEdit = (task) => {
+
+    if (isPreviousDay) {
+      alert("Previous day tasks cannot be edited.");
+      return;
+    }
+
     setShowModal(true);
     setEditTask(task);
     setTitle(task.title);
@@ -828,6 +861,12 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
   const handleAddTask = async () => {
+
+    if (isPreviousDay) {
+      alert("Previous day tasks cannot be added or edited.");
+      return;
+    }
+
     if (!title.trim() || !fromTime) {
       alert("Please enter task title and from time");
       return;
@@ -1131,6 +1170,11 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     <>
 
 <style>{`
+  .complete-check input:disabled + .custom-check {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
   .task-page-scroll {
     height: auto !important;
     max-height: none !important;
@@ -1259,22 +1303,27 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   </div>
 
-  {/* ADD BUTTON INSIDE PROGRESS CARD */}
-  <button
-    className="progress-add-btn"
-    onClick={() => {
-      setEditTask(null);
-      setTitle("");
-      setFromTime("");
-      setToTime("");
-      setImage(null);
-      setShowModal(true);
-    }}
-    type="button"
-    title="Add task"
-  >
-    +
-  </button>
+  {/* ADD BUTTON INSIDE PROGRESS CARD
+      Previous day: hidden
+      Today/Future: available
+  */}
+  {!isPreviousDay && (
+    <button
+      className="progress-add-btn"
+      onClick={() => {
+        setEditTask(null);
+        setTitle("");
+        setFromTime("");
+        setToTime("");
+        setImage(null);
+        setShowModal(true);
+      }}
+      type="button"
+      title="Add task"
+    >
+      +
+    </button>
+  )}
  </div> 
 </div>
           {/* TASK CARDS */}
@@ -1309,34 +1358,44 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
                         Sleep: edit only
                         Other tasks: edit + close
                     */}
-                    <div className="actions action-box">
-                      <button
-                        onClick={() => handleEdit(task)}
-                        type="button"
-                        title="Edit task time"
-                        className="edit-btn"
-                      >
-                        ✏️
-                      </button>
+                    {!isPreviousDay && (
+                      <div className="actions action-box">
+                        <button
+                          onClick={() => handleEdit(task)}
+                          type="button"
+                          title="Edit task time"
+                          className="edit-btn"
+                        >
+                          ✏️
+                        </button>
 
-                  {task.title !== "Wake Up" && task.title !== "Sleep" && (
-  <button
-    onClick={() => setDeleteConfirm(task)}
-    type="button"
-    title="Delete task"
-    className="delete-btn"
-  >
-    ✕
-  </button>
-)}
-                    </div>
+                        {task.title !== "Wake Up" &&
+                          task.title !== "Sleep" && (
+                            <button
+                              onClick={() => setDeleteConfirm(task)}
+                              type="button"
+                              title="Delete task"
+                              className="delete-btn"
+                            >
+                              ✕
+                            </button>
+                          )}
+                      </div>
+                    )}
                   </div>
 
-                  {/* LARGE COMPLETE CHECKBOX — far right */}
+                  {/* LARGE COMPLETE CHECKBOX — far right
+                      Only TODAY can be ticked.
+                      Previous/Future days are disabled.
+                  */}
                   <label
                     className="complete-check"
                     title={
-                      task.completed
+                      isPreviousDay
+                        ? "Previous day tasks cannot be changed"
+                        : isFutureDay
+                        ? "Future day tasks cannot be completed yet"
+                        : task.completed
                         ? "Mark as incomplete"
                         : "Mark as complete"
                     }
@@ -1344,9 +1403,17 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
                     <input
                       type="checkbox"
                       checked={task.completed === true}
-                      onChange={() => toggleTask(task)}
+                      disabled={!isToday}
+                      onChange={() => {
+                        if (!isToday) return;
+                        toggleTask(task);
+                      }}
                     />
-                    <span className="custom-check">
+                    <span
+                      className={`custom-check ${
+                        !isToday ? "check-disabled" : ""
+                      }`}
+                    >
                       {task.completed && <FaCheck />}
                     </span>
                   </label>
@@ -1456,6 +1523,12 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           onClick={async () => {
             const task = deleteConfirm;
             setDeleteConfirm(null);
+
+            if (isPreviousDay) {
+              alert("Previous day tasks cannot be deleted.");
+              return;
+            }
+
             await deleteTask(task);
           }}
         >
