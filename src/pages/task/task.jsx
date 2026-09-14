@@ -1152,6 +1152,24 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       ? 0
       : Math.round((completedTasks / totalTasks) * 100);
 
+  // =========================================================
+  // TODAY'S PERFORMANCE
+  // Average of all task percentage values
+  // =========================================================
+  const performancePercentage =
+    totalTasks === 0
+      ? 0
+      : Math.round(
+          displayTasks.reduce(
+            (total, task) =>
+              total + Math.max(
+                0,
+                Math.min(100, Number(task.percentage ?? 0))
+              ),
+            0
+          ) / totalTasks
+        );
+
   const radius = 48;
   const circumference = 2 * Math.PI * radius;
   const dashOffset =
@@ -1363,6 +1381,72 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     cursor: not-allowed !important;
   }
 
+  /* =========================================================
+     TODAY'S PERFORMANCE
+  ========================================================= */
+  .today-performance-card {
+    width: 100%;
+    margin-top: 14px;
+    padding: 18px 20px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    box-sizing: border-box;
+  }
+
+  .performance-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+  }
+
+  .performance-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #171717;
+  }
+
+  .performance-header p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: #777;
+  }
+
+  .performance-header strong {
+    font-size: 25px;
+    font-weight: 800;
+    color: #7255ff;
+  }
+
+  .performance-bar {
+    width: 100%;
+    height: 9px;
+    margin-top: 15px;
+    background: #eeeef5;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .performance-bar-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #6854ff, #b34cff);
+    transition: width 0.35s ease;
+  }
+
+  .performance-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 9px;
+    font-size: 12px;
+  }
+
+  .performance-footer span { color: #777; }
+  .performance-footer b { color: #171717; font-weight: 700; }
+
   /* Page scrolling */
   .task-page-scroll {
     height: auto !important;
@@ -1517,8 +1601,34 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       +
     </button>
   )}
- </div> 
+ </div>
 </div>
+
+          {/* =========================
+              TODAY'S PERFORMANCE
+          ========================= */}
+          <div className="today-performance-card">
+            <div className="performance-header">
+              <div>
+                <h2>Today's Performance</h2>
+                <p>Overall task performance</p>
+              </div>
+              <strong>{performancePercentage}%</strong>
+            </div>
+
+            <div className="performance-bar">
+              <div
+                className="performance-bar-fill"
+                style={{ width: `${performancePercentage}%` }}
+              />
+            </div>
+
+            <div className="performance-footer">
+              <span>Task Performance</span>
+              <b>{performancePercentage}%</b>
+            </div>
+          </div>
+
           {/* TASK CARDS */}
           <div className="cards">
             {sortedTasks.length === 0 ? (
