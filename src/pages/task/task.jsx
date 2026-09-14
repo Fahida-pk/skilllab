@@ -390,7 +390,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       id: "d5",
       title: "Sleep",
       from: "10:00 PM",
-      to: "8:00 AM",
+      to: "5:00 AM",
       icon: "moon",
       color: "linear-gradient(135deg, #141e30, #243b55)",
       completed: false,
@@ -974,10 +974,15 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           nextDay,
         });
 
+        // FIRST CODE MODEL:
+        // If Sleep crosses midnight, its TO time becomes the
+        // NEXT DAY Wake Up time.
         if (taskTitle === "sleep" && formattedTo && nextDay) {
           const nextDate = new Date(date);
           nextDate.setDate(nextDate.getDate() + 1);
-          saveDateDefaultSchedule(getDateKey(nextDate), "d1", {
+          const nextDateKey = getDateKey(nextDate);
+
+          saveDateDefaultSchedule(nextDateKey, "d1", {
             title: "Wake Up",
             time: formattedTo,
             from: undefined,
@@ -986,50 +991,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           });
         }
       }
-    }
-
-    // =========================
-    // OVERLAP CHECK
-    // =========================
-    const newFrom = toMin(formattedFrom);
-    let newTo = formattedTo ? toMin(formattedTo) : newFrom;
-
-    if (nextDay) newTo += 1440;
-
-    // Check ALL tasks visible on this date, including default tasks.
-    const isOverlap = displayTasks.some((t) => {
-      if (editTask && String(t.id) === String(editTask.id)) return false;
-
-      const oldFrom = toMin(t.time || t.from);
-      if (Number.isNaN(oldFrom)) return false;
-
-      let oldTo = t.to ? toMin(t.to) : oldFrom + 1;
-      if (Number.isNaN(oldTo)) oldTo = oldFrom + 1;
-
-      if (t.nextDay) oldTo += 1440;
-
-      // Safety for a stored cross-midnight range.
-      if (!t.nextDay && t.to && oldTo <= oldFrom) {
-        oldTo += 1440;
-      }
-
-      const ranges = [
-        [newFrom, newTo],
-        [newFrom + 1440, newTo + 1440],
-        [newFrom - 1440, newTo - 1440],
-      ];
-
-      return ranges.some(
-        ([candidateFrom, candidateTo]) =>
-          candidateFrom < oldTo && candidateTo > oldFrom
-      );
-    });
-
-    if (isOverlap) {
-      alert(
-        "⚠️ This time is already used by another task. Please choose a different time."
-      );
-      return;
     }
 
     // =========================
