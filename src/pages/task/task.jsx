@@ -1164,8 +1164,14 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   // =========================================================
   // =========================================================
 // TODAY'S PERFORMANCE PROGRESS
-// ONLY TICKED / COMPLETED TASKS ARE INCLUDED
-// Unticked tasks are completely ignored.
+// ONLY TICKED / COMPLETED TASKS CONTRIBUTE.
+// The denominator is ALL visible tasks, so unticking a task
+// immediately decreases Today's Performance Progress.
+//
+// Example:
+// 6 total, 5 ticked at 100% -> 83%
+// 6 total, 4 ticked at 100% -> 67%
+// 6 total, 1 ticked at 80%  -> 13%
 // =========================================================
 
 const isTaskCompleted = (task) =>
@@ -1176,8 +1182,10 @@ const isTaskCompleted = (task) =>
 
 const completedTaskList = displayTasks.filter(isTaskCompleted);
 
+const performanceTotal = displayTasks.length;
+
 const performancePercentage =
-  completedTaskList.length > 0
+  performanceTotal > 0
     ? Math.round(
         completedTaskList.reduce((total, task) => {
           const taskPercentage = Math.max(
@@ -1186,9 +1194,10 @@ const performancePercentage =
           );
 
           return total + taskPercentage;
-        }, 0) / completedTaskList.length
+        }, 0) / performanceTotal
       )
     : 0;
+
   const radius = 48;
   const circumference = 2 * Math.PI * radius;
   const dashOffset =
