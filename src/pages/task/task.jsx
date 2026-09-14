@@ -1466,6 +1466,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
                       <div className="card-content task-card-content">
                         <h3>{task.title}</h3>
+
                         <p>
                           {task.title === "Wake Up"
                             ? task.time || task.from
@@ -1473,34 +1474,10 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
                                 task.nextDay ? "(Next Day)" : ""
                               }`}
                         </p>
-
-                        {!isPreviousDay && (
-                          <div className="actions action-box task-actions">
-                            <button
-                              onClick={() => handleEdit(task)}
-                              type="button"
-                              title="Edit task time"
-                              className="edit-btn"
-                            >
-                              ✏️
-                            </button>
-
-                            {task.title !== "Wake Up" &&
-                              task.title !== "Sleep" && (
-                                <button
-                                  onClick={() => setDeleteConfirm(task)}
-                                  type="button"
-                                  title="Delete task"
-                                  className="delete-btn"
-                                >
-                                  ✕
-                                </button>
-                              )}
-                          </div>
-                        )}
                       </div>
                     </div>
 
+                    {/* TICK - RIGHT SIDE OF FIRST ROW */}
                     <label
                       className="complete-check task-check-right"
                       title={
@@ -1522,6 +1499,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
                           toggleTask(task);
                         }}
                       />
+
                       <span
                         className={`custom-check ${
                           !isToday ? "check-disabled" : ""
@@ -1532,10 +1510,63 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
                     </label>
                   </div>
 
-                  <div className="task-percentage">
-                    <div className="task-percentage-head">
-                      <span>Progress</span>
-                      <strong>
+                  {/* SECOND ROW:
+                      EDIT + DELETE + PROGRESS BAR + PERCENTAGE */}
+                  <div className="task-bottom-row">
+                    {!isPreviousDay && (
+                      <div className="actions action-box task-actions">
+                        <button
+                          onClick={() => handleEdit(task)}
+                          type="button"
+                          title="Edit task time"
+                          className="edit-btn"
+                        >
+                          ✏️
+                        </button>
+
+                        {task.title !== "Wake Up" &&
+                          task.title !== "Sleep" && (
+                            <button
+                              onClick={() => setDeleteConfirm(task)}
+                              type="button"
+                              title="Delete task"
+                              className="delete-btn"
+                            >
+                              ✕
+                            </button>
+                          )}
+                      </div>
+                    )}
+
+                    <div className="task-progress-inline">
+                      <input
+                        className="task-percentage-range"
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={Math.max(
+                          0,
+                          Math.min(100, Number(task.percentage ?? 0))
+                        )}
+                        disabled={isPreviousDay}
+                        onChange={(e) => {
+                          if (isPreviousDay) return;
+                          handlePercentageChange(task, e.target.value);
+                        }}
+                        onMouseUp={(e) =>
+                          saveTaskPercentage(task, e.currentTarget.value)
+                        }
+                        onTouchEnd={(e) =>
+                          saveTaskPercentage(task, e.currentTarget.value)
+                        }
+                        onBlur={(e) =>
+                          saveTaskPercentage(task, e.currentTarget.value)
+                        }
+                        aria-label={`Progress percentage for ${task.title}`}
+                      />
+
+                      <strong className="task-progress-percent">
                         {Math.max(
                           0,
                           Math.min(100, Number(task.percentage ?? 0))
@@ -1543,33 +1574,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
                         %
                       </strong>
                     </div>
-
-                    <input
-                      className="task-percentage-range"
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="1"
-                      value={Math.max(
-                        0,
-                        Math.min(100, Number(task.percentage ?? 0))
-                      )}
-                      disabled={isPreviousDay}
-                      onChange={(e) => {
-                        if (isPreviousDay) return;
-                        handlePercentageChange(task, e.target.value);
-                      }}
-                      onMouseUp={(e) =>
-                        saveTaskPercentage(task, e.currentTarget.value)
-                      }
-                      onTouchEnd={(e) =>
-                        saveTaskPercentage(task, e.currentTarget.value)
-                      }
-                      onBlur={(e) =>
-                        saveTaskPercentage(task, e.currentTarget.value)
-                      }
-                      aria-label={`Progress percentage for ${task.title}`}
-                    />
                   </div>
                 </div>
               ))
