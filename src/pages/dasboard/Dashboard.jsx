@@ -873,9 +873,16 @@ const mergeDashboardTasks = (
    * For DB tasks with the same title, the first one is kept.
    */
 
+  /*
+   * DATABASE/CUSTOM TASKS FIRST:
+   * The Tasks page is the source of truth for today's real
+   * task time and completion state. If a custom task has the
+   * same title as a default task (for example "Wake Up"),
+   * keep the custom task instead of the default copy.
+   */
   const mergedBeforeDedup = [
-    ...defaultTasks,
     ...customTasks,
+    ...defaultTasks,
   ];
 
   const seenTitles = new Set();
