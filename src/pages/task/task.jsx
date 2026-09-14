@@ -1606,25 +1606,24 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
           {/* =========================
               TODAY'S PERFORMANCE
-              Show only after at least one task is ticked
           ========================= */}
-          {completedTasks > 0 && (
-            <div className="today-performance-card">
-              <div className="performance-header">
-                <div>
-                  <h2>Today's Performance Progress</h2>
-                </div>
-                <strong>{performancePercentage}%</strong>
+          <div className="today-performance-card">
+            <div className="performance-header">
+              <div>
+                <h2>Today's Performance Progress</h2>
               </div>
-
-              <div className="performance-bar">
-                <div
-                  className="performance-bar-fill"
-                  style={{ width: `${performancePercentage}%` }}
-                />
-              </div>
+              <strong>{performancePercentage}%</strong>
             </div>
-          )}
+
+            <div className="performance-bar">
+              <div
+                className="performance-bar-fill"
+                style={{ width: `${performancePercentage}%` }}
+              />
+            </div>
+
+           
+          </div>
 
           {/* TASK CARDS */}
           <div className="cards">
