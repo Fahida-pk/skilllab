@@ -1162,25 +1162,33 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   // Only ticked/completed tasks are included.
   // Changing a task slider alone does NOT affect this graph.
   // =========================================================
-  const completedTaskList = displayTasks.filter(
-    (task) => task.completed === true
-  );
+  // =========================================================
+// TODAY'S PERFORMANCE PROGRESS
+// ONLY TICKED / COMPLETED TASKS ARE INCLUDED
+// Unticked tasks are completely ignored.
+// =========================================================
 
-  const performancePercentage =
-    completedTaskList.length === 0
-      ? 0
-      : Math.round(
-          completedTaskList.reduce(
-            (total, task) =>
-              total +
-              Math.max(
-                0,
-                Math.min(100, Number(task.percentage ?? 0))
-              ),
-            0
-          ) / completedTaskList.length
-        );
+const isTaskCompleted = (task) =>
+  task.completed === true ||
+  task.completed === 1 ||
+  task.completed === "1" ||
+  task.completed === "true";
 
+const completedTaskList = displayTasks.filter(isTaskCompleted);
+
+const performancePercentage =
+  completedTaskList.length > 0
+    ? Math.round(
+        completedTaskList.reduce((total, task) => {
+          const taskPercentage = Math.max(
+            0,
+            Math.min(100, Number(task.percentage ?? 0))
+          );
+
+          return total + taskPercentage;
+        }, 0) / completedTaskList.length
+      )
+    : 0;
   const radius = 48;
   const circumference = 2 * Math.PI * radius;
   const dashOffset =
