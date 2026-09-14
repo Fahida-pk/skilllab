@@ -768,6 +768,8 @@ const mergeDashboardTasks = (
 
   const customTasks = Array.isArray(apiTasks)
     ? apiTasks.map((task) => ({
+        // Display the exact task time returned by the Tasks/database API.
+
         ...task,
 
         id: task.id,
@@ -800,121 +802,22 @@ const mergeDashboardTasks = (
 
   /*
    * =====================================================
-   * DEFAULT TASKS
+   * DASHBOARD TASK SOURCE OF TRUTH
    * =====================================================
    *
-   * Default tasks are added only when this date has
-   * date-specific localStorage information.
-   */
-
-  const hasDateSpecificDefaultData =
-    localStorage.getItem(
-      getDeletedDefaultKey(dateKey)
-    ) !== null ||
-    localStorage.getItem(
-      getDefaultScheduleKey(dateKey)
-    ) !== null ||
-    localStorage.getItem(
-      getDefaultCompletionKey(dateKey)
-    ) !== null;
-
-  const defaultTasks =
-    hasDateSpecificDefaultData
-      ? getTodayDefaultTasks(dateKey)
-      : [];
-
-  /*
-   * =====================================================
-   * REMOVE DUPLICATES
-   * =====================================================
+   * The Tasks page saves the task title, from time, to time,
+   * completion and percentage in the database.
    *
-   * IMPORTANT:
-   * The same task title must appear only once for a day.
+   * Dashboard must display that same database task directly.
+   * Do NOT merge local/default schedules here because they can
+   * overwrite a time that was entered on the Tasks page.
    *
-   * Defaults are placed first, so when a DB task has the
-   * same title as a default task, the default task is kept.
-   * For DB tasks with the same title, the first one is kept.
+   * Example:
+   * Tasks page -> Wake Up 6:00 AM
+   * Database   -> Wake Up 6:00 AM
+   * Dashboard  -> Wake Up 6:00 AM
    */
-
-  /*
-   * DATABASE/CUSTOM TASKS FIRST:
-   * The Tasks page is the source of truth for today's real
-   * task time and completion state. If a custom task has the
-   * same title as a default task (for example "Wake Up"),
-   * keep the custom task instead of the default copy.
-   */
-  const mergedBeforeDedup = [
-    ...customTasks,
-    ...defaultTasks,
-  ];
-
-  const seenTitles = new Set();
-
-  const uniqueTasks = [];
-
-  mergedBeforeDedup.forEach((task) => {
-    const titleKey = String(
-      task.title ||
-      task.task_name ||
-      ""
-    )
-      .trim()
-      .replace(/\s+/g, " ")
-      .toLowerCase();
-
-    // If there is no title, keep the task based on its id.
-    const uniqueKey = titleKey
-      ? `title:${titleKey}`
-      : `id:${String(task.id)}`;
-
-    if (!seenTitles.has(uniqueKey)) {
-      seenTitles.add(uniqueKey);
-      uniqueTasks.push(task);
-      return;
-    }
-
-    /*
-     * If a duplicate exists and the later task is completed,
-     * prefer that completed task so a completed DB task is not
-     * hidden behind an incomplete default task.
-     */
-    const existingIndex = uniqueTasks.findIndex((item) => {
-      const existingTitleKey = String(
-        item.title ||
-        item.task_name ||
-        ""
-      )
-        .trim()
-        .replace(/\s+/g, " ")
-        .toLowerCase();
-
-      const existingKey = existingTitleKey
-        ? `title:${existingTitleKey}`
-        : `id:${String(item.id)}`;
-
-      return existingKey === uniqueKey;
-    });
-
-    if (
-      existingIndex !== -1 &&
-      (
-        task.completed === true ||
-        task.completed === 1 ||
-        task.completed === "1" ||
-        task.completed === "true"
-      ) &&
-      !(
-        uniqueTasks[existingIndex].completed === true ||
-        uniqueTasks[existingIndex].completed === 1 ||
-        uniqueTasks[existingIndex].completed === "1" ||
-        uniqueTasks[existingIndex].completed === "true"
-      )
-    ) {
-      uniqueTasks[existingIndex] = task;
-    }
-  });
-
-  const merged = uniqueTasks;
+  const merged = customTasks;
 
   /*
    * =====================================================
