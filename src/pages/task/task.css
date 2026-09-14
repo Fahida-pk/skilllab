@@ -1039,7 +1039,7 @@ body,
 }
 /* Today's Performance -> First Task: NO GAP */
 .today-performance-card {
-  margin-bottom: 0 !important;
+  margin-bottom: 12px !important;
   border-radius: 18px 18px 0 0 !important;
 }
 
