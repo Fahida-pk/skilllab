@@ -1154,20 +1154,26 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   // =========================================================
   // TODAY'S PERFORMANCE
-  // Average of all task percentage values
+  // Calculate performance ONLY from ticked/completed tasks.
+  // The Performance card is shown only when at least one task is ticked.
   // =========================================================
+  const completedTaskList = displayTasks.filter(
+    (task) => task.completed === true
+  );
+
   const performancePercentage =
-    totalTasks === 0
+    completedTaskList.length === 0
       ? 0
       : Math.round(
-          displayTasks.reduce(
+          completedTaskList.reduce(
             (total, task) =>
-              total + Math.max(
+              total +
+              Math.max(
                 0,
                 Math.min(100, Number(task.percentage ?? 0))
               ),
             0
-          ) / totalTasks
+          ) / completedTaskList.length
         );
 
   const radius = 48;
@@ -1607,23 +1613,32 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
               TODAY'S PERFORMANCE
               Show only after at least one task is ticked
           ========================= */}
-          {completedTasks > 0 && (
-            <div className="today-performance-card">
-              <div className="performance-header">
-                <div>
-                  <h2>Today's Performance Progress</h2>
-                </div>
-                <strong>{performancePercentage}%</strong>
+          {/* =========================
+              TODAY'S PERFORMANCE
+              Card is ALWAYS visible.
+              Percentage/progress is shown ONLY after
+              at least one task checkbox is ticked.
+          ========================= */}
+          <div className="today-performance-card">
+            <div className="performance-header">
+              <div>
+                <h2>Today's Performance Progress</h2>
               </div>
 
-              <div className="performance-bar">
+              {completedTaskList.length > 0 && (
+                <strong>{performancePercentage}%</strong>
+              )}
+            </div>
+
+            <div className="performance-bar">
+              {completedTaskList.length > 0 && (
                 <div
                   className="performance-bar-fill"
                   style={{ width: `${performancePercentage}%` }}
                 />
-              </div>
+              )}
             </div>
-          )}
+          </div>
 
 
           {/* TASK CARDS */}
