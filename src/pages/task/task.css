@@ -1037,7 +1037,21 @@ body,
       0 2px 3px rgba(0, 0, 0, 0.12)
     );
 }
+/* Today's Performance -> First Task: NO GAP */
+.today-performance-card {
+  margin-bottom: 0 !important;
+  border-radius: 18px 18px 0 0 !important;
+}
 
+.cards {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.cards .task-modern-card:first-child {
+  margin-top: 0 !important;
+  border-radius: 0 0 18px 18px !important;
+}
 
 /* Hover */
 
@@ -2623,21 +2637,7 @@ body,
 .card.task-modern-card .task-check-right .custom-check svg {
   font-size: 23px !important;
 }
-/* Today's Performance -> First Task: NO GAP */
-.today-performance-card {
-  margin-bottom: 0 !important;
-  border-radius: 18px 18px 0 0 !important;
-}
 
-.cards {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-.cards .task-modern-card:first-child {
-  margin-top: 0 !important;
-  border-radius: 0 0 18px 18px !important;
-}
 
 /* ---------- MOBILE ---------- */
 
