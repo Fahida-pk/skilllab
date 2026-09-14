@@ -801,10 +801,14 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
     const newStatus = task.completed ? 0 : 1;
 
-    // Update UI immediately
+    // Update UI immediately.
+    // Performance is derived from completed tasks, so ticking/unticking
+    // instantly adds/removes this task from Today's Performance.
     setTasks((prev) =>
       prev.map((t) =>
-        t.id === task.id ? { ...t, completed: newStatus === 1 } : t
+        t.id === task.id
+          ? { ...t, completed: newStatus === 1 }
+          : t
       )
     );
 
@@ -1153,9 +1157,10 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       : Math.round((completedTasks / totalTasks) * 100);
 
   // =========================================================
+  // =========================================================
   // TODAY'S PERFORMANCE
-  // Calculate performance ONLY from ticked/completed tasks.
-  // The Performance card is shown only when at least one task is ticked.
+  // Only ticked/completed tasks are included.
+  // Changing a task slider alone does NOT affect this graph.
   // =========================================================
   const completedTaskList = displayTasks.filter(
     (task) => task.completed === true
@@ -1611,13 +1616,9 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 </div>
           {/* =========================
               TODAY'S PERFORMANCE
-              Show only after at least one task is ticked
-          ========================= */}
-          {/* =========================
-              TODAY'S PERFORMANCE
-              Card is ALWAYS visible.
-              Percentage/progress is shown ONLY after
-              at least one task checkbox is ticked.
+              Card is always visible.
+              Percentage + graph fill appear only
+              after at least one task is ticked.
           ========================= */}
           <div className="today-performance-card">
             <div className="performance-header">
