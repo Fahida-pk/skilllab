@@ -540,6 +540,32 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const [defaultCompleted, setDefaultCompleted] = useState({});
 
+  // DATE-WISE percentage for built-in/default tasks.
+  // Custom/database tasks store percentage in the tasks table.
+  const getDefaultPercentageKey = (dateKey) =>
+    `defaultTaskPercentage_${dateKey}`;
+
+  const [defaultPercentages, setDefaultPercentages] = useState({});
+
+  useEffect(() => {
+    const storageKey = getDefaultPercentageKey(currentKey);
+    const saved = localStorage.getItem(storageKey);
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setDefaultPercentages(
+          parsed && typeof parsed === "object" ? parsed : {}
+        );
+      } catch (error) {
+        console.error("Percentage data error:", error);
+        setDefaultPercentages({});
+      }
+    } else {
+      setDefaultPercentages({});
+    }
+  }, [currentKey]);
+
   useEffect(() => {
     const storageKey = getDefaultCompletionKey(currentKey);
     const saved = localStorage.getItem(storageKey);
@@ -595,6 +621,10 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
             t.completed === true ||
             t.completed === 1 ||
             t.completed === "1",
+          percentage: Math.max(
+            0,
+            Math.min(100, Number(t.percentage ?? 0))
+          ),
           color: t.color || colors[index % colors.length],
           icon: t.icon || null,
           nextDay: isNextDay(t.from, t.to),
@@ -826,6 +856,61 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     }
   };
 
+  const handlePercentageChange = (task, value) => {
+    const percentage = Math.max(0, Math.min(100, Number(value)));
+
+    if (String(task.id).startsWith("d")) {
+      setDefaultPercentages((prev) => {
+        const updated = { ...prev, [String(task.id)]: percentage };
+        localStorage.setItem(
+          getDefaultPercentageKey(currentKey),
+          JSON.stringify(updated)
+        );
+        return updated;
+      });
+      return;
+    }
+
+    setTasks((prev) =>
+      prev.map((t) =>
+        String(t.id) === String(task.id) ? { ...t, percentage } : t
+      )
+    );
+  };
+
+  const saveTaskPercentage = async (task, value) => {
+    const percentage = Math.max(0, Math.min(100, Number(value)));
+
+    if (String(task.id).startsWith("d")) return;
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "percentage",
+          email: user?.email,
+          id: task.id,
+          percentage,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        alert(data.message || "Could not save percentage");
+        await fetchTasks();
+        return;
+      }
+
+      notifyTaskUpdated();
+    } catch (error) {
+      console.error("Percentage save error:", error);
+      alert("Unable to save percentage");
+      await fetchTasks();
+    }
+  };
+
   const handleEdit = (task) => {
 
     if (isPreviousDay) {
@@ -1036,10 +1121,21 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
         .map((task) => ({
           ...task,
           completed: defaultCompleted[task.id] === true,
+          percentage: Math.max(
+            0,
+            Math.min(100, Number(defaultPercentages[task.id] ?? 0))
+          ),
         })),
       ...tasks,
     ],
-    [defaultTasks, currentKey, deletedDefaultIds, defaultCompleted, tasks]
+    [
+      defaultTasks,
+      currentKey,
+      deletedDefaultIds,
+      defaultCompleted,
+      defaultPercentages,
+      tasks,
+    ]
   );
 
   const getSortMinutes = (time) => {
@@ -1173,6 +1269,131 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   .complete-check input:disabled + .custom-check {
     opacity: 0.45;
     cursor: not-allowed;
+  }
+
+  /* Modern task card layout */
+  .task-modern-card {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    padding: 18px !important;
+    min-height: 220px !important;
+    box-sizing: border-box !important;
+  }
+
+  .task-card-main {
+    position: relative !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    min-height: 145px !important;
+  }
+
+  .task-card-left {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    min-width: 0 !important;
+    max-width: calc(100% - 75px) !important;
+  }
+
+  .task-icon-top {
+    position: static !important;
+    width: 54px !important;
+    height: 54px !important;
+    min-width: 54px !important;
+    margin: 0 0 12px 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .task-card-content {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .task-card-content h3 {
+    margin: 0 0 7px 0 !important;
+  }
+
+  .task-card-content p {
+    margin: 0 !important;
+  }
+
+  .task-actions {
+    margin-top: 12px !important;
+    display: flex !important;
+    gap: 8px !important;
+  }
+
+  .task-check-right {
+    position: absolute !important;
+    right: 0 !important;
+    bottom: 8px !important;
+    margin: 0 !important;
+    z-index: 3 !important;
+  }
+
+  .task-check-right .custom-check {
+    width: 48px !important;
+    height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .task-percentage {
+    width: 100% !important;
+    padding-top: 13px !important;
+    border-top: 1px solid rgba(255,255,255,0.35) !important;
+  }
+
+  .task-percentage-head {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 7px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+  }
+
+  .task-percentage-range {
+    width: 100% !important;
+    height: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    accent-color: #ffffff !important;
+  }
+
+  .task-percentage-range:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+  }
+
+  @media (max-width: 768px) {
+    .task-modern-card {
+      min-height: 215px !important;
+      padding: 16px !important;
+    }
+
+    .task-card-main {
+      min-height: 140px !important;
+    }
+
+    .task-icon-top {
+      width: 50px !important;
+      height: 50px !important;
+      min-width: 50px !important;
+    }
+
+    .task-check-right {
+      right: 2px !important;
+      bottom: 5px !important;
+    }
   }
 
   .task-page-scroll {
@@ -1336,87 +1557,125 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
             ) : (
               sortedTasks.map((task) => (
                 <div
-                  className={`card ${task.completed ? "done" : ""}`}
+                  className={`card task-modern-card ${
+                    task.completed ? "done" : ""
+                  }`}
                   key={task.id}
                   style={{ background: task.color }}
                 >
-                  <div className="icon-box">{getIcon(task.icon, task.title)}</div>
-
-                  <div className="card-content">
-                    <h3>{task.title}</h3>
-
-                    <p>
-                      {task.title === "Wake Up"
-                        ? task.time || task.from
-                        : `${task.from || ""} - ${task.to || ""} ${
-                            task.nextDay ? "(Next Day)" : ""
-                          }`}
-                    </p>
-
-                    {/* ACTIONS
-                        Wake Up: edit only
-                        Sleep: edit only
-                        Other tasks: edit + close
-                    */}
-                    {!isPreviousDay && (
-                      <div className="actions action-box">
-                        <button
-                          onClick={() => handleEdit(task)}
-                          type="button"
-                          title="Edit task time"
-                          className="edit-btn"
-                        >
-                          ✏️
-                        </button>
-
-                        {task.title !== "Wake Up" &&
-                          task.title !== "Sleep" && (
-                            <button
-                              onClick={() => setDeleteConfirm(task)}
-                              type="button"
-                              title="Delete task"
-                              className="delete-btn"
-                            >
-                              ✕
-                            </button>
-                          )}
+                  <div className="task-card-main">
+                    <div className="task-card-left">
+                      <div className="icon-box task-icon-top">
+                        {getIcon(task.icon, task.title)}
                       </div>
-                    )}
+
+                      <div className="card-content task-card-content">
+                        <h3>{task.title}</h3>
+                        <p>
+                          {task.title === "Wake Up"
+                            ? task.time || task.from
+                            : `${task.from || ""} - ${task.to || ""} ${
+                                task.nextDay ? "(Next Day)" : ""
+                              }`}
+                        </p>
+
+                        {!isPreviousDay && (
+                          <div className="actions action-box task-actions">
+                            <button
+                              onClick={() => handleEdit(task)}
+                              type="button"
+                              title="Edit task time"
+                              className="edit-btn"
+                            >
+                              ✏️
+                            </button>
+
+                            {task.title !== "Wake Up" &&
+                              task.title !== "Sleep" && (
+                                <button
+                                  onClick={() => setDeleteConfirm(task)}
+                                  type="button"
+                                  title="Delete task"
+                                  className="delete-btn"
+                                >
+                                  ✕
+                                </button>
+                              )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <label
+                      className="complete-check task-check-right"
+                      title={
+                        isPreviousDay
+                          ? "Previous day tasks cannot be changed"
+                          : isFutureDay
+                          ? "Future day tasks cannot be completed yet"
+                          : task.completed
+                          ? "Mark as incomplete"
+                          : "Mark as complete"
+                      }
+                    >
+                      <input
+                        type="checkbox"
+                        checked={task.completed === true}
+                        disabled={!isToday}
+                        onChange={() => {
+                          if (!isToday) return;
+                          toggleTask(task);
+                        }}
+                      />
+                      <span
+                        className={`custom-check ${
+                          !isToday ? "check-disabled" : ""
+                        }`}
+                      >
+                        {task.completed && <FaCheck />}
+                      </span>
+                    </label>
                   </div>
 
-                  {/* LARGE COMPLETE CHECKBOX — far right
-                      Only TODAY can be ticked.
-                      Previous/Future days are disabled.
-                  */}
-                  <label
-                    className="complete-check"
-                    title={
-                      isPreviousDay
-                        ? "Previous day tasks cannot be changed"
-                        : isFutureDay
-                        ? "Future day tasks cannot be completed yet"
-                        : task.completed
-                        ? "Mark as incomplete"
-                        : "Mark as complete"
-                    }
-                  >
+                  <div className="task-percentage">
+                    <div className="task-percentage-head">
+                      <span>Progress</span>
+                      <strong>
+                        {Math.max(
+                          0,
+                          Math.min(100, Number(task.percentage ?? 0))
+                        )}
+                        %
+                      </strong>
+                    </div>
+
                     <input
-                      type="checkbox"
-                      checked={task.completed === true}
-                      disabled={!isToday}
-                      onChange={() => {
-                        if (!isToday) return;
-                        toggleTask(task);
+                      className="task-percentage-range"
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={Math.max(
+                        0,
+                        Math.min(100, Number(task.percentage ?? 0))
+                      )}
+                      disabled={isPreviousDay}
+                      onChange={(e) => {
+                        if (isPreviousDay) return;
+                        handlePercentageChange(task, e.target.value);
                       }}
+                      onMouseUp={(e) =>
+                        saveTaskPercentage(task, e.currentTarget.value)
+                      }
+                      onTouchEnd={(e) =>
+                        saveTaskPercentage(task, e.currentTarget.value)
+                      }
+                      onBlur={(e) =>
+                        saveTaskPercentage(task, e.currentTarget.value)
+                      }
+                      aria-label={`Progress percentage for ${task.title}`}
                     />
-                    <span
-                      className={`custom-check ${
-                        !isToday ? "check-disabled" : ""
-                      }`}
-                    >
-                      {task.completed && <FaCheck />}
-                    </span>
-                  </label>
+                  </div>
                 </div>
               ))
             )}
