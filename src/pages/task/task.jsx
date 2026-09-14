@@ -1174,6 +1174,12 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 // 6 total, 1 ticked at 80%  -> 13%
 // =========================================================
 
+// =========================================================
+// TODAY'S PERFORMANCE
+// Based ONLY on checkbox/tick completion.
+// Task slider percentage does NOT affect this.
+// =========================================================
+
 const isTaskCompleted = (task) =>
   task.completed === true ||
   task.completed === 1 ||
@@ -1182,20 +1188,11 @@ const isTaskCompleted = (task) =>
 
 const completedTaskList = displayTasks.filter(isTaskCompleted);
 
-const performanceTotal = completedTaskList.length;
-
+// Today's Performance follows Today's Task Progress.
+// Example: 5/6 = 83%, 4/6 = 67%, 3/6 = 50%.
 const performancePercentage =
-  performanceTotal > 0
-    ? Math.round(
-        completedTaskList.reduce((total, task) => {
-          const taskPercentage = Math.max(
-            0,
-            Math.min(100, Number(task.percentage ?? 0))
-          );
-
-          return total + taskPercentage;
-        }, 0) / performanceTotal
-      )
+  totalTasks > 0
+    ? Math.round((completedTaskList.length / totalTasks) * 100)
     : 0;
 
   const radius = 48;
