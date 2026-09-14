@@ -590,8 +590,45 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     localStorage.setItem("defaultTasks", JSON.stringify(cleanTasks));
   }, [defaultTasks]);
 
+  // Make sure the built-in tasks (Wake Up, Study MERN, etc.) are also
+  // stored in the database for the selected calendar date.
+  const ensureDefaultTasksInDatabase = async () => {
+    if (!user?.email) return;
+
+    try {
+      const deletedRaw = localStorage.getItem(getDeletedDefaultKey(currentKey));
+      const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
+
+      const dateDefaults = getDateDefaultTasks(currentKey)
+        .filter((task) => !deletedIds.includes(String(task.id)))
+        .map((task) => ({
+          default_id: String(task.id),
+          title: task.title,
+          from: task.from || task.time || "",
+          to: task.to || "",
+        }));
+
+      if (!dateDefaults.length) return;
+
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "ensure_defaults",
+          email: user.email,
+          task_date: currentKey,
+          tasks: dateDefaults,
+        }),
+      });
+    } catch (error) {
+      console.error("Default task database sync error:", error);
+    }
+  };
+
   const fetchTasks = async () => {
     try {
+      await ensureDefaultTasksInDatabase();
+
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -612,7 +649,15 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       ];
 
       if (data.success) {
-        const formatted = data.tasks.map((t, index) => ({
+        const deletedRaw = localStorage.getItem(getDeletedDefaultKey(currentKey));
+        const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
+        const deletedDefaultTitles = getDateDefaultTasks(currentKey)
+          .filter((task) => deletedIds.includes(String(task.id)))
+          .map((task) => String(task.title).trim().toLowerCase());
+
+        const formatted = data.tasks
+          .filter((t) => !deletedDefaultTitles.includes(String(t.title).trim().toLowerCase()))
+          .map((t, index) => ({
           id: t.id,
           title: t.title,
           from: t.from,
@@ -717,40 +762,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       return;
     }
 
-    if (String(task.id).startsWith("d")) {
-      const deletedId = String(task.id);
-
-      // Delete ONLY for the selected date. The default task definition
-      // remains available when the user changes to another date.
-      setDeletedDefaultIds((prev) => {
-        const updated = prev.includes(deletedId)
-          ? prev
-          : [...prev, deletedId];
-
-        localStorage.setItem(
-          getDeletedDefaultKey(currentKey),
-          JSON.stringify(updated)
-        );
-
-        return updated;
-      });
-
-      setDefaultCompleted((prev) => {
-        const updated = { ...prev };
-        delete updated[deletedId];
-
-        localStorage.setItem(
-          getDefaultCompletionKey(currentKey),
-          JSON.stringify(updated)
-        );
-
-        return updated;
-      });
-
-      notifyTaskUpdated();
-      return;
-    }
-
     try {
       const res = await fetch(API_URL, {
         method: "POST",
@@ -785,25 +796,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           ? "Previous day tasks cannot be changed."
           : "Future day tasks cannot be completed yet."
       );
-      return;
-    }
-
-    if (String(task.id).startsWith("d")) {
-      setDefaultCompleted((prev) => {
-        const updated = {
-          ...prev,
-          [task.id]: !prev[task.id],
-        };
-
-        localStorage.setItem(
-          getDefaultCompletionKey(currentKey),
-          JSON.stringify(updated)
-        );
-
-        return updated;
-      });
-
-      notifyTaskUpdated();
       return;
     }
 
@@ -859,18 +851,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   const handlePercentageChange = (task, value) => {
     const percentage = Math.max(0, Math.min(100, Number(value)));
 
-    if (String(task.id).startsWith("d")) {
-      setDefaultPercentages((prev) => {
-        const updated = { ...prev, [String(task.id)]: percentage };
-        localStorage.setItem(
-          getDefaultPercentageKey(currentKey),
-          JSON.stringify(updated)
-        );
-        return updated;
-      });
-      return;
-    }
-
     setTasks((prev) =>
       prev.map((t) =>
         String(t.id) === String(task.id) ? { ...t, percentage } : t
@@ -880,8 +860,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const saveTaskPercentage = async (task, value) => {
     const percentage = Math.max(0, Math.min(100, Number(value)));
-
-    if (String(task.id).startsWith("d")) return;
 
     try {
       const res = await fetch(API_URL, {
@@ -968,68 +946,46 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     const formattedTo = toTime ? formatTime(toTime) : "";
     const nextDay = isNextDay(formattedFrom, formattedTo);
 
-    // =========================
-    // DEFAULT TASK EDIT
-    // =========================
-    if (editTask && String(editTask.id).startsWith("d")) {
-      const taskId = String(editTask.id);
-      const taskTitle = title.trim().toLowerCase();
+    // Keep the existing date-wise schedule cache for the built-in tasks,
+    // but the actual task row, completion and percentage are now stored in DB.
+    const editingBuiltInTask =
+      editTask &&
+      ["Wake Up", "Study MERN", "Practice English", "Workout", "Sleep"].includes(
+        String(editTask.title).trim()
+      );
 
-      // Save this default task's schedule ONLY for the selected date.
-      saveDateDefaultSchedule(currentKey, taskId, {
-        title: title.trim(),
-        from: taskTitle === "wake up" ? undefined : formattedFrom,
-        time: taskTitle === "wake up" ? formattedFrom : undefined,
-        to: formattedTo,
-        nextDay,
-      });
+    if (editingBuiltInTask) {
+      const taskTitle = String(editTask.title).trim().toLowerCase();
+      const defaultIdMap = {
+        "wake up": "d1",
+        "study mern": "d2",
+        "practice english": "d3",
+        "workout": "d4",
+        "sleep": "d5",
+      };
+      const defaultId = defaultIdMap[taskTitle];
 
-      // If Sleep crosses midnight, its TO time becomes the
-      // Wake Up time for the NEXT calendar day.
-      if (taskTitle === "sleep" && formattedTo && nextDay) {
-        const nextDate = new Date(date);
-        nextDate.setDate(nextDate.getDate() + 1);
-        const nextDateKey = getDateKey(nextDate);
-
-        saveDateDefaultSchedule(nextDateKey, "d1", {
-          title: "Wake Up",
-          time: formattedTo,
-          from: undefined,
-          to: undefined,
-          nextDay: false,
+      if (defaultId) {
+        saveDateDefaultSchedule(currentKey, defaultId, {
+          title: editTask.title,
+          from: taskTitle === "wake up" ? undefined : formattedFrom,
+          time: taskTitle === "wake up" ? formattedFrom : undefined,
+          to: formattedTo,
+          nextDay,
         });
+
+        if (taskTitle === "sleep" && formattedTo && nextDay) {
+          const nextDate = new Date(date);
+          nextDate.setDate(nextDate.getDate() + 1);
+          saveDateDefaultSchedule(getDateKey(nextDate), "d1", {
+            title: "Wake Up",
+            time: formattedTo,
+            from: undefined,
+            to: undefined,
+            nextDay: false,
+          });
+        }
       }
-
-      // If Wake Up is edited directly, only that date changes.
-      if (taskTitle === "wake up") {
-        saveDateDefaultSchedule(currentKey, taskId, {
-          title: "Wake Up",
-          time: formattedFrom,
-          from: undefined,
-          to: undefined,
-          nextDay: false,
-        });
-      }
-
-      // Editing Sleep must not change today's Wake Up.
-      // The next day's Wake Up is updated above.
-      setDefaultCompleted((prev) => {
-        const updatedCompletion = {
-          ...prev,
-          [taskId]: false,
-        };
-
-        localStorage.setItem(
-          getDefaultCompletionKey(currentKey),
-          JSON.stringify(updatedCompletion)
-        );
-
-        return updatedCompletion;
-      });
-
-      resetModal();
-      notifyTaskUpdated();
-      return;
     }
 
     // =========================
@@ -1112,31 +1068,9 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     }
   };
 
-  const displayTasks = useMemo(
-    () => [
-      // Default tasks exist on every date. Their edited times are
-      // applied from date-wise schedules.
-      ...getDateDefaultTasks(currentKey)
-        .filter((task) => !deletedDefaultIds.includes(String(task.id)))
-        .map((task) => ({
-          ...task,
-          completed: defaultCompleted[task.id] === true,
-          percentage: Math.max(
-            0,
-            Math.min(100, Number(defaultPercentages[task.id] ?? 0))
-          ),
-        })),
-      ...tasks,
-    ],
-    [
-      defaultTasks,
-      currentKey,
-      deletedDefaultIds,
-      defaultCompleted,
-      defaultPercentages,
-      tasks,
-    ]
-  );
+  // Every visible task now comes from the database, including the built-in
+  // tasks. This keeps status and percentage in one source of truth.
+  const displayTasks = useMemo(() => tasks, [tasks]);
 
   const getSortMinutes = (time) => {
     if (!time) return 0;
