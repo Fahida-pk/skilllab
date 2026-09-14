@@ -508,56 +508,18 @@ const [, setTimeTick] = useState(0);
           });
 
       /*
-       * ==================================================
-       * WAKE UP TIME
-       * ==================================================
+       * IMPORTANT:
+       * Do NOT derive/overwrite Wake Up from Sleep.to.
+       * The Tasks page / database is the single source of
+       * truth for the task time.
        *
-       * Sleep:
-       *   9:00 PM -> 2:00 AM
+       * Example:
+       * Tasks page -> Wake Up = 6:00 AM
+       * Dashboard   -> Wake Up = 6:00 AM
        *
-       * Wake Up becomes:
-       *   2:00 AM
-       *
-       * This means Wake Up is always based on
-       * Sleep's ending time.
+       * Sleep may end at another time; that must not change
+       * the Wake Up time shown on the dashboard.
        */
-
-      const sleepTask =
-        tasks.find(
-          (task) =>
-            task.isSleep === true ||
-            String(task.id) === "d5" ||
-            task.title?.toLowerCase() ===
-              "sleep"
-        );
-
-      const wakeTask =
-        tasks.find(
-          (task) =>
-            task.isWakeUp === true ||
-            String(task.id) === "d1" ||
-            task.title?.toLowerCase() ===
-              "wake up"
-        );
-
-      if (
-        sleepTask &&
-        wakeTask &&
-        sleepTask.to
-      ) {
-        wakeTask.time =
-          formatTime(
-            sleepTask.to
-          );
-
-        /*
-         * Wake Up belongs to the
-         * beginning of the next day
-         * when Sleep crosses midnight.
-         */
-        wakeTask.nextDay = true;
-      }
-
       return tasks;
     };
 
@@ -822,10 +784,12 @@ const mergeDashboardTasks = (
           task.to ||
           task.to_time,
 
+        // Completed ONLY from the actual checkbox/completion flag.
         completed:
           task.completed === true ||
           task.completed === 1 ||
-          task.completed === "1",
+          task.completed === "1" ||
+          task.completed === "true",
 
         taskStatus:
           task.taskStatus ||
@@ -937,13 +901,13 @@ const mergeDashboardTasks = (
         task.completed === true ||
         task.completed === 1 ||
         task.completed === "1" ||
-        task.taskStatus === "completed"
+        task.completed === "true"
       ) &&
       !(
         uniqueTasks[existingIndex].completed === true ||
         uniqueTasks[existingIndex].completed === 1 ||
         uniqueTasks[existingIndex].completed === "1" ||
-        uniqueTasks[existingIndex].taskStatus === "completed"
+        uniqueTasks[existingIndex].completed === "true"
       )
     ) {
       uniqueTasks[existingIndex] = task;
