@@ -1611,7 +1611,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
             <div className="performance-header">
               <div>
                 <h2>Today's Performance Progress</h2>
-                <p>Overall task performance</p>
               </div>
               <strong>{performancePercentage}%</strong>
             </div>
@@ -1624,7 +1623,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
             </div>
 
             <div className="performance-footer">
-              <span>Task Performance</span>
               <b>{performancePercentage}%</b>
             </div>
           </div>
