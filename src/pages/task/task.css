@@ -317,10 +317,7 @@ body,
   opacity: 0.78;
 }
 
-.card.done .card-content h3 {
-  text-decoration: line-through;
-  text-decoration-thickness: 2px;
-}
+
 
 .icon-box {
   width: 50px;
