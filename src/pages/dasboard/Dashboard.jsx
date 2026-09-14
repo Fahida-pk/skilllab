@@ -2132,7 +2132,7 @@ const getPercentage = (value) => {
                   return (
                     <div
                       className={`dashboard-task ${status}`}
-                      key={`${getTaskLogicalKey(task)}-${selectedDate}`}
+                      key={`${task.id}-${selectedDate}`}
                     >
 
                       <div className="task-left">
