@@ -2623,7 +2623,46 @@ body,
 .card.task-modern-card .task-check-right .custom-check svg {
   font-size: 23px !important;
 }
+/* =========================================================
+   PERCENTAGE TEXT - SHOW ON THE SLIDER LINE
+   ========================================================= */
 
+.card.task-modern-card .task-progress-inline {
+  position: relative !important;
+  padding-top: 18px !important;
+  gap: 0 !important;
+}
+
+/* Percentage text */
+.card.task-modern-card .task-progress-percent {
+  position: absolute !important;
+
+  right: 0 !important;
+  top: 0 !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+
+  font-size: 12px !important;
+  font-weight: 700 !important;
+
+  line-height: 14px !important;
+
+  text-align: right !important;
+
+  color: #fff !important;
+}
+
+/* Slider line */
+.card.task-modern-card .task-progress-inline
+.task-percentage-range {
+  width: 100% !important;
+  flex: 1 1 auto !important;
+
+  height: 4px !important;
+
+  margin: 0 !important;
+}
 
 /* ---------- MOBILE ---------- */
 
