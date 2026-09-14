@@ -1553,7 +1553,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   {/* PROGRESS INFO */}
   <div className="progress-info">
 
-    <h2>Today's Progress</h2>
+    <h2>Today's Task Progress</h2>
 
     <p>
       {completedTasks} of {totalTasks} tasks completed
@@ -1610,7 +1610,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           <div className="today-performance-card">
             <div className="performance-header">
               <div>
-                <h2>Today's Performance</h2>
+                <h2>Today's Performance Progress</h2>
                 <p>Overall task performance</p>
               </div>
               <strong>{performancePercentage}%</strong>
