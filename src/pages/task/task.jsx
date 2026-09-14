@@ -1164,10 +1164,16 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   // =========================================================
   // =========================================================
 // =========================================================
+// =========================================================
 // TODAY'S PERFORMANCE PROGRESS
-// ONLY TICKED / COMPLETED TASKS ARE INCLUDED.
-// Each completed task contributes its own slider percentage.
-// Unticked tasks are ignored completely.
+// ONLY TICKED / COMPLETED TASKS CONTRIBUTE.
+// Each completed task contributes its own percentage,
+// but the TOTAL number of visible tasks is always the denominator.
+//
+// Example with 5 tasks:
+// Wake Up 100% + 4 unticked = 100 / 5 = 20%
+// Wake Up 50%  + 4 unticked = 50  / 5 = 10%
+// Wake Up 100% + Study 59%  + 3 unticked = 159 / 5 = 32%
 // =========================================================
 
 const isTaskCompleted = (task) =>
@@ -1179,7 +1185,7 @@ const isTaskCompleted = (task) =>
 const completedTaskList = displayTasks.filter(isTaskCompleted);
 
 const performancePercentage =
-  completedTaskList.length > 0
+  displayTasks.length > 0
     ? Math.round(
         completedTaskList.reduce((total, task) => {
           const taskPercentage = Math.max(
@@ -1188,7 +1194,7 @@ const performancePercentage =
           );
 
           return total + taskPercentage;
-        }, 0) / completedTaskList.length
+        }, 0) / displayTasks.length
       )
     : 0;
 
