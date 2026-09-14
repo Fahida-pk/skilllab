@@ -1182,7 +1182,7 @@ const isTaskCompleted = (task) =>
 
 const completedTaskList = displayTasks.filter(isTaskCompleted);
 
-const performanceTotal = displayTasks.length;
+const performanceTotal = completedTaskList.length;
 
 const performancePercentage =
   performanceTotal > 0
