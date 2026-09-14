@@ -606,13 +606,15 @@ const getTaskStatus = (task) => {
    * User tick cheythal time kazhinjalum
    * Completed thanne ayirikkum.
    */
+  // IMPORTANT: A task is Completed ONLY when the user has
+  // actually checked/ticked its checkbox.
+  // Do NOT trust API taskStatus/status because the API may return
+  // a completed status independently of the current checkbox state.
   if (
-    task.taskStatus === "completed" ||
-    task.status === "completed" ||
-    task.task_status === "completed" ||
     task.completed === true ||
     task.completed === 1 ||
-    task.completed === "1"
+    task.completed === "1" ||
+    task.completed === "true"
   ) {
     return "completed";
   }
@@ -839,12 +841,10 @@ const mergeDashboardTasks = (
   };
 
   const isTaskCompleted = (task) =>
-    task.taskStatus === "completed" ||
-    task.status === "completed" ||
-    task.task_status === "completed" ||
     task.completed === true ||
     task.completed === 1 ||
-    task.completed === "1";
+    task.completed === "1" ||
+    task.completed === "true";
 
   const buildCustomTask = (task) => ({
     ...task,
