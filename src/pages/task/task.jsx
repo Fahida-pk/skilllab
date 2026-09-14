@@ -1167,25 +1167,26 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   }
 
   /* =========================================================
-     COMPACT TASK CARD
-     Row 1: Icon + Title + Time + Tick
-     Row 2: Edit + Delete + Slider + Percentage
+     EXACT COMPACT TASK CARD
+     Row 1 : Icon + Title/Time + Tick
+     Row 2 : Edit + Delete + Slider + Percentage
      ========================================================= */
   .card.task-modern-card {
     position: relative !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 8px !important;
-    min-height: 120px !important;
+    gap: 5px !important;
+    min-height: 108px !important;
     height: auto !important;
-    padding: 12px 13px !important;
+    padding: 8px 10px !important;
     box-sizing: border-box !important;
   }
 
   .card.task-modern-card .task-card-main {
     width: 100% !important;
-    min-height: 46px !important;
+    min-height: 48px !important;
+    height: 48px !important;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
@@ -1197,12 +1198,11 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   .card.task-modern-card .task-card-left {
     min-width: 0 !important;
-    max-width: none !important;
     flex: 1 1 auto !important;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    gap: 8px !important;
+    gap: 9px !important;
   }
 
   .card.task-modern-card .task-icon-top {
@@ -1218,19 +1218,21 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   }
 
   .card.task-modern-card .task-card-content {
-    width: auto !important;
     min-width: 0 !important;
     flex: 1 1 auto !important;
+    width: auto !important;
     padding: 0 !important;
     display: flex !important;
     flex-direction: column !important;
+    align-items: flex-start !important;
     justify-content: center !important;
   }
 
   .card.task-modern-card .task-card-content h3 {
     margin: 0 0 3px 0 !important;
-    font-size: 15px !important;
-    line-height: 1.15 !important;
+    font-size: 16px !important;
+    line-height: 18px !important;
+    font-weight: 700 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -1238,8 +1240,8 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   .card.task-modern-card .task-card-content p {
     margin: 0 !important;
-    font-size: 11px !important;
-    line-height: 1.15 !important;
+    font-size: 12px !important;
+    line-height: 14px !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -1252,7 +1254,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     min-width: 42px !important;
     flex: 0 0 42px !important;
     margin: 0 !important;
-    order: initial !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -1269,6 +1270,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   .card.task-modern-card .task-bottom-row {
     width: 100% !important;
+    height: 36px !important;
     min-height: 36px !important;
     display: flex !important;
     flex-direction: row !important;
@@ -1299,15 +1301,15 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border: 1px solid rgba(255,255,255,0.8) !important;
-    border-radius: 8px !important;
+    border: 1px solid rgba(255,255,255,0.85) !important;
+    border-radius: 9px !important;
     background: rgba(255,255,255,0.12) !important;
     color: #fff !important;
     box-sizing: border-box !important;
   }
 
   .card.task-modern-card .task-bottom-row .task-actions .edit-btn {
-    font-size: 19px !important;
+    font-size: 18px !important;
   }
 
   .card.task-modern-card .task-bottom-row .task-actions .delete-btn {
@@ -1320,7 +1322,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    gap: 5px !important;
+    gap: 6px !important;
     margin: 0 !important;
     padding: 0 !important;
   }
@@ -1339,9 +1341,9 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   .card.task-modern-card .task-progress-percent {
     display: block !important;
-    flex: 0 0 30px !important;
-    width: 30px !important;
-    min-width: 30px !important;
+    flex: 0 0 32px !important;
+    width: 32px !important;
+    min-width: 32px !important;
     margin: 0 !important;
     padding: 0 !important;
     text-align: right !important;
@@ -1351,8 +1353,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     white-space: nowrap !important;
   }
 
-  .card.task-modern-card .task-progress-inline
-  .task-percentage-range:disabled {
+  .card.task-modern-card .task-progress-inline .task-percentage-range:disabled {
     cursor: not-allowed !important;
     opacity: 0.5 !important;
   }
