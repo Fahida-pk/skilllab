@@ -1037,10 +1037,9 @@ body,
       0 2px 3px rgba(0, 0, 0, 0.12)
     );
 }
-/* Today's Performance -> First Task: NO GAP */
+/* Today's Performance visibility/spacing */
 .today-performance-card {
   margin-bottom: 12px !important;
-  border-radius: 18px 18px 0 0 !important;
 }
 
 .cards {
@@ -1050,7 +1049,6 @@ body,
 
 .cards .task-modern-card:first-child {
   margin-top: 0 !important;
-  border-radius: 0 0 18px 18px !important;
 }
 
 /* Hover */
