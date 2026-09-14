@@ -606,15 +606,13 @@ const getTaskStatus = (task) => {
    * User tick cheythal time kazhinjalum
    * Completed thanne ayirikkum.
    */
-  // IMPORTANT: A task is Completed ONLY when the user has
-  // actually checked/ticked its checkbox.
-  // Do NOT trust API taskStatus/status because the API may return
-  // a completed status independently of the current checkbox state.
   if (
+    task.taskStatus === "completed" ||
+    task.status === "completed" ||
+    task.task_status === "completed" ||
     task.completed === true ||
     task.completed === 1 ||
-    task.completed === "1" ||
-    task.completed === "true"
+    task.completed === "1"
   ) {
     return "completed";
   }
@@ -806,107 +804,44 @@ const mergeDashboardTasks = (
    *
    * Only show tasks belonging to selected date.
    */
+
+  const customTasks = Array.isArray(apiTasks)
+    ? apiTasks.map((task) => ({
+        ...task,
+
+        id: task.id,
+
+        title:
+          task.title ||
+          task.task_name,
+
+        from:
+          task.from ||
+          task.from_time,
+
+        to:
+          task.to ||
+          task.to_time,
+
+        completed:
+          task.completed === true ||
+          task.completed === 1 ||
+          task.completed === "1",
+
+        taskStatus:
+          task.taskStatus ||
+          task.task_status ||
+          getTaskStatus(task),
+      }))
+    : [];
+
   /*
-   * API DUPLICATE PROTECTION
-   *
-   * Sometimes the dashboard API can return the same logical task
-   * more than once. We merge those rows before displaying them.
-   * If duplicate rows exist, the completed row wins.
-   */
-  const normalizeTaskTitle = (value) =>
-    String(value || "")
-      .trim()
-      .replace(/\s+/g, " ")
-      .toLowerCase();
-
-  const getTaskLogicalKey = (task) => {
-    const title = normalizeTaskTitle(
-      task.title || task.task_name
-    );
-
-    const from = normalizeTime(
-      task.from ||
-        task.from_time ||
-        task.time ||
-        task.start_time
-    );
-
-    const to = normalizeTime(
-      task.to ||
-        task.to_time ||
-        task.end_time
-    );
-
-    return `${title}__${from}__${to}`;
-  };
-
-  const isTaskCompleted = (task) =>
-    task.completed === true ||
-    task.completed === 1 ||
-    task.completed === "1" ||
-    task.completed === "true";
-
-  const buildCustomTask = (task) => ({
-    ...task,
-
-    id: task.id,
-
-    title:
-      task.title ||
-      task.task_name,
-
-    from:
-      task.from ||
-      task.from_time,
-
-    to:
-      task.to ||
-      task.to_time,
-
-    completed: isTaskCompleted(task),
-
-    taskStatus:
-      task.taskStatus ||
-      task.task_status ||
-      getTaskStatus(task),
-  });
-
-  const customTaskMap = new Map();
-
-  if (Array.isArray(apiTasks)) {
-    apiTasks.forEach((rawTask) => {
-      const task = buildCustomTask(rawTask);
-      const key = getTaskLogicalKey(task);
-      const existing = customTaskMap.get(key);
-
-      if (!existing) {
-        customTaskMap.set(key, task);
-        return;
-      }
-
-      // If the duplicate rows have different status,
-      // always keep the completed one.
-      if (
-        !isTaskCompleted(existing) &&
-        isTaskCompleted(task)
-      ) {
-        customTaskMap.set(key, task);
-      }
-    });
-  }
-
-  const customTasks = Array.from(
-    customTaskMap.values()
-  );
-/*
    * =====================================================
    * DEFAULT TASKS
    * =====================================================
    *
-   * Do NOT automatically add default tasks for every date.
-   *
-   * Default tasks are added only if that selected date
-   * has date-specific localStorage information.
+   * Default tasks are added only when this date has
+   * date-specific localStorage information.
    */
 
   const hasDateSpecificDefaultData =
@@ -920,54 +855,98 @@ const mergeDashboardTasks = (
       getDefaultCompletionKey(dateKey)
     ) !== null;
 
-
   const defaultTasks =
     hasDateSpecificDefaultData
       ? getTodayDefaultTasks(dateKey)
       : [];
 
-
   /*
    * =====================================================
    * REMOVE DUPLICATES
    * =====================================================
+   *
+   * IMPORTANT:
+   * The same task title must appear only once for a day.
+   *
+   * Defaults are placed first, so when a DB task has the
+   * same title as a default task, the default task is kept.
+   * For DB tasks with the same title, the first one is kept.
    */
 
-  const defaultIds = new Set(
-    defaultTasks.map(
-      (task) => String(task.id)
-    )
-  );
-
-
-  const filteredCustomTasks =
-    customTasks.filter(
-      (task) =>
-        !defaultIds.has(
-          String(task.id)
-        )
-    );
-
-
-  /*
-   * =====================================================
-   * FINAL TASK LIST
-   * =====================================================
-   */
-
-  const merged = [
+  const mergedBeforeDedup = [
     ...defaultTasks,
-    ...filteredCustomTasks,
+    ...customTasks,
   ];
 
+  const seenTitles = new Set();
+
+  const uniqueTasks = [];
+
+  mergedBeforeDedup.forEach((task) => {
+    const titleKey = String(
+      task.title ||
+      task.task_name ||
+      ""
+    )
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLowerCase();
+
+    // If there is no title, keep the task based on its id.
+    const uniqueKey = titleKey
+      ? `title:${titleKey}`
+      : `id:${String(task.id)}`;
+
+    if (!seenTitles.has(uniqueKey)) {
+      seenTitles.add(uniqueKey);
+      uniqueTasks.push(task);
+      return;
+    }
+
+    /*
+     * If a duplicate exists and the later task is completed,
+     * prefer that completed task so a completed DB task is not
+     * hidden behind an incomplete default task.
+     */
+    const existingIndex = uniqueTasks.findIndex((item) => {
+      const existingTitleKey = String(
+        item.title ||
+        item.task_name ||
+        ""
+      )
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+
+      const existingKey = existingTitleKey
+        ? `title:${existingTitleKey}`
+        : `id:${String(item.id)}`;
+
+      return existingKey === uniqueKey;
+    });
+
+    if (
+      existingIndex !== -1 &&
+      (
+        task.completed === true ||
+        task.completed === 1 ||
+        task.completed === "1" ||
+        task.taskStatus === "completed"
+      ) &&
+      !(
+        uniqueTasks[existingIndex].completed === true ||
+        uniqueTasks[existingIndex].completed === 1 ||
+        uniqueTasks[existingIndex].completed === "1" ||
+        uniqueTasks[existingIndex].taskStatus === "completed"
+      )
+    ) {
+      uniqueTasks[existingIndex] = task;
+    }
+  });
+
+  const merged = uniqueTasks;
 
   /*
-   * =====================================================
-   * SORT BY TIME
-   * =====================================================
-   */
-
-   /*
    * =====================================================
    * SORT TASKS
    * =====================================================
@@ -1016,7 +995,7 @@ const mergeDashboardTasks = (
       return -1;
     }
 
-    // Other tasks → time order
+    // Other tasks -> time order
     return (
       getSortMinutes(a.from || a.time) -
       getSortMinutes(b.from || b.time)
@@ -1511,8 +1490,7 @@ const getPercentage = (value) => {
             </div>
 
             <div className="percentage blue-text">
-              {dashboard.today?.percentage ||
-                0}
+              {liveTodayStats.percentage || 0}
               %
             </div>
 
@@ -1521,12 +1499,7 @@ const getPercentage = (value) => {
               <div
                 className="progress-fill blue-fill"
                 style={{
-                  width: `${
-                    dashboard
-                      .today
-                      ?.percentage ||
-                    0
-                  }%`,
+                  width: `${liveTodayStats.percentage || 0}%`,
                 }}
               />
 
@@ -1651,10 +1624,7 @@ const getPercentage = (value) => {
                   </span>
 
                   <strong>
-                    {dashboard
-                      .today
-                      ?.percentage ||
-                      0}
+                    {liveTodayStats.percentage || 0}
                     %
                   </strong>
 
@@ -2132,7 +2102,9 @@ const getPercentage = (value) => {
                   return (
                     <div
                       className={`dashboard-task ${status}`}
-                      key={`${task.id}-${selectedDate}`}
+                      key={
+                        `${task.id}-${selectedDate}`
+                      }
                     >
 
                       <div className="task-left">
