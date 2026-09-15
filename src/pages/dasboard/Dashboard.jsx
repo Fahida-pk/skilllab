@@ -2379,7 +2379,7 @@ const dashboardPerformanceStyles = `
 
             <div className="task-graph-legend">
               <span className="task-graph-legend-dot" />
-              Task Progress
+Today's Task Progress
             </div>
           </div>
 
