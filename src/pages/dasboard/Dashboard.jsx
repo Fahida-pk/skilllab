@@ -1537,44 +1537,58 @@ const performanceMotivation =
 
 const dashboardPerformanceStyles = `
   /* =====================================================
-     DASHBOARD UI — CLEAN PREMIUM REFRESH
-     Logic untouched. Visual styling only.
+     PREMIUM GLASSMORPHISM DASHBOARD
+     Logic untouched — UI only
      ===================================================== */
 
   .dashboard-main {
     background:
-      radial-gradient(circle at 85% 0%, rgba(126, 87, 255, .055), transparent 30%),
+      radial-gradient(
+        circle at 85% 5%,
+        rgba(145, 92, 255, 0.10),
+        transparent 28%
+      ),
+      radial-gradient(
+        circle at 10% 90%,
+        rgba(105, 76, 255, 0.06),
+        transparent 25%
+      ),
       #f7f8fc;
-    min-height: 100vh;
   }
 
-  .dashboard-main .progress-cards {
-    gap: 18px;
-  }
+  /* =====================================================
+     NORMAL PROGRESS CARDS
+     ===================================================== */
 
   .dashboard-main .progress-card {
-    border: 1px solid #ececf5;
-    border-radius: 20px;
-    background: rgba(255,255,255,.98);
-    box-shadow: 0 8px 24px rgba(31, 24, 79, .055);
-    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    border: 1px solid rgba(255,255,255,.75);
+    border-radius: 22px;
+    background: rgba(255,255,255,.72);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    box-shadow:
+      0 12px 35px rgba(43, 31, 91, .07),
+      inset 0 1px 0 rgba(255,255,255,.95);
+
+    transition:
+      transform .25s ease,
+      box-shadow .25s ease,
+      border-color .25s ease;
   }
 
   .dashboard-main .progress-card:hover {
-    transform: translateY(-2px);
-    border-color: #ddd6ff;
-    box-shadow: 0 14px 30px rgba(31, 24, 79, .09);
-  }
+    transform: translateY(-3px);
 
-  .dashboard-main .percentage {
-    font-weight: 900;
-    letter-spacing: -.7px;
+    box-shadow:
+      0 18px 42px rgba(43,31,91,.10),
+      inset 0 1px 0 rgba(255,255,255,.95);
   }
 
   .dashboard-main .progress-bar {
     height: 8px;
     border-radius: 999px;
-    background: #eeedf5;
+    background: rgba(224,221,235,.65);
     overflow: hidden;
   }
 
@@ -1584,620 +1598,592 @@ const dashboardPerformanceStyles = `
   }
 
   /* =====================================================
-     TODAY'S PERFORMANCE CARD
-     ===================================================== */
-
-  .dashboard-performance-card {
-    width: 100%;
-    margin: 20px 0 16px;
-    padding: 22px 24px 18px;
-    box-sizing: border-box;
-    border-radius: 24px;
-    position: relative;
-    overflow: hidden;
-
-    background:
-      radial-gradient(circle at 92% 8%, rgba(151, 86, 255, .13), transparent 23%),
-      radial-gradient(circle at 0% 100%, rgba(105, 84, 255, .07), transparent 28%),
-      linear-gradient(135deg, #ffffff 0%, #fcfbff 58%, #f7f3ff 100%);
-
-    border: 1px solid rgba(112, 82, 255, .13);
-    box-shadow:
-      0 12px 32px rgba(55, 35, 120, .075),
-      inset 0 1px 0 rgba(255,255,255,.9);
-  }
-
-  .dashboard-performance-card::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(180deg, #6548ff, #b34cff);
-  }
-
-  .dashboard-performance-card::after {
-    content: "✦";
-    position: absolute;
-    right: 28%;
-    top: 14px;
-    color: rgba(111,79,255,.16);
-    font-size: 15px;
-    pointer-events: none;
-  }
-
-  .dashboard-performance-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .dashboard-performance-title-wrap {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    min-width: 0;
-  }
-
-  .dashboard-performance-icon {
-    width: 52px;
-    height: 52px;
-    flex: 0 0 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 16px;
-    color: #fff;
-    background: linear-gradient(135deg, #6147ff 0%, #9c4dff 100%);
-    box-shadow:
-      0 8px 18px rgba(104,84,255,.22),
-      inset 0 1px 0 rgba(255,255,255,.38);
-    font-size: 22px;
-    position: relative;
-  }
-
-  .dashboard-performance-icon::after {
-    content: "";
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #fff;
-    right: 5px;
-    top: 5px;
-    opacity: .9;
-  }
-
-  .dashboard-performance-card h2 {
-    margin: 0;
-    color: #151329;
-    font-size: 20px;
-    font-weight: 850;
-    line-height: 1.2;
-    letter-spacing: -.3px;
-  }
-
-  .dashboard-performance-card p {
-    margin: 6px 0 0;
-    color: #777584;
-    font-size: 12px;
-    line-height: 1.45;
-  }
-
-  .dashboard-performance-motivation {
-    color: #6848dc !important;
-    font-size: 12px !important;
-    font-weight: 800;
-  }
-
-  .dashboard-performance-value-wrap {
-    flex: 0 0 auto;
-    min-width: 74px;
-    text-align: right;
-  }
-
-  .dashboard-performance-value {
-    color: #694cff;
-    font-size: 36px;
-    font-weight: 950;
-    line-height: .95;
-    letter-spacing: -1.8px;
-  }
-
-  .dashboard-performance-label {
-    margin-top: 6px;
-    color: #7662ca;
-    font-size: 9px;
-    font-weight: 900;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-  }
-
-  .dashboard-performance-track {
-    width: 100%;
-    height: 11px;
-    margin-top: 20px;
-    overflow: hidden;
-    border-radius: 999px;
-    background: #e9e8f2;
-    box-shadow:
-      inset 0 1px 2px rgba(30,25,80,.07),
-      0 1px 0 rgba(255,255,255,.8);
-  }
-
-  .dashboard-performance-fill {
-    height: 100%;
-    min-width: 0;
-    border-radius: inherit;
-    background: linear-gradient(90deg, #654bff 0%, #904eff 55%, #c34cff 100%);
-    box-shadow: 0 3px 10px rgba(114,85,255,.24);
-    transition: width .45s cubic-bezier(.22,.61,.36,1);
-  }
-
-  .dashboard-performance-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 11px;
-    color: #73717e;
-    font-size: 11px;
-  }
-
-  .dashboard-performance-footer span {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-  }
-
-  .dashboard-performance-footer svg {
-    color: #7255ff;
-    font-size: 12px;
-  }
-
-  .dashboard-performance-footer strong {
-    color: #4f3fa2;
-    font-weight: 850;
-  }
-
-  .dashboard-performance-result {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 11px;
-    border-radius: 999px;
-    background: rgba(239,234,255,.9);
-    color: #6044cf;
-    font-weight: 900;
-    font-size: 11px;
-    box-shadow: 0 4px 12px rgba(104,84,255,.08);
-    border: 1px solid rgba(112,82,255,.08);
-  }
-
-  .dashboard-performance-encouragement {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-left: 10px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: #f0ebff;
-    color: #6848d6;
-    font-weight: 850;
-  }
-
-  /* =====================================================
-     TODAY'S TASKS
-     ===================================================== */
-
-  .dashboard-main .tasks-section {
-    margin-top: 0;
-    padding: 22px 24px 24px;
-    border: 1px solid #ececf4;
-    border-radius: 24px;
-    background: rgba(255,255,255,.98);
-    box-shadow: 0 10px 28px rgba(30,25,80,.055);
-  }
-
-  .dashboard-main .tasks-section .section-heading {
-    margin-bottom: 16px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #eeeef4;
-  }
-
-  .dashboard-main .tasks-section .section-heading h2 {
-    margin: 0;
-    color: #17152a;
-    font-size: 21px;
-    font-weight: 850;
-  }
-
-  .dashboard-main .task-count {
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: #f1edff;
-    color: #5d43d7;
-    font-size: 11px;
-    font-weight: 850;
-    border: 1px solid #e7e0ff;
-  }
-
-  .dashboard-main .today-task-list {
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-  }
-
-  .dashboard-main .dashboard-task {
-    min-height: 68px;
-    padding: 12px 14px;
-    box-sizing: border-box;
-    border: 1px solid #e9e9f1;
-    border-radius: 15px;
-    background: linear-gradient(135deg,#fff,#fcfcff);
-    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
-  }
-
-  .dashboard-main .dashboard-task:hover {
-    transform: translateX(2px);
-    border-color: #dcd6ff;
-    box-shadow: 0 7px 17px rgba(80,60,160,.065);
-  }
-
-  .dashboard-main .dashboard-task.completed {
-    background: linear-gradient(135deg,#fbfffd,#f7fffa);
-    border-color: #d9f1e2;
-  }
-
-  .dashboard-main .dashboard-task.in_progress {
-    background: linear-gradient(135deg,#fbfaff,#f7f5ff);
-    border-color: #ded7ff;
-  }
-
-  .dashboard-main .dashboard-task.pending {
-    background: linear-gradient(135deg,#fffdf9,#fffaf1);
-    border-color: #f2e4c9;
-  }
-
-  .dashboard-main .task-left {
-    gap: 12px;
-  }
-
-  .dashboard-main .task-status-icon {
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    background: #f1effb;
-    color: #7764dc;
-    font-size: 17px;
-  }
-
-  .dashboard-main .dashboard-task.completed .task-status-icon {
-    background: #e7f9ee;
-    color: #19a957;
-  }
-
-  .dashboard-main .dashboard-task.pending .task-status-icon {
-    background: #fff2d9;
-    color: #d88a17;
-  }
-
-  .dashboard-main .dashboard-task h3 {
-    margin: 0 0 3px;
-    color: #171827;
-    font-size: 14px;
-    font-weight: 750;
-  }
-
-  .dashboard-main .dashboard-task p {
-    margin: 0;
-    color: #858492;
-    font-size: 11px;
-  }
-
-  .dashboard-main .status-badge {
-    padding: 6px 10px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 850;
-    border: 1px solid transparent;
-  }
-
-  .dashboard-main .status-badge.completed {
-    background: #e9faef;
-    color: #11964a;
-    border-color: #d3f2df;
-  }
-
-  .dashboard-main .status-badge.in_progress {
-    background: #eeeaff;
-    color: #654ce0;
-    border-color: #ddd6ff;
-  }
-
-  .dashboard-main .status-badge.pending {
-    background: #fff3dc;
-    color: #c77b0d;
-    border-color: #f5e4c3;
-  }
-
-  .dashboard-main .status-badge.not_started {
-    background: #f2edff;
-    color: #6848d6;
-    border-color: #e4dcff;
-  }
-
-  .dashboard-main .progress-section,
-  .dashboard-main .quick-section,
-  .dashboard-main .task-graph-section,
-  .dashboard-main .monthly-graph-section {
-    border-radius: 22px;
-  }
-
-  @media (max-width: 760px) {
-    .dashboard-performance-card {
-      padding: 19px 17px 17px;
-      border-radius: 20px;
-    }
-
-    .dashboard-performance-icon {
-      width: 46px;
-      height: 46px;
-      flex-basis: 46px;
-      border-radius: 14px;
-      font-size: 19px;
-    }
-
-    .dashboard-performance-card h2 {
-      font-size: 18px;
-    }
-
-    .dashboard-performance-motivation {
-      font-size: 11px !important;
-    }
-
-    .dashboard-performance-value {
-      font-size: 30px;
-    }
-
-    .dashboard-performance-footer {
-      flex-wrap: wrap;
-    }
-
-    .dashboard-main .tasks-section {
-      padding: 18px 15px 19px;
-      border-radius: 19px;
-    }
-
-    .dashboard-main .tasks-section .section-heading h2 {
-      font-size: 19px;
-    }
-
-    .dashboard-main .dashboard-task {
-      padding: 11px;
-    }
-  }
-
-  @media (max-width: 520px) {
-    .dashboard-performance-head {
-      align-items: flex-start;
-    }
-
-    .dashboard-performance-title-wrap {
-      gap: 10px;
-    }
-
-    .dashboard-performance-card h2 {
-      font-size: 16px;
-    }
-
-    .dashboard-performance-motivation {
-      max-width: 230px;
-    }
-
-    .dashboard-performance-footer {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .dashboard-performance-result {
-      font-size: 10px;
-    }
-
-    .dashboard-performance-encouragement {
-      margin-left: 0;
-    }
-
-    .dashboard-main .status-badge {
-      display: none;
-    }
-  }
-
-  /* =====================================================
-     TODAY'S PERFORMANCE — FINAL UI OVERRIDE
-     This intentionally overrides the older performance-card
-     rules above so the new layout is visibly different.
+     TODAY'S PERFORMANCE — GLASS CARD
      ===================================================== */
 
   .dashboard-main .dashboard-performance-card {
     width: 100% !important;
-    margin: 18px 0 16px !important;
-    padding: 20px 22px 17px !important;
-    min-height: 0 !important;
-    border-radius: 22px !important;
+    margin: 20px 0 18px !important;
+
+    padding: 22px 24px 18px !important;
+
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+
+    border-radius: 26px !important;
+
+    /*
+     * Main glass background
+     */
     background:
-      linear-gradient(105deg, #ffffff 0%, #ffffff 45%, #faf7ff 72%, #f4eaff 100%) !important;
-    border: 1px solid #e4d9ff !important;
-    box-shadow: 0 8px 24px rgba(76, 48, 150, .075) !important;
+      linear-gradient(
+        135deg,
+        rgba(255,255,255,.88) 0%,
+        rgba(255,255,255,.70) 42%,
+        rgba(247,241,255,.76) 100%
+      ) !important;
+
+    /*
+     * Glass border
+     */
+    border: 1px solid rgba(255,255,255,.88) !important;
+
+    /*
+     * Outer glass shadow + inner highlight
+     */
+    box-shadow:
+      0 18px 45px rgba(71,45,135,.10),
+      0 4px 12px rgba(71,45,135,.045),
+      inset 0 1px 0 rgba(255,255,255,.98),
+      inset 0 -1px 0 rgba(142,111,220,.05) !important;
+
+    backdrop-filter: blur(22px) saturate(135%) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(135%) !important;
   }
 
-  .dashboard-main .dashboard-performance-card::before {
-    width: 4px !important;
-    background: linear-gradient(180deg, #7548ff, #a84cff) !important;
-  }
-
+  /*
+   * Purple glass glow on right side
+   */
   .dashboard-main .dashboard-performance-card::after {
     content: "" !important;
+
+    position: absolute;
+    width: 230px;
+    height: 230px;
+
+    right: -80px;
+    top: -115px;
+
+    border-radius: 50%;
+
+    background:
+      radial-gradient(
+        circle,
+        rgba(170,104,255,.18) 0%,
+        rgba(139,92,246,.08) 38%,
+        transparent 70%
+      );
+
+    pointer-events: none;
   }
 
+  /*
+   * Left purple glass edge
+   */
+  .dashboard-main .dashboard-performance-card::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 4px;
+
+    background:
+      linear-gradient(
+        180deg,
+        #6848ff 0%,
+        #884cff 48%,
+        #c04cff 100%
+      );
+
+    box-shadow:
+      0 0 14px rgba(123,76,255,.25);
+
+    z-index: 3;
+  }
+
+  /* =====================================================
+     HEADER
+     ===================================================== */
+
   .dashboard-main .dashboard-performance-head {
+    position: relative;
+    z-index: 5;
+
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto !important;
-    align-items: center !important;
-    gap: 24px !important;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto !important;
+
+    align-items: center;
+
+    gap: 25px !important;
   }
 
   .dashboard-main .dashboard-performance-title-wrap {
-    gap: 13px !important;
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px !important;
+
+    min-width: 0;
   }
+
+  /* =====================================================
+     GLASS GRADUATION ICON
+     ===================================================== */
 
   .dashboard-main .dashboard-performance-icon {
-    width: 48px !important;
-    height: 48px !important;
-    flex: 0 0 48px !important;
-    border-radius: 14px !important;
-    font-size: 20px !important;
-    box-shadow: 0 7px 16px rgba(104,84,255,.20) !important;
+    width: 54px !important;
+    height: 54px !important;
+
+    flex: 0 0 54px !important;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 17px !important;
+
+    color: white;
+
+    background:
+      linear-gradient(
+        135deg,
+        rgba(102,75,255,.96),
+        rgba(163,73,255,.90)
+      ) !important;
+
+    border: 1px solid rgba(255,255,255,.38);
+
+    box-shadow:
+      0 10px 24px rgba(103,74,255,.24),
+      inset 0 1px 0 rgba(255,255,255,.48),
+      inset 0 -1px 0 rgba(72,42,170,.12);
+
+    backdrop-filter: blur(12px);
+
+    font-size: 22px !important;
+
+    position: relative;
   }
 
+  /*
+   * Small glass highlight
+   */
   .dashboard-main .dashboard-performance-icon::after {
-    width: 7px !important;
-    height: 7px !important;
-    right: 4px !important;
-    top: 4px !important;
+    content: "";
+
+    position: absolute;
+
+    width: 9px;
+    height: 9px;
+
+    right: 5px;
+    top: 5px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.92);
+
+    box-shadow:
+      0 0 8px rgba(255,255,255,.55);
   }
+
+  /* =====================================================
+     TITLE
+     ===================================================== */
 
   .dashboard-main .dashboard-performance-card h2 {
+    margin: 0;
+
+    color: #151329;
+
     font-size: 20px !important;
-    line-height: 1.15 !important;
+
     font-weight: 850 !important;
-    letter-spacing: -.4px !important;
+
+    line-height: 1.2;
+
+    letter-spacing: -.4px;
   }
 
   .dashboard-main .dashboard-performance-motivation {
-    margin-top: 5px !important;
+    margin: 6px 0 0 !important;
+
+    color: #6848d8 !important;
+
     font-size: 12px !important;
+
     font-weight: 750 !important;
+
+    line-height: 1.4;
   }
 
+  /* =====================================================
+     RIGHT PERFORMANCE VALUE
+     ===================================================== */
+
   .dashboard-main .dashboard-performance-value-wrap {
-    min-width: 105px !important;
-    padding-left: 18px !important;
-    border-left: 1px solid #e8defb !important;
+    min-width: 112px !important;
+
+    padding-left: 22px;
+
+    text-align: right;
+
+    border-left:
+      1px solid rgba(116,88,190,.14);
+
+    position: relative;
   }
 
   .dashboard-main .dashboard-performance-value {
-    font-size: 34px !important;
-    line-height: .9 !important;
+    color: #6848ff !important;
+
+    font-size: 40px !important;
+
     font-weight: 950 !important;
-    letter-spacing: -1.5px !important;
+
+    line-height: .9;
+
+    letter-spacing: -2px;
+
+    text-shadow:
+      0 5px 18px rgba(104,72,255,.12);
   }
 
   .dashboard-main .dashboard-performance-label {
-    margin-top: 5px !important;
+    margin-top: 7px !important;
+
+    color: #765fc9 !important;
+
     font-size: 8px !important;
-    letter-spacing: 1.3px !important;
+
+    font-weight: 900 !important;
+
+    letter-spacing: 1.4px;
+
+    text-transform: uppercase;
   }
+
+  /* =====================================================
+     GLASS PROGRESS TRACK
+     ===================================================== */
 
   .dashboard-main .dashboard-performance-track {
-    height: 8px !important;
-    margin-top: 17px !important;
-    background: #eceaf3 !important;
-    box-shadow: inset 0 1px 2px rgba(30,25,80,.06) !important;
+    position: relative;
+    z-index: 5;
+
+    width: 100%;
+
+    height: 9px !important;
+
+    margin-top: 20px !important;
+
+    border-radius: 999px;
+
+    overflow: hidden;
+
+    background:
+      rgba(225,222,235,.62) !important;
+
+    border:
+      1px solid rgba(255,255,255,.78);
+
+    box-shadow:
+      inset 0 2px 4px rgba(58,43,100,.07),
+      0 1px 0 rgba(255,255,255,.85);
   }
+
+  /* =====================================================
+     GLASS PROGRESS FILL
+     ===================================================== */
 
   .dashboard-main .dashboard-performance-fill {
-    background: linear-gradient(90deg, #6d4cff 0%, #8f4fff 60%, #b74cff 100%) !important;
-    box-shadow: none !important;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+      linear-gradient(
+        90deg,
+        #684cff 0%,
+        #824dff 45%,
+        #a84cff 75%,
+        #c44cff 100%
+      ) !important;
+
+    box-shadow:
+      0 2px 10px rgba(112,76,255,.28);
+
+    transition:
+      width .5s cubic-bezier(.22,.61,.36,1);
   }
+
+  /* =====================================================
+     FOOTER
+     ===================================================== */
 
   .dashboard-main .dashboard-performance-footer {
-    margin-top: 9px !important;
-    font-size: 11px !important;
+    position: relative;
+    z-index: 5;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-top: 11px !important;
+
+    color: #777582;
+
+    font-size: 11px;
   }
+
+  .dashboard-main .dashboard-performance-footer span {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+  }
+
+  .dashboard-main .dashboard-performance-footer svg {
+    color: #7054ff;
+
+    font-size: 12px;
+  }
+
+  /* =====================================================
+     EXCELLENT PERFORMANCE GLASS PILL
+     ===================================================== */
 
   .dashboard-main .dashboard-performance-result {
-    padding: 6px 10px !important;
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 7px 13px !important;
+
+    border-radius: 999px;
+
+    background:
+      linear-gradient(
+        135deg,
+        rgba(247,242,255,.92),
+        rgba(238,231,255,.72)
+      ) !important;
+
+    color: #6044c9 !important;
+
     font-size: 10px !important;
-    background: #f4efff !important;
-    border: 1px solid #e8ddff !important;
-    box-shadow: none !important;
+
+    font-weight: 900;
+
+    border:
+      1px solid rgba(122,92,220,.13);
+
+    box-shadow:
+      0 5px 15px rgba(86,62,150,.06),
+      inset 0 1px 0 rgba(255,255,255,.9);
+
+    backdrop-filter: blur(10px);
   }
 
-  /* Make the next section visually closer and cleaner */
+  /* =====================================================
+     TODAY'S TASK SECTION — MATCHING GLASS
+     ===================================================== */
+
   .dashboard-main .dashboard-performance-card + .tasks-section {
     margin-top: 0 !important;
-    border-radius: 22px !important;
-    box-shadow: 0 7px 22px rgba(30,25,80,.045) !important;
+
+    border-radius: 24px !important;
+
+    background:
+      rgba(255,255,255,.76) !important;
+
+    border:
+      1px solid rgba(255,255,255,.88) !important;
+
+    box-shadow:
+      0 12px 35px rgba(45,32,90,.065),
+      inset 0 1px 0 rgba(255,255,255,.95) !important;
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
   }
 
+  /* =====================================================
+     TASK ITEMS
+     ===================================================== */
+
+  .dashboard-main .dashboard-task {
+    border:
+      1px solid rgba(225,224,235,.72);
+
+    border-radius: 16px;
+
+    background:
+      rgba(255,255,255,.72);
+
+    box-shadow:
+      0 4px 14px rgba(45,32,90,.035),
+      inset 0 1px 0 rgba(255,255,255,.85);
+
+    backdrop-filter: blur(10px);
+
+    transition:
+      transform .2s ease,
+      box-shadow .2s ease,
+      border-color .2s ease;
+  }
+
+  .dashboard-main .dashboard-task:hover {
+    transform: translateY(-1px);
+
+    border-color: rgba(117,87,220,.20);
+
+    box-shadow:
+      0 8px 20px rgba(45,32,90,.065),
+      inset 0 1px 0 rgba(255,255,255,.9);
+  }
+
+  /* =====================================================
+     TASK COUNT PILL
+     ===================================================== */
+
+  .dashboard-main .task-count {
+    background:
+      rgba(240,235,255,.78) !important;
+
+    border:
+      1px solid rgba(118,88,220,.11);
+
+    color: #6044ce !important;
+
+    border-radius: 999px;
+
+    backdrop-filter: blur(8px);
+  }
+
+  /* =====================================================
+     RESPONSIVE
+     ===================================================== */
+
   @media (max-width: 760px) {
+
     .dashboard-main .dashboard-performance-card {
-      padding: 18px 17px 15px !important;
-      border-radius: 19px !important;
+      padding: 19px 17px 16px !important;
+
+      border-radius: 21px !important;
     }
 
     .dashboard-main .dashboard-performance-head {
-      gap: 14px !important;
+      gap: 16px !important;
+    }
+
+    .dashboard-main .dashboard-performance-icon {
+      width: 48px !important;
+      height: 48px !important;
+
+      flex-basis: 48px !important;
+
+      border-radius: 15px !important;
+
+      font-size: 20px !important;
+    }
+
+    .dashboard-main .dashboard-performance-card h2 {
+      font-size: 18px !important;
     }
 
     .dashboard-main .dashboard-performance-value-wrap {
-      min-width: 82px !important;
-      padding-left: 12px !important;
+      min-width: 88px !important;
+
+      padding-left: 14px;
     }
 
     .dashboard-main .dashboard-performance-value {
-      font-size: 29px !important;
+      font-size: 32px !important;
     }
   }
 
   @media (max-width: 520px) {
+
+    .dashboard-main .dashboard-performance-card {
+      padding: 17px 14px 15px !important;
+
+      border-radius: 19px !important;
+    }
+
     .dashboard-main .dashboard-performance-head {
-      grid-template-columns: minmax(0, 1fr) auto !important;
-      align-items: center !important;
+      grid-template-columns:
+        minmax(0,1fr)
+        auto !important;
+
+      gap: 10px !important;
+    }
+
+    .dashboard-main .dashboard-performance-title-wrap {
+      gap: 9px !important;
     }
 
     .dashboard-main .dashboard-performance-icon {
-      width: 44px !important;
-      height: 44px !important;
-      flex-basis: 44px !important;
+      width: 43px !important;
+      height: 43px !important;
+
+      flex-basis: 43px !important;
+
+      border-radius: 13px !important;
+
+      font-size: 18px !important;
     }
 
     .dashboard-main .dashboard-performance-card h2 {
-      font-size: 16px !important;
+      font-size: 15px !important;
     }
 
     .dashboard-main .dashboard-performance-motivation {
       font-size: 10px !important;
-      max-width: 210px !important;
+
+      max-width: 210px;
     }
 
     .dashboard-main .dashboard-performance-value-wrap {
       min-width: 70px !important;
-      padding-left: 9px !important;
+
+      padding-left: 9px;
     }
 
     .dashboard-main .dashboard-performance-value {
       font-size: 27px !important;
     }
 
+    .dashboard-main .dashboard-performance-label {
+      font-size: 7px !important;
+    }
+
+    .dashboard-main .dashboard-performance-track {
+      height: 7px !important;
+
+      margin-top: 16px !important;
+    }
+
     .dashboard-main .dashboard-performance-footer {
+      font-size: 10px;
+
       flex-direction: row !important;
-      align-items: center !important;
+    }
+
+    .dashboard-main .dashboard-performance-result {
+      padding: 6px 9px !important;
+
+      font-size: 9px !important;
     }
   }
-
 `;
-
-
 
   /* =====================================================
      RENDER
@@ -2863,7 +2849,7 @@ const dashboardPerformanceStyles = `
         <section className="tasks-section">
           <div className="section-heading">
             <div>
-              <h2>Today's Task Progress</h2>
+              <h2>Today's Task </h2>
               <p style={{
                 margin: "5px 0 0",
                 color: "#8a8896",
