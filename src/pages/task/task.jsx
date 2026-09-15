@@ -1075,36 +1075,103 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     const nextDay = isNextDay(formattedFrom, formattedTo);
 
     // =========================================================
-    // DUPLICATE START-TIME CHECK
+    // TASK TIME OVERLAP CHECK
     // =========================================================
-    // Do not allow two different tasks to start at the same time
-    // on the selected date. While editing, the current task itself
-    // is ignored so its existing time can be saved unchanged.
-    const normalizedStartTime = String(formattedFrom || "")
-      .trim()
-      .toLowerCase();
+    // Do not allow two different tasks to occupy the same time.
+    // Example:
+    //   Maths 8:21 PM - 9:22 PM
+    //   New task 9:21 PM - 10:23 PM  -> BLOCKED
+    //
+    // While editing, the current task itself is ignored so the user
+    // can save its existing time unchanged.
+    const candidateStart = toMin(formattedFrom);
+    const candidateEnd = formattedTo
+      ? toMin(formattedTo)
+      : candidateStart;
 
-    const duplicateTimeTask = tasks.find((existingTask) => {
+    // A task must have a real duration. Same start/end is not treated as
+    // an overnight task; only an end time earlier than the start is overnight.
+    if (formattedTo && candidateEnd === candidateStart) {
+      alert("Start time and end time cannot be the same. Please choose another time.");
+      return;
+    }
+
+    // Convert an interval into one or two same-day ranges.
+    // Overnight tasks such as 11:00 PM - 8:00 AM become:
+    //   23:00 -> 24:00 and 00:00 -> 08:00
+    const getTaskRanges = (from, to, taskNextDay = false) => {
+      if (!from) return [];
+
+      const start = toMin(from);
+      if (!to) return [[start, start]];
+
+      const end = toMin(to);
+      const overnight = taskNextDay || end < start;
+
+      if (!overnight) {
+        return [[start, end]];
+      }
+
+      return [
+        [start, 24 * 60],
+        [0, end],
+      ];
+    };
+
+    const candidateRanges =
+      formattedTo && nextDay
+        ? [
+            [candidateStart, 24 * 60],
+            [0, candidateEnd],
+          ]
+        : [[candidateStart, candidateEnd]];
+
+    const rangesOverlap = (a, b) => {
+      // A zero-length task only conflicts with another task that contains
+      // that exact start time.
+      if (a[0] === a[1]) {
+        return b[0] <= a[0] && a[0] < b[1];
+      }
+
+      if (b[0] === b[1]) {
+        return a[0] <= b[0] && b[0] < a[1];
+      }
+
+      return a[0] < b[1] && b[0] < a[1];
+    };
+
+    const overlappingTask = tasks.find((existingTask) => {
       if (editTask && String(existingTask.id) === String(editTask.id)) {
         return false;
       }
 
-      const existingStartTime = String(
-        existingTask.from || existingTask.time || ""
-      )
-        .trim()
-        .toLowerCase();
+      const existingFrom = existingTask.from || existingTask.time || "";
+      const existingTo = existingTask.to || "";
 
-      return (
-        normalizedStartTime &&
-        existingStartTime &&
-        normalizedStartTime === existingStartTime
+      const existingRanges = getTaskRanges(
+        existingFrom,
+        existingTo,
+        Boolean(existingTask.nextDay)
+      );
+
+      return candidateRanges.some((candidateRange) =>
+        existingRanges.some((existingRange) =>
+          rangesOverlap(candidateRange, existingRange)
+        )
       );
     });
 
-    if (duplicateTimeTask) {
+    if (overlappingTask) {
+      const existingFrom =
+        overlappingTask.from || overlappingTask.time || "";
+      const existingTo = overlappingTask.to || "";
+
+      const existingTime = existingTo
+        ? `${existingFrom} - ${existingTo}`
+        : existingFrom;
+
       alert(
-        `Already a task exists at ${formattedFrom}. Please choose another time.`
+        `Time conflict: ${overlappingTask.title} is already scheduled for ${existingTime}.\n\nPlease choose a time outside this period.`
       );
       return;
     }
