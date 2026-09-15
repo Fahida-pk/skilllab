@@ -17,6 +17,9 @@ import {
 const API_URL =
   "https://zyntaweb.com/skilllab/api/dashboard.php";
 
+const TASK_API_URL =
+  "https://zyntaweb.com/skilllab/api/task.php";
+
 function Dashboard() {
   const navigate = useNavigate();
 
@@ -793,6 +796,12 @@ const mergeDashboardTasks = (
           task.completed === "1" ||
           task.completed === "true",
 
+        // Keep the same saved task percentage used by the Tasks page.
+        percentage: Math.max(
+          0,
+          Math.min(100, Number(task.percentage ?? 0))
+        ),
+
         taskStatus:
           task.taskStatus ||
           task.task_status ||
@@ -931,12 +940,112 @@ const mergeDashboardTasks = (
       }
 
       /*
+       * Get the same task percentages used by the Tasks page.
+       * This prevents Today's Performance from falling back to
+       * the simple completed/total percentage.
+       */
+      let taskPercentageData = null;
+
+      try {
+        const taskResponse = await fetch(
+          TASK_API_URL,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "get",
+              email: user.email,
+              task_date: date,
+            }),
+          }
+        );
+
+        taskPercentageData =
+          await taskResponse.json();
+      } catch (percentageError) {
+        console.error(
+          "Task percentage API error:",
+          percentageError
+        );
+      }
+
+      const percentageTasks =
+        Array.isArray(taskPercentageData?.tasks)
+          ? taskPercentageData.tasks
+          : [];
+
+      const percentageById = new Map(
+        percentageTasks.map((task) => [
+          String(task.id),
+          Math.max(
+            0,
+            Math.min(
+              100,
+              Number(task.percentage ?? 0)
+            )
+          ),
+        ])
+      );
+
+      const percentageByTitle = new Map(
+        percentageTasks.map((task) => [
+          String(task.title || "")
+            .trim()
+            .toLowerCase(),
+          Math.max(
+            0,
+            Math.min(
+              100,
+              Number(task.percentage ?? 0)
+            )
+          ),
+        ])
+      );
+
+      const tasksWithPercentages =
+        (Array.isArray(data.tasks) ? data.tasks : []).map(
+          (task) => {
+            const idPercentage =
+              percentageById.get(String(task.id));
+
+            const titlePercentage =
+              percentageByTitle.get(
+                String(
+                  task.title ||
+                  task.task_name ||
+                  ""
+                )
+                  .trim()
+                  .toLowerCase()
+              );
+
+            return {
+              ...task,
+              percentage:
+                idPercentage !== undefined
+                  ? idPercentage
+                  : titlePercentage !== undefined
+                  ? titlePercentage
+                  : Math.max(
+                      0,
+                      Math.min(
+                        100,
+                        Number(task.percentage ?? 0)
+                      )
+                    ),
+            };
+          }
+        );
+
+      /*
        * Database tasks + localStorage
        * built-in tasks.
        */
       const mergedTasks =
         mergeDashboardTasks(
-          data.tasks,
+          tasksWithPercentages,
           date
         );
 
@@ -1323,6 +1432,190 @@ const getPercentage = (value) => {
   );
 };
 
+/* =====================================================
+   TODAY'S PERFORMANCE PROGRESS
+   Source of truth = Today's Tasks shown below.
+
+   Only CHECKED/COMPLETED tasks contribute their saved
+   task percentage. Unchecked tasks contribute 0.
+   Denominator = ALL visible tasks for today.
+
+   Example:
+   5 tasks -> 100% + 50% completed
+   => (100 + 50) / 5 = 30%
+   ===================================================== */
+
+const isTaskCompleted = (task) =>
+  task.completed === true ||
+  task.completed === 1 ||
+  task.completed === "1" ||
+  task.completed === "true";
+
+const completedPerformanceTasks = (
+  dashboard.tasks || []
+).filter(isTaskCompleted);
+
+const todayPerformancePercentage =
+  (dashboard.tasks || []).length > 0
+    ? Math.round(
+        completedPerformanceTasks.reduce(
+          (sum, task) =>
+            sum +
+            Math.max(
+              0,
+              Math.min(
+                100,
+                Number(task.percentage ?? 0)
+              )
+            ),
+          0
+        ) / (dashboard.tasks || []).length
+      )
+    : 0;
+
+/* =====================================================
+   DASHBOARD TODAY PERFORMANCE CARD STYLES
+   ===================================================== */
+
+const dashboardPerformanceStyles = `
+  .dashboard-performance-card {
+    width: 100%;
+    margin: 18px 0 0;
+    padding: 22px 24px;
+    box-sizing: border-box;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #ffffff 0%, #fbfaff 100%);
+    border: 1px solid rgba(114, 85, 255, 0.10);
+    box-shadow: 0 10px 30px rgba(55, 35, 120, 0.08);
+  }
+
+  .dashboard-performance-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  .dashboard-performance-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+  }
+
+  .dashboard-performance-icon {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    color: #fff;
+    background: linear-gradient(135deg, #6854ff, #b34cff);
+    box-shadow: 0 8px 18px rgba(114, 85, 255, 0.22);
+    font-size: 19px;
+  }
+
+  .dashboard-performance-card h2 {
+    margin: 0;
+    color: #171717;
+    font-size: 19px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .dashboard-performance-card p {
+    margin: 5px 0 0;
+    color: #7b7b86;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .dashboard-performance-value {
+    flex: 0 0 auto;
+    color: #7255ff;
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .dashboard-performance-track {
+    width: 100%;
+    height: 11px;
+    margin-top: 20px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #ecebf5;
+  }
+
+  .dashboard-performance-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #6854ff 0%, #b34cff 100%);
+    box-shadow: 0 3px 10px rgba(114, 85, 255, 0.22);
+    transition: width 0.35s ease;
+  }
+
+  .dashboard-performance-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 11px;
+    color: #73737d;
+    font-size: 12px;
+  }
+
+  .dashboard-performance-footer span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dashboard-performance-footer svg {
+    color: #7255ff;
+    font-size: 12px;
+  }
+
+  .dashboard-performance-footer strong {
+    color: #4f46a5;
+    font-weight: 800;
+  }
+
+  @media (max-width: 640px) {
+    .dashboard-performance-card {
+      padding: 18px;
+      border-radius: 18px;
+    }
+
+    .dashboard-performance-title-wrap {
+      gap: 10px;
+    }
+
+    .dashboard-performance-icon {
+      width: 38px;
+      height: 38px;
+      flex-basis: 38px;
+      border-radius: 11px;
+    }
+
+    .dashboard-performance-card h2 {
+      font-size: 16px;
+    }
+
+    .dashboard-performance-value {
+      font-size: 25px;
+    }
+
+    .dashboard-performance-footer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+`;
+
+
   /* =====================================================
      RENDER
   ===================================================== */
@@ -1335,6 +1628,8 @@ const getPercentage = (value) => {
 
       {/* MAIN */}
       <main className="dashboard-main">
+
+        <style>{dashboardPerformanceStyles}</style>
 
        
 
@@ -1924,6 +2219,51 @@ const getPercentage = (value) => {
                 </>
               )}
             </svg>
+          </div>
+        </section>
+
+        {/* TODAY'S PERFORMANCE PROGRESS */}
+        <section className="dashboard-performance-card">
+          <div className="dashboard-performance-head">
+            <div className="dashboard-performance-title-wrap">
+              <div className="dashboard-performance-icon">
+                <FaCheckCircle />
+              </div>
+
+              <div>
+                <h2>Today's Performance Progress</h2>
+                <p>
+                  Based on today's completed task percentages
+                </p>
+              </div>
+            </div>
+
+            <div className="dashboard-performance-value">
+              {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+            </div>
+          </div>
+
+          <div
+            className="dashboard-performance-track"
+            aria-label={`Today's performance ${todayPerformancePercentage}%`}
+          >
+            <div
+              className="dashboard-performance-fill"
+              style={{
+                width: `${todayPerformancePercentage}%`,
+              }}
+            />
+          </div>
+
+          <div className="dashboard-performance-footer">
+            <span>
+              <FaCheckCircle />
+              {completed} of {total} tasks completed
+            </span>
+
+            <strong>
+              {todayPerformancePercentage}% performance
+            </strong>
           </div>
         </section>
 
