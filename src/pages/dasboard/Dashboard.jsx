@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaBullseye } from "react-icons/fa";
 
 import Sidebar from "./Sidebar";
 import "./dashboard.css";
@@ -2611,7 +2612,7 @@ const dashboardPerformanceStyles = `
                 aria-hidden="true"
                 title="Student Growth"
               >
-                <FaGraduationCap />
+                 <FaBullseye />
               </div>
 
               <div>
