@@ -1074,6 +1074,41 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     const formattedTo = toTime ? formatTime(toTime) : "";
     const nextDay = isNextDay(formattedFrom, formattedTo);
 
+    // =========================================================
+    // DUPLICATE START-TIME CHECK
+    // =========================================================
+    // Do not allow two different tasks to start at the same time
+    // on the selected date. While editing, the current task itself
+    // is ignored so its existing time can be saved unchanged.
+    const normalizedStartTime = String(formattedFrom || "")
+      .trim()
+      .toLowerCase();
+
+    const duplicateTimeTask = tasks.find((existingTask) => {
+      if (editTask && String(existingTask.id) === String(editTask.id)) {
+        return false;
+      }
+
+      const existingStartTime = String(
+        existingTask.from || existingTask.time || ""
+      )
+        .trim()
+        .toLowerCase();
+
+      return (
+        normalizedStartTime &&
+        existingStartTime &&
+        normalizedStartTime === existingStartTime
+      );
+    });
+
+    if (duplicateTimeTask) {
+      alert(
+        `Already a task exists at ${formattedFrom}. Please choose another time.`
+      );
+      return;
+    }
+
     // Built-in/default tasks are edited through their date-wise schedule.
     // Do NOT call the generic DB "add/update" path for them; that path can
     // create a second row instead of updating the existing default row.
