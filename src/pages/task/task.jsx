@@ -672,10 +672,40 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           ),
           color: t.color || colors[index % colors.length],
           icon: t.icon || null,
+          default_id: t.default_id || t.defaultId || null,
           nextDay: isNextDay(t.from, t.to),
         }));
 
-        setTasks(formatted);
+        // Apply date-wise schedule to built-in rows and prevent duplicate
+        // built-in rows from ever being shown after an edit.
+        const dateSchedules = getDateDefaultSchedules(currentKey);
+        const seenBuiltIns = new Set();
+        const normalized = formatted
+          .map((task) => {
+            const builtInId = getBuiltInDefaultId(task);
+            if (!builtInId) return task;
+
+            const schedule = dateSchedules[String(builtInId)];
+            if (!schedule) return task;
+
+            return {
+              ...task,
+              title: schedule.title || task.title,
+              from: schedule.from || (builtInId === "d1" ? undefined : task.from),
+              time: schedule.time || (builtInId === "d1" ? task.from : undefined),
+              to: schedule.to || (builtInId === "d1" ? undefined : task.to),
+              nextDay: Boolean(schedule.nextDay),
+            };
+          })
+          .filter((task) => {
+            const builtInId = getBuiltInDefaultId(task);
+            if (!builtInId) return true;
+            if (seenBuiltIns.has(builtInId)) return false;
+            seenBuiltIns.add(builtInId);
+            return true;
+          });
+
+        setTasks(normalized);
       } else {
         setTasks([]);
       }
@@ -755,11 +785,76 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     window.dispatchEvent(new Event("taskUpdated"));
   };
 
+  const getBuiltInDefaultId = (task) => {
+    const explicitId = task?.default_id || task?.defaultId;
+    if (explicitId) return String(explicitId);
+
+    const titleKey = String(task?.title || "").trim().toLowerCase();
+    const defaultIdMap = {
+      "wake up": "d1",
+      "study mern": "d2",
+      "practice english": "d3",
+      "workout": "d4",
+      "sleep": "d5",
+    };
+
+    return defaultIdMap[titleKey] || null;
+  };
+
+  const isBuiltInTask = (task) => Boolean(getBuiltInDefaultId(task));
+
   const deleteTask = async (task) => {
 
     if (isPreviousDay) {
       alert("Previous day tasks cannot be deleted.");
       return;
+    }
+
+    const defaultId = getBuiltInDefaultId(task);
+
+    // Built-in/default tasks are deleted only for the selected date.
+    // Keep their default definition intact for other dates.
+    if (defaultId) {
+      try {
+        const deletedKey = getDeletedDefaultKey(currentKey);
+        const saved = localStorage.getItem(deletedKey);
+        const deletedIds = saved ? JSON.parse(saved) : [];
+        const nextDeletedIds = Array.from(
+          new Set([...deletedIds.map(String), String(defaultId)])
+        );
+
+        localStorage.setItem(deletedKey, JSON.stringify(nextDeletedIds));
+        setDeletedDefaultIds(nextDeletedIds);
+
+        // Remove the visible row immediately. The date-wise deleted marker
+        // prevents ensure_defaults from putting it back on this date.
+        setTasks((prev) => prev.filter((t) => String(t.id) !== String(task.id)));
+
+        // Delete the matching database row as well, if it exists.
+        if (task.id != null) {
+          try {
+            await fetch(API_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "delete",
+                email: user?.email,
+                id: task.id,
+              }),
+            });
+          } catch (dbError) {
+            console.error("Built-in task database delete error:", dbError);
+          }
+        }
+
+        await fetchTasks();
+        notifyTaskUpdated();
+        return;
+      } catch (error) {
+        console.error("Default task delete error:", error);
+        alert("Unable to delete task");
+        return;
+      }
     }
 
     try {
@@ -950,51 +1045,56 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     const formattedTo = toTime ? formatTime(toTime) : "";
     const nextDay = isNextDay(formattedFrom, formattedTo);
 
-    // Keep the existing date-wise schedule cache for the built-in tasks,
-    // but the actual task row, completion and percentage are now stored in DB.
-    const editingBuiltInTask =
-      editTask &&
-      ["Wake Up", "Study MERN", "Practice English", "Workout", "Sleep"].includes(
-        String(editTask.title).trim()
+    // Built-in/default tasks are edited through their date-wise schedule.
+    // Do NOT call the generic DB "add/update" path for them; that path can
+    // create a second row instead of updating the existing default row.
+    const defaultId = editTask ? getBuiltInDefaultId(editTask) : null;
+
+    if (editTask && defaultId) {
+      const taskTitle = String(editTask.title).trim().toLowerCase();
+
+      saveDateDefaultSchedule(currentKey, defaultId, {
+        title: title.trim(),
+        from: taskTitle === "wake up" ? undefined : formattedFrom,
+        time: taskTitle === "wake up" ? formattedFrom : undefined,
+        to: formattedTo,
+        nextDay,
+      });
+
+      // Keep the existing database row; only its date-wise schedule changes.
+      // This is what prevents an extra Study MERN/Practice English/Workout row.
+      setTasks((prev) =>
+        prev.map((task) => {
+          if (String(task.id) !== String(editTask.id)) return task;
+
+          return {
+            ...task,
+            title: title.trim(),
+            ...(taskTitle === "wake up"
+              ? { from: undefined, time: formattedFrom, to: undefined, nextDay: false }
+              : { from: formattedFrom, to: formattedTo, nextDay }),
+          };
+        })
       );
 
-    if (editingBuiltInTask) {
-      const taskTitle = String(editTask.title).trim().toLowerCase();
-      const defaultIdMap = {
-        "wake up": "d1",
-        "study mern": "d2",
-        "practice english": "d3",
-        "workout": "d4",
-        "sleep": "d5",
-      };
-      const defaultId = defaultIdMap[taskTitle];
+      // If Sleep crosses midnight, its TO time becomes the next day's Wake Up.
+      if (taskTitle === "sleep" && formattedTo && nextDay) {
+        const nextDate = new Date(date);
+        nextDate.setDate(nextDate.getDate() + 1);
+        const nextDateKey = getDateKey(nextDate);
 
-      if (defaultId) {
-        saveDateDefaultSchedule(currentKey, defaultId, {
-          title: editTask.title,
-          from: taskTitle === "wake up" ? undefined : formattedFrom,
-          time: taskTitle === "wake up" ? formattedFrom : undefined,
-          to: formattedTo,
-          nextDay,
+        saveDateDefaultSchedule(nextDateKey, "d1", {
+          title: "Wake Up",
+          time: formattedTo,
+          from: undefined,
+          to: undefined,
+          nextDay: false,
         });
-
-        // FIRST CODE MODEL:
-        // If Sleep crosses midnight, its TO time becomes the
-        // NEXT DAY Wake Up time.
-        if (taskTitle === "sleep" && formattedTo && nextDay) {
-          const nextDate = new Date(date);
-          nextDate.setDate(nextDate.getDate() + 1);
-          const nextDateKey = getDateKey(nextDate);
-
-          saveDateDefaultSchedule(nextDateKey, "d1", {
-            title: "Wake Up",
-            time: formattedTo,
-            from: undefined,
-            to: undefined,
-            nextDay: false,
-          });
-        }
       }
+
+      notifyTaskUpdated();
+      resetModal();
+      return;
     }
 
     // =========================
