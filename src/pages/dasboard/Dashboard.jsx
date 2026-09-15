@@ -12,6 +12,7 @@ import {
   FaClock,
   FaHourglassHalf,
   FaTimesCircle,
+  FaGraduationCap,
 } from "react-icons/fa";
 
 const API_URL =
@@ -1524,16 +1525,17 @@ const dashboardPerformanceStyles = `
   .dashboard-performance-card {
     width: 100%;
     margin: 22px 0 18px;
-    padding: 24px 26px 20px;
+    padding: 26px 28px 22px;
     box-sizing: border-box;
-    border-radius: 26px;
+    border-radius: 28px;
     position: relative;
     overflow: hidden;
     background:
-      radial-gradient(circle at 100% 0%, rgba(179,76,255,.13), transparent 32%),
-      linear-gradient(135deg, #ffffff 0%, #fbfaff 55%, #f8f5ff 100%);
-    border: 1px solid rgba(114,85,255,.12);
-    box-shadow: 0 16px 38px rgba(55,35,120,.09);
+      radial-gradient(circle at 92% 8%, rgba(178,82,255,.16), transparent 25%),
+      radial-gradient(circle at 0% 100%, rgba(104,84,255,.08), transparent 30%),
+      linear-gradient(135deg, #ffffff 0%, #fbfaff 55%, #f7f3ff 100%);
+    border: 1px solid rgba(114,85,255,.14);
+    box-shadow: 0 18px 42px rgba(55,35,120,.10);
   }
 
   .dashboard-performance-card::before {
@@ -1546,11 +1548,21 @@ const dashboardPerformanceStyles = `
     background: linear-gradient(180deg, #6854ff, #b34cff);
   }
 
+  .dashboard-performance-card::after {
+    content: "✦";
+    position: absolute;
+    right: 24%;
+    top: 17px;
+    color: rgba(111,79,255,.20);
+    font-size: 18px;
+    pointer-events: none;
+  }
+
   .dashboard-performance-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
+    gap: 20px;
     position: relative;
     z-index: 1;
   }
@@ -1558,46 +1570,82 @@ const dashboardPerformanceStyles = `
   .dashboard-performance-title-wrap {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 15px;
     min-width: 0;
   }
 
   .dashboard-performance-icon {
-    width: 48px;
-    height: 48px;
-    flex: 0 0 48px;
+    width: 56px;
+    height: 56px;
+    flex: 0 0 56px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 15px;
+    border-radius: 18px;
     color: #fff;
-    background: linear-gradient(135deg, #6854ff, #b34cff);
-    box-shadow: 0 9px 20px rgba(114,85,255,.25);
-    font-size: 20px;
+    background: linear-gradient(135deg, #6048ff 0%, #9d4dff 100%);
+    box-shadow:
+      0 10px 22px rgba(104,84,255,.28),
+      inset 0 1px 0 rgba(255,255,255,.35);
+    font-size: 24px;
+    position: relative;
+  }
+
+  .dashboard-performance-icon::after {
+    content: "";
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #fff;
+    right: 5px;
+    top: 5px;
+    opacity: .9;
   }
 
   .dashboard-performance-card h2 {
     margin: 0;
     color: #17152a;
-    font-size: 20px;
+    font-size: 21px;
     font-weight: 850;
     line-height: 1.2;
+    letter-spacing: -.25px;
   }
 
   .dashboard-performance-card p {
-    margin: 6px 0 0;
+    margin: 7px 0 0;
     color: #777584;
     font-size: 12px;
-    line-height: 1.4;
+    line-height: 1.45;
+  }
+
+  .dashboard-performance-motivation {
+    margin: 5px 0 0;
+    color: #6848dc !important;
+    font-size: 12px !important;
+    font-weight: 750;
+  }
+
+  .dashboard-performance-value-wrap {
+    flex: 0 0 auto;
+    text-align: right;
   }
 
   .dashboard-performance-value {
-    flex: 0 0 auto;
     color: #6d4dff;
-    font-size: 36px;
+    font-size: 38px;
     font-weight: 950;
     line-height: 1;
-    letter-spacing: -1.2px;
+    letter-spacing: -1.5px;
+  }
+
+  .dashboard-performance-label {
+    margin-top: 5px;
+    color: #755ed0;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
   }
 
   .dashboard-performance-track {
@@ -1614,8 +1662,8 @@ const dashboardPerformanceStyles = `
     height: 100%;
     min-width: 0;
     border-radius: inherit;
-    background: linear-gradient(90deg, #6854ff 0%, #9c4dff 55%, #c64cff 100%);
-    box-shadow: 0 4px 12px rgba(114,85,255,.28);
+    background: linear-gradient(90deg, #6854ff 0%, #984dff 55%, #cf4cff 100%);
+    box-shadow: 0 4px 13px rgba(114,85,255,.30);
     transition: width .45s cubic-bezier(.22,.61,.36,1);
   }
 
@@ -1624,7 +1672,7 @@ const dashboardPerformanceStyles = `
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-top: 12px;
+    margin-top: 13px;
     color: #73717e;
     font-size: 12px;
   }
@@ -1642,6 +1690,18 @@ const dashboardPerformanceStyles = `
 
   .dashboard-performance-footer strong {
     color: #4f3fa2;
+    font-weight: 850;
+  }
+
+  .dashboard-performance-encouragement {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #f0ebff;
+    color: #6848d6;
     font-weight: 850;
   }
 
@@ -1796,24 +1856,35 @@ const dashboardPerformanceStyles = `
 
   @media (max-width: 760px) {
     .dashboard-performance-card {
-      padding: 19px 18px 17px;
-      border-radius: 20px;
+      padding: 20px 18px 18px;
+      border-radius: 22px;
     }
 
     .dashboard-performance-icon {
-      width: 42px;
-      height: 42px;
-      flex-basis: 42px;
-      border-radius: 13px;
+      width: 46px;
+      height: 46px;
+      flex-basis: 46px;
+      border-radius: 15px;
+      font-size: 20px;
     }
 
     .dashboard-performance-card h2 {
-      font-size: 17px;
+      font-size: 18px;
+    }
+
+    .dashboard-performance-motivation {
+      max-width: 560px;
+      font-size: 11px !important;
     }
 
     .dashboard-performance-value {
-      font-size: 29px;
+      font-size: 30px;
     }
+
+    .dashboard-performance-footer {
+      flex-wrap: wrap;
+    }
+
 
     .dashboard-main .tasks-section {
       padding: 19px 16px 20px;
@@ -1837,6 +1908,10 @@ const dashboardPerformanceStyles = `
     .dashboard-performance-footer {
       flex-direction: column;
       align-items: flex-start;
+    }
+
+    .dashboard-performance-encouragement {
+      margin-left: 0;
     }
 
     .dashboard-main .status-badge {
@@ -2456,20 +2531,32 @@ const dashboardPerformanceStyles = `
         <section className="dashboard-performance-card">
           <div className="dashboard-performance-head">
             <div className="dashboard-performance-title-wrap">
-              <div className="dashboard-performance-icon">
-                <FaCheckCircle />
+              <div
+                className="dashboard-performance-icon"
+                aria-hidden="true"
+                title="Student Growth"
+              >
+                <FaGraduationCap />
               </div>
 
               <div>
                 <h2>Today's Performance Progress</h2>
                 <p>
-                  Calculated from today's checked tasks and their saved percentages
+                  Your progress is built one completed task at a time.
+                </p>
+                <p className="dashboard-performance-motivation">
+                  Keep learning, keep growing — every task takes you closer to your goal.
                 </p>
               </div>
             </div>
 
-            <div className="dashboard-performance-value">
-              {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+            <div className="dashboard-performance-value-wrap">
+              <div className="dashboard-performance-value">
+                {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+              </div>
+              <div className="dashboard-performance-label">
+                Performance
+              </div>
             </div>
           </div>
 
@@ -2492,8 +2579,21 @@ const dashboardPerformanceStyles = `
             </span>
 
             <strong>
-              {todayPerformancePercentage}% performance
+              {todayPerformancePercentage === 0
+                ? "Start small — you can do it!"
+                : todayPerformancePercentage < 50
+                ? "Great start — keep going!"
+                : todayPerformancePercentage < 80
+                ? "You're doing really well!"
+                : todayPerformancePercentage < 100
+                ? "Almost there — finish strong!"
+                : "Excellent work — goal achieved!"}
             </strong>
+
+            <span className="dashboard-performance-encouragement">
+              <FaGraduationCap />
+              Keep Growing
+            </span>
           </div>
         </section>
 
