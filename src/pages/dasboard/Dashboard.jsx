@@ -1475,6 +1475,62 @@ const todayPerformancePercentage =
     : 0;
 
 /* =====================================================
+   STUDENT MOTIVATION — ONE MESSAGE + ONE EMOJI
+   Changes automatically according to performance %
+   ===================================================== */
+
+const getPerformanceMessage = (percentage) => {
+  if (percentage === 0) {
+    return {
+      emoji: "🌱",
+      message: "Start small — every step forward matters.",
+      label: "Ready to Grow",
+    };
+  }
+
+  if (percentage < 25) {
+    return {
+      emoji: "✨",
+      message: "Great start — keep building your momentum.",
+      label: "Keep Going",
+    };
+  }
+
+  if (percentage < 50) {
+    return {
+      emoji: "💪",
+      message: "You're making progress — stay consistent!",
+      label: "Stay Strong",
+    };
+  }
+
+  if (percentage < 75) {
+    return {
+      emoji: "🔥",
+      message: "Great progress — keep pushing toward your goal!",
+      label: "On Fire",
+    };
+  }
+
+  if (percentage < 100) {
+    return {
+      emoji: "🚀",
+      message: "You're almost there — finish strong!",
+      label: "Almost There",
+    };
+  }
+
+  return {
+    emoji: "🏆",
+    message: "Excellent performance — you achieved your goal!",
+    label: "Excellent Performance",
+  };
+};
+
+const performanceMotivation =
+  getPerformanceMessage(todayPerformancePercentage);
+
+/* =====================================================
    DASHBOARD TODAY PERFORMANCE CARD STYLES
    ===================================================== */
 
@@ -1620,10 +1676,11 @@ const dashboardPerformanceStyles = `
   }
 
   .dashboard-performance-motivation {
-    margin: 5px 0 0;
+    margin: 7px 0 0;
     color: #6848dc !important;
-    font-size: 12px !important;
-    font-weight: 750;
+    font-size: 13px !important;
+    font-weight: 800;
+    line-height: 1.5;
   }
 
   .dashboard-performance-value-wrap {
@@ -1691,6 +1748,19 @@ const dashboardPerformanceStyles = `
   .dashboard-performance-footer strong {
     color: #4f3fa2;
     font-weight: 850;
+  }
+
+  .dashboard-performance-result {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f0ebff, #f8f1ff);
+    color: #6044cf;
+    font-weight: 900;
+    font-size: 12px;
+    box-shadow: 0 5px 14px rgba(104,84,255,.10);
   }
 
   .dashboard-performance-encouragement {
@@ -1875,6 +1945,11 @@ const dashboardPerformanceStyles = `
     .dashboard-performance-motivation {
       max-width: 560px;
       font-size: 11px !important;
+    }
+
+    .dashboard-performance-result {
+      font-size: 11px;
+      padding: 7px 10px;
     }
 
     .dashboard-performance-value {
@@ -2541,11 +2616,8 @@ const dashboardPerformanceStyles = `
 
               <div>
                 <h2>Today's Performance Progress</h2>
-                <p>
-                  Your progress is built one completed task at a time.
-                </p>
                 <p className="dashboard-performance-motivation">
-                  Keep learning, keep growing — every task takes you closer to your goal.
+                  {performanceMotivation.emoji} {performanceMotivation.message}
                 </p>
               </div>
             </div>
@@ -2578,22 +2650,9 @@ const dashboardPerformanceStyles = `
               {completed} of {total} tasks completed
             </span>
 
-            <strong>
-              {todayPerformancePercentage === 0
-                ? "Start small — you can do it!"
-                : todayPerformancePercentage < 50
-                ? "Great start — keep going!"
-                : todayPerformancePercentage < 80
-                ? "You're doing really well!"
-                : todayPerformancePercentage < 100
-                ? "Almost there — finish strong!"
-                : "Excellent work — goal achieved!"}
+            <strong className="dashboard-performance-result">
+              {performanceMotivation.emoji} {performanceMotivation.label}
             </strong>
-
-            <span className="dashboard-performance-encouragement">
-              <FaGraduationCap />
-              Keep Growing
-            </span>
           </div>
         </section>
 
