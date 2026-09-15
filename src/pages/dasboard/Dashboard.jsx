@@ -1537,11 +1537,14 @@ const performanceMotivation =
 
 const dashboardPerformanceStyles = `
   /* =====================================================
-     MODERN DASHBOARD VISUAL REFRESH
+     DASHBOARD UI — CLEAN PREMIUM REFRESH
+     Logic untouched. Visual styling only.
      ===================================================== */
 
   .dashboard-main {
-    background: #f7f8fc;
+    background:
+      radial-gradient(circle at 85% 0%, rgba(126, 87, 255, .055), transparent 30%),
+      #f7f8fc;
     min-height: 100vh;
   }
 
@@ -1551,48 +1554,57 @@ const dashboardPerformanceStyles = `
 
   .dashboard-main .progress-card {
     border: 1px solid #ececf5;
-    border-radius: 22px;
-    background: rgba(255,255,255,.96);
-    box-shadow: 0 10px 28px rgba(30, 25, 80, .07);
-    transition: transform .2s ease, box-shadow .2s ease;
+    border-radius: 20px;
+    background: rgba(255,255,255,.98);
+    box-shadow: 0 8px 24px rgba(31, 24, 79, .055);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
   }
 
   .dashboard-main .progress-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 34px rgba(30, 25, 80, .11);
+    transform: translateY(-2px);
+    border-color: #ddd6ff;
+    box-shadow: 0 14px 30px rgba(31, 24, 79, .09);
   }
 
   .dashboard-main .percentage {
     font-weight: 900;
-    letter-spacing: -.5px;
+    letter-spacing: -.7px;
   }
 
   .dashboard-main .progress-bar {
-    height: 9px;
+    height: 8px;
     border-radius: 999px;
-    background: #eeeef5;
+    background: #eeedf5;
     overflow: hidden;
   }
 
   .dashboard-main .progress-fill {
     border-radius: 999px;
-    transition: width .4s ease;
+    transition: width .45s ease;
   }
+
+  /* =====================================================
+     TODAY'S PERFORMANCE CARD
+     ===================================================== */
 
   .dashboard-performance-card {
     width: 100%;
-    margin: 22px 0 18px;
-    padding: 26px 28px 22px;
+    margin: 20px 0 16px;
+    padding: 22px 24px 18px;
     box-sizing: border-box;
-    border-radius: 28px;
+    border-radius: 24px;
     position: relative;
     overflow: hidden;
+
     background:
-      radial-gradient(circle at 92% 8%, rgba(178,82,255,.16), transparent 25%),
-      radial-gradient(circle at 0% 100%, rgba(104,84,255,.08), transparent 30%),
-      linear-gradient(135deg, #ffffff 0%, #fbfaff 55%, #f7f3ff 100%);
-    border: 1px solid rgba(114,85,255,.14);
-    box-shadow: 0 18px 42px rgba(55,35,120,.10);
+      radial-gradient(circle at 92% 8%, rgba(151, 86, 255, .13), transparent 23%),
+      radial-gradient(circle at 0% 100%, rgba(105, 84, 255, .07), transparent 28%),
+      linear-gradient(135deg, #ffffff 0%, #fcfbff 58%, #f7f3ff 100%);
+
+    border: 1px solid rgba(112, 82, 255, .13);
+    box-shadow:
+      0 12px 32px rgba(55, 35, 120, .075),
+      inset 0 1px 0 rgba(255,255,255,.9);
   }
 
   .dashboard-performance-card::before {
@@ -1601,17 +1613,17 @@ const dashboardPerformanceStyles = `
     left: 0;
     top: 0;
     bottom: 0;
-    width: 5px;
-    background: linear-gradient(180deg, #6854ff, #b34cff);
+    width: 4px;
+    background: linear-gradient(180deg, #6548ff, #b34cff);
   }
 
   .dashboard-performance-card::after {
     content: "✦";
     position: absolute;
-    right: 24%;
-    top: 17px;
-    color: rgba(111,79,255,.20);
-    font-size: 18px;
+    right: 28%;
+    top: 14px;
+    color: rgba(111,79,255,.16);
+    font-size: 15px;
     pointer-events: none;
   }
 
@@ -1619,7 +1631,7 @@ const dashboardPerformanceStyles = `
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 18px;
     position: relative;
     z-index: 1;
   }
@@ -1627,32 +1639,32 @@ const dashboardPerformanceStyles = `
   .dashboard-performance-title-wrap {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 13px;
     min-width: 0;
   }
 
   .dashboard-performance-icon {
-    width: 56px;
-    height: 56px;
-    flex: 0 0 56px;
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 18px;
+    border-radius: 16px;
     color: #fff;
-    background: linear-gradient(135deg, #6048ff 0%, #9d4dff 100%);
+    background: linear-gradient(135deg, #6147ff 0%, #9c4dff 100%);
     box-shadow:
-      0 10px 22px rgba(104,84,255,.28),
-      inset 0 1px 0 rgba(255,255,255,.35);
-    font-size: 24px;
+      0 8px 18px rgba(104,84,255,.22),
+      inset 0 1px 0 rgba(255,255,255,.38);
+    font-size: 22px;
     position: relative;
   }
 
   .dashboard-performance-icon::after {
     content: "";
     position: absolute;
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: #fff;
     right: 5px;
@@ -1662,66 +1674,67 @@ const dashboardPerformanceStyles = `
 
   .dashboard-performance-card h2 {
     margin: 0;
-    color: #17152a;
-    font-size: 21px;
+    color: #151329;
+    font-size: 20px;
     font-weight: 850;
     line-height: 1.2;
-    letter-spacing: -.25px;
+    letter-spacing: -.3px;
   }
 
   .dashboard-performance-card p {
-    margin: 7px 0 0;
+    margin: 6px 0 0;
     color: #777584;
     font-size: 12px;
     line-height: 1.45;
   }
 
   .dashboard-performance-motivation {
-    margin: 7px 0 0;
     color: #6848dc !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
     font-weight: 800;
-    line-height: 1.5;
   }
 
   .dashboard-performance-value-wrap {
     flex: 0 0 auto;
+    min-width: 74px;
     text-align: right;
   }
 
   .dashboard-performance-value {
-    color: #6d4dff;
-    font-size: 38px;
+    color: #694cff;
+    font-size: 36px;
     font-weight: 950;
-    line-height: 1;
-    letter-spacing: -1.5px;
+    line-height: .95;
+    letter-spacing: -1.8px;
   }
 
   .dashboard-performance-label {
-    margin-top: 5px;
-    color: #755ed0;
-    font-size: 10px;
+    margin-top: 6px;
+    color: #7662ca;
+    font-size: 9px;
     font-weight: 900;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
     text-transform: uppercase;
   }
 
   .dashboard-performance-track {
     width: 100%;
-    height: 13px;
-    margin-top: 22px;
+    height: 11px;
+    margin-top: 20px;
     overflow: hidden;
     border-radius: 999px;
     background: #e9e8f2;
-    box-shadow: inset 0 1px 2px rgba(30,25,80,.06);
+    box-shadow:
+      inset 0 1px 2px rgba(30,25,80,.07),
+      0 1px 0 rgba(255,255,255,.8);
   }
 
   .dashboard-performance-fill {
     height: 100%;
     min-width: 0;
     border-radius: inherit;
-    background: linear-gradient(90deg, #6854ff 0%, #984dff 55%, #cf4cff 100%);
-    box-shadow: 0 4px 13px rgba(114,85,255,.30);
+    background: linear-gradient(90deg, #654bff 0%, #904eff 55%, #c34cff 100%);
+    box-shadow: 0 3px 10px rgba(114,85,255,.24);
     transition: width .45s cubic-bezier(.22,.61,.36,1);
   }
 
@@ -1730,9 +1743,9 @@ const dashboardPerformanceStyles = `
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-top: 13px;
+    margin-top: 11px;
     color: #73717e;
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .dashboard-performance-footer span {
@@ -1755,79 +1768,84 @@ const dashboardPerformanceStyles = `
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 13px;
+    padding: 7px 11px;
     border-radius: 999px;
-    background: linear-gradient(135deg, #f0ebff, #f8f1ff);
+    background: rgba(239,234,255,.9);
     color: #6044cf;
     font-weight: 900;
-    font-size: 12px;
-    box-shadow: 0 5px 14px rgba(104,84,255,.10);
+    font-size: 11px;
+    box-shadow: 0 4px 12px rgba(104,84,255,.08);
+    border: 1px solid rgba(112,82,255,.08);
   }
 
   .dashboard-performance-encouragement {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    margin-left: 12px;
-    padding: 7px 11px;
+    margin-left: 10px;
+    padding: 6px 10px;
     border-radius: 999px;
     background: #f0ebff;
     color: #6848d6;
     font-weight: 850;
   }
 
-  /* Today's Tasks */
+  /* =====================================================
+     TODAY'S TASKS
+     ===================================================== */
+
   .dashboard-main .tasks-section {
     margin-top: 0;
-    padding: 24px 28px 26px;
+    padding: 22px 24px 24px;
     border: 1px solid #ececf4;
-    border-radius: 26px;
-    background: #fff;
-    box-shadow: 0 14px 34px rgba(30,25,80,.07);
+    border-radius: 24px;
+    background: rgba(255,255,255,.98);
+    box-shadow: 0 10px 28px rgba(30,25,80,.055);
   }
 
   .dashboard-main .tasks-section .section-heading {
-    margin-bottom: 18px;
-    padding-bottom: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
     border-bottom: 1px solid #eeeef4;
   }
 
   .dashboard-main .tasks-section .section-heading h2 {
     margin: 0;
     color: #17152a;
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 850;
   }
 
   .dashboard-main .task-count {
-    padding: 8px 13px;
+    padding: 7px 12px;
     border-radius: 999px;
     background: #f1edff;
     color: #5d43d7;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 850;
+    border: 1px solid #e7e0ff;
   }
 
   .dashboard-main .today-task-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 9px;
   }
 
   .dashboard-main .dashboard-task {
-    min-height: 72px;
-    padding: 14px 16px;
+    min-height: 68px;
+    padding: 12px 14px;
     box-sizing: border-box;
     border: 1px solid #e9e9f1;
-    border-radius: 17px;
+    border-radius: 15px;
     background: linear-gradient(135deg,#fff,#fcfcff);
     transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
   }
 
   .dashboard-main .dashboard-task:hover {
-    transform: translateX(3px);
+    transform: translateX(2px);
     border-color: #dcd6ff;
-    box-shadow: 0 8px 20px rgba(80,60,160,.08);
+    box-shadow: 0 7px 17px rgba(80,60,160,.065);
   }
 
   .dashboard-main .dashboard-task.completed {
@@ -1846,20 +1864,20 @@ const dashboardPerformanceStyles = `
   }
 
   .dashboard-main .task-left {
-    gap: 13px;
+    gap: 12px;
   }
 
   .dashboard-main .task-status-icon {
-    width: 40px;
-    height: 40px;
-    flex: 0 0 40px;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 13px;
+    border-radius: 12px;
     background: #f1effb;
     color: #7764dc;
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .dashboard-main .dashboard-task.completed .task-status-icon {
@@ -1873,22 +1891,22 @@ const dashboardPerformanceStyles = `
   }
 
   .dashboard-main .dashboard-task h3 {
-    margin: 0 0 4px;
+    margin: 0 0 3px;
     color: #171827;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 750;
   }
 
   .dashboard-main .dashboard-task p {
     margin: 0;
     color: #858492;
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .dashboard-main .status-badge {
-    padding: 7px 11px;
+    padding: 6px 10px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 850;
     border: 1px solid transparent;
   }
@@ -1917,26 +1935,25 @@ const dashboardPerformanceStyles = `
     border-color: #e4dcff;
   }
 
-  /* Graph / overview sections */
   .dashboard-main .progress-section,
   .dashboard-main .quick-section,
   .dashboard-main .task-graph-section,
   .dashboard-main .monthly-graph-section {
-    border-radius: 24px;
+    border-radius: 22px;
   }
 
   @media (max-width: 760px) {
     .dashboard-performance-card {
-      padding: 20px 18px 18px;
-      border-radius: 22px;
+      padding: 19px 17px 17px;
+      border-radius: 20px;
     }
 
     .dashboard-performance-icon {
       width: 46px;
       height: 46px;
       flex-basis: 46px;
-      border-radius: 15px;
-      font-size: 20px;
+      border-radius: 14px;
+      font-size: 19px;
     }
 
     .dashboard-performance-card h2 {
@@ -1944,13 +1961,7 @@ const dashboardPerformanceStyles = `
     }
 
     .dashboard-performance-motivation {
-      max-width: 560px;
       font-size: 11px !important;
-    }
-
-    .dashboard-performance-result {
-      font-size: 11px;
-      padding: 7px 10px;
     }
 
     .dashboard-performance-value {
@@ -1961,10 +1972,9 @@ const dashboardPerformanceStyles = `
       flex-wrap: wrap;
     }
 
-
     .dashboard-main .tasks-section {
-      padding: 19px 16px 20px;
-      border-radius: 20px;
+      padding: 18px 15px 19px;
+      border-radius: 19px;
     }
 
     .dashboard-main .tasks-section .section-heading h2 {
@@ -1972,7 +1982,7 @@ const dashboardPerformanceStyles = `
     }
 
     .dashboard-main .dashboard-task {
-      padding: 12px;
+      padding: 11px;
     }
   }
 
@@ -1981,9 +1991,25 @@ const dashboardPerformanceStyles = `
       align-items: flex-start;
     }
 
+    .dashboard-performance-title-wrap {
+      gap: 10px;
+    }
+
+    .dashboard-performance-card h2 {
+      font-size: 16px;
+    }
+
+    .dashboard-performance-motivation {
+      max-width: 230px;
+    }
+
     .dashboard-performance-footer {
       flex-direction: column;
       align-items: flex-start;
+    }
+
+    .dashboard-performance-result {
+      font-size: 10px;
     }
 
     .dashboard-performance-encouragement {
@@ -1995,6 +2021,7 @@ const dashboardPerformanceStyles = `
     }
   }
 `;
+
 
 
   /* =====================================================
