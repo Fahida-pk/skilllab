@@ -755,20 +755,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     window.dispatchEvent(new Event("taskUpdated"));
   };
 
-  // Built-in/default task IDs.
-  // Deleting a default task is DATE-WISE only, so the default
-  // remains available on other dates.
-  const DEFAULT_TASK_ID_BY_TITLE = {
-    "wake up": "d1",
-    "study mern": "d2",
-    "practice english": "d3",
-    "workout": "d4",
-    "sleep": "d5",
-  };
-
-  const getBuiltInDefaultId = (task) =>
-    DEFAULT_TASK_ID_BY_TITLE[String(task?.title || "").trim().toLowerCase()] || null;
-
   const deleteTask = async (task) => {
 
     if (isPreviousDay) {
@@ -776,11 +762,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       return;
     }
 
-    const defaultId = getBuiltInDefaultId(task);
-
     try {
-      // Delete the database row first. This keeps the database and UI
-      // in sync for both custom tasks and built-in/default tasks.
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -796,29 +778,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       if (!data.success) {
         alert(data.message || "Task delete failed");
         return;
-      }
-
-      // Built-in tasks are definitions, so their deletion is stored only
-      // for the currently selected date. This also prevents
-      // ensureDefaultTasksInDatabase() from recreating the task.
-      if (defaultId) {
-        const storageKey = getDeletedDefaultKey(currentKey);
-        const saved = localStorage.getItem(storageKey);
-
-        let deletedIds = [];
-        try {
-          const parsed = saved ? JSON.parse(saved) : [];
-          deletedIds = Array.isArray(parsed) ? parsed.map(String) : [];
-        } catch {
-          deletedIds = [];
-        }
-
-        if (!deletedIds.includes(String(defaultId))) {
-          deletedIds.push(String(defaultId));
-        }
-
-        localStorage.setItem(storageKey, JSON.stringify(deletedIds));
-        setDeletedDefaultIds(deletedIds);
       }
 
       await fetchTasks();
@@ -1001,7 +960,14 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
     if (editingBuiltInTask) {
       const taskTitle = String(editTask.title).trim().toLowerCase();
-      const defaultId = getBuiltInDefaultId(editTask);
+      const defaultIdMap = {
+        "wake up": "d1",
+        "study mern": "d2",
+        "practice english": "d3",
+        "workout": "d4",
+        "sleep": "d5",
+      };
+      const defaultId = defaultIdMap[taskTitle];
 
       if (defaultId) {
         saveDateDefaultSchedule(currentKey, defaultId, {
@@ -1776,14 +1742,17 @@ const performancePercentage =
                           ✏️
                         </button>
 
-                        <button
-                          onClick={() => setDeleteConfirm(task)}
-                          type="button"
-                          title="Delete task"
-                          className="delete-btn"
-                        >
-                          ✕
-                        </button>
+                        {task.title !== "Wake Up" &&
+                          task.title !== "Sleep" && (
+                            <button
+                              onClick={() => setDeleteConfirm(task)}
+                              type="button"
+                              title="Delete task"
+                              className="delete-btn"
+                            >
+                              ✕
+                            </button>
+                          )}
                       </div>
                     )}
 
