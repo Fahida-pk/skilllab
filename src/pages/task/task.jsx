@@ -786,9 +786,13 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
   const getBuiltInDefaultId = (task) => {
+    // 1) The database default_id is the strongest identity.
+    //    It must remain valid even after the user renames a default task
+    //    (for example: "Study MERN" -> "Study maths").
     const explicitId = task?.default_id || task?.defaultId;
     if (explicitId) return String(explicitId);
 
+    // 2) Original built-in titles for older database rows.
     const titleKey = String(task?.title || "").trim().toLowerCase();
     const defaultIdMap = {
       "wake up": "d1",
@@ -798,7 +802,32 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       "sleep": "d5",
     };
 
-    return defaultIdMap[titleKey] || null;
+    if (defaultIdMap[titleKey]) {
+      return defaultIdMap[titleKey];
+    }
+
+    // 3) IMPORTANT:
+    //    After editing a default task's title, the title is no longer
+    //    "Study MERN"/"Practice English"/"Workout". In that case identify
+    //    the row from this date's saved default schedule.
+    //
+    //    This makes renamed default tasks still behave as DEFAULT tasks:
+    //      - Edit updates the same row
+    //      - Delete creates a date-wise deleted marker
+    //      - ensure_defaults will not recreate it on that date
+    const schedules = getDateDefaultSchedules(currentKey);
+
+    for (const defaultId of ["d1", "d2", "d3", "d4", "d5"]) {
+      const schedule = schedules[String(defaultId)];
+      if (!schedule) continue;
+
+      const scheduleTitle = String(schedule.title || "").trim().toLowerCase();
+      if (scheduleTitle && scheduleTitle === titleKey) {
+        return defaultId;
+      }
+    }
+
+    return null;
   };
 
   const isBuiltInTask = (task) => Boolean(getBuiltInDefaultId(task));
@@ -1842,8 +1871,8 @@ const performancePercentage =
                           ✏️
                         </button>
 
-                        {task.title !== "Wake Up" &&
-                          task.title !== "Sleep" && (
+                        {getBuiltInDefaultId(task) !== "d1" &&
+                          getBuiltInDefaultId(task) !== "d5" && (
                             <button
                               onClick={() => setDeleteConfirm(task)}
                               type="button"
