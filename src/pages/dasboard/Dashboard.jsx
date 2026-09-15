@@ -2612,7 +2612,7 @@ const dashboardPerformanceStyles = `
                 aria-hidden="true"
                 title="Student Growth"
               >
-                 <FaBullseye />
+                <FaGraduationCap />
               </div>
 
               <div>
