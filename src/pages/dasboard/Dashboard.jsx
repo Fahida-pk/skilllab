@@ -1478,15 +1478,72 @@ const todayPerformancePercentage =
    ===================================================== */
 
 const dashboardPerformanceStyles = `
+  /* =====================================================
+     MODERN DASHBOARD VISUAL REFRESH
+     ===================================================== */
+
+  .dashboard-main {
+    background: #f7f8fc;
+    min-height: 100vh;
+  }
+
+  .dashboard-main .progress-cards {
+    gap: 18px;
+  }
+
+  .dashboard-main .progress-card {
+    border: 1px solid #ececf5;
+    border-radius: 22px;
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 10px 28px rgba(30, 25, 80, .07);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+
+  .dashboard-main .progress-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 34px rgba(30, 25, 80, .11);
+  }
+
+  .dashboard-main .percentage {
+    font-weight: 900;
+    letter-spacing: -.5px;
+  }
+
+  .dashboard-main .progress-bar {
+    height: 9px;
+    border-radius: 999px;
+    background: #eeeef5;
+    overflow: hidden;
+  }
+
+  .dashboard-main .progress-fill {
+    border-radius: 999px;
+    transition: width .4s ease;
+  }
+
   .dashboard-performance-card {
     width: 100%;
-    margin: 18px 0 0;
-    padding: 22px 24px;
+    margin: 22px 0 18px;
+    padding: 24px 26px 20px;
     box-sizing: border-box;
-    border-radius: 22px;
-    background: linear-gradient(135deg, #ffffff 0%, #fbfaff 100%);
-    border: 1px solid rgba(114, 85, 255, 0.10);
-    box-shadow: 0 10px 30px rgba(55, 35, 120, 0.08);
+    border-radius: 26px;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 100% 0%, rgba(179,76,255,.13), transparent 32%),
+      linear-gradient(135deg, #ffffff 0%, #fbfaff 55%, #f8f5ff 100%);
+    border: 1px solid rgba(114,85,255,.12);
+    box-shadow: 0 16px 38px rgba(55,35,120,.09);
+  }
+
+  .dashboard-performance-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, #6854ff, #b34cff);
   }
 
   .dashboard-performance-head {
@@ -1494,67 +1551,72 @@ const dashboardPerformanceStyles = `
     align-items: center;
     justify-content: space-between;
     gap: 18px;
+    position: relative;
+    z-index: 1;
   }
 
   .dashboard-performance-title-wrap {
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 14px;
     min-width: 0;
   }
 
   .dashboard-performance-icon {
-    width: 44px;
-    height: 44px;
-    flex: 0 0 44px;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 14px;
+    border-radius: 15px;
     color: #fff;
     background: linear-gradient(135deg, #6854ff, #b34cff);
-    box-shadow: 0 8px 18px rgba(114, 85, 255, 0.22);
-    font-size: 19px;
+    box-shadow: 0 9px 20px rgba(114,85,255,.25);
+    font-size: 20px;
   }
 
   .dashboard-performance-card h2 {
     margin: 0;
-    color: #171717;
-    font-size: 19px;
-    font-weight: 800;
+    color: #17152a;
+    font-size: 20px;
+    font-weight: 850;
     line-height: 1.2;
   }
 
   .dashboard-performance-card p {
-    margin: 5px 0 0;
-    color: #7b7b86;
+    margin: 6px 0 0;
+    color: #777584;
     font-size: 12px;
     line-height: 1.4;
   }
 
   .dashboard-performance-value {
     flex: 0 0 auto;
-    color: #7255ff;
-    font-size: 30px;
-    font-weight: 900;
+    color: #6d4dff;
+    font-size: 36px;
+    font-weight: 950;
     line-height: 1;
+    letter-spacing: -1.2px;
   }
 
   .dashboard-performance-track {
     width: 100%;
-    height: 11px;
-    margin-top: 20px;
+    height: 13px;
+    margin-top: 22px;
     overflow: hidden;
     border-radius: 999px;
-    background: #ecebf5;
+    background: #e9e8f2;
+    box-shadow: inset 0 1px 2px rgba(30,25,80,.06);
   }
 
   .dashboard-performance-fill {
     height: 100%;
+    min-width: 0;
     border-radius: inherit;
-    background: linear-gradient(90deg, #6854ff 0%, #b34cff 100%);
-    box-shadow: 0 3px 10px rgba(114, 85, 255, 0.22);
-    transition: width 0.35s ease;
+    background: linear-gradient(90deg, #6854ff 0%, #9c4dff 55%, #c64cff 100%);
+    box-shadow: 0 4px 12px rgba(114,85,255,.28);
+    transition: width .45s cubic-bezier(.22,.61,.36,1);
   }
 
   .dashboard-performance-footer {
@@ -1562,15 +1624,15 @@ const dashboardPerformanceStyles = `
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-top: 11px;
-    color: #73737d;
+    margin-top: 12px;
+    color: #73717e;
     font-size: 12px;
   }
 
   .dashboard-performance-footer span {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
   }
 
   .dashboard-performance-footer svg {
@@ -1579,38 +1641,206 @@ const dashboardPerformanceStyles = `
   }
 
   .dashboard-performance-footer strong {
-    color: #4f46a5;
-    font-weight: 800;
+    color: #4f3fa2;
+    font-weight: 850;
   }
 
-  @media (max-width: 640px) {
-    .dashboard-performance-card {
-      padding: 18px;
-      border-radius: 18px;
-    }
+  /* Today's Tasks */
+  .dashboard-main .tasks-section {
+    margin-top: 0;
+    padding: 24px 28px 26px;
+    border: 1px solid #ececf4;
+    border-radius: 26px;
+    background: #fff;
+    box-shadow: 0 14px 34px rgba(30,25,80,.07);
+  }
 
-    .dashboard-performance-title-wrap {
-      gap: 10px;
+  .dashboard-main .tasks-section .section-heading {
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eeeef4;
+  }
+
+  .dashboard-main .tasks-section .section-heading h2 {
+    margin: 0;
+    color: #17152a;
+    font-size: 22px;
+    font-weight: 850;
+  }
+
+  .dashboard-main .task-count {
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: #f1edff;
+    color: #5d43d7;
+    font-size: 12px;
+    font-weight: 850;
+  }
+
+  .dashboard-main .today-task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dashboard-main .dashboard-task {
+    min-height: 72px;
+    padding: 14px 16px;
+    box-sizing: border-box;
+    border: 1px solid #e9e9f1;
+    border-radius: 17px;
+    background: linear-gradient(135deg,#fff,#fcfcff);
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+
+  .dashboard-main .dashboard-task:hover {
+    transform: translateX(3px);
+    border-color: #dcd6ff;
+    box-shadow: 0 8px 20px rgba(80,60,160,.08);
+  }
+
+  .dashboard-main .dashboard-task.completed {
+    background: linear-gradient(135deg,#fbfffd,#f7fffa);
+    border-color: #d9f1e2;
+  }
+
+  .dashboard-main .dashboard-task.in_progress {
+    background: linear-gradient(135deg,#fbfaff,#f7f5ff);
+    border-color: #ded7ff;
+  }
+
+  .dashboard-main .dashboard-task.pending {
+    background: linear-gradient(135deg,#fffdf9,#fffaf1);
+    border-color: #f2e4c9;
+  }
+
+  .dashboard-main .task-left {
+    gap: 13px;
+  }
+
+  .dashboard-main .task-status-icon {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: #f1effb;
+    color: #7764dc;
+    font-size: 18px;
+  }
+
+  .dashboard-main .dashboard-task.completed .task-status-icon {
+    background: #e7f9ee;
+    color: #19a957;
+  }
+
+  .dashboard-main .dashboard-task.pending .task-status-icon {
+    background: #fff2d9;
+    color: #d88a17;
+  }
+
+  .dashboard-main .dashboard-task h3 {
+    margin: 0 0 4px;
+    color: #171827;
+    font-size: 15px;
+    font-weight: 750;
+  }
+
+  .dashboard-main .dashboard-task p {
+    margin: 0;
+    color: #858492;
+    font-size: 12px;
+  }
+
+  .dashboard-main .status-badge {
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 850;
+    border: 1px solid transparent;
+  }
+
+  .dashboard-main .status-badge.completed {
+    background: #e9faef;
+    color: #11964a;
+    border-color: #d3f2df;
+  }
+
+  .dashboard-main .status-badge.in_progress {
+    background: #eeeaff;
+    color: #654ce0;
+    border-color: #ddd6ff;
+  }
+
+  .dashboard-main .status-badge.pending {
+    background: #fff3dc;
+    color: #c77b0d;
+    border-color: #f5e4c3;
+  }
+
+  .dashboard-main .status-badge.not_started {
+    background: #f2edff;
+    color: #6848d6;
+    border-color: #e4dcff;
+  }
+
+  /* Graph / overview sections */
+  .dashboard-main .progress-section,
+  .dashboard-main .quick-section,
+  .dashboard-main .task-graph-section,
+  .dashboard-main .monthly-graph-section {
+    border-radius: 24px;
+  }
+
+  @media (max-width: 760px) {
+    .dashboard-performance-card {
+      padding: 19px 18px 17px;
+      border-radius: 20px;
     }
 
     .dashboard-performance-icon {
-      width: 38px;
-      height: 38px;
-      flex-basis: 38px;
-      border-radius: 11px;
+      width: 42px;
+      height: 42px;
+      flex-basis: 42px;
+      border-radius: 13px;
     }
 
     .dashboard-performance-card h2 {
-      font-size: 16px;
+      font-size: 17px;
     }
 
     .dashboard-performance-value {
-      font-size: 25px;
+      font-size: 29px;
+    }
+
+    .dashboard-main .tasks-section {
+      padding: 19px 16px 20px;
+      border-radius: 20px;
+    }
+
+    .dashboard-main .tasks-section .section-heading h2 {
+      font-size: 19px;
+    }
+
+    .dashboard-main .dashboard-task {
+      padding: 12px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .dashboard-performance-head {
+      align-items: flex-start;
     }
 
     .dashboard-performance-footer {
       flex-direction: column;
       align-items: flex-start;
+    }
+
+    .dashboard-main .status-badge {
+      display: none;
     }
   }
 `;
@@ -2233,7 +2463,7 @@ const dashboardPerformanceStyles = `
               <div>
                 <h2>Today's Performance Progress</h2>
                 <p>
-                  Based on today's completed task percentages
+                  Calculated from today's checked tasks and their saved percentages
                 </p>
               </div>
             </div>
@@ -2269,136 +2499,128 @@ const dashboardPerformanceStyles = `
 
         {/* TODAY TASKS */}
         <section className="tasks-section">
-
           <div className="section-heading">
-
-            <h2>
-              Today's Tasks
-            </h2>
+            <div>
+              <h2>Today's Tasks</h2>
+              <p style={{
+                margin: "5px 0 0",
+                color: "#8a8896",
+                fontSize: "12px"
+              }}>
+                Your schedule and completion status for today
+              </p>
+            </div>
 
             <span className="task-count">
-              {completed} /{" "}
-              {total} Completed
+              {completed} / {total} Completed
             </span>
-
           </div>
 
           {loading ? (
-
             <div className="loading">
               Loading tasks...
             </div>
-
-          ) : dashboard.tasks?.length ===
-            0 ? (
-
+          ) : dashboard.tasks?.length === 0 ? (
             <div className="empty-tasks">
-
-              <p>
-                No tasks for this day
-              </p>
-
+              <p>No tasks for this day</p>
             </div>
-
           ) : (
-
             <div className="today-task-list">
+              {dashboard.tasks.map((task) => {
+                const status = getTaskStatus(task);
+                const taskPercentage = Math.max(
+                  0,
+                  Math.min(100, Number(task.percentage ?? 0))
+                );
 
-              {dashboard.tasks.map(
-                (task) => {
-
-                  const status =
-                    getTaskStatus(
-                      task
-                    );
-
-                  return (
-                    <div
-                      className={`dashboard-task ${status}`}
-                      key={
-                        `${task.id}-${selectedDate}`
-                      }
-                    >
-
-                      <div className="task-left">
-
-                        <div className="task-status-icon">
-
-                          {status ===
-                          "completed" ? (
-                            <FaCheckCircle />
-                          ) : status ===
-                            "in_progress" ? (
-                            <FaClock />
-                          ) : status ===
-                            "pending" ? (
-                            <FaHourglassHalf />
-                          ) : (
-                            <FaTimesCircle />
-                          )}
-
-                        </div>
-
-                        <div>
-
-                          <h3>
-                            {task.title}
-                          </h3>
-
-                          <p>
-
-                            {task.time
-                              ? formatTime(
-                                  task.time
-                                )
-                              : task.from
-                              ? formatTime(
-                                  task.from
-                                )
-                              : "--"}
-
-                            {task.to
-                              ? ` - ${formatTime(
-                                  task.to
-                                )}`
-                              : ""}
-
-                          </p>
-
-                        </div>
-
+                return (
+                  <div
+                    className={`dashboard-task ${status}`}
+                    key={`${task.id}-${selectedDate}`}
+                  >
+                    <div className="task-left">
+                      <div className="task-status-icon">
+                        {status === "completed" ? (
+                          <FaCheckCircle />
+                        ) : status === "in_progress" ? (
+                          <FaClock />
+                        ) : status === "pending" ? (
+                          <FaHourglassHalf />
+                        ) : (
+                          <FaTimesCircle />
+                        )}
                       </div>
 
-                      <span
-                        className={`status-badge ${status}`}
-                      >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h3>{task.title}</h3>
 
-                        {status ===
-                        "in_progress"
-                          ? "In Progress"
-                          : status ===
-                            "not_started"
-                          ? "Not Started"
-                          : status
-                              .charAt(
-                                0
-                              )
-                              .toUpperCase() +
-                            status.slice(
-                              1
-                            )}
+                        <p>
+                          {task.time
+                            ? formatTime(task.time)
+                            : task.from
+                            ? formatTime(task.from)
+                            : "--"}
+                          {task.to
+                            ? ` - ${formatTime(task.to)}`
+                            : ""}
+                        </p>
 
-                      </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "9px",
+                            marginTop: "9px",
+                            maxWidth: "420px"
+                          }}
+                        >
+                          <div
+                            style={{
+                              flex: 1,
+                              height: "5px",
+                              borderRadius: "999px",
+                              background: "#ececf3",
+                              overflow: "hidden"
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: `${status === "completed" ? taskPercentage : 0}%`,
+                                height: "100%",
+                                borderRadius: "999px",
+                                background:
+                                  "linear-gradient(90deg,#6854ff,#b34cff)",
+                                transition: "width .35s ease"
+                              }}
+                            />
+                          </div>
 
+                          <strong
+                            style={{
+                              minWidth: "36px",
+                              textAlign: "right",
+                              color: status === "completed" ? "#6249d8" : "#9997a4",
+                              fontSize: "11px"
+                            }}
+                          >
+                            {status === "completed" ? `${taskPercentage}%` : "0%"}
+                          </strong>
+                        </div>
+                      </div>
                     </div>
-                  );
-                }
-              )}
 
+                    <span className={`status-badge ${status}`}>
+                      {status === "in_progress"
+                        ? "In Progress"
+                        : status === "not_started"
+                        ? "Not Started"
+                        : status.charAt(0).toUpperCase() + status.slice(1)}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
-
           )}
-
         </section>
 
       </main>
