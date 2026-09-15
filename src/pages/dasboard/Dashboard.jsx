@@ -2020,6 +2020,181 @@ const dashboardPerformanceStyles = `
       display: none;
     }
   }
+
+  /* =====================================================
+     TODAY'S PERFORMANCE — FINAL UI OVERRIDE
+     This intentionally overrides the older performance-card
+     rules above so the new layout is visibly different.
+     ===================================================== */
+
+  .dashboard-main .dashboard-performance-card {
+    width: 100% !important;
+    margin: 18px 0 16px !important;
+    padding: 20px 22px 17px !important;
+    min-height: 0 !important;
+    border-radius: 22px !important;
+    background:
+      linear-gradient(105deg, #ffffff 0%, #ffffff 45%, #faf7ff 72%, #f4eaff 100%) !important;
+    border: 1px solid #e4d9ff !important;
+    box-shadow: 0 8px 24px rgba(76, 48, 150, .075) !important;
+  }
+
+  .dashboard-main .dashboard-performance-card::before {
+    width: 4px !important;
+    background: linear-gradient(180deg, #7548ff, #a84cff) !important;
+  }
+
+  .dashboard-main .dashboard-performance-card::after {
+    content: "" !important;
+  }
+
+  .dashboard-main .dashboard-performance-head {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 24px !important;
+  }
+
+  .dashboard-main .dashboard-performance-title-wrap {
+    gap: 13px !important;
+  }
+
+  .dashboard-main .dashboard-performance-icon {
+    width: 48px !important;
+    height: 48px !important;
+    flex: 0 0 48px !important;
+    border-radius: 14px !important;
+    font-size: 20px !important;
+    box-shadow: 0 7px 16px rgba(104,84,255,.20) !important;
+  }
+
+  .dashboard-main .dashboard-performance-icon::after {
+    width: 7px !important;
+    height: 7px !important;
+    right: 4px !important;
+    top: 4px !important;
+  }
+
+  .dashboard-main .dashboard-performance-card h2 {
+    font-size: 20px !important;
+    line-height: 1.15 !important;
+    font-weight: 850 !important;
+    letter-spacing: -.4px !important;
+  }
+
+  .dashboard-main .dashboard-performance-motivation {
+    margin-top: 5px !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+  }
+
+  .dashboard-main .dashboard-performance-value-wrap {
+    min-width: 105px !important;
+    padding-left: 18px !important;
+    border-left: 1px solid #e8defb !important;
+  }
+
+  .dashboard-main .dashboard-performance-value {
+    font-size: 34px !important;
+    line-height: .9 !important;
+    font-weight: 950 !important;
+    letter-spacing: -1.5px !important;
+  }
+
+  .dashboard-main .dashboard-performance-label {
+    margin-top: 5px !important;
+    font-size: 8px !important;
+    letter-spacing: 1.3px !important;
+  }
+
+  .dashboard-main .dashboard-performance-track {
+    height: 8px !important;
+    margin-top: 17px !important;
+    background: #eceaf3 !important;
+    box-shadow: inset 0 1px 2px rgba(30,25,80,.06) !important;
+  }
+
+  .dashboard-main .dashboard-performance-fill {
+    background: linear-gradient(90deg, #6d4cff 0%, #8f4fff 60%, #b74cff 100%) !important;
+    box-shadow: none !important;
+  }
+
+  .dashboard-main .dashboard-performance-footer {
+    margin-top: 9px !important;
+    font-size: 11px !important;
+  }
+
+  .dashboard-main .dashboard-performance-result {
+    padding: 6px 10px !important;
+    font-size: 10px !important;
+    background: #f4efff !important;
+    border: 1px solid #e8ddff !important;
+    box-shadow: none !important;
+  }
+
+  /* Make the next section visually closer and cleaner */
+  .dashboard-main .dashboard-performance-card + .tasks-section {
+    margin-top: 0 !important;
+    border-radius: 22px !important;
+    box-shadow: 0 7px 22px rgba(30,25,80,.045) !important;
+  }
+
+  @media (max-width: 760px) {
+    .dashboard-main .dashboard-performance-card {
+      padding: 18px 17px 15px !important;
+      border-radius: 19px !important;
+    }
+
+    .dashboard-main .dashboard-performance-head {
+      gap: 14px !important;
+    }
+
+    .dashboard-main .dashboard-performance-value-wrap {
+      min-width: 82px !important;
+      padding-left: 12px !important;
+    }
+
+    .dashboard-main .dashboard-performance-value {
+      font-size: 29px !important;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .dashboard-main .dashboard-performance-head {
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      align-items: center !important;
+    }
+
+    .dashboard-main .dashboard-performance-icon {
+      width: 44px !important;
+      height: 44px !important;
+      flex-basis: 44px !important;
+    }
+
+    .dashboard-main .dashboard-performance-card h2 {
+      font-size: 16px !important;
+    }
+
+    .dashboard-main .dashboard-performance-motivation {
+      font-size: 10px !important;
+      max-width: 210px !important;
+    }
+
+    .dashboard-main .dashboard-performance-value-wrap {
+      min-width: 70px !important;
+      padding-left: 9px !important;
+    }
+
+    .dashboard-main .dashboard-performance-value {
+      font-size: 27px !important;
+    }
+
+    .dashboard-main .dashboard-performance-footer {
+      flex-direction: row !important;
+      align-items: center !important;
+    }
+  }
+
 `;
 
 
