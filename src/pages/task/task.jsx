@@ -668,10 +668,15 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
             t.completed === true ||
             t.completed === 1 ||
             t.completed === "1",
-          percentage: Math.max(
-            0,
-            Math.min(100, Number(t.percentage ?? 0))
-          ),
+          // A task that is not completed must always start/display at 0%
+          // after refresh or when another date is opened.
+          // Its saved percentage is used only after the task is ticked.
+          percentage:
+            t.completed === true ||
+            t.completed === 1 ||
+            t.completed === "1"
+              ? Math.max(0, Math.min(100, Number(t.percentage ?? 0)))
+              : 0,
           color: t.color || colors[index % colors.length],
           icon: t.icon || null,
           default_id: t.default_id || t.defaultId || null,
@@ -925,15 +930,33 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       return;
     }
 
+    // A task cannot be marked complete while its performance percentage
+    // is still 0%. The user must set the slider first.
+    const currentPercentage = Math.max(
+      0,
+      Math.min(100, Number(task.percentage ?? 0))
+    );
+
+    if (!task.completed && currentPercentage <= 0) {
+      alert("Please set the task percentage before marking it as completed.");
+      return;
+    }
+
     const newStatus = task.completed ? 0 : 1;
 
+    // When a completed task is unticked, its percentage is reset to 0.
+    // This keeps performance based only on currently completed tasks.
+    const nextPercentage = newStatus === 0 ? 0 : currentPercentage;
+
     // Update UI immediately.
-    // Performance is derived from completed tasks, so ticking/unticking
-    // instantly adds/removes this task from Today's Performance.
     setTasks((prev) =>
       prev.map((t) =>
         t.id === task.id
-          ? { ...t, completed: newStatus === 1 }
+          ? {
+              ...t,
+              completed: newStatus === 1,
+              percentage: nextPercentage,
+            }
           : t
       )
     );
@@ -956,21 +979,48 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
         // Revert if API fails
         setTasks((prev) =>
           prev.map((t) =>
-            t.id === task.id ? { ...t, completed: task.completed } : t
+            t.id === task.id
+              ? { ...t, completed: task.completed, percentage: task.percentage ?? 0 }
+              : t
           )
         );
         alert(data.message || "Could not update task");
+        return;
       }
 
-      if (data.success) {
-        notifyTaskUpdated();
+      // If the task was unticked, also persist percentage = 0 so that
+      // refresh/date navigation cannot bring the old percentage back.
+      if (newStatus === 0) {
+        try {
+          const percentageRes = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "percentage",
+              email: user?.email,
+              id: task.id,
+              percentage: 0,
+            }),
+          });
+
+          const percentageData = await percentageRes.json();
+          if (!percentageData.success) {
+            console.warn("Could not reset task percentage to 0");
+          }
+        } catch (percentageError) {
+          console.error("Percentage reset error:", percentageError);
+        }
       }
+
+      notifyTaskUpdated();
     } catch (error) {
       console.error("Toggle error:", error);
 
       setTasks((prev) =>
         prev.map((t) =>
-          t.id === task.id ? { ...t, completed: task.completed } : t
+          t.id === task.id
+            ? { ...t, completed: task.completed, percentage: task.percentage ?? 0 }
+            : t
         )
       );
 
