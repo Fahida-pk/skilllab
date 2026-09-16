@@ -938,7 +938,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     );
 
     if (!task.completed && currentPercentage <= 0) {
-      alert("Please set the task percentage before marking it as completed.");
+      alert("Please set the task performance percentage before marking it as completed.");
       return;
     }
 
