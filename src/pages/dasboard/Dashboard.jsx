@@ -1474,8 +1474,8 @@ const getPerformanceColor = (percentage) => {
   return "#d9d6e8";                  // 0%
 };
 
-const completedStatusColor =
-  getPerformanceColor(liveTodayStats.percentage);
+// Progress Status: completed tasks are ALWAYS green.
+const completedStatusColor = "#22c55e";
 
 const pieStyle =
   total > 0
