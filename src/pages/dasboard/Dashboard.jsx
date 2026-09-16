@@ -3366,7 +3366,60 @@ const dashboardPerformanceStyles = `
             </svg>
           </div>
         </section>
+{/* TODAY'S PERFORMANCE PROGRESS — ABOVE PROGRESS STATUS */}
+        {/* TODAY'S PERFORMANCE PROGRESS */}
+        <section className="dashboard-performance-card">
+          <div className="dashboard-performance-head">
+            <div className="dashboard-performance-title-wrap">
+              <div
+                className="dashboard-performance-icon"
+                aria-hidden="true"
+                title="Student Growth"
+              >
+                <FaGraduationCap />
+              </div>
 
+              <div>
+                <h2>Today's Performance Progress</h2>
+                <p className="dashboard-performance-motivation">
+                  {performanceMotivation.emoji} {performanceMotivation.message}
+                </p>
+              </div>
+            </div>
+
+            <div className="dashboard-performance-value-wrap">
+              <div className="dashboard-performance-value">
+                {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+              </div>
+              <div className="dashboard-performance-label">
+                Performance
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="dashboard-performance-track"
+            aria-label={`Today's performance ${todayPerformancePercentage}%`}
+          >
+            <div
+              className="dashboard-performance-fill"
+              style={{
+                width: `${todayPerformancePercentage}%`,
+              }}
+            />
+          </div>
+
+          <div className="dashboard-performance-footer">
+            <span>
+              <FaCheckCircle />
+              {completed} of {total} tasks completed
+            </span>
+
+            <strong className="dashboard-performance-result">
+              {performanceMotivation.emoji} {performanceMotivation.label}
+            </strong>
+          </div>
+        </section>
         {/* TODAY TASKS */}
         <section className="tasks-section">
           <div className="section-heading">
