@@ -2264,6 +2264,131 @@ const dashboardPerformanceStyles = `
     }
   }
 
+
+
+  /* =====================================================
+     PERFORMANCE PROGRESS — TODAY / WEEK / MONTH
+     Compact cards below Progress Status.
+     ===================================================== */
+  .dashboard-main .performance-progress-section {
+    width: 100%;
+    margin: 18px 0 16px;
+  }
+
+  .dashboard-main .performance-progress-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .dashboard-main .performance-progress-card {
+    position: relative;
+    min-width: 0;
+    padding: 22px 24px 18px;
+    border-radius: 22px;
+    background: linear-gradient(110deg, #ffffff 0%, #ffffff 52%, #faf7ff 100%);
+    border: 1px solid #e4d9ff;
+    box-shadow: 0 8px 24px rgba(76, 48, 150, .075);
+    overflow: hidden;
+  }
+
+  .dashboard-main .performance-progress-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #7548ff, #b34cff);
+  }
+
+  .dashboard-main .performance-card-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 12px;
+  }
+
+  .dashboard-main .performance-card-top h2 {
+    margin: 0;
+    color: #111027;
+    font-size: 18px;
+    line-height: 1.2;
+    font-weight: 850;
+    letter-spacing: -.3px;
+  }
+
+  .dashboard-main .performance-card-top p {
+    margin: 7px 0 0;
+    color: #777584;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .dashboard-main .performance-card-value {
+    color: #7147ef;
+    font-size: 34px;
+    line-height: .95;
+    font-weight: 950;
+    letter-spacing: -1.5px;
+    white-space: nowrap;
+  }
+
+  .dashboard-main .performance-card-track {
+    height: 9px;
+    margin-top: 22px;
+    border-radius: 999px;
+    background: #ebeaf2;
+    overflow: hidden;
+  }
+
+  .dashboard-main .performance-card-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #7049ff 0%, #9c4cff 100%);
+    transition: width .25s ease;
+  }
+
+  .dashboard-main .performance-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 11px;
+    color: #777584;
+    font-size: 11px;
+  }
+
+  .dashboard-main .performance-card-footer strong {
+    color: #6840d7;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1050px) {
+    .dashboard-main .performance-progress-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .dashboard-main .performance-progress-card {
+      padding: 19px 18px 16px;
+      border-radius: 19px;
+    }
+
+    .dashboard-main .performance-card-top h2 {
+      font-size: 16px;
+    }
+
+    .dashboard-main .performance-card-top p {
+      font-size: 11px;
+    }
+
+    .dashboard-main .performance-card-value {
+      font-size: 29px;
+    }
+  }
 `;
 
 
@@ -2874,57 +2999,92 @@ const dashboardPerformanceStyles = `
           </div>
         </section>
 
-        {/* TODAY'S PERFORMANCE PROGRESS */}
-        <section className="dashboard-performance-card">
-          <div className="dashboard-performance-head">
-            <div className="dashboard-performance-title-wrap">
-              <div
-                className="dashboard-performance-icon"
-                aria-hidden="true"
-                title="Student Growth"
-              >
-                <FaGraduationCap />
-              </div>
+        {/* PERFORMANCE PROGRESS */}
+        <section className="performance-progress-section">
+          <div className="performance-progress-grid">
 
-              <div>
-                <h2>Today's Performance Progress</h2>
-                <p className="dashboard-performance-motivation">
-                  {performanceMotivation.emoji} {performanceMotivation.message}
-                </p>
+            <div className="performance-progress-card">
+              <div className="performance-card-top">
+                <div>
+                  <h2>Today's Performance Progress</h2>
+                  <p>Completed task performance</p>
+                </div>
+                <div className="performance-card-value">
+                  {todayPerformancePercentage}%
+                </div>
+              </div>
+              <div className="performance-card-track">
+                <div
+                  className="performance-card-fill"
+                  style={{ width: `${todayPerformancePercentage}%` }}
+                />
+              </div>
+              <div className="performance-card-footer">
+                <span>{completed} of {total} completed</span>
+                <strong>
+                  {performanceMotivation.emoji} {performanceMotivation.label}
+                </strong>
               </div>
             </div>
 
-            <div className="dashboard-performance-value-wrap">
-              <div className="dashboard-performance-value">
-                {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+            <div className="performance-progress-card">
+              <div className="performance-card-top">
+                <div>
+                  <h2>This Week Performance</h2>
+                  <p>Weekly completed task performance</p>
+                </div>
+                <div className="performance-card-value">
+                  {Number(dashboard.week?.performancePercentage ?? 0)}%
+                </div>
               </div>
-              <div className="dashboard-performance-label">
-                Performance
+              <div className="performance-card-track">
+                <div
+                  className="performance-card-fill"
+                  style={{
+                    width: `${Number(dashboard.week?.performancePercentage ?? 0)}%`,
+                  }}
+                />
+              </div>
+              <div className="performance-card-footer">
+                <span>
+                  {dashboard.week?.completed || 0} of {dashboard.week?.total || 0} completed
+                </span>
+                <strong>
+                  {getPerformanceMessage(Number(dashboard.week?.performancePercentage ?? 0)).emoji}{" "}
+                  {getPerformanceMessage(Number(dashboard.week?.performancePercentage ?? 0)).label}
+                </strong>
               </div>
             </div>
-          </div>
 
-          <div
-            className="dashboard-performance-track"
-            aria-label={`Today's performance ${todayPerformancePercentage}%`}
-          >
-            <div
-              className="dashboard-performance-fill"
-              style={{
-                width: `${todayPerformancePercentage}%`,
-              }}
-            />
-          </div>
+            <div className="performance-progress-card">
+              <div className="performance-card-top">
+                <div>
+                  <h2>This Month Performance</h2>
+                  <p>Monthly completed task performance</p>
+                </div>
+                <div className="performance-card-value">
+                  {Number(dashboard.month?.performancePercentage ?? 0)}%
+                </div>
+              </div>
+              <div className="performance-card-track">
+                <div
+                  className="performance-card-fill"
+                  style={{
+                    width: `${Number(dashboard.month?.performancePercentage ?? 0)}%`,
+                  }}
+                />
+              </div>
+              <div className="performance-card-footer">
+                <span>
+                  {dashboard.month?.completed || 0} of {dashboard.month?.total || 0} completed
+                </span>
+                <strong>
+                  {getPerformanceMessage(Number(dashboard.month?.performancePercentage ?? 0)).emoji}{" "}
+                  {getPerformanceMessage(Number(dashboard.month?.performancePercentage ?? 0)).label}
+                </strong>
+              </div>
+            </div>
 
-          <div className="dashboard-performance-footer">
-            <span>
-              <FaCheckCircle />
-              {completed} of {total} tasks completed
-            </span>
-
-            <strong className="dashboard-performance-result">
-              {performanceMotivation.emoji} {performanceMotivation.label}
-            </strong>
           </div>
         </section>
 
