@@ -2804,53 +2804,79 @@ body,
    Soft 2-color gradients, 12 combinations before repeating
    ========================================================= */
 
-.cards .card.task-modern-card:nth-child(12n + 1) {
-  background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%) !important;
-}
-.cards .card.task-modern-card:nth-child(12n + 2) {
-  background: linear-gradient(135deg, #bde0fe 0%, #cdb4db 100%) !important;
-}
-.cards .card.task-modern-card:nth-child(12n + 3) {
-  background: linear-gradient(135deg, #ffd6a5 0%, #ffcad4 100%) !important;
-}
-.cards .card.task-modern-card:nth-child(12n + 4) {
-  background: linear-gradient(135deg, #caffbf 0%, #9bf6ff 100%) !important;
-}
-.cards .card.task-modern-card:nth-child(12n + 5) {
-  background: linear-gradient(135deg, #e4c1f9 0%, #f1c0e8 100%) !important;
-}
-.cards .card.task-modern-card:nth-child(12n + 6) {
-  background: linear-gradient(135deg, #a0e7e5 0%, #b4f8c8 100%) !important;
-}
-.cards .card.task-modern-card:nth-child(12n + 7) {
-  background: linear-gradient(135deg, #ffafcc 0%, #ffc8dd 100%) !important;
-}
-.cards .card.task-modern-card:nth-child(12n + 8) {
-  background: linear-gradient(135deg, #b9fbc0 0%, #98f5e1 100%) !important;
-}
-.cards .card.task-modern-card:nth-child(12n + 9) {
-  background: linear-gradient(135deg, #a3c4f3 0%, #cfbaf0 100%) !important;
-}
-.cards .card.task-modern-card:nth-child(12n + 10) {
-  background: linear-gradient(135deg, #fde4cf 0%, #f1c0e8 100%) !important;
-}
-.cards .card.task-modern-card:nth-child(12n + 11) {
-  background: linear-gradient(135deg, #90dbf4 0%, #8eecf5 100%) !important;
-}
-.cards .card.task-modern-card:nth-child(12n + 12) {
-  background: linear-gradient(135deg, #cdeac0 0%, #f9f7c9 100%) !important;
+/* =========================================================
+   15-COLOR DARKER VARIETY TASK CARDS
+   Soft-medium/darker 2-color gradients.
+   Pattern repeats after 15 cards.
+   ========================================================= */
+
+.cards .card.task-modern-card:nth-child(15n + 1) {
+  background: linear-gradient(135deg, #63D6B0 0%, #46C7C1 100%) !important;
 }
 
-/* Keep text/icons readable on the light cards */
-.cards .card.task-modern-card,
-.cards .card.task-modern-card .task-card-content h3,
-.cards .card.task-modern-card .task-card-content p,
-.cards .card.task-modern-card .task-progress-percent {
+.cards .card.task-modern-card:nth-child(15n + 2) {
+  background: linear-gradient(135deg, #73B7F5 0%, #8589E8 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 3) {
+  background: linear-gradient(135deg, #E889C5 0%, #EF6F8D 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 4) {
+  background: linear-gradient(135deg, #F2B35D 0%, #F07B6B 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 5) {
+  background: linear-gradient(135deg, #73D58E 0%, #4FC6A8 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 6) {
+  background: linear-gradient(135deg, #9B7BEA 0%, #B86EDB 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 7) {
+  background: linear-gradient(135deg, #48C1D1 0%, #4D82D8 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 8) {
+  background: linear-gradient(135deg, #F19A70 0%, #E85D8B 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 9) {
+  background: linear-gradient(135deg, #54C9C0 0%, #6C9FEA 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 10) {
+  background: linear-gradient(135deg, #D77CCB 0%, #9B70D8 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 11) {
+  background: linear-gradient(135deg, #9BCB5E 0%, #59C98B 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 12) {
+  background: linear-gradient(135deg, #748CE0 0%, #55B8C9 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 13) {
+  background: linear-gradient(135deg, #F07BAA 0%, #D95F9E 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 14) {
+  background: linear-gradient(135deg, #E6A84F 0%, #D96B5C 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(15n + 15) {
+  background: linear-gradient(135deg, #6676C8 0%, #7355B7 100%) !important;
+}
+
+/* Keep text and controls clearly visible */
+.cards .card.task-modern-card {
   color: #ffffff !important;
 }
 
-/* Completed card stays light instead of becoming too faded */
+/* Completed cards stay recognizable without becoming too faded */
 .cards .card.task-modern-card.done {
   filter: saturate(0.90) !important;
-  opacity: 0.90 !important;
+  opacity: 0.92 !important;
 }
