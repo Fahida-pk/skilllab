@@ -70,14 +70,12 @@ const [, setTimeTick] = useState(0);
         total: 0,
         completed: 0,
         percentage: 0,
-        performancePercentage: 0,
       },
 
       month: {
         total: 0,
         completed: 0,
         percentage: 0,
-        performancePercentage: 0,
       },
 
       studyHours: {
@@ -1506,18 +1504,16 @@ const getPercentage = (value) => {
 };
 
 /* =====================================================
-   PERFORMANCE PROGRESS
-   -----------------------------------------------------
-   Today:
-   - Same visible task list shown below.
-   - Only checked/completed tasks contribute their saved
-     task percentage.
-   - Denominator = all visible tasks for today.
+   TODAY'S PERFORMANCE PROGRESS
+   Source of truth = Today's Tasks shown below.
 
-   This Week / This Month:
-   - Calculated by the dashboard API using the same rule.
-   - Only completed tasks contribute task_percentage.
-   - Denominator = all unique tasks in that period.
+   Only CHECKED/COMPLETED tasks contribute their saved
+   task percentage. Unchecked tasks contribute 0.
+   Denominator = ALL visible tasks for today.
+
+   Example:
+   5 tasks -> 100% + 50% completed
+   => (100 + 50) / 5 = 30%
    ===================================================== */
 
 const isTaskCompleted = (task) =>
@@ -1548,27 +1544,10 @@ const todayPerformancePercentage =
       )
     : 0;
 
-const weekPerformancePercentage = Math.max(
-  0,
-  Math.min(
-    100,
-    Number(
-      dashboard.week?.performancePercentage ??
-      0
-    )
-  )
-);
-
-const monthPerformancePercentage = Math.max(
-  0,
-  Math.min(
-    100,
-    Number(
-      dashboard.month?.performancePercentage ??
-      0
-    )
-  )
-);
+/* =====================================================
+   STUDENT MOTIVATION — ONE MESSAGE + ONE EMOJI
+   Changes automatically according to performance %
+   ===================================================== */
 
 const getPerformanceMessage = (percentage) => {
   if (percentage === 0) {
@@ -1618,14 +1597,8 @@ const getPerformanceMessage = (percentage) => {
   };
 };
 
-const todayPerformanceMotivation =
+const performanceMotivation =
   getPerformanceMessage(todayPerformancePercentage);
-
-const weekPerformanceMotivation =
-  getPerformanceMessage(weekPerformancePercentage);
-
-const monthPerformanceMotivation =
-  getPerformanceMessage(monthPerformancePercentage);
 
 /* =====================================================
    DASHBOARD TODAY PERFORMANCE CARD STYLES
@@ -1646,99 +1619,6 @@ const dashboardPerformanceStyles = `
 
   .dashboard-main .progress-cards {
     gap: 18px;
-  }
-
-  /* =====================================================
-     PERFORMANCE PROGRESS — TODAY / WEEK / MONTH
-     ===================================================== */
-  .dashboard-main .dashboard-performance-cards {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-    margin: 18px 0 16px;
-  }
-
-  .dashboard-main .dashboard-period-performance-card {
-    position: relative;
-    overflow: hidden;
-    min-width: 0;
-    padding: 20px 20px 17px;
-    border-radius: 22px;
-    background: linear-gradient(105deg, #ffffff 0%, #ffffff 45%, #faf7ff 72%, #f4eaff 100%);
-    border: 1px solid #e4d9ff;
-    box-shadow: 0 8px 24px rgba(76, 48, 150, .075);
-    box-sizing: border-box;
-  }
-
-  .dashboard-main .dashboard-period-performance-card::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(180deg, #7548ff, #a84cff);
-  }
-
-  .dashboard-main .dashboard-period-performance-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .dashboard-main .dashboard-period-performance-title {
-    margin: 0;
-    color: #151329;
-    font-size: 17px;
-    font-weight: 850;
-    line-height: 1.2;
-  }
-
-  .dashboard-main .dashboard-period-performance-subtitle {
-    margin: 5px 0 0;
-    color: #777584;
-    font-size: 11px;
-  }
-
-  .dashboard-main .dashboard-period-performance-value {
-    flex: 0 0 auto;
-    color: #7548ff;
-    font-size: 30px;
-    font-weight: 900;
-    line-height: 1;
-  }
-
-  .dashboard-main .dashboard-period-performance-track {
-    width: 100%;
-    height: 8px;
-    margin-top: 18px;
-    overflow: hidden;
-    border-radius: 999px;
-    background: #ececf4;
-  }
-
-  .dashboard-main .dashboard-period-performance-fill {
-    height: 100%;
-    border-radius: inherit;
-    background: linear-gradient(90deg, #6548ff, #b34cff);
-    transition: width .3s ease;
-  }
-
-  .dashboard-main .dashboard-period-performance-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 10px;
-    color: #777584;
-    font-size: 11px;
-  }
-
-  .dashboard-main .dashboard-period-performance-footer strong {
-    color: #5d45c9;
-    font-weight: 800;
   }
 
   .dashboard-main .progress-card {
@@ -2326,13 +2206,6 @@ const dashboardPerformanceStyles = `
     margin-top: 0 !important;
     border-radius: 22px !important;
     box-shadow: 0 7px 22px rgba(30,25,80,.045) !important;
-  }
-
-  @media (max-width: 900px) {
-    .dashboard-main .dashboard-performance-cards {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
   }
 
   @media (max-width: 760px) {
@@ -3001,122 +2874,58 @@ const dashboardPerformanceStyles = `
           </div>
         </section>
 
-        {/* PERFORMANCE PROGRESS — TODAY / THIS WEEK / THIS MONTH */}
-        <section className="dashboard-performance-cards">
+        {/* TODAY'S PERFORMANCE PROGRESS */}
+        <section className="dashboard-performance-card">
+          <div className="dashboard-performance-head">
+            <div className="dashboard-performance-title-wrap">
+              <div
+                className="dashboard-performance-icon"
+                aria-hidden="true"
+                title="Student Growth"
+              >
+                <FaGraduationCap />
+              </div>
 
-          {/* TODAY */}
-          <div className="dashboard-period-performance-card">
-            <div className="dashboard-period-performance-top">
               <div>
-                <h2 className="dashboard-period-performance-title">
-                  Today's Performance Progress
-                </h2>
-                <p className="dashboard-period-performance-subtitle">
-                  Completed task performance
+                <h2>Today's Performance Progress</h2>
+                <p className="dashboard-performance-motivation">
+                  {performanceMotivation.emoji} {performanceMotivation.message}
                 </p>
               </div>
+            </div>
 
-              <div className="dashboard-period-performance-value">
-                {todayPerformancePercentage}%
+            <div className="dashboard-performance-value-wrap">
+              <div className="dashboard-performance-value">
+                {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
               </div>
-            </div>
-
-            <div className="dashboard-period-performance-track">
-              <div
-                className="dashboard-period-performance-fill"
-                style={{
-                  width: `${todayPerformancePercentage}%`,
-                }}
-              />
-            </div>
-
-            <div className="dashboard-period-performance-footer">
-              <span>
-                {completed} of {total} completed
-              </span>
-              <strong>
-                {todayPerformanceMotivation.emoji}{" "}
-                {todayPerformanceMotivation.label}
-              </strong>
+              <div className="dashboard-performance-label">
+                Performance
+              </div>
             </div>
           </div>
 
-          {/* THIS WEEK */}
-          <div className="dashboard-period-performance-card">
-            <div className="dashboard-period-performance-top">
-              <div>
-                <h2 className="dashboard-period-performance-title">
-                  This Week Performance
-                </h2>
-                <p className="dashboard-period-performance-subtitle">
-                  Weekly completed task performance
-                </p>
-              </div>
-
-              <div className="dashboard-period-performance-value">
-                {weekPerformancePercentage}%
-              </div>
-            </div>
-
-            <div className="dashboard-period-performance-track">
-              <div
-                className="dashboard-period-performance-fill"
-                style={{
-                  width: `${weekPerformancePercentage}%`,
-                }}
-              />
-            </div>
-
-            <div className="dashboard-period-performance-footer">
-              <span>
-                {dashboard.week?.completed || 0} of{" "}
-                {dashboard.week?.total || 0} completed
-              </span>
-              <strong>
-                {weekPerformanceMotivation.emoji}{" "}
-                {weekPerformanceMotivation.label}
-              </strong>
-            </div>
+          <div
+            className="dashboard-performance-track"
+            aria-label={`Today's performance ${todayPerformancePercentage}%`}
+          >
+            <div
+              className="dashboard-performance-fill"
+              style={{
+                width: `${todayPerformancePercentage}%`,
+              }}
+            />
           </div>
 
-          {/* THIS MONTH */}
-          <div className="dashboard-period-performance-card">
-            <div className="dashboard-period-performance-top">
-              <div>
-                <h2 className="dashboard-period-performance-title">
-                  This Month Performance
-                </h2>
-                <p className="dashboard-period-performance-subtitle">
-                  Monthly completed task performance
-                </p>
-              </div>
+          <div className="dashboard-performance-footer">
+            <span>
+              <FaCheckCircle />
+              {completed} of {total} tasks completed
+            </span>
 
-              <div className="dashboard-period-performance-value">
-                {monthPerformancePercentage}%
-              </div>
-            </div>
-
-            <div className="dashboard-period-performance-track">
-              <div
-                className="dashboard-period-performance-fill"
-                style={{
-                  width: `${monthPerformancePercentage}%`,
-                }}
-              />
-            </div>
-
-            <div className="dashboard-period-performance-footer">
-              <span>
-                {dashboard.month?.completed || 0} of{" "}
-                {dashboard.month?.total || 0} completed
-              </span>
-              <strong>
-                {monthPerformanceMotivation.emoji}{" "}
-                {monthPerformanceMotivation.label}
-              </strong>
-            </div>
+            <strong className="dashboard-performance-result">
+              {performanceMotivation.emoji} {performanceMotivation.label}
+            </strong>
           </div>
-
         </section>
 
         {/* TODAY TASKS */}
