@@ -41,6 +41,7 @@ function Task() {
   const [fromTime, setFromTime] = useState("");
   const [toTime, setToTime] = useState("");
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [editTask, setEditTask] = useState(null);
   const [tasks, setTasks] = useState([]);
   // Prevent multiple Save/Add clicks from creating duplicate database rows.
@@ -679,6 +680,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
               : 0,
           color: t.color || colors[index % colors.length],
           icon: t.icon || null,
+          iconImage: t.icon_image || t.iconImage || null,
           default_id: t.default_id || t.defaultId || null,
           nextDay: isNextDay(t.from, t.to),
         }));
@@ -786,6 +788,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     setFromTime("");
     setToTime("");
     setImage(null);
+    setImagePreview("");
   };
 
   const notifyTaskUpdated = () => {
@@ -1082,6 +1085,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     setFromTime(convertToInputTime(task.from || task.time));
     setToTime(convertToInputTime(task.to));
     setImage(null);
+    setImagePreview(task.iconImage || "");
   };
 
   const toMin = (time) => {
@@ -1101,6 +1105,23 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     } catch {
       return 0;
     }
+  };
+
+  const saveTaskImage = async (taskId) => {
+    if (!image || !taskId) return { success: true };
+
+    const formData = new FormData();
+    formData.append("action", "save_image");
+    formData.append("email", user?.email || "");
+    formData.append("id", String(taskId));
+    formData.append("image", image);
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: formData,
+    });
+
+    return await res.json();
   };
 
   const handleAddTask = async () => {
@@ -1268,6 +1289,32 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
         })
       );
 
+      // Save a newly selected image against the existing default-task row.
+      if (image && editTask?.id) {
+        try {
+          const imageData = await saveTaskImage(editTask.id);
+
+          if (!imageData.success) {
+            alert(imageData.message || "Could not save task image");
+            saveInProgressRef.current = false;
+            return;
+          }
+
+          setTasks((prev) =>
+            prev.map((task) =>
+              String(task.id) === String(editTask.id)
+                ? { ...task, iconImage: imageData.icon_image || task.iconImage }
+                : task
+            )
+          );
+        } catch (imageError) {
+          console.error("Default task image save error:", imageError);
+          alert("Unable to save task image");
+          saveInProgressRef.current = false;
+          return;
+        }
+      }
+
       // If Sleep crosses midnight, its TO time becomes the next day's Wake Up.
       if (taskTitle === "sleep" && formattedTo && nextDay) {
         const nextDate = new Date(date);
@@ -1293,20 +1340,31 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     // DATABASE ADD / UPDATE
     // =========================
     try {
+      const formData = new FormData();
+      formData.append("action", editTask ? "update" : "add");
+
+      if (editTask?.id) {
+        formData.append("id", String(editTask.id));
+      }
+
+      formData.append("email", user?.email || "");
+      formData.append("title", title.trim());
+      formData.append("from", formattedFrom);
+      formData.append("to", formattedTo);
+      formData.append("task_date", currentKey);
+      formData.append("nextDay", nextDay ? "1" : "0");
+      formData.append(
+        "color",
+        editTask?.color || colors[tasks.length % colors.length]
+      );
+
+      if (image) {
+        formData.append("image", image);
+      }
+
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: editTask ? "update" : "add",
-          id: editTask?.id,
-          email: user?.email,
-          title: title.trim(),
-          from: formattedFrom,
-          to: formattedTo,
-          task_date: currentKey,
-          nextDay,
-          color: editTask?.color || colors[tasks.length % colors.length],
-        }),
+        body: formData,
       });
 
       const data = await res.json();
@@ -1973,7 +2031,15 @@ const performancePercentage =
                   <div className="task-card-main">
                     <div className="task-card-left">
                       <div className="icon-box task-icon-top">
-                        {getIcon(task.icon, task.title)}
+                        {task.iconImage ? (
+                          <img
+                            src={task.iconImage}
+                            alt={task.title}
+                            className="task-uploaded-icon"
+                          />
+                        ) : (
+                          getIcon(task.icon, task.title)
+                        )}
                       </div>
 
                       <div className="card-content task-card-content">
@@ -2147,8 +2213,23 @@ const performancePercentage =
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setImage(e.target.files?.[0] || null)}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setImage(file);
+
+                    if (file) {
+                      setImagePreview(URL.createObjectURL(file));
+                    }
+                  }}
                 />
+
+                {imagePreview && (
+                  <img
+                    src={imagePreview}
+                    alt="Task icon preview"
+                    className="task-image-preview"
+                  />
+                )}
               </div>
             )}
 
