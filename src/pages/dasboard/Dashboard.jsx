@@ -440,9 +440,8 @@ const [, setTimeTick] = useState(0);
       return 9999;
     }
 
-    return (
-      hours * 60 + minutes
-    );
+  
+    return hours * 60 + minutes;
   };
 
   /* =====================================================
@@ -1547,6 +1546,23 @@ const todayPerformancePercentage =
     : 0;
 
 /* =====================================================
+   TODAY'S PERFORMANCE PIE
+   ===================================================== */
+
+const performanceDeg =
+  todayPerformancePercentage > 0
+    ? (todayPerformancePercentage / 100) * 360
+    : 0;
+
+const performancePieStyle = {
+  background:
+    `conic-gradient(
+      #6d4aff 0deg ${performanceDeg}deg,
+      #e9e7f4 ${performanceDeg}deg 360deg
+    )`,
+};
+
+/* =====================================================
    STUDENT MOTIVATION — ONE MESSAGE + ONE EMOJI
    Changes automatically according to performance %
    ===================================================== */
@@ -1606,6 +1622,169 @@ const performanceMotivation =
    DASHBOARD TODAY PERFORMANCE CARD STYLES
    ===================================================== */
 
+
+  /* =====================================================
+     PERFORMANCE PIE - TWO COLUMN LAYOUT
+     Existing Progress Status pie stays on the LEFT.
+     Today's Performance Progress pie is on the RIGHT.
+     ===================================================== */
+  const performancePieStyles = `
+    .dashboard-main .performance-pie-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, .9fr);
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .dashboard-main .performance-pie-panel {
+      min-width: 0;
+      padding: 8px 8px 10px;
+    }
+
+    .dashboard-main .performance-pie-panel h2 {
+      margin: 0 0 20px;
+      color: #151329;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 750;
+    }
+
+    .dashboard-main .performance-pie-layout > .performance-pie-panel + .performance-pie-panel {
+      border-left: 1px solid #eeeaf7;
+      padding-left: 30px;
+    }
+
+    .dashboard-main .performance-pie-content {
+      min-height: 310px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 35px;
+    }
+
+    .dashboard-main .performance-pie-ring {
+      width: 250px;
+      height: 250px;
+      flex: 0 0 250px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 12px 30px rgba(105, 76, 255, .12);
+    }
+
+    .dashboard-main .performance-pie-ring::after {
+      content: "";
+      width: 162px;
+      height: 162px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+    }
+
+    .dashboard-main .performance-pie-ring {
+      position: relative;
+    }
+
+    .dashboard-main .performance-pie-center {
+      position: relative;
+      z-index: 1;
+      width: 162px;
+      height: 162px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+
+    .dashboard-main .performance-pie-center span {
+      color: #6f6b7d;
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    .dashboard-main .performance-pie-center strong {
+      color: #6046e8;
+      font-size: 38px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .dashboard-main .performance-pie-center small {
+      color: #8a8794;
+      font-size: 10px;
+      line-height: 1.25;
+      margin-top: 6px;
+      max-width: 105px;
+    }
+
+    .dashboard-main .performance-pie-details {
+      min-width: 150px;
+    }
+
+    .dashboard-main .performance-pie-number {
+      color: #694cff;
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .dashboard-main .performance-pie-details p {
+      margin: 10px 0 12px;
+      color: #777584;
+      font-size: 13px;
+    }
+
+    .dashboard-main .performance-pie-details strong {
+      color: #4e3aa8;
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-main .performance-pie-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-main .performance-pie-layout > .performance-pie-panel + .performance-pie-panel {
+        border-left: 0;
+        border-top: 1px solid #eeeaf7;
+        padding-left: 8px;
+        padding-top: 25px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .dashboard-main .performance-pie-content {
+        min-height: auto;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .dashboard-main .performance-pie-ring {
+        width: 205px;
+        height: 205px;
+        flex-basis: 205px;
+      }
+
+      .dashboard-main .performance-pie-ring::after,
+      .dashboard-main .performance-pie-center {
+        width: 134px;
+        height: 134px;
+      }
+
+      .dashboard-main .performance-pie-center strong {
+        font-size: 31px;
+      }
+
+      .dashboard-main .performance-pie-details {
+        text-align: center;
+      }
+    }
+  `;
 const dashboardPerformanceStyles = `
   /* =====================================================
      DASHBOARD UI — CLEAN PREMIUM REFRESH
@@ -2451,6 +2630,7 @@ const dashboardPerformanceStyles = `
       <main className="dashboard-main">
 
         <style>{dashboardPerformanceStyles}</style>
+        <style>{performancePieStyles}</style>
 
        
 
@@ -2696,109 +2876,126 @@ const dashboardPerformanceStyles = `
         </section>
 
 
-        {/* PROGRESS STATUS */}
-        <section className="progress-section">
+        {/* PROGRESS STATUS + PERFORMANCE PIE */}
+        <section className="progress-section performance-pie-layout">
 
-          <h2>
-            Progress Status
-          </h2>
+          <div className="performance-pie-panel">
 
-          <div className="progress-content">
+            <h2>
+              Progress Status
+            </h2>
 
-            <div className="pie-wrapper">
+            <div className="progress-content">
 
-              <div
-                className="pie-chart"
-                style={
-                  pieStyle
-                }
-              >
+              <div className="pie-wrapper">
 
-                <div className="pie-center">
+                <div
+                  className="pie-chart"
+                  style={pieStyle}
+                >
 
-                  <span>
-                    Overall
-                  </span>
+                  <div className="pie-center">
 
-                  <strong>
-                    {liveTodayStats.percentage || 0}
-                    %
-                  </strong>
+                    <span>
+                      Overall
+                    </span>
 
-                  <small>
+                    <strong>
+                      {liveTodayStats.percentage || 0}
+                      %
+                    </strong>
+
+                    <small>
+                      Completed
+                    </small>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div className="legend">
+
+                <div className="legend-row">
+                  <div className="legend-name">
+                    <span className="dot completed-dot" />
                     Completed
-                  </small>
+                  </div>
+                  <strong>
+                    {getPercentage(completed)}%
+                  </strong>
+                </div>
 
+                <div className="legend-row">
+                  <div className="legend-name">
+                    <span className="dot progress-dot" />
+                    In Progress
+                  </div>
+                  <strong>
+                    {getPercentage(inProgress)}%
+                  </strong>
+                </div>
+
+                <div className="legend-row">
+                  <div className="legend-name">
+                    <span className="dot pending-dot" />
+                    Pending
+                  </div>
+                  <strong>
+                    {getPercentage(pending)}%
+                  </strong>
+                </div>
+
+                <div className="legend-row">
+                  <div className="legend-name">
+                    <span className="dot notstarted-dot" />
+                    Not Started
+                  </div>
+                  <strong>
+                    {getPercentage(notStarted)}%
+                  </strong>
                 </div>
 
               </div>
 
             </div>
 
-            <div className="legend">
+          </div>
 
-              <div className="legend-row">
+          <div className="performance-pie-panel">
 
-                <div className="legend-name">
-                  <span className="dot completed-dot" />
-                  Completed
+            <h2>
+              Today's Performance Progress
+            </h2>
+
+            <div className="performance-pie-content">
+
+              <div className="performance-pie-chart">
+                <div
+                  className="performance-pie-ring"
+                  style={performancePieStyle}
+                >
+                  <div className="performance-pie-center">
+                    <span>Performance</span>
+                    <strong>
+                      {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+                    </strong>
+                    <small>Completed task performance</small>
+                  </div>
                 </div>
-
-                <strong>
-                  {getPercentage(
-                    completed
-                  )}
-                  %
-                </strong>
-
               </div>
 
-              <div className="legend-row">
-
-                <div className="legend-name">
-                  <span className="dot progress-dot" />
-                  In Progress
+              <div className="performance-pie-details">
+                <div className="performance-pie-number">
+                  {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
                 </div>
-
+                <p>
+                  {completed} of {total} tasks completed
+                </p>
                 <strong>
-                  {getPercentage(
-                    inProgress
-                  )}
-                  %
+                  {performanceMotivation.emoji} {performanceMotivation.label}
                 </strong>
-
-              </div>
-
-              <div className="legend-row">
-
-                <div className="legend-name">
-                  <span className="dot pending-dot" />
-                  Pending
-                </div>
-
-                <strong>
-                  {getPercentage(
-                    pending
-                  )}
-                  %
-                </strong>
-
-              </div>
-
-              <div className="legend-row">
-
-                <div className="legend-name">
-                  <span className="dot notstarted-dot" />
-                  Not Started
-                </div>
-
-                <strong>
-                  {getPercentage(
-                    notStarted
-                  )}
-                  %
-                </strong>
-
               </div>
 
             </div>
@@ -3151,62 +3348,6 @@ const dashboardPerformanceStyles = `
           </div>
         </section>
 
-        {/* TODAY'S PERFORMANCE PROGRESS — ABOVE PROGRESS STATUS */}
-        {/* TODAY'S PERFORMANCE PROGRESS */}
-        <section className="dashboard-performance-card">
-          <div className="dashboard-performance-head">
-            <div className="dashboard-performance-title-wrap">
-              <div
-                className="dashboard-performance-icon"
-                aria-hidden="true"
-                title="Student Growth"
-              >
-                <FaGraduationCap />
-              </div>
-
-              <div>
-                <h2>Today's Performance Progress</h2>
-                <p className="dashboard-performance-motivation">
-                  {performanceMotivation.emoji} {performanceMotivation.message}
-                </p>
-              </div>
-            </div>
-
-            <div className="dashboard-performance-value-wrap">
-              <div className="dashboard-performance-value">
-                {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
-              </div>
-              <div className="dashboard-performance-label">
-                Performance
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="dashboard-performance-track"
-            aria-label={`Today's performance ${todayPerformancePercentage}%`}
-          >
-            <div
-              className="dashboard-performance-fill"
-              style={{
-                width: `${todayPerformancePercentage}%`,
-              }}
-            />
-          </div>
-
-          <div className="dashboard-performance-footer">
-            <span>
-              <FaCheckCircle />
-              {completed} of {total} tasks completed
-            </span>
-
-            <strong className="dashboard-performance-result">
-              {performanceMotivation.emoji} {performanceMotivation.label}
-            </strong>
-          </div>
-        </section>
-
-
         {/* TODAY TASKS */}
         <section className="tasks-section">
           <div className="section-heading">
@@ -3338,6 +3479,7 @@ const dashboardPerformanceStyles = `
       
 
     </div>
+    
   );
 }
 
