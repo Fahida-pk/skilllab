@@ -2613,7 +2613,7 @@ const dashboardPerformanceStyles = `
               </div>
 
               <span>
-                Total Study Hours (This Week)
+                Total Hours (This Week)
               </span>
 
               <strong className="orange-text">
