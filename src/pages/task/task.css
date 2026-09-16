@@ -2810,64 +2810,79 @@ body,
    Pattern repeats after 15 cards.
    ========================================================= */
 
-.cards .card.task-modern-card:nth-child(15n + 1) {
+.cards .card.task-modern-card:nth-child(20n + 1) {
   background: linear-gradient(135deg, #63D6B0 0%, #46C7C1 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 2) {
+.cards .card.task-modern-card:nth-child(20n + 2) {
   background: linear-gradient(135deg, #73B7F5 0%, #8589E8 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 3) {
+.cards .card.task-modern-card:nth-child(20n + 3) {
   background: linear-gradient(135deg, #E889C5 0%, #EF6F8D 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 4) {
+.cards .card.task-modern-card:nth-child(20n + 4) {
   background: linear-gradient(135deg, #F2B35D 0%, #F07B6B 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 5) {
+.cards .card.task-modern-card:nth-child(20n + 5) {
   background: linear-gradient(135deg, #73D58E 0%, #4FC6A8 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 6) {
+.cards .card.task-modern-card:nth-child(20n + 6) {
   background: linear-gradient(135deg, #9B7BEA 0%, #B86EDB 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 7) {
+.cards .card.task-modern-card:nth-child(20n + 7) {
   background: linear-gradient(135deg, #48C1D1 0%, #4D82D8 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 8) {
+.cards .card.task-modern-card:nth-child(20n + 8) {
   background: linear-gradient(135deg, #F19A70 0%, #E85D8B 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 9) {
+.cards .card.task-modern-card:nth-child(20n + 9) {
   background: linear-gradient(135deg, #54C9C0 0%, #6C9FEA 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 10) {
+.cards .card.task-modern-card:nth-child(20n + 10) {
   background: linear-gradient(135deg, #D77CCB 0%, #9B70D8 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 11) {
+.cards .card.task-modern-card:nth-child(20n + 11) {
   background: linear-gradient(135deg, #9BCB5E 0%, #59C98B 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 12) {
+.cards .card.task-modern-card:nth-child(20n + 12) {
   background: linear-gradient(135deg, #748CE0 0%, #55B8C9 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 13) {
+.cards .card.task-modern-card:nth-child(20n + 13) {
   background: linear-gradient(135deg, #F07BAA 0%, #D95F9E 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 14) {
+.cards .card.task-modern-card:nth-child(20n + 14) {
   background: linear-gradient(135deg, #E6A84F 0%, #D96B5C 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(15n + 15) {
+.cards .card.task-modern-card:nth-child(20n + 15) {
   background: linear-gradient(135deg, #6676C8 0%, #7355B7 100%) !important;
+}
+.cards .card.task-modern-card:nth-child(20n + 16) {
+  background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%) !important;
+}
+.cards .card.task-modern-card:nth-child(20n + 17) {
+  background: linear-gradient(135deg, #bde0fe 0%, #cdb4db 100%) !important;
+}
+.cards .card.task-modern-card:nth-child(20n + 18) {
+  background: linear-gradient(135deg, #ffd6a5 0%, #ffcad4 100%) !important;
+}
+.cards .card.task-modern-card:nth-child(20n + 19) {
+  background: linear-gradient(135deg, #caffbf 0%, #9bf6ff 100%) !important;
+}
+.cards .card.task-modern-card:nth-child(20n + 20) {
+  background: linear-gradient(135deg, #e4c1f9 0%, #f1c0e8 100%) !important;
 }
 
 /* Keep text and controls clearly visible */
