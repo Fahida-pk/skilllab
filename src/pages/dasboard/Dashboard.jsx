@@ -70,12 +70,14 @@ const [, setTimeTick] = useState(0);
         total: 0,
         completed: 0,
         percentage: 0,
+        performancePercentage: 0,
       },
 
       month: {
         total: 0,
         completed: 0,
         percentage: 0,
+        performancePercentage: 0,
       },
 
       studyHours: {
@@ -2629,18 +2631,18 @@ const dashboardPerformanceStyles = `
               </div>
 
               <div className="performance-progress-value">
-                {dashboard.week?.percentage || 0}%
+                {dashboard.week?.performancePercentage || 0}%
               </div>
             </div>
 
             <div
               className="performance-progress-track"
-              aria-label={`This week performance ${dashboard.week?.percentage || 0}%`}
+              aria-label={`This week performance ${dashboard.week?.performancePercentage || 0}%`}
             >
               <div
                 className="performance-progress-fill"
                 style={{
-                  width: `${dashboard.week?.percentage || 0}%`,
+                  width: `${dashboard.week?.performancePercentage || 0}%`,
                 }}
               />
             </div>
@@ -2650,8 +2652,8 @@ const dashboardPerformanceStyles = `
                 {dashboard.week?.completed || 0} of {dashboard.week?.total || 0} completed
               </span>
               <strong>
-                {getPerformanceMessage(Number(dashboard.week?.percentage || 0)).emoji}{" "}
-                {getPerformanceMessage(Number(dashboard.week?.percentage || 0)).label}
+                {getPerformanceMessage(Number(dashboard.week?.performancePercentage || 0)).emoji}{" "}
+                {getPerformanceMessage(Number(dashboard.week?.performancePercentage || 0)).label}
               </strong>
             </div>
           </div>
@@ -2665,18 +2667,18 @@ const dashboardPerformanceStyles = `
               </div>
 
               <div className="performance-progress-value">
-                {dashboard.month?.percentage || 0}%
+                {dashboard.month?.performancePercentage || 0}%
               </div>
             </div>
 
             <div
               className="performance-progress-track"
-              aria-label={`This month performance ${dashboard.month?.percentage || 0}%`}
+              aria-label={`This month performance ${dashboard.month?.performancePercentage || 0}%`}
             >
               <div
                 className="performance-progress-fill"
                 style={{
-                  width: `${dashboard.month?.percentage || 0}%`,
+                  width: `${dashboard.month?.performancePercentage || 0}%`,
                 }}
               />
             </div>
@@ -2686,8 +2688,8 @@ const dashboardPerformanceStyles = `
                 {dashboard.month?.completed || 0} of {dashboard.month?.total || 0} completed
               </span>
               <strong>
-                {getPerformanceMessage(Number(dashboard.month?.percentage || 0)).emoji}{" "}
-                {getPerformanceMessage(Number(dashboard.month?.percentage || 0)).label}
+                {getPerformanceMessage(Number(dashboard.month?.performancePercentage || 0)).emoji}{" "}
+                {getPerformanceMessage(Number(dashboard.month?.performancePercentage || 0)).label}
               </strong>
             </div>
           </div>
