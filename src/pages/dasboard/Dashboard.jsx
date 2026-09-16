@@ -1463,26 +1463,12 @@ const pendingDeg =
     ? (pending / total) * 360
     : 0;
 
-const getPerformanceColor = (percentage) => {
-  const value = Number(percentage) || 0;
-
-  if (value >= 80) return "#16a34a"; // Excellent
-  if (value >= 60) return "#22c55e"; // Strong
-  if (value >= 40) return "#f59e0b"; // Good progress
-  if (value >= 20) return "#f97316"; // Building
-  if (value > 0) return "#ef4444";  // Starting
-  return "#d9d6e8";                  // 0%
-};
-
-const completedStatusColor =
-  getPerformanceColor(liveTodayStats.percentage);
-
 const pieStyle =
   total > 0
     ? {
         background:
           `conic-gradient(
-            ${completedStatusColor} 0deg ${completedDeg}deg,
+            #22c55e 0deg ${completedDeg}deg,
             #2f80ed ${completedDeg}deg ${
               completedDeg + inProgressDeg
             }deg,
@@ -1568,13 +1554,10 @@ const performanceDeg =
     ? (todayPerformancePercentage / 100) * 360
     : 0;
 
-const performanceProgressColor =
-  getPerformanceColor(todayPerformancePercentage);
-
 const performancePieStyle = {
   background:
     `conic-gradient(
-      ${performanceProgressColor} 0deg ${performanceDeg}deg,
+      #6d4aff 0deg ${performanceDeg}deg,
       #e9e7f4 ${performanceDeg}deg 360deg
     )`,
 };
@@ -1648,8 +1631,8 @@ const performanceMotivation =
   const performancePieStyles = `
     .dashboard-main .performance-pie-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 0;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, .9fr);
+      gap: 28px;
       align-items: stretch;
     }
 
@@ -1669,8 +1652,6 @@ const performanceMotivation =
     .dashboard-main .performance-pie-layout > .performance-pie-panel + .performance-pie-panel {
       border-left: 1px solid #eeeaf7;
       padding-left: 30px;
-      width: 100%;
-      box-sizing: border-box;
     }
 
     .dashboard-main .performance-pie-content {
