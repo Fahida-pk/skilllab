@@ -2797,3 +2797,41 @@ body,
     margin-top: 12px !important;
   }
 }
+
+
+/* =========================================================
+   TASK CARDS - ALWAYS DIFFERENT COLOURS
+   Colours rotate by card position:
+   1 Pink, 2 Green, 3 Blue, 4 Orange, 5 Purple, 6 Teal
+   Then the same sequence repeats.
+   ========================================================= */
+
+.cards .card.task-modern-card:nth-child(6n + 1) {
+  background: linear-gradient(135deg, #ff6f91 0%, #ff9a9e 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(6n + 2) {
+  background: linear-gradient(135deg, #16a085 0%, #43e97b 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(6n + 3) {
+  background: linear-gradient(135deg, #2196f3 0%, #21cbf3 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(6n + 4) {
+  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(6n + 5) {
+  background: linear-gradient(135deg, #7b2ff7 0%, #c471f5 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(6n + 6) {
+  background: linear-gradient(135deg, #008c95 0%, #36d1dc 100%) !important;
+}
+
+/* Keep completed cards slightly muted without changing their colour */
+.cards .card.task-modern-card.done {
+  filter: saturate(0.75);
+  opacity: 0.78;
+}
