@@ -2799,39 +2799,65 @@ body,
 }
 
 
+
+
+
 /* =========================================================
-   TASK CARDS - ALWAYS DIFFERENT COLOURS
-   Colours rotate by card position:
-   1 Pink, 2 Green, 3 Blue, 4 Orange, 5 Purple, 6 Teal
-   Then the same sequence repeats.
+   TASK CARDS - VARIETY 2-COLOR GRADIENTS
+   Each card gets a different rich two-colour combination.
+   Sequence repeats only after 12 cards.
    ========================================================= */
 
-.cards .card.task-modern-card:nth-child(6n + 1) {
-  background: linear-gradient(135deg, #ff6f91 0%, #ff9a9e 100%) !important;
+.cards .card.task-modern-card:nth-child(12n + 1) {
+  background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(6n + 2) {
-  background: linear-gradient(135deg, #16a085 0%, #43e97b 100%) !important;
+.cards .card.task-modern-card:nth-child(12n + 2) {
+  background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(6n + 3) {
-  background: linear-gradient(135deg, #2196f3 0%, #21cbf3 100%) !important;
+.cards .card.task-modern-card:nth-child(12n + 3) {
+  background: linear-gradient(135deg, #396afc 0%, #2948ff 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(6n + 4) {
-  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%) !important;
+.cards .card.task-modern-card:nth-child(12n + 4) {
+  background: linear-gradient(135deg, #f7971e 0%, #ff512f 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(6n + 5) {
-  background: linear-gradient(135deg, #7b2ff7 0%, #c471f5 100%) !important;
+.cards .card.task-modern-card:nth-child(12n + 5) {
+  background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%) !important;
 }
 
-.cards .card.task-modern-card:nth-child(6n + 6) {
-  background: linear-gradient(135deg, #008c95 0%, #36d1dc 100%) !important;
+.cards .card.task-modern-card:nth-child(12n + 6) {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
 }
 
-/* Keep completed cards slightly muted without changing their colour */
+.cards .card.task-modern-card:nth-child(12n + 7) {
+  background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(12n + 8) {
+  background: linear-gradient(135deg, #4776e6 0%, #8e54e9 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(12n + 9) {
+  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(12n + 10) {
+  background: linear-gradient(135deg, #f953c6 0%, #b91d73 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(12n + 11) {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%) !important;
+}
+
+.cards .card.task-modern-card:nth-child(12n + 12) {
+  background: linear-gradient(135deg, #614385 0%, #516395 100%) !important;
+}
+
+/* Keep completed cards slightly muted without removing their gradient */
 .cards .card.task-modern-card.done {
-  filter: saturate(0.75);
-  opacity: 0.78;
+  filter: saturate(0.78);
+  opacity: 0.82;
 }
