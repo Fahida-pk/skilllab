@@ -42,6 +42,7 @@ function Task() {
   const [toTime, setToTime] = useState("");
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
+  const [removeImage, setRemoveImage] = useState(false);
   const [editTask, setEditTask] = useState(null);
   const [tasks, setTasks] = useState([]);
   // Prevent multiple Save/Add clicks from creating duplicate database rows.
@@ -789,6 +790,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     setToTime("");
     setImage(null);
     setImagePreview("");
+    setRemoveImage(false);
   };
 
   const notifyTaskUpdated = () => {
@@ -1085,6 +1087,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     setFromTime(convertToInputTime(task.from || task.time));
     setToTime(convertToInputTime(task.to));
     setImage(null);
+    setRemoveImage(false);
     setImagePreview(task.iconImage || "");
   };
 
@@ -1115,6 +1118,22 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     formData.append("email", user?.email || "");
     formData.append("id", String(taskId));
     formData.append("image", image);
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: formData,
+    });
+
+    return await res.json();
+  };
+
+  const removeTaskImage = async (taskId) => {
+    if (!taskId) return { success: false, message: "Task ID missing" };
+
+    const formData = new FormData();
+    formData.append("action", "remove_image");
+    formData.append("email", user?.email || "");
+    formData.append("id", String(taskId));
 
     const res = await fetch(API_URL, {
       method: "POST",
@@ -1289,6 +1308,30 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
         })
       );
 
+      // Remove the existing image when the user selected "Remove Photo".
+      if (removeImage && editTask?.id) {
+        try {
+          const removeData = await removeTaskImage(editTask.id);
+          if (!removeData.success) {
+            alert(removeData.message || "Could not remove task image");
+            saveInProgressRef.current = false;
+            return;
+          }
+          setTasks((prev) =>
+            prev.map((task) =>
+              String(task.id) === String(editTask.id)
+                ? { ...task, iconImage: null }
+                : task
+            )
+          );
+        } catch (removeError) {
+          console.error("Default task image remove error:", removeError);
+          alert("Unable to remove task image");
+          saveInProgressRef.current = false;
+          return;
+        }
+      }
+
       // Save a newly selected image against the existing default-task row.
       if (image && editTask?.id) {
         try {
@@ -1360,6 +1403,10 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
       if (image) {
         formData.append("image", image);
+      }
+
+      if (editTask && removeImage && !image) {
+        formData.append("remove_image", "1");
       }
 
       const res = await fetch(API_URL, {
@@ -2216,6 +2263,7 @@ const performancePercentage =
                   onChange={(e) => {
                     const file = e.target.files?.[0] || null;
                     setImage(file);
+                    setRemoveImage(false);
 
                     if (file) {
                       setImagePreview(URL.createObjectURL(file));
@@ -2224,11 +2272,33 @@ const performancePercentage =
                 />
 
                 {imagePreview && (
-                  <img
-                    src={imagePreview}
-                    alt="Task icon preview"
-                    className="task-image-preview"
-                  />
+                  <div style={{ position: "relative", marginTop: "10px" }}>
+                    <img
+                      src={imagePreview}
+                      alt="Task icon preview"
+                      className="task-image-preview"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImage(null);
+                        setImagePreview("");
+                        setRemoveImage(Boolean(editTask?.iconImage));
+                      }}
+                      style={{
+                        marginTop: "8px",
+                        padding: "8px 14px",
+                        border: "none",
+                        borderRadius: "8px",
+                        background: "#ef4444",
+                        color: "#fff",
+                        cursor: "pointer",
+                        fontWeight: 600
+                      }}
+                    >
+                      Remove Photo
+                    </button>
+                  </div>
                 )}
               </div>
             )}
