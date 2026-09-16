@@ -1,5 +1,5 @@
 import Sidebar from "../dasboard/Sidebar.jsx";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   FaMoon,
   FaChevronLeft,
@@ -43,6 +43,8 @@ function Task() {
   const [image, setImage] = useState(null);
   const [editTask, setEditTask] = useState(null);
   const [tasks, setTasks] = useState([]);
+  // Prevent multiple Save/Add clicks from creating duplicate database rows.
+  const saveInProgressRef = useRef(false);
 const [deleteConfirm, setDeleteConfirm] = useState(null);
   const getDateKey = (d) => {
     const year = d.getFullYear();
@@ -1053,13 +1055,19 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const handleAddTask = async () => {
 
+    // Ignore repeated clicks while the current save is still running.
+    if (saveInProgressRef.current) return;
+    saveInProgressRef.current = true;
+
     if (isPreviousDay) {
       alert("Previous day tasks cannot be added or edited.");
+      saveInProgressRef.current = false;
       return;
     }
 
     if (!title.trim() || !fromTime) {
       alert("Please enter task title and from time");
+      saveInProgressRef.current = false;
       return;
     }
 
@@ -1093,6 +1101,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     // an overnight task; only an end time earlier than the start is overnight.
     if (formattedTo && candidateEnd === candidateStart) {
       alert("Start time and end time cannot be the same. Please choose another time.");
+      saveInProgressRef.current = false;
       return;
     }
 
@@ -1173,6 +1182,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       alert(
         `Time conflict: ${overlappingTask.title} is already scheduled for ${existingTime}.\n\nPlease choose a time outside this period.`
       );
+      saveInProgressRef.current = false;
       return;
     }
 
@@ -1225,6 +1235,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
       notifyTaskUpdated();
       resetModal();
+      saveInProgressRef.current = false;
       return;
     }
 
@@ -1252,18 +1263,20 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
       if (!data.success) {
         alert(data.message || "Task save failed");
+        saveInProgressRef.current = false;
         return;
       }
 
       await fetchTasks();
       notifyTaskUpdated();
       resetModal();
+      saveInProgressRef.current = false;
     } catch (error) {
       console.error("Add/update task error:", error);
       alert("Unable to save task");
+      saveInProgressRef.current = false;
     }
   };
-
   // Every visible task now comes from the database, including the built-in
   // tasks. This keeps status and percentage in one source of truth.
   const displayTasks = useMemo(() => tasks, [tasks]);
