@@ -771,10 +771,77 @@ const mergeDashboardTasks = (
    * Only show tasks belonging to selected date.
    */
 
-  const customTasks = Array.isArray(apiTasks)
-    ? apiTasks.map((task) => ({
-        // Display the exact task time returned by the Tasks/database API.
+  const localChanges = getLocalDefaultChanges(dateKey);
 
+const deletedDefaultIds = new Set(
+  (localChanges.deleted || []).map(String)
+);
+
+// Get titles of deleted default tasks for fallback matching.
+// This is important for older database rows where default_id
+// may not be available.
+const deletedDefaultTitles = new Set();
+
+const definitions = getSavedDefaultDefinitions();
+
+definitions.forEach((defaultTask) => {
+  const defaultId = String(defaultTask.id);
+
+  if (!deletedDefaultIds.has(defaultId)) return;
+
+  const schedule =
+    localChanges.schedules?.[defaultId] || {};
+
+  const title =
+    schedule.title ||
+    defaultTask.title ||
+    "";
+
+  if (title) {
+    deletedDefaultTitles.add(
+      String(title).trim().toLowerCase()
+    );
+  }
+});
+
+const customTasks = Array.isArray(apiTasks)
+  ? apiTasks
+      .filter((task) => {
+        const taskDefaultId = String(
+          task.default_id ||
+          task.defaultId ||
+          ""
+        );
+
+        const taskTitle = String(
+          task.title ||
+          task.task_name ||
+          ""
+        )
+          .trim()
+          .toLowerCase();
+
+        // 1. Strong match: default_id
+        if (
+          taskDefaultId &&
+          deletedDefaultIds.has(taskDefaultId)
+        ) {
+          return false;
+        }
+
+        // 2. Fallback: deleted default title
+        if (
+          taskTitle &&
+          deletedDefaultTitles.has(taskTitle)
+        ) {
+          return false;
+        }
+
+        return true;
+      })
+      .map((task) => ({
+        // Display the exact task time returned by
+        // the Tasks/database API.
         ...task,
 
         id: task.id,
@@ -791,17 +858,20 @@ const mergeDashboardTasks = (
           task.to ||
           task.to_time,
 
-        // Completed ONLY from the actual checkbox/completion flag.
+        // Completed ONLY from the actual checkbox flag.
         completed:
           task.completed === true ||
           task.completed === 1 ||
           task.completed === "1" ||
           task.completed === "true",
 
-        // Keep the same saved task percentage used by the Tasks page.
+        // Keep saved task percentage.
         percentage: Math.max(
           0,
-          Math.min(100, Number(task.percentage ?? 0))
+          Math.min(
+            100,
+            Number(task.percentage ?? 0)
+          )
         ),
 
         taskStatus:
@@ -809,8 +879,7 @@ const mergeDashboardTasks = (
           task.task_status ||
           getTaskStatus(task),
       }))
-    : [];
-
+  : [];
   /*
    * =====================================================
    * DASHBOARD TASK SOURCE OF TRUTH
