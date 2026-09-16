@@ -2586,6 +2586,170 @@ const dashboardPerformanceStyles = `
 
         </div>
 
+        {/* TODAY'S PERFORMANCE PROGRESS — ABOVE PROGRESS STATUS */}
+        {/* TODAY'S PERFORMANCE PROGRESS */}
+        <section className="dashboard-performance-card">
+          <div className="dashboard-performance-head">
+            <div className="dashboard-performance-title-wrap">
+              <div
+                className="dashboard-performance-icon"
+                aria-hidden="true"
+                title="Student Growth"
+              >
+                <FaGraduationCap />
+              </div>
+
+              <div>
+                <h2>Today's Performance Progress</h2>
+                <p className="dashboard-performance-motivation">
+                  {performanceMotivation.emoji} {performanceMotivation.message}
+                </p>
+              </div>
+            </div>
+
+            <div className="dashboard-performance-value-wrap">
+              <div className="dashboard-performance-value">
+                {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+              </div>
+              <div className="dashboard-performance-label">
+                Performance
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="dashboard-performance-track"
+            aria-label={`Today's performance ${todayPerformancePercentage}%`}
+          >
+            <div
+              className="dashboard-performance-fill"
+              style={{
+                width: `${todayPerformancePercentage}%`,
+              }}
+            />
+          </div>
+
+          <div className="dashboard-performance-footer">
+            <span>
+              <FaCheckCircle />
+              {completed} of {total} tasks completed
+            </span>
+
+            <strong className="dashboard-performance-result">
+              {performanceMotivation.emoji} {performanceMotivation.label}
+            </strong>
+          </div>
+        </section>
+
+
+        {/* PERFORMANCE PROGRESS CARDS — ABOVE PROGRESS STATUS */}
+        {/* PERFORMANCE PROGRESS */}
+        <section className="performance-progress-cards">
+          {/* TODAY PERFORMANCE */}
+          <div className="performance-progress-card today-performance-card">
+            <div className="performance-progress-top">
+              <div className="performance-progress-title-wrap">
+                <h2>Today's Performance Progress</h2>
+                <p>Completed task performance</p>
+              </div>
+
+              <div className="performance-progress-value">
+                {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+              </div>
+            </div>
+
+            <div
+              className="performance-progress-track"
+              aria-label={`Today's performance ${todayPerformancePercentage}%`}
+            >
+              <div
+                className="performance-progress-fill"
+                style={{ width: `${todayPerformancePercentage}%` }}
+              />
+            </div>
+
+            <div className="performance-progress-footer">
+              <span>{completed} of {total} completed</span>
+              <strong>
+                {performanceMotivation.emoji} {performanceMotivation.label}
+              </strong>
+            </div>
+          </div>
+
+          {/* WEEK PERFORMANCE */}
+          <div className="performance-progress-card week-performance-card">
+            <div className="performance-progress-top">
+              <div className="performance-progress-title-wrap">
+                <h2>This Week Performance</h2>
+                <p>Weekly completed task performance</p>
+              </div>
+
+              <div className="performance-progress-value">
+                {dashboard.week?.percentage || 0}%
+              </div>
+            </div>
+
+            <div
+              className="performance-progress-track"
+              aria-label={`This week performance ${dashboard.week?.percentage || 0}%`}
+            >
+              <div
+                className="performance-progress-fill"
+                style={{
+                  width: `${dashboard.week?.percentage || 0}%`,
+                }}
+              />
+            </div>
+
+            <div className="performance-progress-footer">
+              <span>
+                {dashboard.week?.completed || 0} of {dashboard.week?.total || 0} completed
+              </span>
+              <strong>
+                {getPerformanceMessage(Number(dashboard.week?.percentage || 0)).emoji}{" "}
+                {getPerformanceMessage(Number(dashboard.week?.percentage || 0)).label}
+              </strong>
+            </div>
+          </div>
+
+          {/* MONTH PERFORMANCE */}
+          <div className="performance-progress-card month-performance-card">
+            <div className="performance-progress-top">
+              <div className="performance-progress-title-wrap">
+                <h2>This Month Performance</h2>
+                <p>Monthly completed task performance</p>
+              </div>
+
+              <div className="performance-progress-value">
+                {dashboard.month?.percentage || 0}%
+              </div>
+            </div>
+
+            <div
+              className="performance-progress-track"
+              aria-label={`This month performance ${dashboard.month?.percentage || 0}%`}
+            >
+              <div
+                className="performance-progress-fill"
+                style={{
+                  width: `${dashboard.month?.percentage || 0}%`,
+                }}
+              />
+            </div>
+
+            <div className="performance-progress-footer">
+              <span>
+                {dashboard.month?.completed || 0} of {dashboard.month?.total || 0} completed
+              </span>
+              <strong>
+                {getPerformanceMessage(Number(dashboard.month?.percentage || 0)).emoji}{" "}
+                {getPerformanceMessage(Number(dashboard.month?.percentage || 0)).label}
+              </strong>
+            </div>
+          </div>
+        </section>
+
+
         {/* PROGRESS STATUS */}
         <section className="progress-section">
 
@@ -2695,112 +2859,6 @@ const dashboardPerformanceStyles = `
 
           </div>
 
-        </section>
-
-        {/* PERFORMANCE PROGRESS — BELOW PROGRESS STATUS */}
-        <section className="performance-progress-cards">
-          {/* TODAY PERFORMANCE */}
-          <div className="performance-progress-card today-performance-card">
-            <div className="performance-progress-top">
-              <div className="performance-progress-title-wrap">
-                <h2>Today's Performance Progress</h2>
-                <p>Completed task performance</p>
-              </div>
-
-              <div className="performance-progress-value">
-                {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
-              </div>
-            </div>
-
-            <div
-              className="performance-progress-track"
-              aria-label={`Today's performance ${todayPerformancePercentage}%`}
-            >
-              <div
-                className="performance-progress-fill"
-                style={{ width: `${todayPerformancePercentage}%` }}
-              />
-            </div>
-
-            <div className="performance-progress-footer">
-              <span>{completed} of {total} completed</span>
-              <strong>
-                {performanceMotivation.emoji} {performanceMotivation.label}
-              </strong>
-            </div>
-          </div>
-
-          {/* WEEK PERFORMANCE */}
-          <div className="performance-progress-card week-performance-card">
-            <div className="performance-progress-top">
-              <div className="performance-progress-title-wrap">
-                <h2>This Week Performance</h2>
-                <p>Weekly completed task performance</p>
-              </div>
-
-              <div className="performance-progress-value">
-                {dashboard.week?.percentage || 0}%
-              </div>
-            </div>
-
-            <div
-              className="performance-progress-track"
-              aria-label={`This week performance ${dashboard.week?.percentage || 0}%`}
-            >
-              <div
-                className="performance-progress-fill"
-                style={{
-                  width: `${dashboard.week?.percentage || 0}%`,
-                }}
-              />
-            </div>
-
-            <div className="performance-progress-footer">
-              <span>
-                {dashboard.week?.completed || 0} of {dashboard.week?.total || 0} completed
-              </span>
-              <strong>
-                {getPerformanceMessage(Number(dashboard.week?.percentage || 0)).emoji}{" "}
-                {getPerformanceMessage(Number(dashboard.week?.percentage || 0)).label}
-              </strong>
-            </div>
-          </div>
-
-          {/* MONTH PERFORMANCE */}
-          <div className="performance-progress-card month-performance-card">
-            <div className="performance-progress-top">
-              <div className="performance-progress-title-wrap">
-                <h2>This Month Performance</h2>
-                <p>Monthly completed task performance</p>
-              </div>
-
-              <div className="performance-progress-value">
-                {dashboard.month?.percentage || 0}%
-              </div>
-            </div>
-
-            <div
-              className="performance-progress-track"
-              aria-label={`This month performance ${dashboard.month?.percentage || 0}%`}
-            >
-              <div
-                className="performance-progress-fill"
-                style={{
-                  width: `${dashboard.month?.percentage || 0}%`,
-                }}
-              />
-            </div>
-
-            <div className="performance-progress-footer">
-              <span>
-                {dashboard.month?.completed || 0} of {dashboard.month?.total || 0} completed
-              </span>
-              <strong>
-                {getPerformanceMessage(Number(dashboard.month?.percentage || 0)).emoji}{" "}
-                {getPerformanceMessage(Number(dashboard.month?.percentage || 0)).label}
-              </strong>
-            </div>
-          </div>
         </section>
 
         {/* QUICK OVERVIEW */}
