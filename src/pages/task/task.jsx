@@ -45,6 +45,7 @@ function Task() {
   const [removeImage, setRemoveImage] = useState(false);
   const [editTask, setEditTask] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [performanceErrorTaskId, setPerformanceErrorTaskId] = useState(null);
   // Prevent multiple Save/Add clicks from creating duplicate database rows.
   const saveInProgressRef = useRef(false);
 const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -943,7 +944,15 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     );
 
     if (!task.completed && currentPercentage <= 0) {
-      alert("Please set the task performance percentage before marking it as completed.");
+      // No popup/message: simply highlight this task's tick box in red.
+      setPerformanceErrorTaskId(task.id);
+
+      window.setTimeout(() => {
+        setPerformanceErrorTaskId((prev) =>
+          String(prev) === String(task.id) ? null : prev
+        );
+      }, 2000);
+
       return;
     }
 
@@ -1612,6 +1621,26 @@ const performancePercentage =
     cursor: not-allowed;
   }
 
+  /* Red highlight when trying to complete a 0% task */
+  .card.task-modern-card .task-check-right.performance-error .custom-check {
+    border: 2px solid #ef4444 !important;
+    background: rgba(239, 68, 68, 0.18) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.20) !important;
+    animation: performanceErrorShake 0.35s ease-in-out;
+  }
+
+  @keyframes performanceErrorShake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
   /* =========================================================
      EXACT COMPACT TASK CARD
      Row 1 : Icon + Title/Time + Tick
@@ -2104,7 +2133,11 @@ const performancePercentage =
 
                     {/* TICK - RIGHT SIDE OF FIRST ROW */}
                     <label
-                      className="complete-check task-check-right"
+                      className={`complete-check task-check-right ${
+                        String(performanceErrorTaskId) === String(task.id)
+                          ? "performance-error"
+                          : ""
+                      }`}
                       title={
                         isPreviousDay
                           ? "Previous day tasks cannot be changed"
