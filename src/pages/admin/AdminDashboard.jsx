@@ -579,7 +579,7 @@ const goStudents = () => {
 
         <div className="admin-profile-info">
           <strong>
-            {admin?.name || "SkillLab Admin"}
+            {admin?.name || "Welcome Admin"}
           </strong>
         </div>
 
