@@ -160,7 +160,7 @@ function AdminLogin() {
         setError("");
 
 
-        navigate("/admin/dashboard");
+        navigate("/AdminDashboard");
 
       }
 
