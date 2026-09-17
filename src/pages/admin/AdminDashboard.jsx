@@ -577,18 +577,10 @@ const goStudents = () => {
 
       <div className="admin-profile">
 
-        <div className="admin-profile-avatar">
-         
-        </div>
-
         <div className="admin-profile-info">
-
           <strong>
-            {admin?.name ||
-              "SkillLab Admin"}
+            {admin?.name || "SkillLab Admin"}
           </strong>
-
-        
         </div>
 
       </div>
