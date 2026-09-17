@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaBullseye } from "react-icons/fa";
 
 import Sidebar from "./Sidebar";
@@ -22,12 +22,76 @@ const API_URL =
 const TASK_API_URL =
   "https://zyntaweb.com/skilllab/api/task.php";
 
-function Dashboard() {
+function Dashboard({ adminView = false }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const user = JSON.parse(
     localStorage.getItem("user") || "null"
   );
+
+  /* =====================================================
+     ADMIN VIEW
+     Admin can open a student's dashboard without
+     requiring the student's Google login.
+  ===================================================== */
+  const adminStudentId = adminView
+    ? location.pathname.split("/")[3] || null
+    : null;
+
+  const getStoredAdminStudent = () => {
+    if (!adminStudentId) return null;
+
+    try {
+      const stored = sessionStorage.getItem(
+        `adminViewingStudent_${adminStudentId}`
+      );
+
+      return stored ? JSON.parse(stored) : null;
+    } catch (error) {
+      console.error(
+        "Admin student storage error:",
+        error
+      );
+      return null;
+    }
+  };
+
+  const storedAdminStudent = getStoredAdminStudent();
+
+  const adminStudentEmail =
+    location.state?.studentEmail ||
+    storedAdminStudent?.email ||
+    "";
+
+  const adminStudentName =
+    location.state?.studentName ||
+    storedAdminStudent?.name ||
+    "";
+
+  const dashboardEmail = adminView
+    ? adminStudentEmail
+    : user?.email;
+
+  useEffect(() => {
+    if (!adminView || !adminStudentId) return;
+
+    if (adminStudentEmail) {
+      sessionStorage.setItem(
+        `adminViewingStudent_${adminStudentId}`,
+        JSON.stringify({
+          id: adminStudentId,
+          email: adminStudentEmail,
+          name: adminStudentName,
+        })
+      );
+    }
+  }, [
+    adminView,
+    adminStudentId,
+    adminStudentEmail,
+    adminStudentName,
+  ]);
 
   /* =====================================================
      DATE
@@ -1181,8 +1245,15 @@ customTasks.forEach((task) => {
   const loadDashboard = async (
     date = selectedDate
   ) => {
-    if (!user?.email) {
+    if (!adminView && !user?.email) {
       navigate("/login");
+      return;
+    }
+
+    if (adminView && !dashboardEmail) {
+      console.error(
+        "Admin view: student email not found"
+      );
       return;
     }
 
@@ -1205,7 +1276,7 @@ customTasks.forEach((task) => {
                 "dashboard",
 
               email:
-                user.email,
+                dashboardEmail,
 
               date,
             }),
@@ -1246,7 +1317,7 @@ customTasks.forEach((task) => {
             },
             body: JSON.stringify({
               action: "get",
-              email: user.email,
+              email: dashboardEmail,
               task_date: date,
             }),
           }
@@ -1411,7 +1482,7 @@ useEffect(() => {
   ===================================================== */
 
   const loadWeeklyProgress = async () => {
-    if (!user?.email) return;
+    if (!dashboardEmail) return;
 
     try {
       const selected = new Date(
@@ -1455,7 +1526,7 @@ useEffect(() => {
               },
               body: JSON.stringify({
                 action: "dashboard",
-                email: user.email,
+                email: dashboardEmail,
                 date,
               }),
             });
@@ -1499,7 +1570,7 @@ useEffect(() => {
   ===================================================== */
 
   const loadMonthlyProgress = async () => {
-    if (!user?.email) return;
+    if (!dashboardEmail) return;
 
     try {
       const now = new Date();
@@ -1532,7 +1603,7 @@ useEffect(() => {
               },
               body: JSON.stringify({
                 action: "dashboard",
-                email: user.email,
+                email: dashboardEmail,
                 date,
               }),
             });
@@ -1571,7 +1642,7 @@ useEffect(() => {
     );
     loadWeeklyProgress();
     loadMonthlyProgress();
-  }, [selectedDate, user?.email]);
+  }, [selectedDate, dashboardEmail, adminView]);
 
   /* =====================================================
      REFRESH AFTER TASK UPDATE
@@ -1608,7 +1679,8 @@ useEffect(() => {
     };
   }, [
     selectedDate,
-    user?.email,
+    dashboardEmail,
+    adminView,
   ]);
 
   /* =====================================================

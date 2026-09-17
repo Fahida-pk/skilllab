@@ -273,6 +273,22 @@ const goStudents = () => {
 
   setMobileOpen(false);
 };
+
+/* =========================================
+   VIEW STUDENT DASHBOARD
+   Pass selected student details to Dashboard.
+========================================= */
+const openStudentDashboard = (student) => {
+  navigate(
+    `/admin/students/${student.id}/dashboard`,
+    {
+      state: {
+        studentEmail: student.email,
+        studentName: student.name,
+      },
+    }
+  );
+};
  
 
   /* =========================================
@@ -1230,9 +1246,7 @@ const goStudents = () => {
                   className="student-card"
                   key={student.id}
                   onClick={() =>
-                    navigate(
-                      `/admin/students/${student.id}/dashboard`
-                    )
+                    openStudentDashboard(student)
                   }
                 >
 
@@ -1381,9 +1395,7 @@ const goStudents = () => {
   onClick={(e) => {
     e.stopPropagation();
 
-    navigate(
-      `/admin/students/${student.id}/dashboard`
-    );
+    openStudentDashboard(student);
   }}
 >
   View Dashboard

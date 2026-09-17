@@ -46,10 +46,7 @@ function App() {
   return (
     <Routes>
 
-      {/* =================================================
-          DEFAULT
-      ================================================= */}
-
+      {/* DEFAULT */}
       <Route
         path="/"
         element={
@@ -60,23 +57,14 @@ function App() {
         }
       />
 
-
-      {/* =================================================
-          STUDENT LOGIN
-      ================================================= */}
-
+      {/* STUDENT LOGIN */}
       <Route
         path="/login"
         element={<Login />}
       />
 
-
-      {/* =================================================
-          NORMAL STUDENT DASHBOARD
-      ================================================= */}
-
+      {/* NORMAL STUDENT ROUTES */}
       <Route element={<ProtectedRoute />}>
-
         <Route
           path="/dashboard"
           element={<Dashboard />}
@@ -86,24 +74,15 @@ function App() {
           path="/task"
           element={<Task />}
         />
-
       </Route>
 
-
-      {/* =================================================
-          ADMIN LOGIN
-      ================================================= */}
-
+      {/* ADMIN LOGIN */}
       <Route
         path="/admin/login"
         element={<AdminLogin />}
       />
 
-
-      {/* =================================================
-          ADMIN MAIN DASHBOARD
-      ================================================= */}
-
+      {/* ADMIN MAIN DASHBOARD */}
       <Route
         path="/AdminDashboard"
         element={
@@ -113,11 +92,7 @@ function App() {
         }
       />
 
-
-      {/* =================================================
-          ADMIN STUDENTS
-      ================================================= */}
-
+      {/* ADMIN STUDENTS */}
       <Route
         path="/admin/students"
         element={
@@ -127,17 +102,9 @@ function App() {
         }
       />
 
-
-      {/* =================================================
-          ADMIN VIEW STUDENT DASHBOARD
-
-          IMPORTANT:
-          This is NOT the normal student route.
-
-          Admin can directly view a student dashboard
-          without Google/student login.
-      ================================================= */}
-
+      {/* ADMIN → VIEW STUDENT DASHBOARD
+          NOT protected by student ProtectedRoute.
+          Only admin authentication is required. */}
       <Route
         path="/admin/students/:id/dashboard"
         element={
@@ -147,11 +114,7 @@ function App() {
         }
       />
 
-
-      {/* =================================================
-          INVALID URL
-      ================================================= */}
-
+      {/* INVALID URL */}
       <Route
         path="*"
         element={
