@@ -77,7 +77,89 @@ body,
     );
 
 }
+/* =========================================
+   SKILL LAB PREMIUM ANIMATION
+========================================= */
 
+.skill-lab-title {
+  position: relative;
+  z-index: 2;
+
+  margin: 0 0 14px;
+
+  font-size: 31px;
+  font-weight: 950;
+
+  letter-spacing: 5px;
+  line-height: 1;
+
+  text-transform: uppercase;
+  text-align: center;
+
+  background:
+    linear-gradient(
+      90deg,
+      #4f46e5 0%,
+      #7c3aed 25%,
+      #c026d3 50%,
+      #ec4899 75%,
+      #4f46e5 100%
+    );
+
+  background-size: 250% auto;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  filter:
+    drop-shadow(
+      0 3px 6px rgba(70, 45, 170, 0.22)
+    );
+
+  animation:
+    skillLabShine 4s ease-in-out infinite,
+    skillLabFloat 3.5s ease-in-out infinite;
+}
+
+
+/* =========================================
+   GRADIENT SHINE
+========================================= */
+
+@keyframes skillLabShine {
+
+  0% {
+    background-position: 0% center;
+  }
+
+  50% {
+    background-position: 100% center;
+  }
+
+  100% {
+    background-position: 0% center;
+  }
+
+}
+
+
+/* =========================================
+   SOFT FLOAT
+========================================= */
+
+@keyframes skillLabFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+
+}
 
 /* =========================================================
    SOFT LIGHT OVERLAY
