@@ -19,8 +19,9 @@ import {
   FaCalendarDays,
   FaClock,
   FaBookOpen,
-  FaArrowTrendUp,
-  FaArrowTrendDown,
+  FaArrowUp,
+  FaArrowDown,
+  FaArrowRight,
   FaMagnifyingGlass,
   FaUser,
 } from "react-icons/fa6";
@@ -73,9 +74,6 @@ function AdminDashboard() {
         "/admin/students"
       )
     );
-
-  const [performanceOpen, setPerformanceOpen] =
-    useState(true);
 
   /* =========================================
      ADMIN
@@ -261,30 +259,6 @@ function AdminDashboard() {
     setMobileOpen(false);
   };
 
-  const scrollToPerformance = (
-    type
-  ) => {
-    navigate("/admin/dashboard");
-
-    setTimeout(() => {
-      const element =
-        document.getElementById(
-          type === "weak"
-            ? "weak-performance"
-            : "good-performance"
-        );
-
-      if (element) {
-        element.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
-    }, 150);
-
-    setMobileOpen(false);
-  };
-
   /* =========================================
      HELPERS
   ========================================= */
@@ -441,69 +415,6 @@ function AdminDashboard() {
                 Dashboard
               </span>
             </button>
-
-          </div>
-
-          {/* OVERALL PERFORMANCE */}
-
-          <div className="admin-nav-group">
-
-            <button
-              className="admin-nav-item"
-              onClick={() =>
-                setPerformanceOpen(
-                  !performanceOpen
-                )
-              }
-            >
-              <FaChartLine />
-
-              <span>
-                Overall Performance
-              </span>
-
-              <FaChevronDown
-                className={`admin-nav-arrow ${
-                  performanceOpen
-                    ? "rotate"
-                    : ""
-                }`}
-              />
-            </button>
-
-            {performanceOpen && (
-              <div className="admin-submenu">
-
-                <button
-                  onClick={() =>
-                    scrollToPerformance(
-                      "weak"
-                    )
-                  }
-                >
-                  <FaArrowTrendDown />
-
-                  <span>
-                    Weak Performance
-                  </span>
-                </button>
-
-                <button
-                  onClick={() =>
-                    scrollToPerformance(
-                      "good"
-                    )
-                  }
-                >
-                  <FaArrowTrendUp />
-
-                  <span>
-                    Good Performance
-                  </span>
-                </button>
-
-              </div>
-            )}
 
           </div>
 
@@ -683,7 +594,7 @@ function AdminDashboard() {
           <p>
             {isStudentsPage
               ? "View and manage all registered students."
-              : "Monitor overall student performance."}
+              : "Monitor today, weekly, monthly and overall student performance."}
           </p>
 
         </div>
@@ -786,7 +697,7 @@ function AdminDashboard() {
         />
 
         <StatCard
-          icon={<FaArrowTrendUp />}
+          icon={<FaArrowUp />}
           title="This Week"
           value={`${dashboardData.weekPerformance ?? 0}%`}
           subtitle="Overall weekly performance"
@@ -956,7 +867,7 @@ function AdminDashboard() {
         >
 
           <div className="overview-icon good">
-            <FaArrowTrendUp />
+            <FaArrowUp />
           </div>
 
           <div>
@@ -985,7 +896,7 @@ function AdminDashboard() {
         >
 
           <div className="overview-icon weak">
-            <FaArrowTrendDown />
+            <FaArrowDown />
           </div>
 
           <div>
