@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaArrowRightToBracket } from "react-icons/fa6";
 import {
   FaShieldAlt,
   FaEnvelope,
@@ -251,30 +252,23 @@ function AdminLogin() {
           )}
 
 
-          {/* LOGIN BUTTON */}
-
-          <button
-            type="submit"
-            className="admin-login-button"
-            disabled={loading}
-          >
-
-            {loading ? (
-              <>
-                <span className="admin-spinner"></span>
-                <span>Signing in...</span>
-              </>
-            ) : (
-              <>
-                <span>
-                  Sign In to Admin Panel
-                </span>
-
-                <FaArrowRight />
-              </>
-            )}
-
-          </button>
+         <button
+  type="submit"
+  className="admin-login-button"
+  disabled={loading}
+>
+  {loading ? (
+    <>
+      <span className="admin-spinner"></span>
+      <span>Signing in...</span>
+    </>
+  ) : (
+    <>
+      <FaArrowRightToBracket className="login-icon" />
+      <span>Login</span>
+    </>
+  )}
+</button>
 
         </form>
 

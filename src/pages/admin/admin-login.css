@@ -1024,7 +1024,15 @@ body,
 
   font-size: 10px;
 }
+.login-icon {
+  font-size: 19px;
+  color: #ffffff;
+  transition: transform 0.25s ease;
+}
 
+.admin-login-button:hover .login-icon {
+  transform: translateX(3px);
+}
 
 /* =========================================================
    MOBILE
