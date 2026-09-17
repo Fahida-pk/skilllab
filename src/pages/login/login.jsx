@@ -169,19 +169,7 @@ function Login() {
       </div>
 
 
-      {/* =========================================
-          SMALL FLOATING DOTS
-      ========================================= */}
-
-      <span className="floating-dot dot-one"></span>
-
-      <span className="floating-dot dot-two"></span>
-
-      <span className="floating-dot dot-three"></span>
-
-      <span className="floating-dot dot-four"></span>
-
-
+     
       {/* =========================================
           LOGIN CARD
       ========================================= */}
