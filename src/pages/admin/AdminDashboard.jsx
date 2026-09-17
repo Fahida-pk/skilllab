@@ -575,16 +575,13 @@ const goStudents = () => {
 
       </div>
 
-      <div className="admin-profile">
-
-        <div className="admin-profile-info">
-          <strong>
-            {admin?.name || "Welcome Admin"}
-          </strong>
-        </div>
-
-      </div>
-
+     <div className="admin-profile">
+  <div className="admin-profile-info">
+    <strong>
+      Welcome Admin
+    </strong>
+  </div>
+</div>
     </header>
   );
 
