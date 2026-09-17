@@ -260,15 +260,10 @@ function Login() {
         ========================================= */}
 
         <div className="login-footer">
-
-
-          <p>
-            Learn&nbsp; • &nbsp;Practice&nbsp; • &nbsp;Grow
-          </p>
-
-
-        </div>
-
+  <p>
+    Learn • Practice • Grow
+  </p>
+</div>
       </div>
 
     </div>
