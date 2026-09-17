@@ -5,17 +5,11 @@ import Dashboard from "./pages/dasboard/Dashboard.jsx";
 import Task from "./pages/task/task.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 
-// Admin
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
-
 
 function App() {
   return (
     <Routes>
-
-      {/* =========================================
-          DEFAULT
-      ========================================= */}
 
       <Route
         path="/"
@@ -27,21 +21,13 @@ function App() {
         }
       />
 
-
-      {/* =========================================
-          STUDENT LOGIN
-      ========================================= */}
-
+      {/* Student Login */}
       <Route
         path="/login"
         element={<Login />}
       />
 
-
-      {/* =========================================
-          PROTECTED STUDENT ROUTES
-      ========================================= */}
-
+      {/* Protected Student Pages */}
       <Route element={<ProtectedRoute />}>
 
         <Route
@@ -56,21 +42,13 @@ function App() {
 
       </Route>
 
-
-      {/* =========================================
-          ADMIN LOGIN
-      ========================================= */}
-
+      {/* Admin */}
       <Route
         path="/admin/login"
         element={<AdminLogin />}
       />
 
-
-      {/* =========================================
-          UNKNOWN URL
-      ========================================= */}
-
+      {/* Invalid URL */}
       <Route
         path="*"
         element={

@@ -101,6 +101,7 @@ function Login() {
       // 6. Login Success
       // ==========================================
       if (data.success) {
+
         localStorage.setItem(
           "user",
           JSON.stringify(data.user)
@@ -111,8 +112,13 @@ function Login() {
           googleToken
         );
 
-        navigate("/dashboard");
+        // Replace login history
+        navigate("/dashboard", {
+          replace: true,
+        });
+
       } else {
+
         alert(
           data.message ||
           "Login failed"
@@ -120,6 +126,7 @@ function Login() {
       }
 
     } catch (error) {
+
       console.error(
         "Login Error:",
         error

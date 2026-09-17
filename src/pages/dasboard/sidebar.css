@@ -11,6 +11,7 @@
 
 /* =========================================
    DESKTOP SIDEBAR
+   LOGIN PAGE COLOR THEME
 ========================================= */
 
 .sidebar {
@@ -23,37 +24,36 @@
   width: 265px;
   height: 100vh;
 
+  /* =========================================
+     LOGIN PAGE BLUE → PURPLE → PINK
+  ========================================= */
+
   background:
-
-    /* LEFT BLUE */
     radial-gradient(
-      circle at 8% 50%,
-      rgba(73, 130, 255, 0.42),
-      transparent 35%
+      circle at 0% 20%,
+      rgba(82, 151, 255, 0.75),
+      transparent 48%
     ),
 
-    /* RIGHT PINK */
     radial-gradient(
-      circle at 92% 50%,
-      rgba(226, 64, 190, 0.38),
-      transparent 36%
+      circle at 55% 45%,
+      rgba(144, 100, 255, 0.70),
+      transparent 52%
     ),
 
-    /* BOTTOM PURPLE */
     radial-gradient(
-      circle at 50% 100%,
-      rgba(123, 76, 239, 0.40),
-      transparent 45%
+      circle at 100% 80%,
+      rgba(241, 82, 199, 0.72),
+      transparent 50%
     ),
 
-    /* MAIN LIGHT GRADIENT */
     linear-gradient(
       135deg,
-      #e5edff 0%,
-      #dfe7ff 18%,
-      #e9ddff 42%,
-      #efd9ff 65%,
-      #ffe1f5 100%
+      #8db8ff 0%,
+      #9f9dfb 30%,
+      #bd82f2 55%,
+      #dc72df 78%,
+      #f36bc9 100%
     );
 
   color: white;
@@ -64,6 +64,36 @@
   flex-direction: column;
 
   overflow: hidden;
+}
+
+/* =========================================
+   SUBTLE GLASS LIGHT
+========================================= */
+
+.sidebar::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 255, 255, 0.20),
+      transparent 35%
+    );
+
+  pointer-events: none;
+
+  z-index: 0;
+}
+
+/* Keep sidebar content above glow */
+
+.sidebar > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* =========================================
@@ -83,6 +113,9 @@
   color: white;
 
   white-space: nowrap;
+
+  text-shadow:
+    0 2px 8px rgba(70, 40, 150, 0.20);
 }
 
 /* =========================================
@@ -97,12 +130,15 @@
   padding: 0 20px;
 
   display: flex;
+
   flex-direction: column;
 
   gap: 10px;
 }
 
-/* MENU BUTTON */
+/* =========================================
+   MENU BUTTON
+========================================= */
 
 .sidebar-menu-item {
   width: 100%;
@@ -118,6 +154,7 @@
   color: white;
 
   display: flex;
+
   align-items: center;
 
   justify-content: flex-start;
@@ -131,34 +168,51 @@
   font-family: inherit;
 
   font-size: 16px;
+
   font-weight: 500;
 
   text-align: left;
 
-  transition: 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
-/* ICON */
+/* =========================================
+   ICON
+========================================= */
 
 .sidebar-menu-icon {
   width: 20px;
+
   min-width: 20px;
 
   font-size: 19px;
 }
 
-/* HOVER */
+/* =========================================
+   HOVER
+========================================= */
 
 .sidebar-menu-item:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.18);
+
+  transform: translateX(2px);
 }
 
-/* ACTIVE */
+/* =========================================
+   ACTIVE
+========================================= */
 
 .sidebar-menu-item.active {
-  background: rgba(255, 255, 255, 0.20);
+  background: rgba(255, 255, 255, 0.24);
 
   font-weight: 700;
+
+  box-shadow:
+    0 6px 18px rgba(91, 50, 180, 0.12);
+
+  backdrop-filter: blur(6px);
 }
 
 /* =========================================
@@ -181,11 +235,14 @@
   text-align: center;
 }
 
-/* PROFILE IMAGE */
+/* =========================================
+   PROFILE IMAGE
+========================================= */
 
 .sidebar-profile-image,
 .sidebar-profile-icon {
   width: 82px;
+
   height: 82px;
 
   border-radius: 50%;
@@ -195,15 +252,24 @@
   margin-bottom: 12px;
 }
 
-/* DEFAULT ICON */
+/* =========================================
+   DEFAULT PROFILE ICON
+========================================= */
 
 .sidebar-profile-icon {
   color: white;
 
   font-size: 82px;
+
+  filter:
+    drop-shadow(
+      0 5px 12px rgba(80, 40, 150, 0.20)
+    );
 }
 
-/* NAME */
+/* =========================================
+   NAME
+========================================= */
 
 .sidebar-user-name {
   width: 100%;
@@ -221,9 +287,14 @@
   overflow: hidden;
 
   text-overflow: ellipsis;
+
+  text-shadow:
+    0 2px 6px rgba(70, 30, 140, 0.15);
 }
 
-/* EMAIL */
+/* =========================================
+   EMAIL
+========================================= */
 
 .sidebar-user-email {
   width: 100%;
@@ -274,11 +345,21 @@
 
   cursor: pointer;
 
-  transition: 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+
+  backdrop-filter: blur(6px);
 }
+
+/* =========================================
+   LOGOUT HOVER
+========================================= */
 
 .sidebar-logout:hover {
   background: rgba(255, 255, 255, 0.28);
+
+  transform: translateY(-1px);
 }
 
 /* =========================================
@@ -303,12 +384,18 @@
 
 @media (max-width: 600px) {
 
-  /* Hide desktop sidebar */
+  /* =========================================
+     HIDE DESKTOP SIDEBAR
+  ========================================= */
+
   .sidebar {
     display: none;
   }
 
-  /* Mobile top bar */
+  /* =========================================
+     MOBILE TOP BAR
+  ========================================= */
+
   .mobile-navbar {
     display: flex;
 
@@ -351,14 +438,19 @@
     cursor: pointer;
   }
 
-  /* Mobile opened sidebar */
+  /* =========================================
+     MOBILE OPEN SIDEBAR
+  ========================================= */
+
   .sidebar.show {
     display: flex;
 
     position: fixed;
 
     top: 0;
+
     left: 0;
+
     bottom: 0;
 
     width: 275px;
@@ -366,13 +458,48 @@
     height: 100vh;
 
     z-index: 11000;
+
+    background:
+      radial-gradient(
+        circle at 0% 20%,
+        rgba(82, 151, 255, 0.75),
+        transparent 48%
+      ),
+
+      radial-gradient(
+        circle at 55% 45%,
+        rgba(144, 100, 255, 0.70),
+        transparent 52%
+      ),
+
+      radial-gradient(
+        circle at 100% 80%,
+        rgba(241, 82, 199, 0.72),
+        transparent 50%
+      ),
+
+      linear-gradient(
+        135deg,
+        #8db8ff 0%,
+        #9f9dfb 30%,
+        #bd82f2 55%,
+        #dc72df 78%,
+        #f36bc9 100%
+      );
   }
+
+  /* =========================================
+     MOBILE MENU POSITION
+  ========================================= */
 
   .sidebar.show .sidebar-menu {
     margin-top: 100px;
   }
 
-  /* Overlay */
+  /* =========================================
+     OVERLAY
+  ========================================= */
+
   .sidebar-overlay {
     display: block;
 
@@ -380,7 +507,7 @@
 
     inset: 0;
 
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(20, 10, 50, 0.35);
 
     z-index: 10500;
   }
