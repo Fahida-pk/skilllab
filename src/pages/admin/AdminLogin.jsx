@@ -117,8 +117,9 @@ function AdminLogin() {
           
 
           <div className="admin-brand-text">
-            <span>SKILL</span>
-            <strong>LAB</strong>
+           <h1 className="title skill-lab-title">
+          SKILL LAB
+        </h1>
           </div>
 
         </div>
