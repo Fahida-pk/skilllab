@@ -116,7 +116,7 @@ body,
       rgba(75, 60, 160, 0.16)
     );
 
-  animation: skillLabShine 3s ease-in-out infinite;
+  animation: skillLabShine 8s ease-in-out infinite;
 }
 
 @keyframes skillLabShine {
