@@ -247,7 +247,24 @@ function AdminDashboard() {
   /* =========================================
      NAVIGATION
   ========================================= */
+/* =========================================
+   NAVIGATION
+========================================= */
 
+const goDashboard = () => {
+
+  navigate("/AdminDashboard");
+
+  setMobileOpen(false);
+};
+
+
+const goStudents = () => {
+
+  navigate("/admin/students");
+
+  setMobileOpen(false);
+};
  
 
   /* =========================================

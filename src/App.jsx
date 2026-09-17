@@ -8,7 +8,13 @@ import ProtectedRoute from "./ProtectedRoute.jsx";
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 
+
+/* =========================================
+   ADMIN PROTECTED ROUTE
+========================================= */
+
 function AdminProtectedRoute({ children }) {
+
   const adminLoggedIn =
     localStorage.getItem("adminLoggedIn");
 
@@ -30,8 +36,15 @@ function AdminProtectedRoute({ children }) {
   return children;
 }
 
+
+/* =========================================
+   APP
+========================================= */
+
 function App() {
+
   return (
+
     <Routes>
 
       {/* =========================================
@@ -48,6 +61,7 @@ function App() {
         }
       />
 
+
       {/* =========================================
           STUDENT LOGIN
       ========================================= */}
@@ -56,6 +70,7 @@ function App() {
         path="/login"
         element={<Login />}
       />
+
 
       {/* =========================================
           STUDENT PROTECTED PAGES
@@ -75,6 +90,7 @@ function App() {
 
       </Route>
 
+
       {/* =========================================
           ADMIN LOGIN
       ========================================= */}
@@ -83,6 +99,7 @@ function App() {
         path="/admin/login"
         element={<AdminLogin />}
       />
+
 
       {/* =========================================
           ADMIN DASHBOARD
@@ -97,6 +114,23 @@ function App() {
         }
       />
 
+
+      {/* =========================================
+          ADMIN DASHBOARD ALTERNATIVE ROUTE
+          /admin/dashboard
+      ========================================= */}
+
+      <Route
+        path="/admin/dashboard"
+        element={
+          <Navigate
+            to="/AdminDashboard"
+            replace
+          />
+        }
+      />
+
+
       {/* =========================================
           ADMIN STUDENTS
       ========================================= */}
@@ -109,6 +143,7 @@ function App() {
           </AdminProtectedRoute>
         }
       />
+
 
       {/* =========================================
           INVALID URL
@@ -125,7 +160,9 @@ function App() {
       />
 
     </Routes>
+
   );
 }
+
 
 export default App;
