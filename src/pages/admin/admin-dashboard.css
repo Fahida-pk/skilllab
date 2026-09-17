@@ -2416,3 +2416,115 @@ body {
 .admin-logout {
   font-weight: 700 !important;
 }
+/* =====================================================
+   MOBILE / TABLET - ONE STUDENT CARD PER ROW
+===================================================== */
+
+@media (max-width: 800px) {
+
+  .admin-content {
+    width: 100%;
+    padding: 16px 12px 30px;
+    overflow-x: hidden;
+  }
+
+  .all-students-page {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .student-cards-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+
+  .student-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding: 18px;
+    border-radius: 17px;
+    overflow: hidden;
+  }
+
+  .student-card-top {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .student-card-name {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .student-card-contact {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .student-card-details {
+    width: 100%;
+  }
+
+  .student-card-progress {
+    width: 100%;
+  }
+
+  .student-dashboard-button {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
+@media (max-width: 480px) {
+
+  .admin-content {
+    padding: 14px 10px 28px;
+  }
+
+  .student-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .student-card {
+    width: 100%;
+    padding: 17px;
+    border-radius: 16px;
+  }
+
+  .student-card-photo,
+  .student-card-avatar {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+  }
+
+  .student-card-name h3 {
+    font-size: 14px;
+  }
+
+  .student-card-name span {
+    font-size: 9px;
+  }
+
+  .student-card-contact {
+    font-size: 10px;
+  }
+
+  .student-card-details {
+    gap: 8px;
+  }
+
+  .student-dashboard-button {
+    height: 40px;
+    font-size: 11px;
+  }
+}
