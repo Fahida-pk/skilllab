@@ -14,7 +14,7 @@ import {
   FaChevronRight,
   FaBars,
   FaXmark,
-  FaCheckCircle,
+  FaCircleCheck,
   FaTriangleExclamation,
   FaCalendarDays,
   FaClock,
