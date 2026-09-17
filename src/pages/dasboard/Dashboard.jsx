@@ -758,6 +758,63 @@ const getTaskStatus = (task) => {
   };
 
   /* =====================================================
+     BUILT-IN TASK ID
+     Keep renamed default tasks mapped to their original
+     built-in ID so Dashboard matches the Tasks page.
+  ===================================================== */
+const getBuiltInDefaultId = (task, dateKey) => {
+  const explicitId =
+    task?.default_id ||
+    task?.defaultId;
+
+  if (explicitId) return String(explicitId);
+
+  const titleKey = String(
+    task?.title ||
+    task?.task_name ||
+    ""
+  ).trim().toLowerCase();
+
+  const defaultIdMap = {
+    "wake up": "d1",
+    "study mern": "d2",
+    "practice english": "d3",
+    "workout": "d4",
+    "sleep": "d5",
+  };
+
+  if (defaultIdMap[titleKey]) {
+    return defaultIdMap[titleKey];
+  }
+
+  const schedules =
+    getLocalDefaultChanges(dateKey).schedules || {};
+
+  for (const defaultId of [
+    "d1", "d2", "d3", "d4", "d5"
+  ]) {
+    const schedule =
+      schedules[String(defaultId)];
+
+    if (!schedule) continue;
+
+    const scheduleTitle =
+      String(schedule.title || "")
+        .trim()
+        .toLowerCase();
+
+    if (
+      scheduleTitle &&
+      scheduleTitle === titleKey
+    ) {
+      return defaultId;
+    }
+  }
+
+  return null;
+};
+
+  /* =====================================================
      MERGE DATABASE + DEFAULT TASKS
   ===================================================== */
 const mergeDashboardTasks = (
@@ -808,21 +865,9 @@ definitions.forEach((defaultTask) => {
 const customTasks = Array.isArray(apiTasks)
   ? apiTasks
       .filter((task) => {
-        const taskDefaultId = String(
-          task.default_id ||
-          task.defaultId ||
-          ""
-        );
+        const taskDefaultId =
+          getBuiltInDefaultId(task, dateKey);
 
-        const taskTitle = String(
-          task.title ||
-          task.task_name ||
-          ""
-        )
-          .trim()
-          .toLowerCase();
-
-        // 1. Strong match: default_id
         if (
           taskDefaultId &&
           deletedDefaultIds.has(taskDefaultId)
@@ -830,8 +875,14 @@ const customTasks = Array.isArray(apiTasks)
           return false;
         }
 
-        // 2. Fallback: deleted default title
+        const taskTitle = String(
+          task.title ||
+          task.task_name ||
+          ""
+        ).trim().toLowerCase();
+
         if (
+          !taskDefaultId &&
           taskTitle &&
           deletedDefaultTitles.has(taskTitle)
         ) {
@@ -841,64 +892,127 @@ const customTasks = Array.isArray(apiTasks)
         return true;
       })
       .map((task) => ({
-        // Display the exact task time returned by
-        // the Tasks/database API.
         ...task,
-
         id: task.id,
-
         title:
           task.title ||
           task.task_name,
-
         from:
           task.from ||
           task.from_time,
-
         to:
           task.to ||
           task.to_time,
-
-        // Completed ONLY from the actual checkbox flag.
         completed:
           task.completed === true ||
           task.completed === 1 ||
           task.completed === "1" ||
           task.completed === "true",
-
-        // Keep saved task percentage.
         percentage: Math.max(
           0,
           Math.min(
             100,
-            Number(task.percentage ?? 0)
+            Number(
+              task.percentage ??
+              task.task_percentage ??
+              0
+            )
           )
         ),
-
         taskStatus:
           task.taskStatus ||
           task.task_status ||
           getTaskStatus(task),
       }))
   : [];
-  /*
-   * =====================================================
-   * DASHBOARD TASK SOURCE OF TRUTH
-   * =====================================================
-   *
-   * The Tasks page saves the task title, from time, to time,
-   * completion and percentage in the database.
-   *
-   * Dashboard must display that same database task directly.
-   * Do NOT merge local/default schedules here because they can
-   * overwrite a time that was entered on the Tasks page.
-   *
-   * Example:
-   * Tasks page -> Wake Up 6:00 AM
-   * Database   -> Wake Up 6:00 AM
-   * Dashboard  -> Wake Up 6:00 AM
-   */
-  const merged = customTasks;
+
+/*
+ * =====================================================
+ * APPLY DATE-WISE DEFAULT SCHEDULE + DEDUPE
+ * =====================================================
+ *
+ * A renamed built-in task can leave the original DB row
+ * alongside the renamed row. Both rows represent one
+ * built-in task on the Tasks page, so Dashboard must count
+ * them only once.
+ */
+const seenBuiltIns = new Map();
+const merged = [];
+
+customTasks.forEach((task) => {
+  const builtInId =
+    getBuiltInDefaultId(task, dateKey);
+
+  if (!builtInId) {
+    merged.push(task);
+    return;
+  }
+
+  const schedule =
+    getLocalDefaultChanges(dateKey).schedules?.[
+      String(builtInId)
+    ] || {};
+
+  const normalizedTask = {
+    ...task,
+
+    title:
+      schedule.title ||
+      task.title,
+
+    from:
+      schedule.from !== undefined
+        ? schedule.from
+        : builtInId === "d1"
+        ? undefined
+        : task.from,
+
+    time:
+      schedule.time !== undefined
+        ? schedule.time
+        : builtInId === "d1"
+        ? task.from
+        : undefined,
+
+    to:
+      schedule.to !== undefined
+        ? schedule.to
+        : builtInId === "d1"
+        ? undefined
+        : task.to,
+
+    nextDay:
+      schedule.nextDay !== undefined
+        ? Boolean(schedule.nextDay)
+        : Boolean(task.nextDay),
+
+    default_id: builtInId,
+  };
+
+  if (!seenBuiltIns.has(builtInId)) {
+    seenBuiltIns.set(
+      builtInId,
+      merged.length
+    );
+
+    merged.push(normalizedTask);
+    return;
+  }
+
+  const existingIndex =
+    seenBuiltIns.get(builtInId);
+
+  const existing =
+    merged[existingIndex];
+
+  if (
+    normalizedTask.completed &&
+    !existing.completed
+  ) {
+    merged[existingIndex] =
+      normalizedTask;
+  }
+});
 
   /*
    * =====================================================
@@ -956,6 +1070,110 @@ const customTasks = Array.isArray(apiTasks)
     );
   });
 };
+  /* =====================================================
+     PERIOD STATS
+     Use the same visible-task rules as the Tasks page.
+  ===================================================== */
+  const calculatePeriodStats = (rawTasks) => {
+    const byDate = {};
+
+    (Array.isArray(rawTasks) ? rawTasks : []).forEach(
+      (task) => {
+        const taskDate =
+          task.task_date ||
+          task.taskDate ||
+          "";
+
+        if (!taskDate) return;
+
+        if (!byDate[taskDate]) {
+          byDate[taskDate] = [];
+        }
+
+        byDate[taskDate].push({
+          ...task,
+          title:
+            task.title ||
+            task.task_name,
+          from:
+            task.from ||
+            task.from_time,
+          to:
+            task.to ||
+            task.to_time,
+          completed:
+            task.completed === true ||
+            task.completed === 1 ||
+            task.completed === "1" ||
+            task.completed === "true",
+          percentage: Math.max(
+            0,
+            Math.min(
+              100,
+              Number(
+                task.percentage ??
+                task.task_percentage ??
+                0
+              )
+            )
+          ),
+        });
+      }
+    );
+
+    let total = 0;
+    let completed = 0;
+    let performanceSum = 0;
+
+    Object.entries(byDate).forEach(
+      ([taskDate, tasksForDate]) => {
+        const visibleTasks =
+          mergeDashboardTasks(
+            tasksForDate,
+            taskDate
+          );
+
+        total += visibleTasks.length;
+
+        visibleTasks.forEach((task) => {
+          if (
+            task.completed === true ||
+            task.completed === 1 ||
+            task.completed === "1" ||
+            task.completed === "true"
+          ) {
+            completed++;
+
+            performanceSum += Math.max(
+              0,
+              Math.min(
+                100,
+                Number(task.percentage ?? 0)
+              )
+            );
+          }
+        });
+      }
+    );
+
+    return {
+      total,
+      completed,
+      percentage:
+        total > 0
+          ? Math.round(
+              (completed / total) * 100
+            )
+          : 0,
+      performancePercentage:
+        total > 0
+          ? Math.round(
+              performanceSum / total
+            )
+          : 0,
+    };
+  };
+
   /* =====================================================
      LOAD DASHBOARD
   ===================================================== */
@@ -1130,6 +1348,16 @@ const customTasks = Array.isArray(apiTasks)
           mergedTasks
         );
 
+      const fixedWeek =
+        calculatePeriodStats(
+          data.weekTasks || []
+        );
+
+      const fixedMonth =
+        calculatePeriodStats(
+          data.monthTasks || []
+        );
+
       setDashboard({
         ...data,
 
@@ -1138,8 +1366,25 @@ const customTasks = Array.isArray(apiTasks)
 
         today: {
           ...data.today,
-
           ...fixedToday,
+        },
+
+        week: {
+          ...data.week,
+          total: fixedWeek.total,
+          completed: fixedWeek.completed,
+          percentage: fixedWeek.percentage,
+          performancePercentage:
+            fixedWeek.performancePercentage,
+        },
+
+        month: {
+          ...data.month,
+          total: fixedMonth.total,
+          completed: fixedMonth.completed,
+          percentage: fixedMonth.percentage,
+          performancePercentage:
+            fixedMonth.performancePercentage,
         },
       });
     } catch (error) {
@@ -1217,11 +1462,14 @@ useEffect(() => {
 
             const data = await response.json();
 
+            const weekStats =
+              calculatePeriodStats(
+                data?.weekTasks || []
+              );
+
             return {
               label,
-              value: Number(
-                data?.today?.percentage
-              ) || 0,
+              value: weekStats.percentage,
             };
           } catch (error) {
             console.error(
@@ -1291,9 +1539,14 @@ useEffect(() => {
 
             const data = await response.json();
 
+            const monthStats =
+              calculatePeriodStats(
+                data?.monthTasks || []
+              );
+
             return {
               label,
-              value: Number(data?.month?.percentage) || 0,
+              value: monthStats.percentage,
             };
           } catch (error) {
             console.error("Monthly graph error:", error);
