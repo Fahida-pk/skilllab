@@ -72,7 +72,7 @@ function App() {
 
 
       {/* =================================================
-          NORMAL STUDENT ROUTES
+          NORMAL STUDENT DASHBOARD
       ================================================= */}
 
       <Route element={<ProtectedRoute />}>
@@ -101,7 +101,7 @@ function App() {
 
 
       {/* =================================================
-          ADMIN DASHBOARD
+          ADMIN MAIN DASHBOARD
       ================================================= */}
 
       <Route
@@ -115,7 +115,7 @@ function App() {
 
 
       {/* =================================================
-          ADMIN ALL STUDENTS
+          ADMIN STUDENTS
       ================================================= */}
 
       <Route
@@ -129,14 +129,13 @@ function App() {
 
 
       {/* =================================================
-          ADMIN → STUDENT DASHBOARD
-          
+          ADMIN VIEW STUDENT DASHBOARD
+
           IMPORTANT:
-          This route is NOT inside ProtectedRoute.
-          
-          So student Google login will NOT be required.
-          
-          Admin authentication only.
+          This is NOT the normal student route.
+
+          Admin can directly view a student dashboard
+          without Google/student login.
       ================================================= */}
 
       <Route
@@ -150,7 +149,7 @@ function App() {
 
 
       {/* =================================================
-          INVALID ROUTE
+          INVALID URL
       ================================================= */}
 
       <Route
