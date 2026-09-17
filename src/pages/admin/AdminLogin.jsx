@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaShieldAlt, FaEnvelope, FaLock, FaArrowRight } from "react-icons/fa";
+import {
+  FaShieldAlt,
+  FaEnvelope,
+  FaLock,
+  FaArrowRight,
+} from "react-icons/fa";
 import "./admin-login.css";
 
 function AdminLogin() {
@@ -59,7 +64,9 @@ function AdminLogin() {
       }
     } catch (error) {
       console.error("Admin Login Error:", error);
-      setError("Unable to connect to server. Please try again.");
+      setError(
+        "Unable to connect to server. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -68,40 +75,46 @@ function AdminLogin() {
   return (
     <div className="admin-login-page">
 
-      {/* Background decorations */}
-      <div className="admin-glow admin-glow-one"></div>
-      <div className="admin-glow admin-glow-two"></div>
-      <div className="admin-grid"></div>
+      {/* Background */}
+      <div className="admin-bg-orb admin-bg-orb-1"></div>
+      <div className="admin-bg-orb admin-bg-orb-2"></div>
+      <div className="admin-bg-orb admin-bg-orb-3"></div>
 
-      {/* Login Card */}
+      <div className="admin-bg-grid"></div>
+
+
+      {/* Glass Login Card */}
       <div className="admin-login-card">
 
-        {/* Top Logo */}
-        <div className="admin-brand">
+        {/* Logo */}
+        <div className="admin-logo-area">
 
-          <div className="admin-brand-icon">
+          <div className="admin-logo-icon">
             <FaShieldAlt />
           </div>
 
-          <div className="admin-brand-text">
+          <div className="admin-logo-name">
             <span>SKILL</span>
             <strong>LAB</strong>
           </div>
 
         </div>
 
-        {/* Admin Badge */}
-        <div className="admin-badge">
-          <span className="admin-status-dot"></span>
+
+        {/* Portal Badge */}
+        <div className="admin-portal-badge">
+
+          <span className="portal-dot"></span>
+
           ADMIN PORTAL
+
         </div>
+
 
         {/* Heading */}
         <div className="admin-heading">
 
-          <h1>
-            Welcome Back
-          </h1>
+          <h1>Welcome Back</h1>
 
           <p>
             Sign in to manage your SkillLab system
@@ -109,7 +122,8 @@ function AdminLogin() {
 
         </div>
 
-        {/* Login Form */}
+
+        {/* Form */}
         <form
           className="admin-login-form"
           onSubmit={handleLogin}
@@ -118,11 +132,9 @@ function AdminLogin() {
           {/* Email */}
           <div className="admin-field">
 
-            <label>
-              Email Address
-            </label>
+            <label>Email Address</label>
 
-            <div className="admin-input-wrapper">
+            <div className="admin-input-box">
 
               <FaEnvelope className="admin-input-icon" />
 
@@ -140,18 +152,13 @@ function AdminLogin() {
 
           </div>
 
+
           {/* Password */}
           <div className="admin-field">
 
-            <div className="admin-label-row">
+            <label>Password</label>
 
-              <label>
-                Password
-              </label>
-
-            </div>
-
-            <div className="admin-input-wrapper">
+            <div className="admin-input-box">
 
               <FaLock className="admin-input-icon" />
 
@@ -171,7 +178,7 @@ function AdminLogin() {
 
               <button
                 type="button"
-                className="show-password-btn"
+                className="password-toggle"
                 onClick={() =>
                   setShowPassword(!showPassword)
                 }
@@ -183,6 +190,7 @@ function AdminLogin() {
 
           </div>
 
+
           {/* Error */}
           {error && (
             <div className="admin-error">
@@ -190,6 +198,7 @@ function AdminLogin() {
               {error}
             </div>
           )}
+
 
           {/* Login Button */}
           <button
@@ -212,18 +221,20 @@ function AdminLogin() {
 
         </form>
 
-        {/* Footer */}
-        <div className="admin-login-footer">
 
-          <span className="admin-footer-line"></span>
+        {/* Secure Footer */}
+        <div className="admin-secure">
 
-          <span>
-            Secure Administrator Access
-          </span>
+          <span></span>
 
-          <span className="admin-footer-line"></span>
+          <p>
+            SECURE ADMINISTRATOR ACCESS
+          </p>
+
+          <span></span>
 
         </div>
+
 
         <div className="admin-copyright">
           © {new Date().getFullYear()} SkillLab
