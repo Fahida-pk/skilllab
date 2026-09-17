@@ -770,7 +770,7 @@ function AdminDashboard() {
           <div className="performance-card-footer">
 
             <span>
-              <FaCheckCircle />
+              <FaCircleCheck />
 
               {dashboardData.weekCompleted ??
                 0}{" "}
@@ -838,7 +838,7 @@ function AdminDashboard() {
           <div className="performance-card-footer">
 
             <span>
-              <FaCheckCircle />
+              <FaCircleCheck />
 
               {dashboardData.monthCompleted ??
                 0}{" "}
