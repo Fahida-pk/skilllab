@@ -37,11 +37,34 @@ body {
   width: 265px;
   height: 100vh;
 
-  background: linear-gradient(
-    180deg,
-    #7414d1 0%,
-    #d90b62 100%
-  );
+  
+ background:
+    radial-gradient(
+      circle at 0% 20%,
+      rgba(82, 151, 255, 0.75),
+      transparent 48%
+    ),
+
+    radial-gradient(
+      circle at 55% 45%,
+      rgba(116, 20, 209, 0.70),
+      transparent 52%
+    ),
+
+    radial-gradient(
+      circle at 100% 80%,
+      rgba(241, 82, 199, 0.72),
+      transparent 50%
+    ),
+
+    linear-gradient(
+      135deg,
+      #8db8ff 0%,
+      #9f9dfb 30%,
+      #bd82f2 55%,
+      #dc72df 78%,
+      #f36bc9 100%
+    );
 
   z-index: 1000;
 }
