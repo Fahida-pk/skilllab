@@ -1,277 +1,1001 @@
-/* =========================================
+/* =========================================================
+   SKILL LAB
+   STUDENT LOGIN
+   LIGHT PREMIUM GLASSMORPHISM
+========================================================= */
+
+
+/* =========================================================
    RESET
-========================================= */
+========================================================= */
 
 html,
 body,
 #root {
+
   margin: 0;
   padding: 0;
+
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
 }
 
 
-/* =========================================
-   LOGIN PAGE
-========================================= */
-
-.login-page {
-  position: relative;
-
-  width: 100vw;
-  height: 100vh;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  overflow: hidden;
-
-  background:
-    radial-gradient(
-      circle at 15% 50%,
-      rgba(79, 140, 255, 0.95),
-      transparent 38%
-    ),
-    radial-gradient(
-      circle at 85% 50%,
-      rgba(255, 60, 172, 0.95),
-      transparent 38%
-    ),
-    linear-gradient(
-      135deg,
-      #5f8cff 0%,
-      #7c5cf5 45%,
-      #ec4899 100%
-    );
-}
-
-
-/* =========================================
-   BACKGROUND GLOW
-========================================= */
-
-.login-page::before {
-  content: "";
-
-  position: absolute;
-
-  width: 650px;
-  height: 650px;
-
-  left: -280px;
-  top: 50%;
-
-  transform: translateY(-50%);
-
-  border-radius: 50%;
-
-  background: rgba(72, 139, 255, 0.55);
-
-  filter: blur(110px);
-
-  pointer-events: none;
-}
-
-
-.login-page::after {
-  content: "";
-
-  position: absolute;
-
-  width: 650px;
-  height: 650px;
-
-  right: -280px;
-  bottom: -150px;
-
-  border-radius: 50%;
-
-  background: rgba(255, 45, 170, 0.55);
-
-  filter: blur(110px);
-
-  pointer-events: none;
-}
-
-
-/* =========================================
-   EXTRA BACK SHAPE
-========================================= */
-
-.bg-shape {
-  position: absolute;
-
-  width: 430px;
-  height: 430px;
-
-  border-radius: 50%;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(79, 172, 254, 0.55),
-      rgba(255, 60, 172, 0.55)
-    );
-
-  filter: blur(70px);
-
-  opacity: 0.45;
-
-  z-index: 0;
-}
-
-
-/* =========================================
-   MAIN GLASS CARD
-========================================= */
-
-.login-card {
-  position: relative;
-
-  z-index: 5;
-
-  width: 440px;
-  min-height: 320px;
-
-  padding: 80px 45px 45px;
+* {
 
   box-sizing: border-box;
 
+}
+
+
+/* =========================================================
+   LOGIN PAGE
+========================================================= */
+
+.login-page {
+
+  position: relative;
+
+  width: 100vw;
+  min-height: 100vh;
+
   display: flex;
-  flex-direction: column;
 
   align-items: center;
   justify-content: center;
 
-  text-align: center;
+  padding: 30px;
 
-  /* GLASS */
+  overflow: hidden;
+
   background:
+
+    radial-gradient(
+      circle at 12% 45%,
+      rgba(96, 165, 250, 0.55),
+      transparent 30%
+    ),
+
+    radial-gradient(
+      circle at 88% 48%,
+      rgba(244, 114, 182, 0.48),
+      transparent 31%
+    ),
+
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(139, 92, 246, 0.45),
+      transparent 40%
+    ),
+
     linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.34),
-      rgba(255, 255, 255, 0.12)
+      #cfe3ff 0%,
+      #d8d7ff 32%,
+      #e1d5ff 58%,
+      #f2d7f4 80%,
+      #f9dbe9 100%
     );
 
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
+  background-size:
+    130% 130%;
 
-  /* GLASS BORDER */
-  border: 1px solid rgba(255, 255, 255, 0.48);
+  animation:
+    backgroundShift
+    16s
+    ease-in-out
+    infinite alternate;
 
-  /* BLOB SHAPE */
-  border-radius:
-    58% 42% 55% 45%
-    / 48% 58% 42% 52%;
-
-  /* PREMIUM SHADOW */
-  box-shadow:
-    0 35px 90px rgba(39, 20, 100, 0.35),
-    0 10px 35px rgba(255, 255, 255, 0.12),
-    inset 0 2px 2px rgba(255, 255, 255, 0.45),
-    inset 0 -20px 50px rgba(255, 255, 255, 0.08);
-
-  transition:
-    transform 0.35s ease,
-    box-shadow 0.35s ease;
 }
 
 
-/* CARD HOVER */
+/* =========================================================
+   BACKGROUND ANIMATION
+========================================================= */
 
-.login-card:hover {
-  transform: translateY(-6px);
+@keyframes backgroundShift {
 
-  box-shadow:
-    0 45px 110px rgba(35, 15, 100, 0.42),
-    0 15px 40px rgba(255, 255, 255, 0.14),
-    inset 0 2px 2px rgba(255, 255, 255, 0.5),
-    inset 0 -20px 55px rgba(255, 255, 255, 0.1);
+  0% {
+
+    background-position:
+      0% 50%;
+
+  }
+
+  50% {
+
+    background-position:
+      50% 45%;
+
+  }
+
+  100% {
+
+    background-position:
+      100% 55%;
+
+  }
+
 }
 
 
-/* =========================================
-   GLASS SHINE
-========================================= */
+/* =========================================================
+   WHITE LIGHT
+========================================================= */
 
-.login-card::before {
+.login-page::before {
+
   content: "";
 
   position: absolute;
 
   inset: 0;
 
-  border-radius: inherit;
-
   background:
+
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(255,255,255,0.55),
+      transparent 30%
+    ),
+
     linear-gradient(
-      125deg,
-      rgba(255, 255, 255, 0.32) 0%,
-      rgba(255, 255, 255, 0.08) 35%,
-      transparent 65%
+      120deg,
+      rgba(255,255,255,0.20),
+      transparent 35%,
+      transparent 65%,
+      rgba(255,255,255,0.18)
     );
 
   pointer-events: none;
+
+  z-index: 0;
+
 }
 
 
-/* =========================================
-   PROFILE ICON
-========================================= */
+/* =========================================================
+   BACKGROUND LIGHTS
+========================================================= */
 
-.profile-icon {
+.background-light {
+
   position: absolute;
-
-  top: -45px;
-
-  width: 92px;
-  height: 92px;
 
   border-radius: 50%;
 
+  filter: blur(70px);
+
+  pointer-events: none;
+
+  z-index: 0;
+
+}
+
+
+.light-one {
+
+  width: 300px;
+  height: 300px;
+
+  left: 15%;
+  top: -100px;
+
+  background:
+    rgba(255,255,255,0.42);
+
+  animation:
+    lightMoveOne
+    10s
+    ease-in-out
+    infinite;
+
+}
+
+
+.light-two {
+
+  width: 280px;
+  height: 280px;
+
+  right: 12%;
+  bottom: -100px;
+
+  background:
+    rgba(255,255,255,0.35);
+
+  animation:
+    lightMoveTwo
+    12s
+    ease-in-out
+    infinite;
+
+}
+
+
+@keyframes lightMoveOne {
+
+  0%,
+  100% {
+
+    transform:
+      translate(0,0)
+      scale(1);
+
+  }
+
+  50% {
+
+    transform:
+      translate(50px,30px)
+      scale(1.15);
+
+  }
+
+}
+
+
+@keyframes lightMoveTwo {
+
+  0%,
+  100% {
+
+    transform:
+      translate(0,0)
+      scale(1);
+
+  }
+
+  50% {
+
+    transform:
+      translate(-45px,-30px)
+      scale(1.12);
+
+  }
+
+}
+
+
+/* =========================================================
+   COLORED ORBS
+========================================================= */
+
+.login-bg-orb {
+
+  position: absolute;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+
+  filter: blur(20px);
+
+  z-index: 0;
+
+}
+
+
+.orb-blue {
+
+  width: 340px;
+  height: 340px;
+
+  left: -150px;
+  top: 28%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(59,130,246,0.35),
+      transparent 70%
+    );
+
+  animation:
+    blueOrb
+    9s
+    ease-in-out
+    infinite;
+
+}
+
+
+.orb-purple {
+
+  width: 390px;
+  height: 390px;
+
+  right: -170px;
+  top: 5%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(139,92,246,0.35),
+      transparent 70%
+    );
+
+  animation:
+    purpleOrb
+    11s
+    ease-in-out
+    infinite;
+
+}
+
+
+.orb-pink {
+
+  width: 330px;
+  height: 330px;
+
+  right: 18%;
+  bottom: -190px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(236,72,153,0.28),
+      transparent 70%
+    );
+
+  animation:
+    pinkOrb
+    10s
+    ease-in-out
+    infinite;
+
+}
+
+
+/* =========================================================
+   ORB ANIMATIONS
+========================================================= */
+
+@keyframes blueOrb {
+
+  0%,
+  100% {
+
+    transform:
+      translate(0,0)
+      scale(1);
+
+  }
+
+  50% {
+
+    transform:
+      translate(55px,-35px)
+      scale(1.15);
+
+  }
+
+}
+
+
+@keyframes purpleOrb {
+
+  0%,
+  100% {
+
+    transform:
+      translate(0,0)
+      scale(1);
+
+  }
+
+  50% {
+
+    transform:
+      translate(-45px,40px)
+      scale(1.12);
+
+  }
+
+}
+
+
+@keyframes pinkOrb {
+
+  0%,
+  100% {
+
+    transform:
+      translate(0,0);
+
+  }
+
+  50% {
+
+    transform:
+      translate(-35px,-45px);
+
+  }
+
+}
+
+
+/* =========================================================
+   STUDENT DECORATION
+========================================================= */
+
+.student-decoration {
+
+  position: absolute;
+
+  z-index: 2;
+
+  width: 64px;
+  height: 64px;
+
   display: flex;
+
   align-items: center;
   justify-content: center;
 
+  border-radius: 22px;
+
+  background:
+    rgba(255,255,255,0.34);
+
+  border:
+    1px solid
+    rgba(255,255,255,0.65);
+
+  backdrop-filter:
+    blur(14px);
+
+  -webkit-backdrop-filter:
+    blur(14px);
+
+  box-shadow:
+    0 15px 35px
+    rgba(75,60,150,0.10);
+
+}
+
+
+.student-icon-circle {
+
+  width: 43px;
+  height: 43px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
   color: white;
 
-  font-size: 38px;
+  font-size: 20px;
 
   background:
     linear-gradient(
       135deg,
-      #6714d9 0%,
-      #a323d8 45%,
-      #ef2397 100%
+      #60a5fa,
+      #8b5cf6
     );
 
-  border: 3px solid rgba(255, 255, 255, 0.25);
-
   box-shadow:
-    0 15px 35px rgba(35, 10, 90, 0.35),
-    inset 0 2px 5px rgba(255, 255, 255, 0.25);
+    0 7px 18px
+    rgba(99,102,241,0.22);
 
-  z-index: 10;
 }
 
 
-/* =========================================
-   SKILL LAB
-========================================= */
+.student-one {
 
-.skill-lab-title {
-  position: relative;
+  left: 13%;
+  top: 25%;
+
+  animation:
+    studentFloat
+    5.5s
+    ease-in-out
+    infinite;
+
+}
+
+
+.student-two {
+
+  right: 13%;
+  bottom: 24%;
+
+  animation:
+    studentFloat
+    6s
+    ease-in-out
+    infinite reverse;
+
+}
+
+
+@keyframes studentFloat {
+
+  0%,
+  100% {
+
+    transform:
+      translateY(0)
+      rotate(0deg);
+
+  }
+
+  50% {
+
+    transform:
+      translateY(-18px)
+      rotate(4deg);
+
+  }
+
+}
+
+
+/* =========================================================
+   STARS
+========================================================= */
+
+.floating-star {
+
+  position: absolute;
 
   z-index: 2;
 
-  margin: 0 0 14px;
+  color:
+    rgba(124,58,237,0.50);
+
+  font-size: 18px;
+
+  filter:
+    drop-shadow(
+      0 5px 10px
+      rgba(99,102,241,0.15)
+    );
+
+}
+
+
+.star-one {
+
+  left: 24%;
+  top: 19%;
+
+  animation:
+    starAnimation
+    4s
+    ease-in-out
+    infinite;
+
+}
+
+
+.star-two {
+
+  right: 23%;
+  top: 29%;
+
+  animation:
+    starAnimation
+    5s
+    ease-in-out
+    infinite reverse;
+
+}
+
+
+@keyframes starAnimation {
+
+  0%,
+  100% {
+
+    transform:
+      scale(1)
+      rotate(0deg);
+
+    opacity:
+      0.45;
+
+  }
+
+  50% {
+
+    transform:
+      scale(1.35)
+      rotate(20deg);
+
+    opacity:
+      0.95;
+
+  }
+
+}
+
+
+/* =========================================================
+   FLOATING DOTS
+========================================================= */
+
+.floating-dot {
+
+  position: absolute;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255,255,255,0.65);
+
+  box-shadow:
+    0 0 15px
+    rgba(255,255,255,0.55);
+
+  z-index: 1;
+
+}
+
+
+.dot-one {
+
+  left: 20%;
+  bottom: 25%;
+
+  animation:
+    dotFloat
+    6s
+    ease-in-out
+    infinite;
+
+}
+
+
+.dot-two {
+
+  right: 18%;
+  top: 20%;
+
+  animation:
+    dotFloat
+    7s
+    ease-in-out
+    infinite reverse;
+
+}
+
+
+.dot-three {
+
+  left: 31%;
+  top: 31%;
+
+  width: 5px;
+  height: 5px;
+
+  animation:
+    dotFloat
+    5s
+    ease-in-out
+    infinite;
+
+}
+
+
+@keyframes dotFloat {
+
+  0%,
+  100% {
+
+    transform:
+      translateY(0);
+
+    opacity:
+      0.45;
+
+  }
+
+  50% {
+
+    transform:
+      translateY(-18px);
+
+    opacity:
+      1;
+
+  }
+
+}
+
+
+/* =========================================================
+   MAIN GLASS CARD
+========================================================= */
+
+.login-card {
+
+  position: relative;
+
+  z-index: 10;
+
+  width: 440px;
+
+  min-height: 365px;
+
+  padding:
+    76px 45px 38px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  border-radius: 36px;
+
+  background:
+
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.42),
+      rgba(255,255,255,0.22)
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,0.72);
+
+  backdrop-filter:
+    blur(32px);
+
+  -webkit-backdrop-filter:
+    blur(32px);
+
+  box-shadow:
+
+    0 35px 80px
+    rgba(73,55,155,0.17),
+
+    0 10px 30px
+    rgba(255,255,255,0.32),
+
+    inset 0 2px 3px
+    rgba(255,255,255,0.72),
+
+    inset 0 -25px 60px
+    rgba(125,90,210,0.07);
+
+  overflow: hidden;
+
+  animation:
+    cardEnter
+    0.75s
+    cubic-bezier(.2,.8,.2,1);
+
+}
+
+
+/* =========================================================
+   CARD HOVER
+========================================================= */
+
+.login-card:hover {
+
+  box-shadow:
+
+    0 45px 100px
+    rgba(73,55,155,0.21),
+
+    0 15px 40px
+    rgba(255,255,255,0.35),
+
+    inset 0 2px 3px
+    rgba(255,255,255,0.78),
+
+    inset 0 -25px 60px
+    rgba(125,90,210,0.08);
+
+}
+
+
+/* =========================================================
+   CARD SHINE
+========================================================= */
+
+.card-shine {
+
+  position: absolute;
+
+  inset: 0;
+
+  border-radius:
+    inherit;
+
+  background:
+
+    linear-gradient(
+      125deg,
+      rgba(255,255,255,0.38),
+      transparent 32%,
+      transparent 65%,
+      rgba(255,255,255,0.10)
+    );
+
+  pointer-events: none;
+
+}
+
+
+/* =========================================================
+   CARD TOP LIGHT
+========================================================= */
+
+.login-card::after {
+
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+
+  left: 12%;
+
+  width: 76%;
+
+  height: 2px;
+
+  border-radius: 50%;
+
+  background:
+
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,0.95),
+      transparent
+    );
+
+}
+
+
+/* =========================================================
+   CARD ENTER
+========================================================= */
+
+@keyframes cardEnter {
+
+  from {
+
+    opacity: 0;
+
+    transform:
+      translateY(35px)
+      scale(0.94);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+
+  }
+
+}
+
+
+/* =========================================================
+   PROFILE ICON
+========================================================= */
+
+.profile-icon {
+
+  position: absolute;
+
+  top: -44px;
+
+  width: 88px;
+  height: 88px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  color:
+    #ffffff;
+
+  font-size: 35px;
+
+  background:
+
+    linear-gradient(
+      135deg,
+      #5b8def 0%,
+      #7c5ce7 48%,
+      #d946b7 100%
+    );
+
+  border:
+    3px solid
+    rgba(255,255,255,0.65);
+
+  box-shadow:
+
+    0 15px 35px
+    rgba(92,75,210,0.25),
+
+    inset 0 2px 6px
+    rgba(255,255,255,0.45);
+
+  z-index: 20;
+
+  animation:
+    profileFloat
+    4.5s
+    ease-in-out
+    infinite;
+
+}
+
+
+@keyframes profileFloat {
+
+  0%,
+  100% {
+
+    transform:
+      translateY(0);
+
+  }
+
+  50% {
+
+    transform:
+      translateY(-7px);
+
+  }
+
+}
+
+
+/* =========================================================
+   SKILL LAB
+========================================================= */
+
+.skill-lab-title {
+
+  position: relative;
+
+  z-index: 5;
+
+  margin:
+    0 0 13px;
 
   font-size: 31px;
 
-  font-weight: 950;
+  font-weight: 900;
 
   letter-spacing: 5px;
 
@@ -279,43 +1003,77 @@ body,
 
   text-transform: uppercase;
 
-  text-align: center;
-
-  /* TWO COLOR */
   background:
+
     linear-gradient(
       90deg,
-      #5420c9 0%,
-      #8a2be2 48%,
-      #e91e8f 100%
+      #4f46e5,
+      #7c3aed,
+      #c026d3,
+      #db2777
     );
 
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background-size:
+    250% auto;
 
-  background-clip: text;
+  -webkit-background-clip:
+    text;
 
-  /* subtle depth */
+  -webkit-text-fill-color:
+    transparent;
+
+  background-clip:
+    text;
+
+  animation:
+    brandGradient
+    5s
+    ease-in-out
+    infinite;
+
   filter:
     drop-shadow(
-      0 3px 5px rgba(65, 20, 130, 0.22)
+      0 4px 8px
+      rgba(78,55,160,0.16)
     );
+
 }
 
 
+@keyframes brandGradient {
 
-/* =========================================
-   SIGN IN
-========================================= */
+  0%,
+  100% {
 
-.title {
+    background-position:
+      0% center;
+
+  }
+
+  50% {
+
+    background-position:
+      100% center;
+
+  }
+
+}
+
+
+/* =========================================================
+   LOGIN TITLE
+========================================================= */
+
+.login-title {
+
   position: relative;
 
-  z-index: 2;
+  z-index: 5;
 
   margin: 0;
 
-  color: #ffffff;
+  color:
+    #ffffff;
 
   font-size: 31px;
 
@@ -323,112 +1081,462 @@ body,
 
   line-height: 1.15;
 
-  letter-spacing: 0.2px;
-
-  text-align: center;
-
   text-shadow:
-    0 3px 8px rgba(50, 20, 100, 0.18);
+
+    0 4px 12px
+    rgba(65,45,130,0.16);
+
 }
 
 
-/* =========================================
+/* =========================================================
    SUBTITLE
-========================================= */
+========================================================= */
 
 .subtitle {
-  position: relative;
 
-  z-index: 2;
-
-  margin: 9px 0 27px;
-
-  color: rgba(255, 255, 255, 0.88);
-
-  font-size: 18px;
-
-  font-weight: 500;
-
-  line-height: 1.3;
-
-  text-align: center;
-
-  text-shadow:
-    0 2px 5px rgba(60, 20, 100, 0.15);
-}
-
-
-/* =========================================
-   GOOGLE BUTTON
-========================================= */
-
-.google-btn {
   position: relative;
 
   z-index: 5;
 
-  display: flex;
+  margin:
+    10px 0 28px;
 
-  justify-content: center;
-  align-items: center;
+  color:
+    rgba(255,255,255,0.90);
+
+  font-size: 16px;
+
+  font-weight: 500;
+
+  line-height: 1.4;
+
+  text-shadow:
+
+    0 2px 7px
+    rgba(70,50,130,0.13);
+
+}
+
+
+/* =========================================================
+   GOOGLE BUTTON
+========================================================= */
+
+.google-btn {
+
+  position: relative;
+
+  z-index: 10;
 
   width: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
 }
 
 
-/* Google button rounded */
+/* =========================================================
+   GOOGLE BUTTON STYLE
+========================================================= */
 
 .google-btn > div {
-  border-radius: 30px !important;
 
-  overflow: hidden;
+  border-radius:
+    30px !important;
+
+  overflow:
+    hidden;
 
   box-shadow:
-    0 6px 18px rgba(50, 20, 100, 0.16);
+
+    0 8px 22px
+    rgba(70,50,140,0.14);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+
 }
 
 
-/* =========================================
+.google-btn > div:hover {
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+
+    0 12px 28px
+    rgba(70,50,140,0.20);
+
+}
+
+
+/* =========================================================
+   BOTTOM TEXT
+========================================================= */
+
+.login-bottom-text {
+
+  position: relative;
+
+  z-index: 5;
+
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 25px;
+
+  color:
+    rgba(255,255,255,0.65);
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+
+}
+
+
+.bottom-line {
+
+  flex: 1;
+
+  height: 1px;
+
+  background:
+    rgba(255,255,255,0.28);
+
+}
+
+
+/* =========================================================
    MOBILE
-========================================= */
+========================================================= */
 
 @media (max-width: 600px) {
 
-  .login-card {
-    width: 88vw;
-
-    min-height: 300px;
+  .login-page {
 
     padding:
-      75px 25px 38px;
+      20px;
+
+  }
+
+
+  .login-card {
+
+    width:
+      90vw;
+
+    min-height:
+      345px;
+
+    padding:
+      70px 25px 35px;
+
+    border-radius:
+      30px;
+
   }
 
 
   .profile-icon {
-    width: 82px;
-    height: 82px;
 
-    top: -40px;
+    width:
+      82px;
 
-    font-size: 34px;
+    height:
+      82px;
+
+    top:
+      -41px;
+
+    font-size:
+      32px;
+
   }
 
 
   .skill-lab-title {
-    font-size: 24px;
 
-    letter-spacing: 3px;
+    font-size:
+      25px;
+
+    letter-spacing:
+      3px;
+
   }
 
 
-  .title {
-    font-size: 27px;
+  .login-title {
+
+    font-size:
+      28px;
+
   }
 
 
   .subtitle {
-    font-size: 16px;
 
-    margin-bottom: 24px;
+    font-size:
+      15px;
+
+    margin-bottom:
+      25px;
+
   }
+
+
+  .student-decoration {
+
+    width:
+      52px;
+
+    height:
+      52px;
+
+    border-radius:
+      18px;
+
+  }
+
+
+  .student-icon-circle {
+
+    width:
+      35px;
+
+    height:
+      35px;
+
+    font-size:
+      17px;
+
+  }
+
+
+  .student-one {
+
+    left:
+      4%;
+
+    top:
+      17%;
+
+  }
+
+
+  .student-two {
+
+    right:
+      4%;
+
+    bottom:
+      17%;
+
+  }
+
+
+  .star-one {
+
+    left:
+      13%;
+
+    top:
+      12%;
+
+  }
+
+
+  .star-two {
+
+    right:
+      12%;
+
+    top:
+      16%;
+
+  }
+
+
+  .dot-one {
+
+    left:
+      12%;
+
+    bottom:
+      25%;
+
+  }
+
+
+  .dot-two {
+
+    right:
+      10%;
+
+    top:
+      26%;
+
+  }
+
+
+  .dot-three {
+
+    display:
+      none;
+
+  }
+
+
+  .login-bottom-text {
+
+    font-size:
+      8px;
+
+    gap:
+      7px;
+
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .login-page {
+
+    padding:
+      12px;
+
+  }
+
+
+  .login-card {
+
+    width:
+      94vw;
+
+    min-height:
+      325px;
+
+    padding:
+      66px 20px 30px;
+
+    border-radius:
+      27px;
+
+  }
+
+
+  .profile-icon {
+
+    width:
+      76px;
+
+    height:
+      76px;
+
+    top:
+      -38px;
+
+    font-size:
+      29px;
+
+  }
+
+
+  .skill-lab-title {
+
+    font-size:
+      22px;
+
+    letter-spacing:
+      2.5px;
+
+  }
+
+
+  .login-title {
+
+    font-size:
+      26px;
+
+  }
+
+
+  .subtitle {
+
+    font-size:
+      14px;
+
+  }
+
+
+  .student-decoration {
+
+    display:
+      none;
+
+  }
+
+
+  .floating-star {
+
+    display:
+      none;
+
+  }
+
+
+  .login-bottom-text {
+
+    font-size:
+      7px;
+
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .login-page,
+  .login-bg-orb,
+  .background-light,
+  .student-decoration,
+  .floating-star,
+  .floating-dot,
+  .profile-icon,
+  .skill-lab-title,
+  .login-card {
+
+    animation:
+      none !important;
+
+  }
+
 }
