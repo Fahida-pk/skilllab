@@ -23,11 +23,38 @@
   width: 265px;
   height: 100vh;
 
-  background: linear-gradient(
-    180deg,
-    #7414d1 0%,
-    #d90b62 100%
-  );
+  background:
+
+    /* LEFT BLUE */
+    radial-gradient(
+      circle at 8% 50%,
+      rgba(73, 130, 255, 0.42),
+      transparent 35%
+    ),
+
+    /* RIGHT PINK */
+    radial-gradient(
+      circle at 92% 50%,
+      rgba(226, 64, 190, 0.38),
+      transparent 36%
+    ),
+
+    /* BOTTOM PURPLE */
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(123, 76, 239, 0.40),
+      transparent 45%
+    ),
+
+    /* MAIN LIGHT GRADIENT */
+    linear-gradient(
+      135deg,
+      #e5edff 0%,
+      #dfe7ff 18%,
+      #e9ddff 42%,
+      #efd9ff 65%,
+      #ffe1f5 100%
+    );
 
   color: white;
 
