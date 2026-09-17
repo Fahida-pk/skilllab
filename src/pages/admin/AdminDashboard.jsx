@@ -372,9 +372,7 @@ const goStudents = () => {
 
         <div className="admin-brand">
 
-          <div className="admin-brand-logo">
-            <span>S</span>
-          </div>
+      
 
           <div className="admin-brand-text">
 
