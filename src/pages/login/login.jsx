@@ -4,12 +4,7 @@ import { getToken } from "firebase/messaging";
 import { getMessagingInstance } from "../../firebase";
 import "./login.css";
 
-import {
-  FaUser,
-  FaGraduationCap,
-  FaBookOpen,
-  FaStar,
-} from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 
 function Login() {
   const navigate = useNavigate();
@@ -60,6 +55,7 @@ function Login() {
               {
                 vapidKey:
                   "BANg8hVOS1rmbemDYS0cPbuhLOFSnClKfqVZL5itSLXlBhNEJsb0Rsu0nl2091wKP_ojb6dUIwOZfSx_KDNHzdU",
+
                 serviceWorkerRegistration:
                   registration,
               }
@@ -119,9 +115,10 @@ function Login() {
       } else {
         alert(
           data.message ||
-            "Login failed"
+          "Login failed"
         );
       }
+
     } catch (error) {
       console.error(
         "Login Error:",
@@ -149,34 +146,12 @@ function Login() {
 
 
       {/* =========================================
-          FLOATING GLASS SHAPES
-      ========================================= */}
-
-      <div className="floating-shape shape-one">
-        <FaGraduationCap />
-      </div>
-
-      <div className="floating-shape shape-two">
-        <FaStar />
-      </div>
-
-      <div className="floating-shape shape-three">
-        <FaBookOpen />
-      </div>
-
-      <div className="floating-shape shape-four">
-        <FaStar />
-      </div>
-
-
-     
-      {/* =========================================
           LOGIN CARD
       ========================================= */}
 
       <div className="login-card">
 
-        {/* Glass shine */}
+        {/* Glass Shine */}
         <div className="card-shine"></div>
 
 
@@ -190,7 +165,7 @@ function Login() {
 
 
         {/* =========================================
-            BRAND
+            SKILL LAB
         ========================================= */}
 
         <h1 className="title skill-lab-title">
@@ -248,10 +223,11 @@ function Login() {
         ========================================= */}
 
         <div className="login-footer">
-  <p>
-    Learn • Practice • Grow
-  </p>
-</div>
+          <p>
+            Learn • Practice • Grow
+          </p>
+        </div>
+
       </div>
 
     </div>

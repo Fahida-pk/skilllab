@@ -1,7 +1,7 @@
 /* =========================================================
    SKILL LAB
    STUDENT LOGIN
-   PREMIUM LIGHT GLASS
+   LIGHT PREMIUM GLASS
    BLUE • PURPLE • PINK
 ========================================================= */
 
@@ -33,7 +33,7 @@ body,
 
 
 /* =========================================================
-   PAGE
+   LOGIN PAGE
 ========================================================= */
 
 .login-page {
@@ -50,24 +50,28 @@ body,
 
   background:
 
+    /* LEFT BLUE */
     radial-gradient(
       circle at 8% 50%,
       rgba(73, 130, 255, 0.42),
       transparent 35%
     ),
 
+    /* RIGHT PINK */
     radial-gradient(
       circle at 92% 50%,
       rgba(226, 64, 190, 0.38),
       transparent 36%
     ),
 
+    /* BOTTOM PURPLE */
     radial-gradient(
       circle at 50% 100%,
       rgba(123, 76, 239, 0.40),
       transparent 45%
     ),
 
+    /* MAIN LIGHT GRADIENT */
     linear-gradient(
       135deg,
       #e5edff 0%,
@@ -91,7 +95,6 @@ body,
   inset: 0;
 
   background:
-
     linear-gradient(
       115deg,
       rgba(255, 255, 255, 0.20),
@@ -107,7 +110,7 @@ body,
 
 
 /* =========================================================
-   BACKGROUND GLOW
+   BLUE GLOW
 ========================================================= */
 
 .login-glow {
@@ -115,7 +118,7 @@ body,
 
   border-radius: 50%;
 
-  filter: blur(90px);
+  filter: blur(100px);
 
   pointer-events: none;
 
@@ -123,17 +126,19 @@ body,
 }
 
 
-/* BLUE */
+/* =========================================================
+   BLUE
+========================================================= */
 
 .login-glow-blue {
-  width: 560px;
-  height: 560px;
+  width: 600px;
+  height: 600px;
 
-  left: -260px;
-  top: 10%;
+  left: -300px;
+  top: 5%;
 
   background:
-    rgba(61, 128, 255, 0.32);
+    rgba(61, 128, 255, 0.28);
 
   animation:
     glowBlue
@@ -141,17 +146,19 @@ body,
 }
 
 
-/* PURPLE */
+/* =========================================================
+   PURPLE
+========================================================= */
 
 .login-glow-purple {
-  width: 500px;
-  height: 500px;
+  width: 520px;
+  height: 520px;
 
-  left: 35%;
-  top: -280px;
+  left: 38%;
+  top: -300px;
 
   background:
-    rgba(119, 74, 245, 0.25);
+    rgba(119, 74, 245, 0.22);
 
   animation:
     glowPurple
@@ -159,17 +166,19 @@ body,
 }
 
 
-/* PINK */
+/* =========================================================
+   PINK
+========================================================= */
 
 .login-glow-pink {
-  width: 620px;
-  height: 620px;
+  width: 650px;
+  height: 650px;
 
-  right: -280px;
-  bottom: -250px;
+  right: -300px;
+  bottom: -270px;
 
   background:
-    rgba(230, 55, 184, 0.28);
+    rgba(230, 55, 184, 0.26);
 
   animation:
     glowPink
@@ -178,7 +187,7 @@ body,
 
 
 /* =========================================================
-   GLOW ANIMATIONS
+   BACKGROUND ANIMATIONS
 ========================================================= */
 
 @keyframes glowBlue {
@@ -233,350 +242,10 @@ body,
 
 
 /* =========================================================
-   FLOATING GLASS SHAPES
-========================================================= */
-
-.floating-shape {
-  position: absolute;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
-  color: rgba(91, 105, 235, 0.72);
-
-  background:
-    rgba(255, 255, 255, 0.28);
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.72);
-
-  backdrop-filter:
-    blur(10px);
-
-  -webkit-backdrop-filter:
-    blur(10px);
-
-  box-shadow:
-
-    inset 0 1px 3px
-      rgba(255,255,255,0.85),
-
-    0 12px 35px
-      rgba(82, 75, 180, 0.10);
-
-  pointer-events: none;
-
-  z-index: 2;
-}
-
-
-/* =========================================================
-   SHAPE ONE
-========================================================= */
-
-.shape-one {
-
-  width: 78px;
-  height: 78px;
-
-  left: 13%;
-  top: 24%;
-
-  font-size: 27px;
-
-  animation:
-    floatOne
-    7s ease-in-out infinite;
-}
-
-
-/* =========================================================
-   SHAPE TWO
-========================================================= */
-
-.shape-two {
-
-  width: 48px;
-  height: 48px;
-
-  right: 17%;
-  top: 19%;
-
-  color:
-    rgba(177, 82, 220, 0.72);
-
-  font-size: 17px;
-
-  animation:
-    floatTwo
-    8s ease-in-out infinite;
-}
-
-
-/* =========================================================
-   SHAPE THREE
-========================================================= */
-
-.shape-three {
-
-  width: 92px;
-  height: 92px;
-
-  left: 20%;
-  bottom: -25px;
-
-  color:
-    rgba(86, 115, 230, 0.70);
-
-  font-size: 30px;
-
-  animation:
-    floatThree
-    9s ease-in-out infinite;
-}
-
-
-/* =========================================================
-   SHAPE FOUR
-========================================================= */
-
-.shape-four {
-
-  width: 62px;
-  height: 62px;
-
-  right: 12%;
-  bottom: 21%;
-
-  color:
-    rgba(201, 86, 213, 0.68);
-
-  font-size: 20px;
-
-  animation:
-    floatFour
-    8s ease-in-out infinite;
-}
-
-
-/* =========================================================
-   FLOAT ANIMATIONS
-========================================================= */
-
-@keyframes floatOne {
-
-  0%,
-  100% {
-    transform:
-      translateY(0)
-      rotate(0deg);
-  }
-
-  50% {
-    transform:
-      translateY(-20px)
-      rotate(8deg);
-  }
-}
-
-
-@keyframes floatTwo {
-
-  0%,
-  100% {
-    transform:
-      translateY(0)
-      rotate(0deg);
-  }
-
-  50% {
-    transform:
-      translateY(18px)
-      rotate(-8deg);
-  }
-}
-
-
-@keyframes floatThree {
-
-  0%,
-  100% {
-    transform:
-      translateY(0);
-  }
-
-  50% {
-    transform:
-      translateY(-28px);
-  }
-}
-
-
-@keyframes floatFour {
-
-  0%,
-  100% {
-    transform:
-      translateY(0)
-      scale(1);
-  }
-
-  50% {
-    transform:
-      translateY(-18px)
-      scale(1.08);
-  }
-}
-
-
-/* =========================================================
-   SMALL FLOATING DOTS
-========================================================= */
-
-.floating-dot {
-  position: absolute;
-
-  width: 8px;
-  height: 8px;
-
-  border-radius: 50%;
-
-  background:
-    rgba(255,255,255,0.62);
-
-  box-shadow:
-    0 0 14px
-    rgba(255,255,255,0.55);
-
-  pointer-events: none;
-
-  z-index: 1;
-}
-
-
-.dot-one {
-  left: 31%;
-  top: 30%;
-
-  animation:
-    dotFloatOne
-    6s ease-in-out infinite;
-}
-
-
-.dot-two {
-  right: 30%;
-  top: 20%;
-
-  width: 11px;
-  height: 11px;
-
-  animation:
-    dotFloatTwo
-    7s ease-in-out infinite;
-}
-
-
-.dot-three {
-  left: 21%;
-  bottom: 27%;
-
-  width: 7px;
-  height: 7px;
-
-  animation:
-    dotFloatThree
-    8s ease-in-out infinite;
-}
-
-
-.dot-four {
-  right: 23%;
-  bottom: 31%;
-
-  width: 9px;
-  height: 9px;
-
-  animation:
-    dotFloatFour
-    7s ease-in-out infinite;
-}
-
-
-@keyframes dotFloatOne {
-
-  0%,
-  100% {
-    transform:
-      translateY(0);
-    opacity: 0.45;
-  }
-
-  50% {
-    transform:
-      translateY(-18px);
-    opacity: 0.90;
-  }
-}
-
-
-@keyframes dotFloatTwo {
-
-  0%,
-  100% {
-    transform:
-      translate(0, 0);
-    opacity: 0.50;
-  }
-
-  50% {
-    transform:
-      translate(-12px, 18px);
-    opacity: 1;
-  }
-}
-
-
-@keyframes dotFloatThree {
-
-  0%,
-  100% {
-    transform:
-      translateY(0);
-  }
-
-  50% {
-    transform:
-      translateY(-15px);
-  }
-}
-
-
-@keyframes dotFloatFour {
-
-  0%,
-  100% {
-    transform:
-      translateY(0);
-  }
-
-  50% {
-    transform:
-      translateY(-20px);
-  }
-}
-
-
-/* =========================================================
    MAIN GLASS CARD
 ========================================================= */
 
 .login-card {
-
   position: relative;
 
   z-index: 10;
@@ -599,39 +268,38 @@ body,
   text-align: center;
 
 
-  /* =====================================
-     LARGE GLASS BLOB
-  ===================================== */
+  /* =====================================================
+     LIGHT GLASS
+  ===================================================== */
 
   background:
-
     linear-gradient(
       135deg,
-      rgba(255,255,255,0.42),
-      rgba(255,255,255,0.22) 45%,
-      rgba(255,255,255,0.14)
+      rgba(255, 255, 255, 0.48),
+      rgba(255, 255, 255, 0.27) 45%,
+      rgba(255, 255, 255, 0.18)
     );
 
 
   backdrop-filter:
-    blur(38px);
+    blur(40px);
 
   -webkit-backdrop-filter:
-    blur(38px);
+    blur(40px);
 
 
-  /* =====================================
+  /* =====================================================
      GLASS BORDER
-  ===================================== */
+  ===================================================== */
 
   border:
     1px solid
-    rgba(255,255,255,0.72);
+    rgba(255, 255, 255, 0.78);
 
 
-  /* =====================================
-     OVAL / BLOB
-  ===================================== */
+  /* =====================================================
+     OVAL SHAPE
+  ===================================================== */
 
   border-radius:
     50% 50% 48% 52%
@@ -639,31 +307,37 @@ body,
     45% 55% 45% 55%;
 
 
-  /* =====================================
+  /* =====================================================
      PREMIUM SHADOW
-  ===================================== */
+  ===================================================== */
 
   box-shadow:
 
     0 35px 90px
-      rgba(78, 64, 160, 0.17),
+      rgba(78, 64, 160, 0.16),
 
     0 12px 35px
-      rgba(255,255,255,0.30),
+      rgba(255, 255, 255, 0.32),
 
     inset 0 2px 3px
-      rgba(255,255,255,0.82),
+      rgba(255, 255, 255, 0.88),
 
     inset 0 -20px 55px
-      rgba(132,85,220,0.08);
+      rgba(132, 85, 220, 0.07);
 
 
   overflow: visible;
 
+
+  /* =====================================================
+     CARD ANIMATION
+  ===================================================== */
+
   animation:
     cardEnter
     0.75s
-    cubic-bezier(.2,.8,.2,1);
+    cubic-bezier(.2, .8, .2, 1);
+
 
   transition:
     transform 0.4s ease,
@@ -683,16 +357,16 @@ body,
   box-shadow:
 
     0 45px 105px
-      rgba(78,64,160,0.20),
+      rgba(78, 64, 160, 0.20),
 
     0 15px 40px
-      rgba(255,255,255,0.40),
+      rgba(255, 255, 255, 0.40),
 
     inset 0 2px 4px
-      rgba(255,255,255,0.90),
+      rgba(255, 255, 255, 0.92),
 
     inset 0 -20px 60px
-      rgba(132,85,220,0.10);
+      rgba(132, 85, 220, 0.10);
 }
 
 
@@ -738,10 +412,10 @@ body,
 
     linear-gradient(
       125deg,
-      rgba(255,255,255,0.32),
+      rgba(255, 255, 255, 0.34),
       transparent 30%,
       transparent 68%,
-      rgba(255,255,255,0.10)
+      rgba(255, 255, 255, 0.10)
     );
 
   pointer-events: none;
@@ -771,7 +445,6 @@ body,
   display: flex;
 
   align-items: center;
-
   justify-content: center;
 
   border-radius: 50%;
@@ -781,9 +454,9 @@ body,
   font-size: 38px;
 
 
-  /* =====================================
-     PURPLE → PINK
-  ===================================== */
+  /* =====================================================
+     BLUE → PURPLE → PINK
+  ===================================================== */
 
   background:
 
@@ -797,22 +470,27 @@ body,
 
   border:
     3px solid
-    rgba(255,255,255,0.70);
+    rgba(255, 255, 255, 0.72);
 
 
   box-shadow:
 
     0 15px 35px
-      rgba(101,72,210,0.28),
+      rgba(101, 72, 210, 0.28),
 
     0 0 0 7px
-      rgba(255,255,255,0.13),
+      rgba(255, 255, 255, 0.14),
 
     inset 0 2px 7px
-      rgba(255,255,255,0.38);
+      rgba(255, 255, 255, 0.40);
 
 
   z-index: 5;
+
+
+  /* =====================================================
+     USER ICON ANIMATION
+  ===================================================== */
 
   animation:
     profileFloat
@@ -844,7 +522,7 @@ body,
 
 
 /* =========================================================
-   PROFILE ICON PULSE
+   PROFILE GLOW / PULSE
 ========================================================= */
 
 .profile-icon::after {
@@ -859,7 +537,7 @@ body,
 
   border:
     1px solid
-    rgba(255,255,255,0.32);
+    rgba(255, 255, 255, 0.35);
 
   animation:
     profilePulse
@@ -871,6 +549,7 @@ body,
 
   0%,
   100% {
+
     opacity: 0.30;
 
     transform:
@@ -878,6 +557,7 @@ body,
   }
 
   50% {
+
     opacity: 0.75;
 
     transform:
@@ -887,7 +567,7 @@ body,
 
 
 /* =========================================================
-   SKILL LAB
+   SKILL LAB TITLE
 ========================================================= */
 
 .skill-lab-title {
@@ -912,9 +592,9 @@ body,
   text-align: center;
 
 
-  /* =====================================
+  /* =====================================================
      BRAND GRADIENT
-  ===================================== */
+  ===================================================== */
 
   background:
 
@@ -939,7 +619,7 @@ body,
   filter:
     drop-shadow(
       0 4px 6px
-      rgba(75,60,160,0.16)
+      rgba(75, 60, 160, 0.16)
     );
 }
 
@@ -971,7 +651,7 @@ body,
   text-shadow:
 
     0 3px 10px
-    rgba(75,50,145,0.16);
+    rgba(75, 50, 145, 0.16);
 }
 
 
@@ -989,7 +669,7 @@ body,
     10px 0 28px;
 
   color:
-    rgba(255,255,255,0.96);
+    rgba(255, 255, 255, 0.96);
 
   font-size: 18px;
 
@@ -1002,7 +682,7 @@ body,
   text-shadow:
 
     0 2px 6px
-    rgba(65,45,140,0.15);
+    rgba(65, 45, 140, 0.15);
 }
 
 
@@ -1041,7 +721,7 @@ body,
   box-shadow:
 
     0 8px 22px
-    rgba(55,45,130,0.13);
+    rgba(55, 45, 130, 0.13);
 
   transition:
 
@@ -1059,7 +739,7 @@ body,
   box-shadow:
 
     0 12px 28px
-    rgba(55,45,130,0.18);
+    rgba(55, 45, 130, 0.18);
 }
 
 
@@ -1068,30 +748,40 @@ body,
 ========================================================= */
 
 .login-footer {
+
   position: relative;
+
   z-index: 2;
 
   width: 100%;
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   margin-top: 27px;
 }
 
+
 .login-footer p {
+
   margin: 0;
 
-  color: rgba(45, 35, 100, 0.88);
+  color:
+    rgba(45, 35, 100, 0.88);
 
   font-size: 12px;
+
   font-weight: 600;
 
   letter-spacing: 0.7px;
 
   white-space: nowrap;
 }
+
+
 /* =========================================================
    MOBILE
 ========================================================= */
@@ -1109,7 +799,7 @@ body,
   .login-card {
 
     width:
-      min(90vw, 430px);
+      min(92vw, 430px);
 
     min-height:
       390px;
@@ -1168,60 +858,37 @@ body,
 
   .login-footer p {
 
-    font-size: 9px;
+    font-size: 10px;
 
     letter-spacing: 0.5px;
   }
 
 
-  .shape-one {
+  .login-glow-blue {
 
-    width: 55px;
-    height: 55px;
+    width: 420px;
+    height: 420px;
 
-    left: 5%;
-
-    font-size: 20px;
+    left: -220px;
   }
 
 
-  .shape-two {
+  .login-glow-purple {
 
-    width: 40px;
-    height: 40px;
+    width: 380px;
+    height: 380px;
 
-    right: 6%;
-
-    font-size: 14px;
+    top: -220px;
   }
 
 
-  .shape-three {
+  .login-glow-pink {
 
-    width: 70px;
-    height: 70px;
+    width: 450px;
+    height: 450px;
 
-    left: 4%;
-
-    font-size: 23px;
-  }
-
-
-  .shape-four {
-
-    width: 45px;
-    height: 45px;
-
-    right: 4%;
-
-    font-size: 15px;
-  }
-
-
-  .floating-dot {
-
-    transform:
-      scale(0.75);
+    right: -230px;
+    bottom: -180px;
   }
 }
 
@@ -1235,10 +902,10 @@ body,
   .login-card {
 
     width:
-      92vw;
+      94vw;
 
     min-height:
-      370px;
+      360px;
 
     padding:
       70px 20px 25px;
@@ -1278,7 +945,7 @@ body,
 
   .login-footer p {
 
-    font-size: 8px;
+    font-size: 9px;
 
     letter-spacing: 0.3px;
   }
@@ -1292,11 +959,10 @@ body,
 @media (prefers-reduced-motion: reduce) {
 
   .login-glow,
-  .floating-shape,
-  .floating-dot,
   .profile-icon,
   .login-card {
 
-    animation: none !important;
+    animation:
+      none !important;
   }
 }
