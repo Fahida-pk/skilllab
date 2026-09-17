@@ -5,7 +5,11 @@ import {
   FaEnvelope,
   FaLock,
   FaArrowRight,
+  FaEye,
+  FaEyeSlash,
+  FaCheckCircle,
 } from "react-icons/fa";
+
 import "./admin-login.css";
 
 function AdminLogin() {
@@ -54,7 +58,10 @@ function AdminLogin() {
           JSON.stringify(data.admin)
         );
 
-        localStorage.setItem("adminLoggedIn", "true");
+        localStorage.setItem(
+          "adminLoggedIn",
+          "true"
+        );
 
         navigate("/admin/dashboard");
       } else {
@@ -75,25 +82,42 @@ function AdminLogin() {
   return (
     <div className="admin-login-page">
 
-      {/* Background */}
-      <div className="admin-bg-orb admin-bg-orb-1"></div>
-      <div className="admin-bg-orb admin-bg-orb-2"></div>
-      <div className="admin-bg-orb admin-bg-orb-3"></div>
+      {/* =====================================
+          BACKGROUND
+      ====================================== */}
 
-      <div className="admin-bg-grid"></div>
+      <div className="admin-glow admin-glow-one"></div>
+      <div className="admin-glow admin-glow-two"></div>
+      <div className="admin-glow admin-glow-three"></div>
+
+      <div className="admin-orb orb-one"></div>
+      <div className="admin-orb orb-two"></div>
+      <div className="admin-orb orb-three"></div>
+
+      <div className="admin-grid"></div>
 
 
-      {/* Glass Login Card */}
+      {/* =====================================
+          MAIN GLASS CARD
+      ====================================== */}
+
       <div className="admin-login-card">
 
-        {/* Logo */}
-        <div className="admin-logo-area">
+        {/* TOP GLASS HIGHLIGHT */}
+        <div className="glass-highlight"></div>
 
-          <div className="admin-logo-icon">
+
+        {/* =====================================
+            LOGO
+        ====================================== */}
+
+        <div className="admin-brand">
+
+          <div className="admin-brand-icon">
             <FaShieldAlt />
           </div>
 
-          <div className="admin-logo-name">
+          <div className="admin-brand-text">
             <span>SKILL</span>
             <strong>LAB</strong>
           </div>
@@ -101,20 +125,28 @@ function AdminLogin() {
         </div>
 
 
-        {/* Portal Badge */}
-        <div className="admin-portal-badge">
+        {/* =====================================
+            ADMIN BADGE
+        ====================================== */}
 
-          <span className="portal-dot"></span>
+        <div className="admin-badge">
 
-          ADMIN PORTAL
+          <span className="admin-status-dot"></span>
+
+          <span>ADMIN PORTAL</span>
 
         </div>
 
 
-        {/* Heading */}
+        {/* =====================================
+            HEADING
+        ====================================== */}
+
         <div className="admin-heading">
 
-          <h1>Welcome Back</h1>
+          <h1>
+            Welcome Back
+          </h1>
 
           <p>
             Sign in to manage your SkillLab system
@@ -123,20 +155,28 @@ function AdminLogin() {
         </div>
 
 
-        {/* Form */}
+        {/* =====================================
+            LOGIN FORM
+        ====================================== */}
+
         <form
           className="admin-login-form"
           onSubmit={handleLogin}
         >
 
-          {/* Email */}
+          {/* EMAIL */}
+
           <div className="admin-field">
 
-            <label>Email Address</label>
+            <label>
+              Email Address
+            </label>
 
-            <div className="admin-input-box">
+            <div className="admin-input-wrapper">
 
-              <FaEnvelope className="admin-input-icon" />
+              <FaEnvelope
+                className="admin-input-icon"
+              />
 
               <input
                 type="email"
@@ -153,14 +193,19 @@ function AdminLogin() {
           </div>
 
 
-          {/* Password */}
+          {/* PASSWORD */}
+
           <div className="admin-field">
 
-            <label>Password</label>
+            <label>
+              Password
+            </label>
 
-            <div className="admin-input-box">
+            <div className="admin-input-wrapper">
 
-              <FaLock className="admin-input-icon" />
+              <FaLock
+                className="admin-input-icon"
+              />
 
               <input
                 type={
@@ -178,12 +223,23 @@ function AdminLogin() {
 
               <button
                 type="button"
-                className="password-toggle"
+                className="show-password-btn"
                 onClick={() =>
                   setShowPassword(!showPassword)
                 }
+                aria-label={
+                  showPassword
+                    ? "Hide password"
+                    : "Show password"
+                }
               >
-                {showPassword ? "Hide" : "Show"}
+
+                {showPassword ? (
+                  <FaEyeSlash />
+                ) : (
+                  <FaEye />
+                )}
+
               </button>
 
             </div>
@@ -191,30 +247,44 @@ function AdminLogin() {
           </div>
 
 
-          {/* Error */}
+          {/* ERROR */}
+
           {error && (
             <div className="admin-error">
-              <span>!</span>
-              {error}
+
+              <span className="error-icon">
+                !
+              </span>
+
+              <span>
+                {error}
+              </span>
+
             </div>
           )}
 
 
-          {/* Login Button */}
+          {/* LOGIN BUTTON */}
+
           <button
             type="submit"
             className="admin-login-button"
             disabled={loading}
           >
 
-            <span>
-              {loading
-                ? "Signing in..."
-                : "Sign In to Admin Panel"}
-            </span>
+            {loading ? (
+              <>
+                <span className="admin-spinner"></span>
+                <span>Signing in...</span>
+              </>
+            ) : (
+              <>
+                <span>
+                  Sign In to Admin Panel
+                </span>
 
-            {!loading && (
-              <FaArrowRight />
+                <FaArrowRight />
+              </>
             )}
 
           </button>
@@ -222,19 +292,30 @@ function AdminLogin() {
         </form>
 
 
-        {/* Secure Footer */}
-        <div className="admin-secure">
+        {/* =====================================
+            SECURITY AREA
+        ====================================== */}
 
-          <span></span>
+        <div className="admin-security">
 
-          <p>
-            SECURE ADMINISTRATOR ACCESS
-          </p>
+          <div className="security-line"></div>
 
-          <span></span>
+          <div className="security-content">
+
+            <FaCheckCircle />
+
+            <span>
+              Secure Administrator Access
+            </span>
+
+          </div>
+
+          <div className="security-line"></div>
 
         </div>
 
+
+        {/* COPYRIGHT */}
 
         <div className="admin-copyright">
           © {new Date().getFullYear()} SkillLab
