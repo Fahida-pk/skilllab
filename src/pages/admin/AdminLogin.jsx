@@ -113,9 +113,7 @@ function AdminLogin() {
 
         <div className="admin-brand">
 
-          <div className="admin-brand-icon">
-            <FaShieldAlt />
-          </div>
+          
 
           <div className="admin-brand-text">
             <span>SKILL</span>
@@ -125,18 +123,7 @@ function AdminLogin() {
         </div>
 
 
-        {/* =====================================
-            ADMIN BADGE
-        ====================================== */}
-
-        <div className="admin-badge">
-
-          <span className="admin-status-dot"></span>
-
-          <span>ADMIN PORTAL</span>
-
-        </div>
-
+     
 
         {/* =====================================
             HEADING
@@ -145,7 +132,7 @@ function AdminLogin() {
         <div className="admin-heading">
 
           <h1>
-            Welcome Back
+            Welcome 
           </h1>
 
           <p>
@@ -292,35 +279,7 @@ function AdminLogin() {
         </form>
 
 
-        {/* =====================================
-            SECURITY AREA
-        ====================================== */}
-
-        <div className="admin-security">
-
-          <div className="security-line"></div>
-
-          <div className="security-content">
-
-            <FaCheckCircle />
-
-            <span>
-              Secure Administrator Access
-            </span>
-
-          </div>
-
-          <div className="security-line"></div>
-
-        </div>
-
-
-        {/* COPYRIGHT */}
-
-        <div className="admin-copyright">
-          © {new Date().getFullYear()} SkillLab
-        </div>
-
+        
       </div>
 
     </div>
