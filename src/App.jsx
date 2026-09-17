@@ -72,7 +72,9 @@ function App() {
 
 
       {/* =================================================
-          NORMAL STUDENT ROUTES
+          NORMAL STUDENT DASHBOARD / TASKS
+
+          These routes still require normal student login.
       ================================================= */}
 
       <Route element={<ProtectedRoute />}>
@@ -101,7 +103,7 @@ function App() {
 
 
       {/* =================================================
-          ADMIN DASHBOARD
+          ADMIN MAIN DASHBOARD
       ================================================= */}
 
       <Route
@@ -129,14 +131,19 @@ function App() {
 
 
       {/* =================================================
-          ADMIN → STUDENT DASHBOARD
-          
+          ADMIN → VIEW STUDENT DASHBOARD
+
           IMPORTANT:
-          This route is NOT inside ProtectedRoute.
-          
-          So student Google login will NOT be required.
-          
-          Admin authentication only.
+          This route is deliberately OUTSIDE ProtectedRoute.
+
+          Therefore:
+          - Student Google login is NOT required
+          - Student localStorage user is NOT required
+          - Admin login is required
+          - Selected student ID comes from the URL
+
+          Dashboard receives adminView={true} and loads the
+          selected student's email from admin-dashboard.php.
       ================================================= */}
 
       <Route
@@ -150,7 +157,7 @@ function App() {
 
 
       {/* =================================================
-          INVALID ROUTE
+          INVALID URL
       ================================================= */}
 
       <Route
