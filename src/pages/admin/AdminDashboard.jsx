@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaBullseye } from "react-icons/fa";
 
-import Sidebar from "./Sidebar";
-import "./dashboard.css";
+import "./admin-dashboard.css";
+
 
 import {
   FaChevronLeft,
