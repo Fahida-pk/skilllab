@@ -261,13 +261,11 @@ function Login() {
 
         <div className="login-footer">
 
-          <span></span>
 
           <p>
             Learn&nbsp; • &nbsp;Practice&nbsp; • &nbsp;Grow
           </p>
 
-          <span></span>
 
         </div>
 
