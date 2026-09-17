@@ -516,37 +516,7 @@ const goStudents = () => {
 
           </div>
 
-          {/* STUDENTS PERFORMANCE */}
-
-          <div className="admin-nav-group">
-
-            <button
-              className="admin-nav-item"
-            >
-              <FaChartLine />
-
-              <span>
-                Students Performance
-              </span>
-            </button>
-
-          </div>
-
-          {/* SETTINGS */}
-
-          <div className="admin-nav-group">
-
-            <button
-              className="admin-nav-item"
-            >
-              <FaGear />
-
-              <span>
-                Settings
-              </span>
-            </button>
-
-          </div>
+          
 
         </div>
 
