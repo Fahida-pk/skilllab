@@ -380,9 +380,7 @@ const goStudents = () => {
               SKILL LAB
             </strong>
 
-            <small>
-              Admin Panel
-            </small>
+           
 
           </div>
 
@@ -580,10 +578,7 @@ const goStudents = () => {
       <div className="admin-profile">
 
         <div className="admin-profile-avatar">
-          {getInitials(
-            admin?.name ||
-              "SkillLab Admin"
-          )}
+         
         </div>
 
         <div className="admin-profile-info">
@@ -593,10 +588,7 @@ const goStudents = () => {
               "SkillLab Admin"}
           </strong>
 
-          <span>
-            Administrator
-          </span>
-
+        
         </div>
 
       </div>
