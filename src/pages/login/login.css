@@ -48,38 +48,34 @@ body,
 
   overflow: hidden;
 
-  background:
-
-    /* LEFT BLUE */
+     background:
     radial-gradient(
-      circle at 8% 50%,
-      rgba(11, 16, 153, 0.42),
-      transparent 35%
+      circle at 0% 20%,
+      rgba(82, 151, 255, 0.75),
+      transparent 48%
     ),
 
-    /* RIGHT PINK */
     radial-gradient(
-      circle at 92% 50%,
-      rgba(226, 64, 190, 0.38),
-      transparent 36%
+      circle at 55% 45%,
+      rgba(116, 20, 209, 0.70),
+      transparent 52%
     ),
 
-    /* BOTTOM PURPLE */
     radial-gradient(
-      circle at 50% 100%,
-      rgba(123, 76, 239, 0.40),
-      transparent 45%
+      circle at 100% 80%,
+      rgba(241, 82, 199, 0.72),
+      transparent 50%
     ),
 
-    /* MAIN LIGHT GRADIENT */
     linear-gradient(
       135deg,
-      #e5edff 0%,
-      #dfe7ff 18%,
-      #e9ddff 42%,
-      #efd9ff 65%,
-      #ffe1f5 100%
+      #8db8ff 0%,
+      #9f9dfb 30%,
+      #bd82f2 55%,
+      #dc72df 78%,
+      #f36bc9 100%
     );
+
 }
 
 
