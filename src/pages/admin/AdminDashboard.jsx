@@ -1,1594 +1,3950 @@
-import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { FaBullseye } from "react-icons/fa";
+
+import Sidebar from "./Sidebar";
+import "./dashboard.css";
 
 import {
-  FaGaugeHigh,
-  FaChartLine,
-  FaUsers,
-  FaUserGraduate,
-  FaUserTie,
-  FaCreditCard,
-  FaGear,
-  FaArrowRightFromBracket,
-  FaChevronDown,
+  FaChevronLeft,
   FaChevronRight,
-  FaBars,
-  FaXmark,
-  FaCircleCheck,
-  FaTriangleExclamation,
-  FaCalendarDays,
+  FaCalendarAlt,
+  FaCheckCircle,
   FaClock,
-  FaBookOpen,
-  FaArrowUp,
-  FaArrowDown,
-  FaArrowRight,
-  FaMagnifyingGlass,
-  FaUser,
-} from "react-icons/fa6";
-
-import "./admin-dashboard.css";
+  FaHourglassHalf,
+  FaTimesCircle,
+  FaGraduationCap,
+} from "react-icons/fa";
 
 const API_URL =
+  "https://zyntaweb.com/skilllab/api/dashboard.php";
+
+const TASK_API_URL =
+  "https://zyntaweb.com/skilllab/api/task.php";
+
+const ADMIN_API_URL =
   "https://zyntaweb.com/skilllab/admin-dashboard.php";
 
-function AdminDashboard() {
+function Dashboard({ adminView = false }) {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { id: studentId } = useParams();
 
-  const [admin, setAdmin] = useState(null);
+  /* =====================================================
+     NORMAL STUDENT
+  ===================================================== */
 
-  const [students, setStudents] = useState([]);
+  const normalUser = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("user") || "null"
+      );
+    } catch (error) {
+      console.error("Student localStorage error:", error);
+      return null;
+    }
+  })();
 
-  const [dashboardData, setDashboardData] =
+  /* =====================================================
+     ADMIN VIEW
+     Admin can open a student's dashboard directly.
+     Google/student login is NOT required in this mode.
+  ===================================================== */
+
+  const [adminStudent, setAdminStudent] = useState(null);
+
+  const user = adminView
+    ? adminStudent
+    : normalUser;
+
+  /* =====================================================
+     DATE
+  ===================================================== */
+
+  const getLocalDate = () => {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(
+      now.getMonth() + 1
+    ).padStart(2, "0");
+    const day = String(
+      now.getDate()
+    ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const [selectedDate, setSelectedDate] =
+    useState(getLocalDate());
+
+  const [loading, setLoading] =
+    useState(true);
+// Re-render every second so task status
+// changes automatically according to current time.
+const [, setTimeTick] = useState(0);
+  const [dashboard, setDashboard] =
     useState({
-      totalStudents: 0,
+      today: {
+        total: 0,
+        completed: 0,
+        inProgress: 0,
+        pending: 0,
+        notStarted: 0,
+        percentage: 0,
+      },
 
-      todayPerformance: 0,
-      weekPerformance: 0,
-      monthPerformance: 0,
+      week: {
+        total: 0,
+        completed: 0,
+        percentage: 0,
+        performancePercentage: 0,
+      },
 
-      todayCompleted: 0,
-      todayTotal: 0,
+      month: {
+        total: 0,
+        completed: 0,
+        percentage: 0,
+        performancePercentage: 0,
+      },
 
-      weekCompleted: 0,
-      weekTotal: 0,
+      studyHours: {
+        hours: 0,
+        minutes: 0,
+      },
 
-      monthCompleted: 0,
-      monthTotal: 0,
-
-      strongStudents: 0,
-      weakStudents: 0,
-
-      weeklyStrongStudents: [],
-      weeklyGoodStudents: [],
-      weeklyWeakStudents: [],
-
-      monthlyStrongStudents: [],
-      monthlyGoodStudents: [],
-      monthlyWeakStudents: [],
+      tasks: [],
     });
 
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [weeklyProgress, setWeeklyProgress] = useState([]);
+  const [monthlyProgress, setMonthlyProgress] = useState([]);
 
-  const [search, setSearch] = useState("");
+  /* =====================================================
+     DATE FORMAT
+  ===================================================== */
 
-  const [mobileOpen, setMobileOpen] =
-    useState(false);
-
-  const [studentsOpen, setStudentsOpen] =
-    useState(
-      location.pathname.startsWith(
-        "/admin/students"
-      )
+  const formatDate = (dateString) => {
+    const date = new Date(
+      dateString + "T00:00:00"
     );
 
-  /* =========================================
-     ADMIN
-  ========================================= */
-
-  useEffect(() => {
-    try {
-      const savedAdmin =
-        localStorage.getItem("admin");
-
-      if (!savedAdmin) {
-        navigate("/admin/login", {
-          replace: true,
-        });
-        return;
-      }
-
-      setAdmin(JSON.parse(savedAdmin));
-    } catch (error) {
-      console.error(
-        "Admin data error:",
-        error
-      );
-
-      localStorage.removeItem("admin");
-      localStorage.removeItem(
-        "adminLoggedIn"
-      );
-
-      navigate("/admin/login", {
-        replace: true,
-      });
-    }
-  }, [navigate]);
-
-  /* =========================================
-     FETCH ADMIN DATA
-  ========================================= */
-
-  const fetchAdminData = async () => {
-    try {
-      setRefreshing(true);
-
-      const savedAdmin =
-        localStorage.getItem("admin");
-
-      if (!savedAdmin) {
-        navigate("/admin/login", {
-          replace: true,
-        });
-        return;
-      }
-
-      const adminData =
-        JSON.parse(savedAdmin);
-
-      const response = await fetch(
-        API_URL,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            action: "admin_overview",
-            admin_email:
-              adminData.email,
-          }),
-        }
-      );
-
-      const data =
-        await response.json();
-
-      console.log(
-        "ADMIN DASHBOARD:",
-        data
-      );
-
-      if (!data.success) {
-        throw new Error(
-          data.message ||
-            "Unable to load admin data"
-        );
-      }
-
-      setDashboardData(
-        data.overview || {}
-      );
-
-      setStudents(
-        Array.isArray(data.students)
-          ? data.students
-          : []
-      );
-    } catch (error) {
-      console.error(
-        "Admin dashboard error:",
-        error
-      );
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    if (admin?.email) {
-      fetchAdminData();
-    }
-  }, [admin]);
-
-  /* =========================================
-     ROUTE
-  ========================================= */
-
-  const isStudentsPage =
-    location.pathname ===
-      "/admin/students" ||
-    location.pathname.startsWith(
-      "/admin/students/"
-    );
-
-  /* =========================================
-     SEARCH
-  ========================================= */
-
-  const filteredStudents = useMemo(() => {
-    const value =
-      search.trim().toLowerCase();
-
-    if (!value) {
-      return students;
-    }
-
-    return students.filter((student) => {
-      return (
-        String(student.name || "")
-          .toLowerCase()
-          .includes(value) ||
-
-        String(student.email || "")
-          .toLowerCase()
-          .includes(value) ||
-
-        String(student.phone || "")
-          .toLowerCase()
-          .includes(value)
-      );
-    });
-  }, [students, search]);
-
-  /* =========================================
-     LOGOUT
-  ========================================= */
-
-  const handleLogout = () => {
-    localStorage.removeItem("admin");
-    localStorage.removeItem(
-      "adminLoggedIn"
-    );
-
-    navigate("/admin/login", {
-      replace: true,
-    });
-  };
-
-  /* =========================================
-     NAVIGATION
-  ========================================= */
-/* =========================================
-   NAVIGATION
-========================================= */
-
-const goDashboard = () => {
-
-  navigate("/AdminDashboard");
-
-  setMobileOpen(false);
-};
-
-
-const goStudents = () => {
-
-  navigate("/admin/students");
-
-  setMobileOpen(false);
-};
- 
-
-  /* =========================================
-     HELPERS
-  ========================================= */
-
-  const getInitials = (name) => {
-    if (!name) return "S";
-
-    const parts =
-      name.trim().split(/\s+/);
-
-    if (parts.length === 1) {
-      return parts[0]
-        .substring(0, 2)
-        .toUpperCase();
-    }
-
-    return (
-      parts[0][0] +
-      parts[parts.length - 1][0]
-    ).toUpperCase();
-  };
-
-  const getPerformanceClass = (
-    percentage
-  ) => {
-    const value =
-      Number(percentage) || 0;
-
-    if (value >= 60) {
-      return "strong";
-    }
-
-    if (value >= 40) {
-      return "good";
-    }
-
-    return "weak";
-  };
-
-  const getPerformanceLabel = (
-    percentage
-  ) => {
-    const value =
-      Number(percentage) || 0;
-
-    if (value >= 60) {
-      return "Strong";
-    }
-
-    if (value >= 40) {
-      return "Good Progress";
-    }
-
-    return "Needs Attention";
-  };
-
-  const formatDate = (date) => {
-    if (!date) return "—";
-
-    const parsed =
-      new Date(date);
-
-    if (Number.isNaN(
-      parsed.getTime()
-    )) {
-      return date;
-    }
-
-    return parsed.toLocaleDateString(
-      "en-IN",
+    return date.toLocaleDateString(
+      "en-US",
       {
-        day: "2-digit",
+        weekday: "short",
         month: "short",
+        day: "2-digit",
         year: "numeric",
       }
     );
   };
 
-  /* =========================================
-     EXTRA PERFORMANCE ANALYSIS HELPERS
-  ========================================= */
+  /* =====================================================
+     LOCAL STORAGE HELPERS
+  ===================================================== */
 
-  const getPerformanceGroups = (period) => {
-    if (period === "weekly") {
-      return {
-        strong: dashboardData.weeklyStrongStudents || [],
-        good: dashboardData.weeklyGoodStudents || [],
-        weak: dashboardData.weeklyWeakStudents || [],
-      };
+  const readJSON = (
+    key,
+    fallback
+  ) => {
+    try {
+      const value =
+        localStorage.getItem(key);
+
+      if (!value) {
+        return fallback;
+      }
+
+      return JSON.parse(value);
+    } catch (error) {
+      console.error(
+        "localStorage error:",
+        key,
+        error
+      );
+
+      return fallback;
+    }
+  };
+
+  /* =====================================================
+     ADMIN → LOAD SELECTED STUDENT
+
+     This runs only when the Dashboard is opened through:
+     /admin/students/:id/dashboard
+
+     The admin is authenticated using the existing admin
+     localStorage session. No Google/student login is used.
+  ===================================================== */
+
+  useEffect(() => {
+    if (!adminView) {
+      return;
     }
 
+    const loadAdminStudent = async () => {
+      try {
+        const savedAdmin =
+          localStorage.getItem("admin");
+
+        const adminLoggedIn =
+          localStorage.getItem("adminLoggedIn");
+
+        if (
+          adminLoggedIn !== "true" ||
+          !savedAdmin
+        ) {
+          navigate("/admin/login", {
+            replace: true,
+          });
+          return;
+        }
+
+        if (!studentId) {
+          navigate("/admin/students", {
+            replace: true,
+          });
+          return;
+        }
+
+        let admin;
+
+        try {
+          admin = JSON.parse(savedAdmin);
+        } catch (error) {
+          localStorage.removeItem("admin");
+          localStorage.removeItem("adminLoggedIn");
+
+          navigate("/admin/login", {
+            replace: true,
+          });
+          return;
+        }
+
+        const response = await fetch(
+          ADMIN_API_URL,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "get_student",
+              admin_email: admin.email,
+              student_id: Number(studentId),
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        console.log(
+          "ADMIN VIEW STUDENT:",
+          data
+        );
+
+        if (!data.success || !data.student) {
+          console.error(
+            "Unable to load student:",
+            data.message
+          );
+
+          navigate("/admin/students", {
+            replace: true,
+          });
+          return;
+        }
+
+        setAdminStudent(data.student);
+      } catch (error) {
+        console.error(
+          "Admin student loading error:",
+          error
+        );
+      }
+    };
+
+    loadAdminStudent();
+  }, [
+    adminView,
+    studentId,
+    navigate,
+  ]);
+
+  /* =====================================================
+     DEFAULT TASKS
+  ===================================================== */
+
+  const DEFAULT_TASKS = [
+    {
+      id: "d1",
+      title: "Wake Up",
+      time: "5:00 AM",
+      icon: "sun",
+      color:
+        "linear-gradient(135deg, #f6d365, #fda085)",
+      completed: false,
+      isWakeUp: true,
+    },
+
+    {
+      id: "d2",
+      title: "Study MERN",
+      from: "5:00 AM",
+      to: "10:00 AM",
+      icon: "book",
+      color:
+        "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+      completed: false,
+    },
+
+    {
+      id: "d3",
+      title: "Practice English",
+      from: "1:00 PM",
+      to: "4:00 PM",
+      icon: "language",
+      color:
+        "linear-gradient(135deg, #84fab0, #8fd3f4)",
+      completed: false,
+    },
+
+    {
+      id: "d4",
+      title: "Workout",
+      from: "6:00 PM",
+      to: "7:00 PM",
+      icon: "dumbbell",
+      color:
+        "linear-gradient(135deg, #fccb90, #d57eeb)",
+      completed: false,
+    },
+
+    {
+      id: "d5",
+      title: "Sleep",
+      from: "10:00 PM",
+      to: "8:00 AM",
+      icon: "moon",
+      color:
+        "linear-gradient(135deg, #141e30, #243b55)",
+      completed: false,
+      nextDay: true,
+      isSleep: true,
+    },
+  ];
+
+  /* =====================================================
+     STORAGE KEYS
+  ===================================================== */
+
+  const getDeletedDefaultKey = (
+    dateKey
+  ) =>
+    `deletedDefaultTasks_${dateKey}`;
+
+  const getDefaultScheduleKey = (
+    dateKey
+  ) =>
+    `defaultTaskSchedule_${dateKey}`;
+
+  const getDefaultCompletionKey = (
+    dateKey
+  ) =>
+    `defaultTaskCompleted_${dateKey}`;
+
+  /* =====================================================
+     LOCAL DEFAULT CHANGES
+  ===================================================== */
+
+  const getLocalDefaultChanges = (
+    dateKey
+  ) => {
+    const deleted = readJSON(
+      getDeletedDefaultKey(dateKey),
+      []
+    );
+
+    const schedules = readJSON(
+      getDefaultScheduleKey(dateKey),
+      {}
+    );
+
+    const completed = readJSON(
+      getDefaultCompletionKey(dateKey),
+      {}
+    );
+
     return {
-      strong: dashboardData.monthlyStrongStudents || [],
-      good: dashboardData.monthlyGoodStudents || [],
-      weak: dashboardData.monthlyWeakStudents || [],
+      deleted: Array.isArray(deleted)
+        ? deleted.map(String)
+        : [],
+
+      schedules:
+        schedules &&
+        typeof schedules === "object" &&
+        !Array.isArray(schedules)
+          ? schedules
+          : {},
+
+      completed:
+        completed &&
+        typeof completed === "object" &&
+        !Array.isArray(completed)
+          ? completed
+          : {},
     };
   };
 
-  const getPieBackground = (groups) => {
-    const strong = groups.strong.length;
-    const good = groups.good.length;
-    const weak = groups.weak.length;
-    const total = strong + good + weak;
+  /* =====================================================
+     SAVED DEFAULT DEFINITIONS
+  ===================================================== */
 
-    if (total === 0) {
-      return "#eeeaf4";
+  const getSavedDefaultDefinitions =
+    () => {
+      const saved = readJSON(
+        "defaultTasks",
+        []
+      );
+
+      if (!Array.isArray(saved)) {
+        return DEFAULT_TASKS;
+      }
+
+      const savedById = new Map(
+        saved.map((task) => [
+          String(task.id),
+          task,
+        ])
+      );
+
+      return DEFAULT_TASKS.map(
+        (baseTask) => ({
+          ...baseTask,
+          ...(savedById.get(
+            String(baseTask.id)
+          ) || {}),
+          completed: false,
+        })
+      );
+    };
+
+  /* =====================================================
+     TIME FORMAT
+  ===================================================== */
+
+  const normalizeTime = (time) => {
+    if (!time) return "";
+
+    const value = String(time)
+      .trim()
+      .toUpperCase();
+
+    /*
+      Supports:
+
+      5:00 AM
+      05:00 AM
+      17:00
+      17:00:00
+    */
+
+    if (
+      value.includes("AM") ||
+      value.includes("PM")
+    ) {
+      const parts = value.split(/\s+/);
+
+      const timePart = parts[0];
+      const modifier = parts[1];
+
+      let [hours, minutes] =
+        timePart
+          .split(":")
+          .map(Number);
+
+      if (
+        modifier === "PM" &&
+        hours !== 12
+      ) {
+        hours += 12;
+      }
+
+      if (
+        modifier === "AM" &&
+        hours === 12
+      ) {
+        hours = 0;
+      }
+
+      return `${String(hours).padStart(
+        2,
+        "0"
+      )}:${String(minutes).padStart(
+        2,
+        "0"
+      )}`;
     }
 
-    const strongEnd = (strong / total) * 100;
-    const goodEnd = ((strong + good) / total) * 100;
+    const parts = value.split(":");
 
-    return `conic-gradient(
-      #22c55e 0% ${strongEnd}%,
-      #f59e0b ${strongEnd}% ${goodEnd}%,
-      #ef4444 ${goodEnd}% 100%
-    )`;
+    if (parts.length >= 2) {
+      return `${String(
+        Number(parts[0])
+      ).padStart(
+        2,
+        "0"
+      )}:${String(
+        Number(parts[1])
+      ).padStart(
+        2,
+        "0"
+      )}`;
+    }
+
+    return value;
   };
 
-  /* =========================================
-     SIDEBAR
-  ========================================= */
+  const formatTime = (time) => {
+    if (!time) return "";
 
-  const renderSidebar = () => (
-    <>
-      {mobileOpen && (
-        <div
-          className="admin-sidebar-overlay"
-          onClick={() =>
-            setMobileOpen(false)
+    const normalized =
+      normalizeTime(time);
+
+    const parts =
+      normalized.split(":");
+
+    if (parts.length < 2) {
+      return time;
+    }
+
+    let hours =
+      Number(parts[0]);
+
+    const minutes =
+      Number(parts[1]);
+
+    const modifier =
+      hours >= 12 ? "PM" : "AM";
+
+    hours =
+      hours % 12 || 12;
+
+    return `${hours}:${String(
+      minutes
+    ).padStart(
+      2,
+      "0"
+    )} ${modifier}`;
+  };
+
+  /* =====================================================
+     SORT TIME
+  ===================================================== */
+
+  const getSortMinutes = (
+    time
+  ) => {
+    if (!time) {
+      return 9999;
+    }
+
+    const normalized =
+      normalizeTime(time);
+
+    const parts =
+      normalized.split(":");
+
+    if (parts.length < 2) {
+      return 9999;
+    }
+
+    const hours =
+      Number(parts[0]);
+
+    const minutes =
+      Number(parts[1]);
+
+    if (
+      Number.isNaN(hours) ||
+      Number.isNaN(minutes)
+    ) {
+      return 9999;
+    }
+
+  
+    return hours * 60 + minutes;
+  };
+
+  /* =====================================================
+     GET DEFAULT TASKS FOR DATE
+  ===================================================== */
+
+  const getTodayDefaultTasks =
+    (dateKey) => {
+      const {
+        deleted,
+        schedules,
+        completed,
+      } =
+        getLocalDefaultChanges(
+          dateKey
+        );
+
+      const definitions =
+        getSavedDefaultDefinitions();
+
+      let tasks =
+        definitions
+          .filter(
+            (task) =>
+              !deleted.includes(
+                String(task.id)
+              )
+          )
+          .map((task) => {
+            const schedule =
+              schedules[
+                String(task.id)
+              ] || {};
+
+            return {
+              ...task,
+              ...schedule,
+
+              id: String(task.id),
+
+              from:
+                schedule.from !==
+                undefined
+                  ? schedule.from
+                  : task.from,
+
+              time:
+                schedule.time !==
+                undefined
+                  ? schedule.time
+                  : task.time,
+
+              to:
+                schedule.to !==
+                undefined
+                  ? schedule.to
+                  : task.to,
+
+              nextDay:
+                schedule.nextDay !==
+                undefined
+                  ? schedule.nextDay
+                  : task.nextDay,
+
+              completed:
+                completed[
+                  String(task.id)
+                ] === true,
+            };
+          });
+
+      /*
+       * IMPORTANT:
+       * Do NOT derive/overwrite Wake Up from Sleep.to.
+       * The Tasks page / database is the single source of
+       * truth for the task time.
+       *
+       * Example:
+       * Tasks page -> Wake Up = 6:00 AM
+       * Dashboard   -> Wake Up = 6:00 AM
+       *
+       * Sleep may end at another time; that must not change
+       * the Wake Up time shown on the dashboard.
+       */
+      return tasks;
+    };
+
+/* =====================================================
+   TASK STATUS
+   ===================================================== */
+
+const getTaskDateTime = (dateKey, time, addDay = false) => {
+  if (!dateKey || !time) return null;
+
+  const normalized = normalizeTime(time);
+
+  const parts = normalized.split(":");
+
+  if (parts.length < 2) {
+    return null;
+  }
+
+  const hours = Number(parts[0]);
+  const minutes = Number(parts[1]);
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return null;
+  }
+
+  const date = new Date(`${dateKey}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  if (addDay) {
+    date.setDate(date.getDate() + 1);
+  }
+
+  date.setHours(hours, minutes, 0, 0);
+
+  return date;
+};
+
+const getTaskStatus = (task) => {
+
+  /*
+   * COMPLETED ONLY WHEN USER TICKS THE CHECKBOX
+   *
+   * Time must NEVER automatically mark a task as completed.
+   * The database/local task completion flag is the only source
+   * used for the Completed state.
+   */
+  if (
+    task.completed === true ||
+    task.completed === 1 ||
+    task.completed === "1" ||
+    task.completed === "true"
+  ) {
+    return "completed";
+  }
+
+  const now = new Date();
+  const today = getLocalDate();
+
+  /*
+   * Previous date
+   * unfinished task = Pending
+   */
+  if (selectedDate < today) {
+    return "pending";
+  }
+
+  /*
+   * Future date
+   * task = Not Started
+   */
+  if (selectedDate > today) {
+    return "not_started";
+  }
+
+  /*
+   * Today task
+   */
+  const startTime = task.from || task.time;
+  const endTime = task.to;
+
+  /*
+   * No time available
+   */
+  if (!startTime) {
+
+    if (
+      task.taskStatus === "in_progress" ||
+      task.status === "in_progress" ||
+      task.task_status === "in_progress" ||
+      task.taskStatus === "in progress" ||
+      task.status === "in progress" ||
+      task.task_status === "in progress"
+    ) {
+      return "in_progress";
+    }
+
+    if (
+      task.taskStatus === "pending" ||
+      task.status === "pending" ||
+      task.task_status === "pending"
+    ) {
+      return "pending";
+    }
+
+    return "not_started";
+  }
+
+  const start = getTaskDateTime(
+    selectedDate,
+    startTime
+  );
+
+  if (!start) {
+    return "not_started";
+  }
+
+  let end = null;
+
+  if (endTime) {
+
+    /*
+     * Sleep pole midnight cross cheyyunna
+     * task handle cheyyunnu.
+     */
+    const endIsNextDay =
+      task.nextDay === true ||
+      task.isSleep === true ||
+      getSortMinutes(endTime) <=
+        getSortMinutes(startTime);
+
+    end = getTaskDateTime(
+      selectedDate,
+      endTime,
+      endIsNextDay
+    );
+  }
+
+  /*
+   * Start time mathram undenkil
+   */
+  if (!end) {
+    return now >= start
+      ? "in_progress"
+      : "not_started";
+  }
+
+  /*
+   * Before start
+   * ----------------
+   * 5:10 AM
+   * Task: 5:13 - 5:18
+   * => Not Started
+   */
+  if (now < start) {
+    return "not_started";
+  }
+
+  /*
+   * During task time
+   * ----------------
+   * 5:15 AM
+   * Task: 5:13 - 5:18
+   * => In Progress
+   */
+  if (now < end) {
+    return "in_progress";
+  }
+
+  /*
+   * Time finished but user did NOT tick
+   * => Pending
+   *
+   * 5:19 AM
+   * Task: 5:13 - 5:18
+   * => Pending
+   */
+  return "pending";
+};  /* =====================================================
+     TODAY STATS
+  ===================================================== */
+
+  const getTodayStats = (
+    taskList
+  ) => {
+    const stats = {
+      total: taskList.length,
+      completed: 0,
+      inProgress: 0,
+      pending: 0,
+      notStarted: 0,
+      percentage: 0,
+    };
+
+    taskList.forEach(
+      (task) => {
+        const status =
+          getTaskStatus(task);
+
+        if (
+          status === "completed"
+        ) {
+          stats.completed++;
+        } else if (
+          status === "in_progress"
+        ) {
+          stats.inProgress++;
+        } else if (
+          status === "pending"
+        ) {
+          stats.pending++;
+        } else {
+          stats.notStarted++;
+        }
+      }
+    );
+
+    stats.percentage =
+      stats.total > 0
+        ? Math.round(
+            (stats.completed /
+              stats.total) *
+              100
+          )
+        : 0;
+
+    return stats;
+  };
+
+  /* =====================================================
+     BUILT-IN TASK ID
+     Keep renamed default tasks mapped to their original
+     built-in ID so Dashboard matches the Tasks page.
+  ===================================================== */
+const getBuiltInDefaultId = (task, dateKey) => {
+  const explicitId =
+    task?.default_id ||
+    task?.defaultId;
+
+  if (explicitId) return String(explicitId);
+
+  const titleKey = String(
+    task?.title ||
+    task?.task_name ||
+    ""
+  ).trim().toLowerCase();
+
+  const defaultIdMap = {
+    "wake up": "d1",
+    "study mern": "d2",
+    "practice english": "d3",
+    "workout": "d4",
+    "sleep": "d5",
+  };
+
+  if (defaultIdMap[titleKey]) {
+    return defaultIdMap[titleKey];
+  }
+
+  const schedules =
+    getLocalDefaultChanges(dateKey).schedules || {};
+
+  for (const defaultId of [
+    "d1", "d2", "d3", "d4", "d5"
+  ]) {
+    const schedule =
+      schedules[String(defaultId)];
+
+    if (!schedule) continue;
+
+    const scheduleTitle =
+      String(schedule.title || "")
+        .trim()
+        .toLowerCase();
+
+    if (
+      scheduleTitle &&
+      scheduleTitle === titleKey
+    ) {
+      return defaultId;
+    }
+  }
+
+  return null;
+};
+
+  /* =====================================================
+     MERGE DATABASE + DEFAULT TASKS
+  ===================================================== */
+const mergeDashboardTasks = (
+  apiTasks,
+  dateKey
+) => {
+  /*
+   * =====================================================
+   * DATE-WISE TASK FILTER
+   * =====================================================
+   *
+   * Only show tasks belonging to selected date.
+   */
+
+  const localChanges = getLocalDefaultChanges(dateKey);
+
+const deletedDefaultIds = new Set(
+  (localChanges.deleted || []).map(String)
+);
+
+// Get titles of deleted default tasks for fallback matching.
+// This is important for older database rows where default_id
+// may not be available.
+const deletedDefaultTitles = new Set();
+
+const definitions = getSavedDefaultDefinitions();
+
+definitions.forEach((defaultTask) => {
+  const defaultId = String(defaultTask.id);
+
+  if (!deletedDefaultIds.has(defaultId)) return;
+
+  const schedule =
+    localChanges.schedules?.[defaultId] || {};
+
+  const title =
+    schedule.title ||
+    defaultTask.title ||
+    "";
+
+  if (title) {
+    deletedDefaultTitles.add(
+      String(title).trim().toLowerCase()
+    );
+  }
+});
+
+const customTasks = Array.isArray(apiTasks)
+  ? apiTasks
+      .filter((task) => {
+        const taskDefaultId =
+          getBuiltInDefaultId(task, dateKey);
+
+        if (
+          taskDefaultId &&
+          deletedDefaultIds.has(taskDefaultId)
+        ) {
+          return false;
+        }
+
+        const taskTitle = String(
+          task.title ||
+          task.task_name ||
+          ""
+        ).trim().toLowerCase();
+
+        if (
+          !taskDefaultId &&
+          taskTitle &&
+          deletedDefaultTitles.has(taskTitle)
+        ) {
+          return false;
+        }
+
+        return true;
+      })
+      .map((task) => ({
+        ...task,
+        id: task.id,
+        title:
+          task.title ||
+          task.task_name,
+        from:
+          task.from ||
+          task.from_time,
+        to:
+          task.to ||
+          task.to_time,
+        completed:
+          task.completed === true ||
+          task.completed === 1 ||
+          task.completed === "1" ||
+          task.completed === "true",
+        percentage: Math.max(
+          0,
+          Math.min(
+            100,
+            Number(
+              task.percentage ??
+              task.task_percentage ??
+              0
+            )
+          )
+        ),
+        taskStatus:
+          task.taskStatus ||
+          task.task_status ||
+          getTaskStatus(task),
+      }))
+  : [];
+
+/*
+ * =====================================================
+ * APPLY DATE-WISE DEFAULT SCHEDULE + DEDUPE
+ * =====================================================
+ *
+ * A renamed built-in task can leave the original DB row
+ * alongside the renamed row. Both rows represent one
+ * built-in task on the Tasks page, so Dashboard must count
+ * them only once.
+ */
+const seenBuiltIns = new Map();
+const merged = [];
+
+customTasks.forEach((task) => {
+  const builtInId =
+    getBuiltInDefaultId(task, dateKey);
+
+  if (!builtInId) {
+    merged.push(task);
+    return;
+  }
+
+  const schedule =
+    getLocalDefaultChanges(dateKey).schedules?.[
+      String(builtInId)
+    ] || {};
+
+  const normalizedTask = {
+    ...task,
+
+    title:
+      schedule.title ||
+      task.title,
+
+    from:
+      schedule.from !== undefined
+        ? schedule.from
+        : builtInId === "d1"
+        ? undefined
+        : task.from,
+
+    time:
+      schedule.time !== undefined
+        ? schedule.time
+        : builtInId === "d1"
+        ? task.from
+        : undefined,
+
+    to:
+      schedule.to !== undefined
+        ? schedule.to
+        : builtInId === "d1"
+        ? undefined
+        : task.to,
+
+    nextDay:
+      schedule.nextDay !== undefined
+        ? Boolean(schedule.nextDay)
+        : Boolean(task.nextDay),
+
+    default_id: builtInId,
+  };
+
+  if (!seenBuiltIns.has(builtInId)) {
+    seenBuiltIns.set(
+      builtInId,
+      merged.length
+    );
+
+    merged.push(normalizedTask);
+    return;
+  }
+
+  const existingIndex =
+    seenBuiltIns.get(builtInId);
+
+  const existing =
+    merged[existingIndex];
+
+  if (
+    normalizedTask.completed &&
+    !existing.completed
+  ) {
+    merged[existingIndex] =
+      normalizedTask;
+  }
+});
+
+  /*
+   * =====================================================
+   * SORT TASKS
+   * =====================================================
+   */
+
+  return merged.sort((a, b) => {
+    const aTitle = String(a.title || "")
+      .trim()
+      .toLowerCase();
+
+    const bTitle = String(b.title || "")
+      .trim()
+      .toLowerCase();
+
+    // Wake Up always FIRST
+    if (
+      aTitle === "wake up" &&
+      bTitle !== "wake up"
+    ) {
+      return -1;
+    }
+
+    if (
+      bTitle === "wake up" &&
+      aTitle !== "wake up"
+    ) {
+      return 1;
+    }
+
+    // Sleep always LAST
+    const aIsSleep =
+      a.nextDay === true ||
+      a.isSleep === true ||
+      aTitle === "sleep";
+
+    const bIsSleep =
+      b.nextDay === true ||
+      b.isSleep === true ||
+      bTitle === "sleep";
+
+    if (aIsSleep && !bIsSleep) {
+      return 1;
+    }
+
+    if (!aIsSleep && bIsSleep) {
+      return -1;
+    }
+
+    // Other tasks -> time order
+    return (
+      getSortMinutes(a.from || a.time) -
+      getSortMinutes(b.from || b.time)
+    );
+  });
+};
+  /* =====================================================
+     PERIOD STATS
+     Use the same visible-task rules as the Tasks page.
+  ===================================================== */
+  const calculatePeriodStats = (rawTasks) => {
+    const byDate = {};
+
+    (Array.isArray(rawTasks) ? rawTasks : []).forEach(
+      (task) => {
+        const taskDate =
+          task.task_date ||
+          task.taskDate ||
+          "";
+
+        if (!taskDate) return;
+
+        if (!byDate[taskDate]) {
+          byDate[taskDate] = [];
+        }
+
+        byDate[taskDate].push({
+          ...task,
+          title:
+            task.title ||
+            task.task_name,
+          from:
+            task.from ||
+            task.from_time,
+          to:
+            task.to ||
+            task.to_time,
+          completed:
+            task.completed === true ||
+            task.completed === 1 ||
+            task.completed === "1" ||
+            task.completed === "true",
+          percentage: Math.max(
+            0,
+            Math.min(
+              100,
+              Number(
+                task.percentage ??
+                task.task_percentage ??
+                0
+              )
+            )
+          ),
+        });
+      }
+    );
+
+    let total = 0;
+    let completed = 0;
+    let performanceSum = 0;
+
+    Object.entries(byDate).forEach(
+      ([taskDate, tasksForDate]) => {
+        const visibleTasks =
+          mergeDashboardTasks(
+            tasksForDate,
+            taskDate
+          );
+
+        total += visibleTasks.length;
+
+        visibleTasks.forEach((task) => {
+          if (
+            task.completed === true ||
+            task.completed === 1 ||
+            task.completed === "1" ||
+            task.completed === "true"
+          ) {
+            completed++;
+
+            performanceSum += Math.max(
+              0,
+              Math.min(
+                100,
+                Number(task.percentage ?? 0)
+              )
+            );
           }
-        />
-      )}
+        });
+      }
+    );
 
-      <aside
-        className={`admin-sidebar ${
-          mobileOpen
-            ? "mobile-open"
-            : ""
-        }`}
-      >
+    return {
+      total,
+      completed,
+      percentage:
+        total > 0
+          ? Math.round(
+              (completed / total) * 100
+            )
+          : 0,
+      performancePercentage:
+        total > 0
+          ? Math.round(
+              performanceSum / total
+            )
+          : 0,
+    };
+  };
 
-        {/* BRAND */}
+  /* =====================================================
+     LOAD DASHBOARD
+  ===================================================== */
 
-        <div className="admin-brand">
+  const loadDashboard = async (
+    date = selectedDate
+  ) => {
+    if (!user?.email) {
+      /*
+       * In adminView the selected student is loaded asynchronously.
+       * Do NOT redirect the admin to student Google login while it loads.
+       */
+      if (adminView) {
+        return;
+      }
 
-      
+      navigate("/login");
+      return;
+    }
 
-          <div className="admin-brand-text">
+    try {
+      setLoading(true);
 
-            <strong>
-              SKILL LAB
-            </strong>
+      const response =
+        await fetch(
+          API_URL,
+          {
+            method: "POST",
 
-           
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
 
-          </div>
+            body: JSON.stringify({
+              action:
+                "dashboard",
 
-          <button
-            className="mobile-sidebar-close"
-            onClick={() =>
-              setMobileOpen(false)
-            }
-          >
-            <FaXmark />
-          </button>
+              email:
+                user.email,
 
-        </div>
+              date,
+            }),
+          }
+        );
 
-        {/* NAVIGATION */}
+      const data =
+        await response.json();
 
-        <div className="admin-sidebar-content">
+      console.log(
+        "DASHBOARD API:",
+        data
+      );
 
-          {/* DASHBOARD */}
+      if (!data.success) {
+        console.error(
+          "Dashboard error:",
+          data.message
+        );
 
-          <div className="admin-nav-group">
+        return;
+      }
 
-            <button
-              className={`admin-nav-item ${
-                !isStudentsPage &&
-                location.pathname ===
-                  "/admin/dashboard"
-                  ? "active"
-                  : ""
-              }`}
-              onClick={goDashboard}
-            >
-              <FaGaugeHigh />
+      /*
+       * Get the same task percentages used by the Tasks page.
+       * This prevents Today's Performance from falling back to
+       * the simple completed/total percentage.
+       */
+      let taskPercentageData = null;
 
-              <span>
-                Dashboard
-              </span>
-            </button>
+      try {
+        const taskResponse = await fetch(
+          TASK_API_URL,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "get",
+              email: user.email,
+              task_date: date,
+            }),
+          }
+        );
 
-          </div>
+        taskPercentageData =
+          await taskResponse.json();
+      } catch (percentageError) {
+        console.error(
+          "Task percentage API error:",
+          percentageError
+        );
+      }
 
-          {/* STUDENTS */}
+      const percentageTasks =
+        Array.isArray(taskPercentageData?.tasks)
+          ? taskPercentageData.tasks
+          : [];
 
-          <div className="admin-nav-group">
+      const percentageById = new Map(
+        percentageTasks.map((task) => [
+          String(task.id),
+          Math.max(
+            0,
+            Math.min(
+              100,
+              Number(task.percentage ?? 0)
+            )
+          ),
+        ])
+      );
 
-            <button
-              className={`admin-nav-item ${
-                isStudentsPage
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() =>
-                setStudentsOpen(
-                  !studentsOpen
+      const percentageByTitle = new Map(
+        percentageTasks.map((task) => [
+          String(task.title || "")
+            .trim()
+            .toLowerCase(),
+          Math.max(
+            0,
+            Math.min(
+              100,
+              Number(task.percentage ?? 0)
+            )
+          ),
+        ])
+      );
+
+      const tasksWithPercentages =
+        (Array.isArray(data.tasks) ? data.tasks : []).map(
+          (task) => {
+            const idPercentage =
+              percentageById.get(String(task.id));
+
+            const titlePercentage =
+              percentageByTitle.get(
+                String(
+                  task.title ||
+                  task.task_name ||
+                  ""
                 )
-              }
-            >
-              <FaUsers />
+                  .trim()
+                  .toLowerCase()
+              );
 
-              <span>
-                Students
-              </span>
-
-              <FaChevronDown
-                className={`admin-nav-arrow ${
-                  studentsOpen
-                    ? "rotate"
-                    : ""
-                }`}
-              />
-            </button>
-
-            {studentsOpen && (
-              <div className="admin-submenu">
-
-                <button
-                  className={
-                    isStudentsPage
-                      ? "submenu-active"
-                      : ""
-                  }
-                  onClick={
-                    goStudents
-                  }
-                >
-                  <FaUserGraduate />
-
-                  <span>
-                    All Students
-                  </span>
-                </button>
-
-              </div>
-            )}
-
-          </div>
-
-          {/* PARENTS */}
-
-          <div className="admin-nav-group">
-
-            <button
-              className="admin-nav-item"
-            >
-              <FaUserTie />
-
-              <span>
-                Parents
-              </span>
-
-              <FaChevronDown
-                className="admin-nav-arrow"
-              />
-            </button>
-
-          </div>
-
-          {/* PAYMENT */}
-
-          <div className="admin-nav-group">
-
-            <button
-              className="admin-nav-item"
-            >
-              <FaCreditCard />
-
-              <span>
-                Payment Gateway
-              </span>
-            </button>
-
-          </div>
-
-          
-
-        </div>
-
-        {/* LOGOUT */}
-
-        <div className="admin-sidebar-bottom">
-
-          <button
-            className="admin-logout"
-            onClick={handleLogout}
-          >
-            <FaArrowRightFromBracket />
-
-            <span>
-              Logout
-            </span>
-          </button>
-
-        </div>
-
-      </aside>
-    </>
-  );
-
-  /* =========================================
-     TOPBAR
-  ========================================= */
-
-  const renderTopbar = () => (
-    <header className="admin-topbar">
-
-      <div className="admin-topbar-left">
-
-        <button
-          className="mobile-menu-button"
-          onClick={() =>
-            setMobileOpen(true)
+            return {
+              ...task,
+              percentage:
+                idPercentage !== undefined
+                  ? idPercentage
+                  : titlePercentage !== undefined
+                  ? titlePercentage
+                  : Math.max(
+                      0,
+                      Math.min(
+                        100,
+                        Number(task.percentage ?? 0)
+                      )
+                    ),
+            };
           }
-        >
-          <FaBars />
-        </button>
+        );
 
-        <div>
+      /*
+       * Database tasks + localStorage
+       * built-in tasks.
+       */
+      const mergedTasks =
+        mergeDashboardTasks(
+          tasksWithPercentages,
+          date
+        );
 
-          <h1>
-            {isStudentsPage
-              ? "All Students"
-              : "Admin Dashboard"}
-          </h1>
+      /*
+       * Recalculate TODAY using the
+       * actual visible task list.
+       */
+      const fixedToday =
+        getTodayStats(
+          mergedTasks
+        );
 
-          <p>
-            {isStudentsPage
-              ? "View and manage all registered students."
-              : "Monitor today, weekly, monthly and overall student performance."}
-          </p>
+      const fixedWeek =
+        calculatePeriodStats(
+          data.weekTasks || []
+        );
 
-        </div>
+      const fixedMonth =
+        calculatePeriodStats(
+          data.monthTasks || []
+        );
 
-      </div>
+      setDashboard({
+        ...data,
 
-     <div className="admin-profile">
-  <div className="admin-profile-info">
-    <strong>
-      Welcome Admin
-    </strong>
-  </div>
-</div>
-    </header>
-  );
+        tasks:
+          mergedTasks,
 
-  /* =========================================
-     STAT CARD
-  ========================================= */
+        today: {
+          ...data.today,
+          ...fixedToday,
+        },
 
-  const StatCard = ({
-    icon,
-    title,
-    value,
-    subtitle,
-    type,
-  }) => (
-    <div className="admin-stat-card">
+        week: {
+          ...data.week,
+          total: fixedWeek.total,
+          completed: fixedWeek.completed,
+          percentage: fixedWeek.percentage,
+          performancePercentage:
+            fixedWeek.performancePercentage,
+        },
 
-      <div
-        className={`admin-stat-icon ${type}`}
-      >
-        {icon}
-      </div>
+        month: {
+          ...data.month,
+          total: fixedMonth.total,
+          completed: fixedMonth.completed,
+          percentage: fixedMonth.percentage,
+          performancePercentage:
+            fixedMonth.performancePercentage,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "Dashboard API error:",
+        error
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+useEffect(() => {
+  const timer = setInterval(() => {
+    setTimeTick((value) => value + 1);
+  }, 1000);
 
-      <div className="admin-stat-details">
+  return () => {
+    clearInterval(timer);
+  };
+}, []);
+  /* =====================================================
+     WEEKLY TASK PROGRESS GRAPH
+     Mon -> Sun, using each day's actual completion %
+  ===================================================== */
 
-        <span>
-          {title}
-        </span>
+  const loadWeeklyProgress = async () => {
+    if (!user?.email) return;
 
-        <strong>
-          {value}
-        </strong>
+    try {
+      const selected = new Date(
+        selectedDate + "T00:00:00"
+      );
 
-        <small>
-          {subtitle}
-        </small>
+      // Start from Monday of the selected date's week.
+      const day = selected.getDay();
+      const mondayOffset = day === 0 ? -6 : 1 - day;
 
-      </div>
+      const monday = new Date(selected);
+      monday.setDate(
+        selected.getDate() + mondayOffset
+      );
 
-    </div>
-  );
+      const days = [];
 
-  /* =========================================
-     DASHBOARD HOME
-  ========================================= */
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
 
-  const renderDashboardHome = () => (
-    <>
+        days.push({
+          date: `${d.getFullYear()}-${String(
+            d.getMonth() + 1
+          ).padStart(2, "0")}-${String(
+            d.getDate()
+          ).padStart(2, "0")}`,
+          label: d.toLocaleDateString("en-US", {
+            weekday: "short",
+          }),
+        });
+      }
 
-      {/* STAT CARDS */}
+      const result = await Promise.all(
+        days.map(async ({ date, label }) => {
+          try {
+            const response = await fetch(API_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                action: "dashboard",
+                email: user.email,
+                date,
+              }),
+            });
 
-      <section className="admin-stat-grid">
+            const data = await response.json();
 
-        <StatCard
-          icon={<FaUsers />}
-          title="Total Students"
-          value={
-            dashboardData.totalStudents ??
-            0
+            const weekStats =
+              calculatePeriodStats(
+                data?.weekTasks || []
+              );
+
+            return {
+              label,
+              value: weekStats.percentage,
+            };
+          } catch (error) {
+            console.error(
+              "Weekly graph error:",
+              error
+            );
+
+            return {
+              label,
+              value: 0,
+            };
           }
-          subtitle="Registered students"
-          type="purple"
-        />
+        })
+      );
 
-        <StatCard
-          icon={<FaBookOpen />}
-          title="Today Performance"
-          value={`${dashboardData.todayPerformance ?? 0}%`}
-          subtitle={`${dashboardData.todayCompleted ?? 0} of ${dashboardData.todayTotal ?? 0} tasks completed`}
-          type="blue"
-        />
+      setWeeklyProgress(result);
+    } catch (error) {
+      console.error(
+        "Weekly progress error:",
+        error
+      );
+    }
+  };
 
-        <StatCard
-          icon={<FaArrowUp />}
-          title="This Week"
-          value={`${dashboardData.weekPerformance ?? 0}%`}
-          subtitle="Overall weekly performance"
-          type="green"
-        />
+  /* =====================================================
+     MONTHLY TASK PROGRESS GRAPH
+  ===================================================== */
 
-        <StatCard
-          icon={<FaCalendarDays />}
-          title="This Month"
-          value={`${dashboardData.monthPerformance ?? 0}%`}
-          subtitle="Overall monthly performance"
-          type="purple"
-        />
+  const loadMonthlyProgress = async () => {
+    if (!user?.email) return;
 
-      </section>
+    try {
+      const now = new Date();
+      const months = [];
+
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(
+          now.getFullYear(),
+          now.getMonth() - i,
+          1
+        );
+
+        months.push({
+          date: `${d.getFullYear()}-${String(
+            d.getMonth() + 1
+          ).padStart(2, "0")}-01`,
+          label: d.toLocaleDateString("en-US", {
+            month: "short",
+          }),
+        });
+      }
+
+      const result = await Promise.all(
+        months.map(async ({ date, label }) => {
+          try {
+            const response = await fetch(API_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                action: "dashboard",
+                email: user.email,
+                date,
+              }),
+            });
+
+            const data = await response.json();
+
+            const monthStats =
+              calculatePeriodStats(
+                data?.monthTasks || []
+              );
+
+            return {
+              label,
+              value: monthStats.percentage,
+            };
+          } catch (error) {
+            console.error("Monthly graph error:", error);
+            return { label, value: 0 };
+          }
+        })
+      );
+
+      setMonthlyProgress(result);
+    } catch (error) {
+      console.error("Monthly progress error:", error);
+    }
+  };
+
+  /* =====================================================
+     INITIAL LOAD
+  ===================================================== */
+
+  useEffect(() => {
+    loadDashboard(
+      selectedDate
+    );
+    loadWeeklyProgress();
+    loadMonthlyProgress();
+  }, [selectedDate, user?.email]);
+
+  /* =====================================================
+     REFRESH AFTER TASK UPDATE
+  ===================================================== */
+
+  useEffect(() => {
+    const refreshDashboard =
+      () => {
+        loadDashboard(
+          selectedDate
+        );
+      };
+
+    window.addEventListener(
+      "taskUpdated",
+      refreshDashboard
+    );
+
+    window.addEventListener(
+      "focus",
+      refreshDashboard
+    );
+
+    return () => {
+      window.removeEventListener(
+        "taskUpdated",
+        refreshDashboard
+      );
+
+      window.removeEventListener(
+        "focus",
+        refreshDashboard
+      );
+    };
+  }, [
+    selectedDate,
+    user?.email,
+  ]);
+
+  /* =====================================================
+     PREVIOUS DAY
+  ===================================================== */
+
+  const previousDay = () => {
+    const date =
+      new Date(
+        selectedDate +
+          "T00:00:00"
+      );
+
+    date.setDate(
+      date.getDate() - 1
+    );
+
+    const year =
+      date.getFullYear();
+
+    const month =
+      String(
+        date.getMonth() + 1
+      ).padStart(2, "0");
+
+    const day =
+      String(
+        date.getDate()
+      ).padStart(2, "0");
+
+    setSelectedDate(
+      `${year}-${month}-${day}`
+    );
+  };
+
+  /* =====================================================
+     NEXT DAY
+  ===================================================== */
+
+  const nextDay = () => {
+    const date =
+      new Date(
+        selectedDate +
+          "T00:00:00"
+      );
+
+    date.setDate(
+      date.getDate() + 1
+    );
+
+    const year =
+      date.getFullYear();
+
+    const month =
+      String(
+        date.getMonth() + 1
+      ).padStart(2, "0");
+
+    const day =
+      String(
+        date.getDate()
+      ).padStart(2, "0");
+
+    setSelectedDate(
+      `${year}-${month}-${day}`
+    );
+  };
+
+  /* =====================================================
+   PIE
+   ===================================================== */
+
+// Always calculate status using current time.
+const liveTodayStats = getTodayStats(
+  dashboard.tasks || []
+);
+
+const completed =
+  liveTodayStats.completed;
+
+const inProgress =
+  liveTodayStats.inProgress;
+
+const pending =
+  liveTodayStats.pending;
+
+const notStarted =
+  liveTodayStats.notStarted;
+
+const total =
+  liveTodayStats.total;
+
+const completedDeg =
+  total > 0
+    ? (completed / total) * 360
+    : 0;
+
+const inProgressDeg =
+  total > 0
+    ? (inProgress / total) * 360
+    : 0;
+
+const pendingDeg =
+  total > 0
+    ? (pending / total) * 360
+    : 0;
+
+const getPerformanceColor = (percentage) => {
+  const value = Number(percentage) || 0;
+
+  if (value >= 80) return "#16a34a"; // Excellent
+  if (value >= 60) return "#22c55e"; // Strong
+  if (value >= 40) return "#f59e0b"; // Good progress
+  if (value >= 20) return "#f97316"; // Building
+  if (value > 0) return "#ef4444";  // Starting
+  return "#d9d6e8";                  // 0%
+};
+
+// Progress Status: completed tasks are ALWAYS green.
+const completedStatusColor = "#22c55e";
+
+const pieStyle =
+  total > 0
+    ? {
+        background:
+          `conic-gradient(
+            ${completedStatusColor} 0deg ${completedDeg}deg,
+            #2f80ed ${completedDeg}deg ${
+              completedDeg + inProgressDeg
+            }deg,
+            #f5a623 ${
+              completedDeg + inProgressDeg
+            }deg ${
+              completedDeg +
+              inProgressDeg +
+              pendingDeg
+            }deg,
+            #ef3340 ${
+              completedDeg +
+              inProgressDeg +
+              pendingDeg
+            }deg 360deg
+          )`,
+      }
+    : {
+        background: "#e5e7eb",
+      };
+
+/* =====================================================
+   PERCENTAGE
+   ===================================================== */
+
+const getPercentage = (value) => {
+  if (!total) {
+    return 0;
+  }
+
+  return Math.round(
+    (value / total) * 100
+  );
+};
+
+/* =====================================================
+   TODAY'S PERFORMANCE PROGRESS
+   Source of truth = Today's Tasks shown below.
+
+   Only CHECKED/COMPLETED tasks contribute their saved
+   task percentage. Unchecked tasks contribute 0.
+   Denominator = ALL visible tasks for today.
+
+   Example:
+   5 tasks -> 100% + 50% completed
+   => (100 + 50) / 5 = 30%
+   ===================================================== */
+
+const isTaskCompleted = (task) =>
+  task.completed === true ||
+  task.completed === 1 ||
+  task.completed === "1" ||
+  task.completed === "true";
+
+const completedPerformanceTasks = (
+  dashboard.tasks || []
+).filter(isTaskCompleted);
+
+const todayPerformancePercentage =
+  (dashboard.tasks || []).length > 0
+    ? Math.round(
+        completedPerformanceTasks.reduce(
+          (sum, task) =>
+            sum +
+            Math.max(
+              0,
+              Math.min(
+                100,
+                Number(task.percentage ?? 0)
+              )
+            ),
+          0
+        ) / (dashboard.tasks || []).length
+      )
+    : 0;
+
+/* =====================================================
+   TODAY'S PERFORMANCE PIE
+   ===================================================== */
+
+const performanceDeg =
+  todayPerformancePercentage > 0
+    ? (todayPerformancePercentage / 100) * 360
+    : 0;
+
+const performanceProgressColor =
+  getPerformanceColor(todayPerformancePercentage);
+
+const performancePieStyle = {
+  background:
+    `conic-gradient(
+      ${performanceProgressColor} 0deg ${performanceDeg}deg,
+      #e9e7f4 ${performanceDeg}deg 360deg
+    )`,
+};
+
+/* =====================================================
+   STUDENT MOTIVATION — ONE MESSAGE + ONE EMOJI
+   Changes automatically according to performance %
+   ===================================================== */
+
+const getPerformanceMessage = (percentage) => {
+  if (percentage === 0) {
+    return {
+      emoji: "🌱",
+      message: "Start small — every step forward matters.",
+      label: "Ready to Grow",
+    };
+  }
+
+  if (percentage < 25) {
+    return {
+      emoji: "✨",
+      message: "Great start — keep building your momentum.",
+      label: "Keep Going",
+    };
+  }
+
+  if (percentage < 50) {
+    return {
+      emoji: "💪",
+      message: "You're making progress — stay consistent!",
+      label: "Stay Strong",
+    };
+  }
+
+  if (percentage < 75) {
+    return {
+      emoji: "🔥",
+      message: "Great progress — keep pushing toward your goal!",
+      label: "On Fire",
+    };
+  }
+
+  if (percentage < 100) {
+    return {
+      emoji: "🚀",
+      message: "You're almost there — finish strong!",
+      label: "Almost There",
+    };
+  }
+
+  return {
+    emoji: "🏆",
+    message: "Excellent performance — you achieved your goal!",
+    label: "Excellent Performance",
+  };
+};
+
+const performanceMotivation =
+  getPerformanceMessage(todayPerformancePercentage);
+
+/* =====================================================
+   DASHBOARD TODAY PERFORMANCE CARD STYLES
+   ===================================================== */
 
 
-      {/* WEEK / MONTH */}
+  /* =====================================================
+     PERFORMANCE PIE - TWO COLUMN LAYOUT
+     Existing Progress Status pie stays on the LEFT.
+     Today's Performance Progress pie is on the RIGHT.
+     ===================================================== */
+  const performancePieStyles = `
+    .dashboard-main .performance-pie-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 0;
+      align-items: stretch;
+    }
 
-      <section className="admin-performance-grid">
+    .dashboard-main .performance-pie-panel {
+      min-width: 0;
+      padding: 8px 8px 10px;
+    }
 
-        {/* WEEK */}
+    .dashboard-main .performance-pie-panel h2 {
+      margin: 0 0 20px;
+      color: #151329;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 750;
+    }
 
-        <div className="admin-performance-card">
+    .dashboard-main .performance-pie-layout > .performance-pie-panel + .performance-pie-panel {
+      border-left: 1px solid #eeeaf7;
+      padding-left: 30px;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-          <div className="performance-card-header">
+    .dashboard-main .performance-pie-content {
+      min-height: 310px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 35px;
+    }
 
-            <div className="performance-title">
+    .dashboard-main .performance-pie-ring {
+      width: 250px;
+      height: 250px;
+      flex: 0 0 250px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 12px 30px rgba(105, 76, 255, .12);
+    }
 
-              <div className="performance-icon blue">
-                <FaChartLine />
+    .dashboard-main .performance-pie-ring::after {
+      content: "";
+      width: 162px;
+      height: 162px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+    }
+
+    .dashboard-main .performance-pie-ring {
+      position: relative;
+    }
+
+    .dashboard-main .performance-pie-center {
+      position: relative;
+      z-index: 1;
+      width: 162px;
+      height: 162px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+
+    .dashboard-main .performance-pie-center span {
+      color: #6f6b7d;
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    .dashboard-main .performance-pie-center strong {
+      color: #6046e8;
+      font-size: 38px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .dashboard-main .performance-pie-center small {
+      color: #8a8794;
+      font-size: 10px;
+      line-height: 1.25;
+      margin-top: 6px;
+      max-width: 105px;
+    }
+
+    .dashboard-main .performance-pie-details {
+      min-width: 150px;
+    }
+
+    .dashboard-main .performance-pie-number {
+      color: #694cff;
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .dashboard-main .performance-pie-details p {
+      margin: 10px 0 12px;
+      color: #777584;
+      font-size: 13px;
+    }
+
+    .dashboard-main .performance-pie-details strong {
+      color: #4e3aa8;
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-main .performance-pie-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-main .performance-pie-layout > .performance-pie-panel + .performance-pie-panel {
+        border-left: 0;
+        border-top: 1px solid #eeeaf7;
+        padding-left: 8px;
+        padding-top: 25px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .dashboard-main .performance-pie-content {
+        min-height: auto;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .dashboard-main .performance-pie-ring {
+        width: 205px;
+        height: 205px;
+        flex-basis: 205px;
+      }
+
+      .dashboard-main .performance-pie-ring::after,
+      .dashboard-main .performance-pie-center {
+        width: 134px;
+        height: 134px;
+      }
+
+      .dashboard-main .performance-pie-center strong {
+        font-size: 31px;
+      }
+
+      .dashboard-main .performance-pie-details {
+        text-align: center;
+      }
+    }
+  `;
+const dashboardPerformanceStyles = `
+  /* =====================================================
+     DASHBOARD UI — CLEAN PREMIUM REFRESH
+     Logic untouched. Visual styling only.
+     ===================================================== */
+
+  .dashboard-main {
+    background:
+      radial-gradient(circle at 85% 0%, rgba(126, 87, 255, .055), transparent 30%),
+      #f7f8fc;
+    min-height: 100vh;
+  }
+
+  .dashboard-main .progress-cards {
+    gap: 18px;
+  }
+
+  .dashboard-main .progress-card {
+    border: 1px solid #ececf5;
+    border-radius: 20px;
+    background: rgba(255,255,255,.98);
+    box-shadow: 0 8px 24px rgba(31, 24, 79, .055);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+
+  .dashboard-main .progress-card:hover {
+    transform: translateY(-2px);
+    border-color: #ddd6ff;
+    box-shadow: 0 14px 30px rgba(31, 24, 79, .09);
+  }
+
+  .dashboard-main .percentage {
+    font-weight: 900;
+    letter-spacing: -.7px;
+  }
+
+  .dashboard-main .progress-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: #eeedf5;
+    overflow: hidden;
+  }
+
+  .dashboard-main .progress-fill {
+    border-radius: 999px;
+    transition: width .45s ease;
+  }
+
+  /* =====================================================
+     TODAY'S PERFORMANCE CARD
+     ===================================================== */
+
+  .dashboard-performance-card {
+    width: 100%;
+    margin: 20px 0 16px;
+    padding: 22px 24px 18px;
+    box-sizing: border-box;
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+
+    background:
+      radial-gradient(circle at 92% 8%, rgba(151, 86, 255, .13), transparent 23%),
+      radial-gradient(circle at 0% 100%, rgba(105, 84, 255, .07), transparent 28%),
+      linear-gradient(135deg, #ffffff 0%, #fcfbff 58%, #f7f3ff 100%);
+
+    border: 1px solid rgba(112, 82, 255, .13);
+    box-shadow:
+      0 12px 32px rgba(55, 35, 120, .075),
+      inset 0 1px 0 rgba(255,255,255,.9);
+  }
+
+  .dashboard-performance-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #6548ff, #b34cff);
+  }
+
+  .dashboard-performance-card::after {
+    content: "✦";
+    position: absolute;
+    right: 28%;
+    top: 14px;
+    color: rgba(111,79,255,.16);
+    font-size: 15px;
+    pointer-events: none;
+  }
+
+  .dashboard-performance-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dashboard-performance-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+  }
+
+  .dashboard-performance-icon {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    color: #fff;
+    background: linear-gradient(135deg, #6147ff 0%, #9c4dff 100%);
+    box-shadow:
+      0 8px 18px rgba(104,84,255,.22),
+      inset 0 1px 0 rgba(255,255,255,.38);
+    font-size: 22px;
+    position: relative;
+  }
+
+  .dashboard-performance-icon::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    right: 5px;
+    top: 5px;
+    opacity: .9;
+  }
+
+  .dashboard-performance-card h2 {
+    margin: 0;
+    color: #151329;
+    font-size: 20px;
+    font-weight: 850;
+    line-height: 1.2;
+    letter-spacing: -.3px;
+  }
+
+  .dashboard-performance-card p {
+    margin: 6px 0 0;
+    color: #777584;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .dashboard-performance-motivation {
+    color: #6848dc !important;
+    font-size: 12px !important;
+    font-weight: 800;
+  }
+
+  .dashboard-performance-value-wrap {
+    flex: 0 0 auto;
+    min-width: 74px;
+    text-align: right;
+  }
+
+  .dashboard-performance-value {
+    color: #694cff;
+    font-size: 36px;
+    font-weight: 950;
+    line-height: .95;
+    letter-spacing: -1.8px;
+  }
+
+  .dashboard-performance-label {
+    margin-top: 6px;
+    color: #7662ca;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+
+  .dashboard-performance-track {
+    width: 100%;
+    height: 11px;
+    margin-top: 20px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e9e8f2;
+    box-shadow:
+      inset 0 1px 2px rgba(30,25,80,.07),
+      0 1px 0 rgba(255,255,255,.8);
+  }
+
+  .dashboard-performance-fill {
+    height: 100%;
+    min-width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #654bff 0%, #904eff 55%, #c34cff 100%);
+    box-shadow: 0 3px 10px rgba(114,85,255,.24);
+    transition: width .45s cubic-bezier(.22,.61,.36,1);
+  }
+
+  .dashboard-performance-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 11px;
+    color: #73717e;
+    font-size: 11px;
+  }
+
+  .dashboard-performance-footer span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .dashboard-performance-footer svg {
+    color: #7255ff;
+    font-size: 12px;
+  }
+
+  .dashboard-performance-footer strong {
+    color: #4f3fa2;
+    font-weight: 850;
+  }
+
+  .dashboard-performance-result {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: rgba(239,234,255,.9);
+    color: #6044cf;
+    font-weight: 900;
+    font-size: 11px;
+    box-shadow: 0 4px 12px rgba(104,84,255,.08);
+    border: 1px solid rgba(112,82,255,.08);
+  }
+
+  .dashboard-performance-encouragement {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 10px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #f0ebff;
+    color: #6848d6;
+    font-weight: 850;
+  }
+
+  /* =====================================================
+     TODAY'S TASKS
+     ===================================================== */
+
+  .dashboard-main .tasks-section {
+    margin-top: 0;
+    padding: 22px 24px 24px;
+    border: 1px solid #ececf4;
+    border-radius: 24px;
+    background: rgba(255,255,255,.98);
+    box-shadow: 0 10px 28px rgba(30,25,80,.055);
+  }
+
+  .dashboard-main .tasks-section .section-heading {
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #eeeef4;
+  }
+
+  .dashboard-main .tasks-section .section-heading h2 {
+    margin: 0;
+    color: #17152a;
+    font-size: 21px;
+    font-weight: 850;
+  }
+
+  .dashboard-main .task-count {
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #f1edff;
+    color: #5d43d7;
+    font-size: 11px;
+    font-weight: 850;
+    border: 1px solid #e7e0ff;
+  }
+
+  .dashboard-main .today-task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .dashboard-main .dashboard-task {
+    min-height: 68px;
+    padding: 12px 14px;
+    box-sizing: border-box;
+    border: 1px solid #e9e9f1;
+    border-radius: 15px;
+    background: linear-gradient(135deg,#fff,#fcfcff);
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+
+  .dashboard-main .dashboard-task:hover {
+    transform: translateX(2px);
+    border-color: #dcd6ff;
+    box-shadow: 0 7px 17px rgba(80,60,160,.065);
+  }
+
+  .dashboard-main .dashboard-task.completed {
+    background: linear-gradient(135deg,#fbfffd,#f7fffa);
+    border-color: #d9f1e2;
+  }
+
+  .dashboard-main .dashboard-task.in_progress {
+    background: linear-gradient(135deg,#fbfaff,#f7f5ff);
+    border-color: #ded7ff;
+  }
+
+  .dashboard-main .dashboard-task.pending {
+    background: linear-gradient(135deg,#fffdf9,#fffaf1);
+    border-color: #f2e4c9;
+  }
+
+  .dashboard-main .task-left {
+    gap: 12px;
+  }
+
+  .dashboard-main .task-status-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #f1effb;
+    color: #7764dc;
+    font-size: 17px;
+  }
+
+  .dashboard-main .dashboard-task.completed .task-status-icon {
+    background: #e7f9ee;
+    color: #19a957;
+  }
+
+  .dashboard-main .dashboard-task.pending .task-status-icon {
+    background: #fff2d9;
+    color: #d88a17;
+  }
+
+  .dashboard-main .dashboard-task h3 {
+    margin: 0 0 3px;
+    color: #171827;
+    font-size: 14px;
+    font-weight: 750;
+  }
+
+  .dashboard-main .dashboard-task p {
+    margin: 0;
+    color: #858492;
+    font-size: 11px;
+  }
+
+  .dashboard-main .status-badge {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 850;
+    border: 1px solid transparent;
+  }
+
+  .dashboard-main .status-badge.completed {
+    background: #e9faef;
+    color: #11964a;
+    border-color: #d3f2df;
+  }
+
+  .dashboard-main .status-badge.in_progress {
+    background: #eeeaff;
+    color: #654ce0;
+    border-color: #ddd6ff;
+  }
+
+  .dashboard-main .status-badge.pending {
+    background: #fff3dc;
+    color: #c77b0d;
+    border-color: #f5e4c3;
+  }
+
+  .dashboard-main .status-badge.not_started {
+    background: #f2edff;
+    color: #6848d6;
+    border-color: #e4dcff;
+  }
+
+  .dashboard-main .progress-section,
+  .dashboard-main .quick-section,
+  .dashboard-main .task-graph-section,
+  .dashboard-main .monthly-graph-section {
+    border-radius: 22px;
+  }
+
+  @media (max-width: 760px) {
+    .dashboard-performance-card {
+      padding: 19px 17px 17px;
+      border-radius: 20px;
+    }
+
+    .dashboard-performance-icon {
+      width: 46px;
+      height: 46px;
+      flex-basis: 46px;
+      border-radius: 14px;
+      font-size: 19px;
+    }
+
+    .dashboard-performance-card h2 {
+      font-size: 18px;
+    }
+
+    .dashboard-performance-motivation {
+      font-size: 11px !important;
+    }
+
+    .dashboard-performance-value {
+      font-size: 30px;
+    }
+
+    .dashboard-performance-footer {
+      flex-wrap: wrap;
+    }
+
+    .dashboard-main .tasks-section {
+      padding: 18px 15px 19px;
+      border-radius: 19px;
+    }
+
+    .dashboard-main .tasks-section .section-heading h2 {
+      font-size: 19px;
+    }
+
+    .dashboard-main .dashboard-task {
+      padding: 11px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .dashboard-performance-head {
+      align-items: flex-start;
+    }
+
+    .dashboard-performance-title-wrap {
+      gap: 10px;
+    }
+
+    .dashboard-performance-card h2 {
+      font-size: 16px;
+    }
+
+    .dashboard-performance-motivation {
+      max-width: 230px;
+    }
+
+    .dashboard-performance-footer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .dashboard-performance-result {
+      font-size: 10px;
+    }
+
+    .dashboard-performance-encouragement {
+      margin-left: 0;
+    }
+
+    .dashboard-main .status-badge {
+      display: none;
+    }
+  }
+
+  /* =====================================================
+     TODAY'S PERFORMANCE — FINAL UI OVERRIDE
+     This intentionally overrides the older performance-card
+     rules above so the new layout is visibly different.
+     ===================================================== */
+
+  .dashboard-main .dashboard-performance-card {
+    width: 100% !important;
+    margin: 18px 0 16px !important;
+    padding: 20px 22px 17px !important;
+    min-height: 0 !important;
+    border-radius: 22px !important;
+    background:
+      linear-gradient(105deg, #ffffff 0%, #ffffff 45%, #faf7ff 72%, #f4eaff 100%) !important;
+    border: 1px solid #e4d9ff !important;
+    box-shadow: 0 8px 24px rgba(76, 48, 150, .075) !important;
+  }
+
+  .dashboard-main .dashboard-performance-card::before {
+    width: 4px !important;
+    background: linear-gradient(180deg, #7548ff, #a84cff) !important;
+  }
+
+  .dashboard-main .dashboard-performance-card::after {
+    content: "" !important;
+  }
+
+  .dashboard-main .dashboard-performance-head {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 24px !important;
+  }
+
+  .dashboard-main .dashboard-performance-title-wrap {
+    gap: 13px !important;
+  }
+
+  .dashboard-main .dashboard-performance-icon {
+    width: 48px !important;
+    height: 48px !important;
+    flex: 0 0 48px !important;
+    border-radius: 14px !important;
+    font-size: 20px !important;
+    box-shadow: 0 7px 16px rgba(104,84,255,.20) !important;
+  }
+
+  .dashboard-main .dashboard-performance-icon::after {
+    width: 7px !important;
+    height: 7px !important;
+    right: 4px !important;
+    top: 4px !important;
+  }
+
+  .dashboard-main .dashboard-performance-card h2 {
+    font-size: 20px !important;
+    line-height: 1.15 !important;
+    font-weight: 850 !important;
+    letter-spacing: -.4px !important;
+  }
+
+  .dashboard-main .dashboard-performance-motivation {
+    margin-top: 5px !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+  }
+
+  .dashboard-main .dashboard-performance-value-wrap {
+    min-width: 105px !important;
+    padding-left: 18px !important;
+    border-left: 1px solid #e8defb !important;
+  }
+
+  .dashboard-main .dashboard-performance-value {
+    font-size: 34px !important;
+    line-height: .9 !important;
+    font-weight: 950 !important;
+    letter-spacing: -1.5px !important;
+  }
+
+  .dashboard-main .dashboard-performance-label {
+    margin-top: 5px !important;
+    font-size: 8px !important;
+    letter-spacing: 1.3px !important;
+  }
+
+  .dashboard-main .dashboard-performance-track {
+    height: 8px !important;
+    margin-top: 17px !important;
+    background: #eceaf3 !important;
+    box-shadow: inset 0 1px 2px rgba(30,25,80,.06) !important;
+  }
+
+  .dashboard-main .dashboard-performance-fill {
+    background: linear-gradient(90deg, #6d4cff 0%, #8f4fff 60%, #b74cff 100%) !important;
+    box-shadow: none !important;
+  }
+
+  .dashboard-main .dashboard-performance-footer {
+    margin-top: 9px !important;
+    font-size: 11px !important;
+  }
+
+  .dashboard-main .dashboard-performance-result {
+    padding: 6px 10px !important;
+    font-size: 10px !important;
+    background: #f4efff !important;
+    border: 1px solid #e8ddff !important;
+    box-shadow: none !important;
+  }
+
+  /* Make the next section visually closer and cleaner */
+  .dashboard-main .dashboard-performance-card + .tasks-section {
+    margin-top: 0 !important;
+    border-radius: 22px !important;
+    box-shadow: 0 7px 22px rgba(30,25,80,.045) !important;
+  }
+
+  @media (max-width: 760px) {
+    .dashboard-main .dashboard-performance-card {
+      padding: 18px 17px 15px !important;
+      border-radius: 19px !important;
+    }
+
+    .dashboard-main .dashboard-performance-head {
+      gap: 14px !important;
+    }
+
+    .dashboard-main .dashboard-performance-value-wrap {
+      min-width: 82px !important;
+      padding-left: 12px !important;
+    }
+
+    .dashboard-main .dashboard-performance-value {
+      font-size: 29px !important;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .dashboard-main .dashboard-performance-head {
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      align-items: center !important;
+    }
+
+    .dashboard-main .dashboard-performance-icon {
+      width: 44px !important;
+      height: 44px !important;
+      flex-basis: 44px !important;
+    }
+
+    .dashboard-main .dashboard-performance-card h2 {
+      font-size: 16px !important;
+    }
+
+    .dashboard-main .dashboard-performance-motivation {
+      font-size: 10px !important;
+      max-width: 210px !important;
+    }
+
+    .dashboard-main .dashboard-performance-value-wrap {
+      min-width: 70px !important;
+      padding-left: 9px !important;
+    }
+
+    .dashboard-main .dashboard-performance-value {
+      font-size: 27px !important;
+    }
+
+    .dashboard-main .dashboard-performance-footer {
+      flex-direction: row !important;
+      align-items: center !important;
+    }
+  }
+
+  /* =====================================================
+     PERFORMANCE PROGRESS — 3 CARDS
+     Position: directly below Progress Status
+     ===================================================== */
+
+  .dashboard-main .performance-progress-cards {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin: 24px 0 18px;
+  }
+
+  .dashboard-main .performance-progress-card {
+    min-width: 0;
+    min-height: 174px;
+    padding: 20px 22px 17px;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #e4d9ff;
+    border-radius: 22px;
+    background:
+      linear-gradient(
+        105deg,
+        #ffffff 0%,
+        #ffffff 45%,
+        #faf7ff 72%,
+        #f4eaff 100%
+      );
+    box-shadow: 0 8px 24px rgba(76, 48, 150, .075);
+  }
+
+  .dashboard-main .performance-progress-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #7548ff, #a84cff);
+  }
+
+  .dashboard-main .performance-progress-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  .dashboard-main .performance-progress-title-wrap {
+    min-width: 0;
+  }
+
+  .dashboard-main .performance-progress-title-wrap h2 {
+    margin: 0;
+    color: #151329;
+    font-size: 20px;
+    line-height: 1.15;
+    font-weight: 850;
+    letter-spacing: -.4px;
+  }
+
+  .dashboard-main .performance-progress-title-wrap p {
+    margin: 7px 0 0;
+    color: #777584;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .dashboard-main .performance-progress-value {
+    flex: 0 0 auto;
+    color: #694cff;
+    font-size: 36px;
+    line-height: .95;
+    font-weight: 950;
+    letter-spacing: -1.8px;
+    white-space: nowrap;
+  }
+
+  .dashboard-main .performance-progress-track {
+    width: 100%;
+    height: 10px;
+    margin-top: 22px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e9e8f2;
+    box-shadow: inset 0 1px 2px rgba(30,25,80,.07);
+  }
+
+  .dashboard-main .performance-progress-fill {
+    height: 100%;
+    min-width: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      #6d4cff 0%,
+      #8f4fff 60%,
+      #b74cff 100%
+    );
+    transition: width .45s ease;
+  }
+
+  .dashboard-main .performance-progress-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 11px;
+    color: #73717e;
+    font-size: 11px;
+  }
+
+  .dashboard-main .performance-progress-footer strong {
+    color: #4f3fa2;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1050px) {
+    .dashboard-main .performance-progress-cards {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .dashboard-main .performance-progress-card {
+      min-height: 0;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .dashboard-main .performance-progress-card {
+      padding: 18px 17px 15px;
+      border-radius: 19px;
+    }
+
+    .dashboard-main .performance-progress-title-wrap h2 {
+      font-size: 18px;
+    }
+
+    .dashboard-main .performance-progress-value {
+      font-size: 30px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .dashboard-main .performance-progress-top {
+      gap: 12px;
+    }
+
+    .dashboard-main .performance-progress-title-wrap h2 {
+      font-size: 16px;
+    }
+
+    .dashboard-main .performance-progress-title-wrap p {
+      font-size: 10px;
+    }
+
+    .dashboard-main .performance-progress-value {
+      font-size: 27px;
+    }
+
+    .dashboard-main .performance-progress-footer {
+      flex-wrap: wrap;
+    }
+  }
+
+`;
+
+
+
+  /* =====================================================
+     RENDER
+  ===================================================== */
+
+  return (
+    <div className="dashboard-page">
+
+      {/* SIDEBAR */}
+      <Sidebar />
+
+      {/* MAIN */}
+      <main className="dashboard-main">
+
+        <style>{dashboardPerformanceStyles}</style>
+        <style>{performancePieStyles}</style>
+
+       
+
+        {/* PROGRESS CARDS */}
+        <div className="progress-cards">
+
+          {/* TODAY */}
+          <div className="progress-card today-card">
+
+            <div className="card-top">
+
+              <div className="card-icon blue">
+                <FaCalendarAlt />
               </div>
 
               <div>
-                <h2>
-                  Weekly Performance
-                </h2>
+                <h3>
+                  Today
+                </h3>
 
                 <p>
-                  Overall student performance
+                  Overall Progress
                 </p>
               </div>
 
             </div>
 
-            <strong>
-              {dashboardData.weekPerformance ??
-                0}%
-            </strong>
+            <div className="percentage blue-text">
+              {liveTodayStats.percentage || 0}
+              %
+            </div>
+
+            <div className="progress-bar">
+
+              <div
+                className="progress-fill blue-fill"
+                style={{
+                  width: `${liveTodayStats.percentage || 0}%`,
+                }}
+              />
+
+            </div>
 
           </div>
 
-          <div className="large-progress">
+          {/* WEEK */}
+          <div className="progress-card week-card">
 
-            <div
-              className="large-progress-fill blue"
-              style={{
-                width: `${Math.min(
-                  100,
-                  Number(
-                    dashboardData.weekPerformance ||
-                      0
-                  )
-                )}%`,
-              }}
-            />
+            <div className="card-top">
 
-          </div>
-
-          <div className="performance-card-footer">
-
-            <span>
-              <FaCircleCheck />
-
-              {dashboardData.weekCompleted ??
-                0}{" "}
-              completed
-            </span>
-
-            <span>
-              {dashboardData.weekTotal ??
-                0} total tasks
-            </span>
-
-          </div>
-
-        </div>
-
-
-        {/* MONTH */}
-
-        <div className="admin-performance-card">
-
-          <div className="performance-card-header">
-
-            <div className="performance-title">
-
-              <div className="performance-icon purple">
-                <FaCalendarDays />
+              <div className="card-icon green">
+                <FaCalendarAlt />
               </div>
 
               <div>
-                <h2>
-                  Monthly Performance
-                </h2>
+                <h3>
+                  This Week
+                </h3>
 
                 <p>
-                  Overall student performance
+                  Overall Progress
                 </p>
               </div>
 
             </div>
 
-            <strong>
-              {dashboardData.monthPerformance ??
-                0}%
-            </strong>
+            <div className="percentage green-text">
+              {dashboard.week?.percentage ||
+                0}
+              %
+            </div>
+
+            <div className="progress-bar">
+
+              <div
+                className="progress-fill green-fill"
+                style={{
+                  width: `${
+                    dashboard
+                      .week
+                      ?.percentage ||
+                    0
+                  }%`,
+                }}
+              />
+
+            </div>
 
           </div>
 
-          <div className="large-progress">
+          {/* MONTH */}
+          <div className="progress-card month-card">
+
+            <div className="card-top">
+
+              <div className="card-icon purple">
+                <FaCalendarAlt />
+              </div>
+
+              <div>
+                <h3>
+                  This Month
+                </h3>
+
+                <p>
+                  Overall Progress
+                </p>
+              </div>
+
+            </div>
+
+            <div className="percentage purple-text">
+              {dashboard.month?.percentage ||
+                0}
+              %
+            </div>
+
+            <div className="progress-bar">
+
+              <div
+                className="progress-fill purple-fill"
+                style={{
+                  width: `${
+                    dashboard
+                      .month
+                      ?.percentage ||
+                    0
+                  }%`,
+                }}
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* PERFORMANCE PROGRESS CARDS — ABOVE PROGRESS STATUS */}
+        {/* PERFORMANCE PROGRESS */}
+        <section className="performance-progress-cards">
+          {/* TODAY PERFORMANCE */}
+          <div className="performance-progress-card today-performance-card">
+            <div className="performance-progress-top">
+              <div className="performance-progress-title-wrap">
+                <h2>Today's Performance Progress</h2>
+                <p>Completed task performance</p>
+              </div>
+
+              <div className="performance-progress-value">
+                {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+              </div>
+            </div>
 
             <div
-              className="large-progress-fill purple"
-              style={{
-                width: `${Math.min(
-                  100,
-                  Number(
-                    dashboardData.monthPerformance ||
-                      0
-                  )
-                )}%`,
-              }}
-            />
+              className="performance-progress-track"
+              aria-label={`Today's performance ${todayPerformancePercentage}%`}
+            >
+              <div
+                className="performance-progress-fill"
+                style={{ width: `${todayPerformancePercentage}%` }}
+              />
+            </div>
 
+            <div className="performance-progress-footer">
+              <span>{completed} of {total} completed</span>
+              <strong>
+                {performanceMotivation.emoji} {performanceMotivation.label}
+              </strong>
+            </div>
           </div>
 
-          <div className="performance-card-footer">
+          {/* WEEK PERFORMANCE */}
+          <div className="performance-progress-card week-performance-card">
+            <div className="performance-progress-top">
+              <div className="performance-progress-title-wrap">
+                <h2>This Week Performance</h2>
+                <p>Weekly completed task performance</p>
+              </div>
 
-            <span>
-              <FaCircleCheck />
+              <div className="performance-progress-value">
+                {dashboard.week?.performancePercentage || 0}%
+              </div>
+            </div>
 
-              {dashboardData.monthCompleted ??
-                0}{" "}
-              completed
-            </span>
+            <div
+              className="performance-progress-track"
+              aria-label={`This week performance ${dashboard.week?.performancePercentage || 0}%`}
+            >
+              <div
+                className="performance-progress-fill"
+                style={{
+                  width: `${dashboard.week?.performancePercentage || 0}%`,
+                }}
+              />
+            </div>
 
-            <span>
-              {dashboardData.monthTotal ??
-                0} total tasks
-            </span>
-
+            <div className="performance-progress-footer">
+              <span>
+                {dashboard.week?.completed || 0} of {dashboard.week?.total || 0} completed
+              </span>
+              <strong>
+                {getPerformanceMessage(Number(dashboard.week?.performancePercentage || 0)).emoji}{" "}
+                {getPerformanceMessage(Number(dashboard.week?.performancePercentage || 0)).label}
+              </strong>
+            </div>
           </div>
 
-        </div>
+          {/* MONTH PERFORMANCE */}
+          <div className="performance-progress-card month-performance-card">
+            <div className="performance-progress-top">
+              <div className="performance-progress-title-wrap">
+                <h2>This Month Performance</h2>
+                <p>Monthly completed task performance</p>
+              </div>
 
-      </section>
+              <div className="performance-progress-value">
+                {dashboard.month?.performancePercentage || 0}%
+              </div>
+            </div>
 
+            <div
+              className="performance-progress-track"
+              aria-label={`This month performance ${dashboard.month?.performancePercentage || 0}%`}
+            >
+              <div
+                className="performance-progress-fill"
+                style={{
+                  width: `${dashboard.month?.performancePercentage || 0}%`,
+                }}
+              />
+            </div>
 
-      {/* OVERALL STATUS */}
-
-      <section className="admin-overview-grid">
-
-        <div
-          className="admin-overview-card"
-          id="good-performance"
-        >
-
-          <div className="overview-icon good">
-            <FaArrowUp />
+            <div className="performance-progress-footer">
+              <span>
+                {dashboard.month?.completed || 0} of {dashboard.month?.total || 0} completed
+              </span>
+              <strong>
+                {getPerformanceMessage(Number(dashboard.month?.performancePercentage || 0)).emoji}{" "}
+                {getPerformanceMessage(Number(dashboard.month?.performancePercentage || 0)).label}
+              </strong>
+            </div>
           </div>
-
-          <div>
-
-            <span>
-              Strong Performance
-            </span>
-
-            <strong>
-              {dashboardData.strongStudents ??
-                0}
-            </strong>
-
-            <small>
-              Students at 60% or above
-            </small>
-
-          </div>
-
-        </div>
+        </section>
 
 
-        <div
-          className="admin-overview-card"
-          id="weak-performance"
-        >
+        {/* PROGRESS STATUS + PERFORMANCE PIE */}
+        <section className="progress-section performance-pie-layout">
 
-          <div className="overview-icon weak">
-            <FaArrowDown />
-          </div>
+          <div className="performance-pie-panel">
 
-          <div>
-
-            <span>
-              Weak Performance
-            </span>
-
-            <strong>
-              {dashboardData.weakStudents ??
-                0}
-            </strong>
-
-            <small>
-              Students below 40%
-            </small>
-
-          </div>
-
-        </div>
-
-
-        <div className="admin-overview-card">
-
-          <div className="overview-icon">
-            <FaClock />
-          </div>
-
-          <div>
-
-            <span>
-              Students With Tasks
-            </span>
-
-            <strong>
-              {students.filter(
-                (student) =>
-                  Number(
-                    student.weekTotal || 0
-                  ) > 0
-              ).length}
-            </strong>
-
-            <small>
-              Active task activity
-            </small>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      {/* =========================================
-          EXTRA STUDENT PERFORMANCE ANALYSIS
-      ========================================= */}
-
-      <section className="admin-performance-analysis">
-
-        {/* WEEKLY */}
-
-        <PerformanceAnalysisCard
-          title="Weekly Student Performance"
-          subtitle="Strong, good and weak performing students"
-          period="This Week"
-          groups={getPerformanceGroups("weekly")}
-          getPieBackground={getPieBackground}
-          getInitials={getInitials}
-          purple={false}
-        />
-
-        {/* MONTHLY */}
-
-        <PerformanceAnalysisCard
-          title="Monthly Student Performance"
-          subtitle="Strong, good and weak performing students"
-          period="This Month"
-          groups={getPerformanceGroups("monthly")}
-          getPieBackground={getPieBackground}
-          getInitials={getInitials}
-          purple={true}
-        />
-
-      </section>
-
-
-      {/* PERFORMANCE LIST */}
-
-      <section className="admin-student-performance">
-
-        <div className="performance-section-header">
-
-          <div>
             <h2>
-              Students Performance
+              Progress Status
             </h2>
 
-            <p>
-              Weekly performance overview
-            </p>
-          </div>
+            <div className="progress-content">
 
-          <button
-            onClick={goStudents}
-          >
-            View All Students
-            <FaChevronRight />
-          </button>
+              <div className="pie-wrapper">
 
-        </div>
+                <div
+                  className="pie-chart"
+                  style={pieStyle}
+                >
 
+                  <div className="pie-center">
 
-        {loading ? (
+                    <span>
+                      Overall
+                    </span>
 
-          <div className="admin-loading">
-            <span />
-            <p>
-              Loading performance...
-            </p>
-          </div>
+                    <strong>
+                      {liveTodayStats.percentage || 0}
+                      %
+                    </strong>
 
-        ) : students.length === 0 ? (
-
-          <div className="admin-empty">
-            <FaUsers />
-            <p>
-              No students found.
-            </p>
-          </div>
-
-        ) : (
-
-          <div className="performance-list">
-
-            {students
-              .slice()
-              .sort(
-                (a, b) =>
-                  Number(
-                    b.weekPerformance || 0
-                  ) -
-                  Number(
-                    a.weekPerformance || 0
-                  )
-              )
-              .slice(0, 6)
-              .map((student) => {
-
-                const percentage =
-                  Number(
-                    student.weekPerformance ||
-                      0
-                  );
-
-                return (
-                  <div
-                    className="performance-student-row"
-                    key={student.id}
-                  >
-
-                    <div className="performance-student-info">
-
-                      <div className="small-avatar">
-                        {getInitials(
-                          student.name
-                        )}
-                      </div>
-
-                      <div>
-
-                        <strong>
-                          {student.name}
-                        </strong>
-
-                        <span>
-                          {getPerformanceLabel(
-                            percentage
-                          )}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                    <div className="performance-student-bar">
-
-                      <div className="student-bar-track">
-
-                        <div
-                          className={`student-bar-fill ${getPerformanceClass(
-                            percentage
-                          )}`}
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              percentage
-                            )}%`,
-                          }}
-                        />
-
-                      </div>
-
-                      <strong>
-                        {percentage}%
-                      </strong>
-
-                    </div>
+                    <small>
+                      Completed
+                    </small>
 
                   </div>
+
+                </div>
+
+              </div>
+
+              <div className="legend">
+
+                <div className="legend-row">
+                  <div className="legend-name">
+                    <span className="dot completed-dot" />
+                    Completed
+                  </div>
+                  <strong>
+                    {getPercentage(completed)}%
+                  </strong>
+                </div>
+
+                <div className="legend-row">
+                  <div className="legend-name">
+                    <span className="dot progress-dot" />
+                    In Progress
+                  </div>
+                  <strong>
+                    {getPercentage(inProgress)}%
+                  </strong>
+                </div>
+
+                <div className="legend-row">
+                  <div className="legend-name">
+                    <span className="dot pending-dot" />
+                    Pending
+                  </div>
+                  <strong>
+                    {getPercentage(pending)}%
+                  </strong>
+                </div>
+
+                <div className="legend-row">
+                  <div className="legend-name">
+                    <span className="dot notstarted-dot" />
+                    Not Started
+                  </div>
+                  <strong>
+                    {getPercentage(notStarted)}%
+                  </strong>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <div className="performance-pie-panel">
+
+            <h2>
+              Today's Performance Progress
+            </h2>
+
+            <div className="performance-pie-content">
+
+              <div className="performance-pie-chart">
+                <div
+                  className="performance-pie-ring"
+                  style={performancePieStyle}
+                >
+                  <div className="performance-pie-center">
+                    <span>Performance</span>
+                    <strong>
+                      {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+                    </strong>
+                    <small>Completed task performance</small>
+                  </div>
+                </div>
+              </div>
+
+              <div className="performance-pie-details">
+                <div className="performance-pie-number">
+                  {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+                </div>
+                <p>
+                  {completed} of {total} tasks completed
+                </p>
+                <strong>
+                  {performanceMotivation.emoji} {performanceMotivation.label}
+                </strong>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* QUICK OVERVIEW */}
+        <section className="quick-section">
+
+          <h2>
+            Quick Overview
+          </h2>
+
+          <div className="quick-list">
+
+            <div className="quick-item">
+
+              <div className="quick-icon blue-icon">
+                <FaCheckCircle />
+              </div>
+
+              <span>
+                Tasks Completed Today
+              </span>
+
+              <strong className="blue-text">
+                {completed} /{" "}
+                {total}
+              </strong>
+
+              <FaChevronRight />
+
+            </div>
+
+            <div className="quick-item">
+
+              <div className="quick-icon green-icon">
+                <FaCheckCircle />
+              </div>
+
+              <span>
+                Tasks Completed This Week
+              </span>
+
+              <strong className="green-text">
+                {dashboard
+                  .week
+                  ?.completed ||
+                  0}{" "}
+                /{" "}
+                {dashboard
+                  .week
+                  ?.total ||
+                  0}
+              </strong>
+
+              <FaChevronRight />
+
+            </div>
+
+            <div className="quick-item">
+
+              <div className="quick-icon purple-icon">
+                <FaCalendarAlt />
+              </div>
+
+              <span>
+                Monthly Goal Progress
+              </span>
+
+              <strong className="purple-text">
+                {dashboard
+                  .month
+                  ?.percentage ||
+                  0}
+                %
+              </strong>
+
+              <FaChevronRight />
+
+            </div>
+
+            <div className="quick-item">
+
+              <div className="quick-icon orange-icon">
+                <FaClock />
+              </div>
+
+              <span>
+                Total Hours (This Week)
+              </span>
+
+              <strong className="orange-text">
+                {dashboard
+                  .studyHours
+                  ?.hours ||
+                  0}
+                h{" "}
+                {dashboard
+                  .studyHours
+                  ?.minutes ||
+                  0}
+                m
+              </strong>
+
+              <FaChevronRight />
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* WEEKLY TASK PROGRESS GRAPH */}
+        <section className="task-graph-section weekly-graph-section">
+          <div className="task-graph-header">
+            <div>
+              <h2 className="task-graph-title">
+                Weekly Task Progress
+              </h2>
+              <p className="task-graph-subtitle">
+                Daily task completion for this week
+              </p>
+            </div>
+
+            <div className="task-graph-legend">
+              <span className="task-graph-legend-dot" />
+              Task Progress
+            </div>
+          </div>
+
+          <div className="task-graph-scroll">
+            <svg
+              className="task-graph"
+              viewBox="0 0 760 280"
+              preserveAspectRatio="none"
+              role="img"
+              aria-label="Weekly task progress"
+            >
+              {[0, 25, 50, 75, 100].map((value) => {
+                const y = 225 - value * 1.8;
+
+                return (
+                  <g key={value}>
+                    <line
+                      x1="55"
+                      x2="735"
+                      y1={y}
+                      y2={y}
+                      className="task-graph-grid"
+                    />
+                    <text
+                      x="5"
+                      y={y + 4}
+                      className="task-graph-y-label"
+                    >
+                      {value}%
+                    </text>
+                  </g>
                 );
               })}
 
+              {weeklyProgress.length > 0 && (
+                <>
+                  <polyline
+                    className="task-graph-line"
+                    points={weeklyProgress
+                      .map((item, index) => {
+                        const x =
+                          weeklyProgress.length === 1
+                            ? 395
+                            : 55 +
+                              (index /
+                                (weeklyProgress.length - 1)) *
+                                680;
+
+                        const y =
+                          225 -
+                          Number(item.value) * 1.8;
+
+                        return `${x},${y}`;
+                      })
+                      .join(" ")}
+                  />
+
+                  {weeklyProgress.map((item, index) => {
+                    const x =
+                      weeklyProgress.length === 1
+                        ? 395
+                        : 55 +
+                          (index /
+                            (weeklyProgress.length - 1)) *
+                            680;
+
+                    const y =
+                      225 -
+                      Number(item.value) * 1.8;
+
+                    return (
+                      <g key={`${item.label}-${index}`}>
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="6"
+                          className="task-graph-point"
+                        />
+                        <text
+                          x={x}
+                          y={Math.max(y - 14, 15)}
+                          textAnchor="middle"
+                          className="task-graph-value"
+                        >
+                          {item.value}%
+                        </text>
+                        <text
+                          x={x}
+                          y="258"
+                          textAnchor="middle"
+                          className="task-graph-label"
+                        >
+                          {item.label}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </>
+              )}
+            </svg>
           </div>
-        )}
+        </section>
 
-      </section>
+        {/* MONTHLY TASK PROGRESS GRAPH */}
+        <section className="monthly-graph-section">
+          <div className="monthly-graph-header">
+            <div>
+              <h2 className="monthly-graph-title">
+                Monthly Task Progress
+              </h2>
+              <p className="monthly-graph-subtitle">
+                Overall task completion for the last 6 months
+              </p>
+            </div>
 
-    </>
-  );
-
-  /* =========================================
-     ALL STUDENTS
-  ========================================= */
-
-  const renderAllStudents = () => (
-    <section className="all-students-page">
-
-      <div className="all-students-header">
-
-        <div>
-
-          <h2>
-            All Students
-          </h2>
-
-          <p>
-            All registered students in SkillLab
-          </p>
-
-        </div>
-
-        <button
-          className="refresh-button"
-          onClick={fetchAdminData}
-          disabled={refreshing}
-        >
-          {refreshing
-            ? "Refreshing..."
-            : "Refresh"}
-        </button>
-
-      </div>
-
-
-      {/* SEARCH */}
-
-      <div className="students-search-box">
-
-        <FaMagnifyingGlass />
-
-        <input
-          type="text"
-          placeholder="Search student by name, email or phone..."
-          value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
-        />
-
-      </div>
-
-
-      {/* CARDS */}
-
-      {loading ? (
-
-        <div className="admin-loading students-page-loading">
-
-          <span />
-
-          <p>
-            Loading students...
-          </p>
-
-        </div>
-
-      ) : filteredStudents.length === 0 ? (
-
-        <div className="admin-empty students-empty">
-
-          <div>
-            <FaUser />
+            <div className="monthly-graph-legend">
+              <span className="monthly-graph-legend-dot" />
+              Task Progress
+            </div>
           </div>
 
-          <h3>
-            No students found
-          </h3>
+          <div className="monthly-graph-scroll">
+            <svg
+              className="monthly-graph"
+              viewBox="0 0 760 280"
+              preserveAspectRatio="none"
+              role="img"
+              aria-label="Monthly task progress"
+            >
+              {[0, 25, 50, 75, 100].map((value) => {
+                const y = 225 - value * 1.8;
 
-          <p>
-            Try another search.
-          </p>
+                return (
+                  <g key={value}>
+                    <line
+                      x1="55"
+                      x2="735"
+                      y1={y}
+                      y2={y}
+                      className="monthly-graph-grid"
+                    />
 
-        </div>
+                    <text
+                      x="5"
+                      y={y + 4}
+                      className="monthly-graph-y-label"
+                    >
+                      {value}%
+                    </text>
+                  </g>
+                );
+              })}
 
-      ) : (
+              {monthlyProgress.length > 0 && (
+                <>
+                  <polyline
+                    className="monthly-graph-line"
+                    points={monthlyProgress
+                      .map((item, index) => {
+                        const x =
+                          monthlyProgress.length === 1
+                            ? 395
+                            : 55 +
+                              (index /
+                                (monthlyProgress.length - 1)) *
+                                680;
 
-        <div className="student-cards-grid">
+                        const y =
+                          225 - Number(item.value) * 1.8;
 
-          {filteredStudents.map(
-            (student) => {
+                        return `${x},${y}`;
+                      })
+                      .join(" ")}
+                  />
 
-              const performance =
-                Number(
-                  student.weekPerformance ||
-                    0
+                  {monthlyProgress.map((item, index) => {
+                    const x =
+                      monthlyProgress.length === 1
+                        ? 395
+                        : 55 +
+                          (index /
+                            (monthlyProgress.length - 1)) *
+                            680;
+
+                    const y =
+                      225 - Number(item.value) * 1.8;
+
+                    return (
+                      <g key={`${item.label}-${index}`}>
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="6"
+                          className="monthly-graph-point"
+                        />
+
+                        <text
+                          x={x}
+                          y={Math.max(y - 14, 15)}
+                          textAnchor="middle"
+                          className="monthly-graph-value"
+                        >
+                          {item.value}%
+                        </text>
+
+                        <text
+                          x={x}
+                          y="258"
+                          textAnchor="middle"
+                          className="monthly-graph-label"
+                        >
+                          {item.label}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </>
+              )}
+            </svg>
+          </div>
+        </section>
+{/* TODAY'S PERFORMANCE PROGRESS — ABOVE PROGRESS STATUS */}
+        {/* TODAY'S PERFORMANCE PROGRESS */}
+        <section className="dashboard-performance-card">
+          <div className="dashboard-performance-head">
+            <div className="dashboard-performance-title-wrap">
+              <div
+                className="dashboard-performance-icon"
+                aria-hidden="true"
+                title="Student Growth"
+              >
+                <FaGraduationCap />
+              </div>
+
+              <div>
+                <h2>Today's Performance Progress</h2>
+                <p className="dashboard-performance-motivation">
+                  {performanceMotivation.emoji} {performanceMotivation.message}
+                </p>
+              </div>
+            </div>
+
+            <div className="dashboard-performance-value-wrap">
+              <div className="dashboard-performance-value">
+                {completed > 0 ? `${todayPerformancePercentage}%` : "0%"}
+              </div>
+              <div className="dashboard-performance-label">
+                Performance
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="dashboard-performance-track"
+            aria-label={`Today's performance ${todayPerformancePercentage}%`}
+          >
+            <div
+              className="dashboard-performance-fill"
+              style={{
+                width: `${todayPerformancePercentage}%`,
+              }}
+            />
+          </div>
+
+          <div className="dashboard-performance-footer">
+            <span>
+              <FaCheckCircle />
+              {completed} of {total} tasks completed
+            </span>
+
+            <strong className="dashboard-performance-result">
+              {performanceMotivation.emoji} {performanceMotivation.label}
+            </strong>
+          </div>
+        </section>
+        {/* TODAY TASKS */}
+        <section className="tasks-section">
+          <div className="section-heading">
+            <div>
+              <h2>Today's Task </h2>
+              <p style={{
+                margin: "5px 0 0",
+                color: "#8a8896",
+                fontSize: "12px"
+              }}>
+                Your schedule and completion status for today
+              </p>
+            </div>
+
+            <span className="task-count">
+              {completed} / {total} Completed
+            </span>
+          </div>
+
+          {loading ? (
+            <div className="loading">
+              Loading tasks...
+            </div>
+          ) : dashboard.tasks?.length === 0 ? (
+            <div className="empty-tasks">
+              <p>No tasks for this day</p>
+            </div>
+          ) : (
+            <div className="today-task-list">
+              {dashboard.tasks.map((task) => {
+                const status = getTaskStatus(task);
+                const taskPercentage = Math.max(
+                  0,
+                  Math.min(100, Number(task.percentage ?? 0))
                 );
 
-              const status =
-                student.status ||
-                "active";
-
-              return (
-
-                <div
-                  className="student-card"
-                  key={student.id}
-                  onClick={() =>
-                    navigate(
-                      `/admin/students/${student.id}/dashboard`
-                    )
-                  }
-                >
-
-                  {/* TOP */}
-
-                  <div className="student-card-top">
-
-                    {student.photo ? (
-
-                      <img
-                        src={student.photo}
-                        alt={student.name}
-                        className="student-card-photo"
-                      />
-
-                    ) : (
-
-                      <div className="student-card-avatar">
-                        {getInitials(
-                          student.name
+                return (
+                  <div
+                    className={`dashboard-task ${status}`}
+                    key={`${task.id}-${selectedDate}`}
+                  >
+                    <div className="task-left">
+                      <div className="task-status-icon">
+                        {status === "completed" ? (
+                          <FaCheckCircle />
+                        ) : status === "in_progress" ? (
+                          <FaClock />
+                        ) : status === "pending" ? (
+                          <FaHourglassHalf />
+                        ) : (
+                          <FaTimesCircle />
                         )}
                       </div>
 
-                    )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h3>{task.title}</h3>
 
-                    <div className="student-card-name">
+                        <p>
+                          {task.time
+                            ? formatTime(task.time)
+                            : task.from
+                            ? formatTime(task.from)
+                            : "--"}
+                          {task.to
+                            ? ` - ${formatTime(task.to)}`
+                            : ""}
+                        </p>
 
-                      <h3>
-                        {student.name ||
-                          "Unnamed Student"}
-                      </h3>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "9px",
+                            marginTop: "9px",
+                            maxWidth: "420px"
+                          }}
+                        >
+                          <div
+                            style={{
+                              flex: 1,
+                              height: "5px",
+                              borderRadius: "999px",
+                              background: "#ececf3",
+                              overflow: "hidden"
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: `${status === "completed" ? taskPercentage : 0}%`,
+                                height: "100%",
+                                borderRadius: "999px",
+                                background:
+                                  "linear-gradient(90deg,#6854ff,#b34cff)",
+                                transition: "width .35s ease"
+                              }}
+                            />
+                          </div>
 
-                      <span>
-                        Student ID: #
-                        {student.id}
-                      </span>
-
+                          <strong
+                            style={{
+                              minWidth: "36px",
+                              textAlign: "right",
+                              color: status === "completed" ? "#6249d8" : "#9997a4",
+                              fontSize: "11px"
+                            }}
+                          >
+                            {status === "completed" ? `${taskPercentage}%` : "0%"}
+                          </strong>
+                        </div>
+                      </div>
                     </div>
 
-                    <FaChevronRight className="student-card-arrow" />
-
-                  </div>
-
-
-                  {/* EMAIL */}
-
-                  <div className="student-card-contact">
-
-                    <FaEnvelopeIcon />
-
-                    <span>
-                      {student.email ||
-                        "—"}
+                    <span className={`status-badge ${status}`}>
+                      {status === "in_progress"
+                        ? "In Progress"
+                        : status === "not_started"
+                        ? "Not Started"
+                        : status.charAt(0).toUpperCase() + status.slice(1)}
                     </span>
-
                   </div>
-
-
-                  {/* DETAILS */}
-
-                  <div className="student-card-details">
-
-                    <div>
-
-                      <small>
-                        Join Date
-                      </small>
-
-                      <strong>
-                        <FaCalendarDays />
-                        {formatDate(
-                          student.join_date
-                        )}
-                      </strong>
-
-                    </div>
-
-                    <div>
-
-                      <small>
-                        Expiry Date
-                      </small>
-
-                      <strong>
-                        <FaCalendarDays />
-                        {formatDate(
-                          student.expiry_date
-                        )}
-                      </strong>
-
-                    </div>
-
-                  </div>
-
-
-                  {/* STATUS */}
-
-                  <div className="student-card-status-row">
-
-                    <span
-                      className={`student-status ${status}`}
-                    >
-                      <span className="status-dot" />
-                      {status === "expired"
-                        ? "Expired"
-                        : status ===
-                          "expiring"
-                        ? "Expiring Soon"
-                        : "Active"}
-                    </span>
-
-                    <span className="student-card-performance-text">
-                      {performance}%
-                    </span>
-
-                  </div>
-
-
-                  {/* PERFORMANCE */}
-
-                  <div className="student-card-progress">
-
-                    <div className="student-card-progress-track">
-
-                      <div
-                        className={`student-card-progress-fill ${getPerformanceClass(
-                          performance
-                        )}`}
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            performance
-                          )}%`,
-                        }}
-                      />
-
-                    </div>
-
-                  </div>
-
-
-                  {/* BUTTON */}
-
-           <button
-  className="student-dashboard-button"
-  onClick={(e) => {
-    e.stopPropagation();
-
-    navigate(
-      `/admin/students/${student.id}/dashboard`
-    );
-  }}
->
-  View Dashboard
-  <FaArrowRight />
-</button>
-
-                </div>
-
-              );
-            }
+                );
+              })}
+            </div>
           )}
-
-        </div>
-
-      )}
-
-    </section>
-  );
-
-  return (
-    <div className="admin-dashboard">
-
-      {renderSidebar()}
-
-      <main className="admin-main">
-
-        {renderTopbar()}
-
-        <div className="admin-content">
-
-          {isStudentsPage
-            ? renderAllStudents()
-            : renderDashboardHome()}
-
-        </div>
+        </section>
 
       </main>
 
-    </div>
-  );
-}
-
-
-/* =========================================
-   SMALL ICON HELPER
-========================================= */
-
-function FaEnvelopeIcon() {
-  return (
-    <span className="email-icon">
-      @
-    </span>
-  );
-}
-
-/* =========================================
-   EXTRA PERFORMANCE ANALYSIS CARD
-========================================= */
-
-function PerformanceAnalysisCard({
-  title,
-  subtitle,
-  period,
-  groups,
-  getPieBackground,
-  getInitials,
-  purple,
-}) {
-
-  const allStudents = [
-    ...groups.strong.map((student) => ({
-      ...student,
-      category: "Strong",
-    })),
-    ...groups.good.map((student) => ({
-      ...student,
-      category: "Good",
-    })),
-    ...groups.weak.map((student) => ({
-      ...student,
-      category: "Weak",
-    })),
-  ].sort(
-    (a, b) =>
-      Number(b.performance || 0) -
-      Number(a.performance || 0)
-  );
-
-  const total = allStudents.length;
-
-  return (
-    <div className="analysis-card">
-
-      <div className="analysis-card-header">
-
-        <div>
-          <h2>{title}</h2>
-          <p>{subtitle}</p>
-        </div>
-
-        <span
-          className={`analysis-period ${
-            purple ? "purple" : ""
-          }`}
-        >
-          {period}
-        </span>
-
-      </div>
-
-      <div className="analysis-content">
-
-        <div className="analysis-chart-area">
-
-          <div
-            className="student-performance-pie"
-            style={{
-              background: getPieBackground(groups),
-            }}
-          >
-            <div className="pie-inner">
-              <strong>{total}</strong>
-              <span>Students</span>
-            </div>
-          </div>
-
-          <div className="analysis-legend">
-
-            <div>
-              <span className="legend-dot strong" />
-              <span>Strong</span>
-              <strong>{groups.strong.length}</strong>
-            </div>
-
-            <div>
-              <span className="legend-dot good" />
-              <span>Good</span>
-              <strong>{groups.good.length}</strong>
-            </div>
-
-            <div>
-              <span className="legend-dot weak" />
-              <span>Weak</span>
-              <strong>{groups.weak.length}</strong>
-            </div>
-
-          </div>
-
-        </div>
-
-        <div className="analysis-students">
-
-          <div className="analysis-list-title">
-            {period === "This Week"
-              ? "Weekly Students"
-              : "Monthly Students"}
-          </div>
-
-          {allStudents.map((student) => (
-
-            <div
-              className="analysis-student-row"
-              key={`${period}-${student.id}`}
-            >
-
-              <div className="analysis-student-left">
-
-                <div className="analysis-student-avatar">
-                  {getInitials(student.name)}
-                </div>
-
-                <div>
-                  <strong>{student.name}</strong>
-
-                  <span
-                    className={`analysis-category ${
-                      student.category.toLowerCase()
-                    }`}
-                  >
-                    {student.category}
-                  </span>
-                </div>
-
-              </div>
-
-              <strong className="analysis-student-percentage">
-                {student.performance}%
-              </strong>
-
-            </div>
-
-          ))}
-
-          {total === 0 && (
-            <div className="analysis-no-data">
-              No {period === "This Week" ? "weekly" : "monthly"} task data available
-            </div>
-          )}
-
-        </div>
-
-      </div>
+      
 
     </div>
+    
   );
 }
 
-export default AdminDashboard;
+export default Dashboard;
