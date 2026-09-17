@@ -1033,7 +1033,61 @@ body,
 .admin-login-button:hover .login-icon {
   transform: translateX(3px);
 }
+.skill-lab-title {
+  position: relative;
+  z-index: 2;
 
+  margin: 0 0 14px;
+
+  font-size: 32px;
+  font-weight: 900;
+
+  letter-spacing: 5px;
+  line-height: 1;
+
+  text-transform: uppercase;
+  text-align: center;
+
+  background:
+    linear-gradient(
+      90deg,
+      #4b55d9 0%,
+      #7140dc 48%,
+      #c52eae 100%
+    );
+
+  background-size: 250% auto;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  filter:
+    drop-shadow(
+      0 4px 6px
+      rgba(75, 60, 160, 0.16)
+    );
+
+  animation: skillLabShine 8s ease-in-out infinite;
+}
+
+@keyframes skillLabShine {
+
+  0% {
+    background-position: 0% center;
+  }
+
+  50% {
+    background-position: 100% center;
+  }
+
+  100% {
+    background-position: 0% center;
+  }
+
+
+
+}
 /* =========================================================
    MOBILE
 ========================================================= */
