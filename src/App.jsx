@@ -8,11 +8,6 @@ import ProtectedRoute from "./ProtectedRoute.jsx";
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 
-
-/* =========================================
-   ADMIN PROTECTED ROUTE
-========================================= */
-
 function AdminProtectedRoute({ children }) {
   const adminLoggedIn =
     localStorage.getItem("adminLoggedIn");
@@ -35,11 +30,6 @@ function AdminProtectedRoute({ children }) {
   return children;
 }
 
-
-/* =========================================
-   APP
-========================================= */
-
 function App() {
   return (
     <Routes>
@@ -58,7 +48,6 @@ function App() {
         }
       />
 
-
       {/* =========================================
           STUDENT LOGIN
       ========================================= */}
@@ -67,7 +56,6 @@ function App() {
         path="/login"
         element={<Login />}
       />
-
 
       {/* =========================================
           STUDENT PROTECTED PAGES
@@ -87,7 +75,6 @@ function App() {
 
       </Route>
 
-
       {/* =========================================
           ADMIN LOGIN
       ========================================= */}
@@ -97,20 +84,18 @@ function App() {
         element={<AdminLogin />}
       />
 
-
       {/* =========================================
           ADMIN DASHBOARD
       ========================================= */}
 
       <Route
-        path="/admin/dashboard"
+        path="/AdminDashboard"
         element={
           <AdminProtectedRoute>
             <AdminDashboard />
           </AdminProtectedRoute>
         }
       />
-
 
       {/* =========================================
           ADMIN STUDENTS
@@ -124,21 +109,6 @@ function App() {
           </AdminProtectedRoute>
         }
       />
-
-
-      {/* =========================================
-          ADMIN STUDENT INDIVIDUAL DASHBOARD
-      ========================================= */}
-
-      <Route
-        path="/admin/students/:id/dashboard"
-        element={
-          <AdminProtectedRoute>
-            <AdminDashboard />
-          </AdminProtectedRoute>
-        }
-      />
-
 
       {/* =========================================
           INVALID URL

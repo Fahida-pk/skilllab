@@ -248,16 +248,7 @@ function AdminDashboard() {
      NAVIGATION
   ========================================= */
 
-  const goDashboard = () => {
-    navigate("/admin/dashboard");
-    setMobileOpen(false);
-  };
-
-  const goStudents = () => {
-    navigate("/admin/students");
-    setStudentsOpen(true);
-    setMobileOpen(false);
-  };
+ 
 
   /* =========================================
      HELPERS
