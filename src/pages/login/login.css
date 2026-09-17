@@ -1,21 +1,40 @@
-/* =========================================
+/* =========================================================
+   SKILL LAB
+   STUDENT LOGIN
+   LIGHT PREMIUM GLASSMORPHISM
+========================================================= */
+
+
+/* =========================================================
    RESET
-========================================= */
+========================================================= */
 
 html,
 body,
 #root {
   margin: 0;
   padding: 0;
+
   width: 100%;
   height: 100%;
-  overflow: hidden;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 
 
-/* =========================================
+* {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
    LOGIN PAGE
-========================================= */
+========================================================= */
 
 .login-page {
   position: relative;
@@ -24,6 +43,7 @@ body,
   height: 100vh;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -31,247 +51,615 @@ body,
 
   background:
     radial-gradient(
-      circle at 15% 50%,
-      rgba(79, 140, 255, 0.95),
-      transparent 38%
+      circle at 8% 50%,
+      rgba(92, 139, 255, 0.30),
+      transparent 34%
     ),
+
     radial-gradient(
-      circle at 85% 50%,
-      rgba(255, 60, 172, 0.95),
-      transparent 38%
+      circle at 92% 48%,
+      rgba(231, 76, 190, 0.26),
+      transparent 35%
     ),
+
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(126, 87, 255, 0.26),
+      transparent 42%
+    ),
+
     linear-gradient(
       135deg,
-      #5f8cff 0%,
-      #7c5cf5 45%,
-      #ec4899 100%
+      #edf3ff 0%,
+      #f1efff 38%,
+      #f8efff 68%,
+      #fff1fa 100%
     );
 }
 
 
-/* =========================================
-   BACKGROUND GLOW
-========================================= */
+/* =========================================================
+   SOFT COLOR OVERLAY
+========================================================= */
 
 .login-page::before {
   content: "";
 
   position: absolute;
 
-  width: 650px;
-  height: 650px;
-
-  left: -280px;
-  top: 50%;
-
-  transform: translateY(-50%);
-
-  border-radius: 50%;
-
-  background: rgba(72, 139, 255, 0.55);
-
-  filter: blur(110px);
-
-  pointer-events: none;
-}
-
-
-.login-page::after {
-  content: "";
-
-  position: absolute;
-
-  width: 650px;
-  height: 650px;
-
-  right: -280px;
-  bottom: -150px;
-
-  border-radius: 50%;
-
-  background: rgba(255, 45, 170, 0.55);
-
-  filter: blur(110px);
-
-  pointer-events: none;
-}
-
-
-/* =========================================
-   EXTRA BACK SHAPE
-========================================= */
-
-.bg-shape {
-  position: absolute;
-
-  width: 430px;
-  height: 430px;
-
-  border-radius: 50%;
+  inset: 0;
 
   background:
     linear-gradient(
-      135deg,
-      rgba(79, 172, 254, 0.55),
-      rgba(255, 60, 172, 0.55)
+      120deg,
+      rgba(255,255,255,0.30),
+      transparent 35%,
+      transparent 65%,
+      rgba(255,255,255,0.25)
     );
 
-  filter: blur(70px);
-
-  opacity: 0.45;
+  pointer-events: none;
 
   z-index: 0;
 }
 
 
-/* =========================================
-   MAIN GLASS CARD
-========================================= */
+/* =========================================================
+   BACKGROUND GLOW
+========================================================= */
+
+.login-glow {
+  position: absolute;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+
+  filter: blur(85px);
+
+  z-index: 0;
+}
+
+
+/* BLUE */
+
+.login-glow-blue {
+  width: 520px;
+  height: 520px;
+
+  left: -250px;
+  top: 12%;
+
+  background:
+    rgba(73, 132, 255, 0.24);
+
+  animation:
+    glowMoveBlue 9s ease-in-out infinite;
+}
+
+
+/* PURPLE */
+
+.login-glow-purple {
+  width: 500px;
+  height: 500px;
+
+  left: 35%;
+  top: -250px;
+
+  background:
+    rgba(123, 76, 232, 0.18);
+
+  animation:
+    glowMovePurple 10s ease-in-out infinite;
+}
+
+
+/* PINK */
+
+.login-glow-pink {
+  width: 580px;
+  height: 580px;
+
+  right: -260px;
+  bottom: -220px;
+
+  background:
+    rgba(226, 67, 181, 0.22);
+
+  animation:
+    glowMovePink 11s ease-in-out infinite;
+}
+
+
+/* =========================================================
+   GLOW ANIMATIONS
+========================================================= */
+
+@keyframes glowMoveBlue {
+
+  0%,
+  100% {
+    transform:
+      translate(0, 0)
+      scale(1);
+  }
+
+  50% {
+    transform:
+      translate(35px, -25px)
+      scale(1.08);
+  }
+
+}
+
+
+@keyframes glowMovePurple {
+
+  0%,
+  100% {
+    transform:
+      translate(0, 0)
+      scale(1);
+  }
+
+  50% {
+    transform:
+      translate(20px, 35px)
+      scale(1.08);
+  }
+
+}
+
+
+@keyframes glowMovePink {
+
+  0%,
+  100% {
+    transform:
+      translate(0, 0)
+      scale(1);
+  }
+
+  50% {
+    transform:
+      translate(-35px, -25px)
+      scale(1.08);
+  }
+
+}
+
+
+/* =========================================================
+   FLOATING GLASS SHAPES
+========================================================= */
+
+.floating-shape {
+  position: absolute;
+
+  border-radius: 50%;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.65);
+
+  background:
+    rgba(255,255,255,0.18);
+
+  backdrop-filter:
+    blur(8px);
+
+  -webkit-backdrop-filter:
+    blur(8px);
+
+  pointer-events: none;
+
+  z-index: 1;
+
+  box-shadow:
+    inset 0 1px 2px
+    rgba(255,255,255,0.7);
+}
+
+
+/* Shape 1 */
+
+.shape-one {
+
+  width: 82px;
+  height: 82px;
+
+  left: 13%;
+  top: 22%;
+
+  animation:
+    floatingOne 7s ease-in-out infinite;
+}
+
+
+/* Shape 2 */
+
+.shape-two {
+
+  width: 55px;
+  height: 55px;
+
+  right: 16%;
+  top: 17%;
+
+  animation:
+    floatingTwo 8s ease-in-out infinite;
+}
+
+
+/* Shape 3 */
+
+.shape-three {
+
+  width: 115px;
+  height: 115px;
+
+  left: 20%;
+  bottom: -40px;
+
+  animation:
+    floatingThree 9s ease-in-out infinite;
+}
+
+
+/* Shape 4 */
+
+.shape-four {
+
+  width: 65px;
+  height: 65px;
+
+  right: 12%;
+  bottom: 20%;
+
+  animation:
+    floatingFour 8s ease-in-out infinite;
+}
+
+
+/* =========================================================
+   FLOATING ANIMATION
+========================================================= */
+
+@keyframes floatingOne {
+
+  0%,
+  100% {
+    transform:
+      translateY(0)
+      rotate(0deg);
+  }
+
+  50% {
+    transform:
+      translateY(-22px)
+      rotate(8deg);
+  }
+
+}
+
+
+@keyframes floatingTwo {
+
+  0%,
+  100% {
+    transform:
+      translateY(0)
+      rotate(0deg);
+  }
+
+  50% {
+    transform:
+      translateY(18px)
+      rotate(-8deg);
+  }
+
+}
+
+
+@keyframes floatingThree {
+
+  0%,
+  100% {
+    transform:
+      translateY(0);
+  }
+
+  50% {
+    transform:
+      translateY(-28px);
+  }
+
+}
+
+
+@keyframes floatingFour {
+
+  0%,
+  100% {
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+  50% {
+    transform:
+      translateY(-18px)
+      scale(1.08);
+  }
+
+}
+
+
+/* =========================================================
+   GLASS LOGIN CARD
+========================================================= */
 
 .login-card {
+
   position: relative;
 
-  z-index: 5;
+  z-index: 10;
 
   width: 440px;
-  min-height: 320px;
 
-  padding: 80px 45px 45px;
+  min-height: 410px;
 
-  box-sizing: border-box;
+  padding:
+    82px 42px 32px;
 
   display: flex;
+
   flex-direction: column;
 
   align-items: center;
+
   justify-content: center;
 
   text-align: center;
 
-  /* GLASS */
+
+  /* LIGHT GLASS */
+
   background:
     linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.34),
-      rgba(255, 255, 255, 0.12)
+      rgba(255,255,255,0.42),
+      rgba(255,255,255,0.20)
     );
 
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
+
+  backdrop-filter:
+    blur(32px);
+
+  -webkit-backdrop-filter:
+    blur(32px);
+
 
   /* GLASS BORDER */
-  border: 1px solid rgba(255, 255, 255, 0.48);
 
-  /* BLOB SHAPE */
+  border:
+    1px solid
+    rgba(255,255,255,0.72);
+
+
   border-radius:
-    58% 42% 55% 45%
-    / 48% 58% 42% 52%;
+    34px;
+
 
   /* PREMIUM SHADOW */
-  box-shadow:
-    0 35px 90px rgba(39, 20, 100, 0.35),
-    0 10px 35px rgba(255, 255, 255, 0.12),
-    inset 0 2px 2px rgba(255, 255, 255, 0.45),
-    inset 0 -20px 50px rgba(255, 255, 255, 0.08);
 
-  transition:
-    transform 0.35s ease,
-    box-shadow 0.35s ease;
+  box-shadow:
+
+    0 30px 80px
+      rgba(78,63,160,0.14),
+
+    0 10px 30px
+      rgba(255,255,255,0.35),
+
+    inset 0 1px 2px
+      rgba(255,255,255,0.85),
+
+    inset 0 -20px 50px
+      rgba(130,90,220,0.06);
+
+
+  overflow: visible;
+
+
+  animation:
+    cardEnter
+    0.75s
+    cubic-bezier(.2,.8,.2,1);
 }
 
 
-/* CARD HOVER */
+/* =========================================================
+   CARD ANIMATION
+========================================================= */
+
+@keyframes cardEnter {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(30px)
+      scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+/* =========================================================
+   CARD HOVER
+========================================================= */
 
 .login-card:hover {
-  transform: translateY(-6px);
+
+  transform:
+    translateY(-4px);
 
   box-shadow:
-    0 45px 110px rgba(35, 15, 100, 0.42),
-    0 15px 40px rgba(255, 255, 255, 0.14),
-    inset 0 2px 2px rgba(255, 255, 255, 0.5),
-    inset 0 -20px 55px rgba(255, 255, 255, 0.1);
+
+    0 38px 95px
+      rgba(78,63,160,0.18),
+
+    0 12px 35px
+      rgba(255,255,255,0.40),
+
+    inset 0 1px 2px
+      rgba(255,255,255,0.9);
 }
 
 
-/* =========================================
-   GLASS SHINE
-========================================= */
+/* =========================================================
+   CARD SHINE
+========================================================= */
 
-.login-card::before {
-  content: "";
+.card-shine {
 
   position: absolute;
 
   inset: 0;
 
-  border-radius: inherit;
+  border-radius:
+    inherit;
 
   background:
+
     linear-gradient(
       125deg,
-      rgba(255, 255, 255, 0.32) 0%,
-      rgba(255, 255, 255, 0.08) 35%,
-      transparent 65%
+      rgba(255,255,255,0.30),
+      transparent 32%,
+      transparent 70%,
+      rgba(255,255,255,0.12)
     );
 
   pointer-events: none;
+
+  z-index: 0;
 }
 
 
-/* =========================================
+/* =========================================================
    PROFILE ICON
-========================================= */
+========================================================= */
 
 .profile-icon {
+
   position: absolute;
 
-  top: -45px;
+  top: -46px;
 
-  width: 92px;
-  height: 92px;
+  left: 50%;
 
-  border-radius: 50%;
+  transform:
+    translateX(-50%);
+
+  width: 94px;
+  height: 94px;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
-  color: white;
+  border-radius: 50%;
 
-  font-size: 38px;
+  color: #ffffff;
+
+  font-size: 37px;
+
+
+  /* BRAND GRADIENT */
 
   background:
     linear-gradient(
       135deg,
-      #6714d9 0%,
-      #a323d8 45%,
-      #ef2397 100%
+      #5b7ff5 0%,
+      #7b4ce8 50%,
+      #d943b6 100%
     );
 
-  border: 3px solid rgba(255, 255, 255, 0.25);
+
+  border:
+    3px solid
+    rgba(255,255,255,0.65);
+
 
   box-shadow:
-    0 15px 35px rgba(35, 10, 90, 0.35),
-    inset 0 2px 5px rgba(255, 255, 255, 0.25);
 
-  z-index: 10;
+    0 12px 32px
+      rgba(102,70,210,0.24),
+
+    0 0 0 7px
+      rgba(255,255,255,0.15),
+
+    inset 0 2px 6px
+      rgba(255,255,255,0.35);
+
+
+  z-index: 5;
+
+
+  animation:
+    profileFloat
+    4s ease-in-out infinite;
 }
 
 
-/* =========================================
-   SKILL LAB
-========================================= */
+/* =========================================================
+   PROFILE ANIMATION
+========================================================= */
+
+@keyframes profileFloat {
+
+  0%,
+  100% {
+    transform:
+      translateX(-50%)
+      translateY(0);
+  }
+
+  50% {
+    transform:
+      translateX(-50%)
+      translateY(-7px);
+  }
+
+}
+
+
+/* =========================================================
+   SKILL LAB TITLE
+========================================================= */
 
 .skill-lab-title {
+
   position: relative;
 
   z-index: 2;
 
-  margin: 0 0 14px;
+  margin:
+    0 0 14px;
 
   font-size: 31px;
 
-  font-weight: 950;
+  font-weight: 900;
 
   letter-spacing: 5px;
 
@@ -279,36 +667,42 @@ body,
 
   text-transform: uppercase;
 
-  text-align: center;
 
-  /* TWO COLOR */
+  /* BRAND GRADIENT */
+
   background:
     linear-gradient(
       90deg,
-      #5420c9 0%,
-      #8a2be2 48%,
-      #e91e8f 100%
+      #4f65d9 0%,
+      #7044df 48%,
+      #c735aa 100%
     );
 
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 
-  background-clip: text;
+  -webkit-background-clip:
+    text;
 
-  /* subtle depth */
+  -webkit-text-fill-color:
+    transparent;
+
+  background-clip:
+    text;
+
+
   filter:
     drop-shadow(
-      0 3px 5px rgba(65, 20, 130, 0.22)
+      0 3px 5px
+      rgba(91,70,170,0.15)
     );
 }
 
 
+/* =========================================================
+   SIGN IN TITLE
+========================================================= */
 
-/* =========================================
-   SIGN IN
-========================================= */
+.title:not(.skill-lab-title) {
 
-.title {
   position: relative;
 
   z-index: 2;
@@ -325,110 +719,315 @@ body,
 
   letter-spacing: 0.2px;
 
-  text-align: center;
-
   text-shadow:
-    0 3px 8px rgba(50, 20, 100, 0.18);
+    0 3px 10px
+    rgba(74,52,150,0.15);
 }
 
 
-/* =========================================
+/* =========================================================
    SUBTITLE
-========================================= */
+========================================================= */
 
 .subtitle {
+
   position: relative;
 
   z-index: 2;
 
-  margin: 9px 0 27px;
+  margin:
+    10px 0 28px;
 
-  color: rgba(255, 255, 255, 0.88);
+  color:
+    rgba(255,255,255,0.94);
 
-  font-size: 18px;
+  font-size: 17px;
 
   font-weight: 500;
 
-  line-height: 1.3;
+  line-height: 1.4;
 
   text-align: center;
 
   text-shadow:
-    0 2px 5px rgba(60, 20, 100, 0.15);
+    0 2px 6px
+    rgba(65,45,140,0.13);
 }
 
 
-/* =========================================
+/* =========================================================
    GOOGLE BUTTON
-========================================= */
+========================================================= */
 
 .google-btn {
+
   position: relative;
 
   z-index: 5;
 
+  width: 100%;
+
   display: flex;
 
-  justify-content: center;
   align-items: center;
 
-  width: 100%;
+  justify-content: center;
 }
 
 
-/* Google button rounded */
+/* Google button */
 
 .google-btn > div {
-  border-radius: 30px !important;
 
-  overflow: hidden;
+  border-radius:
+    30px !important;
+
+  overflow:
+    hidden;
 
   box-shadow:
-    0 6px 18px rgba(50, 20, 100, 0.16);
+    0 7px 20px
+    rgba(55,45,130,0.12);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 
-/* =========================================
+.google-btn > div:hover {
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 10px 25px
+    rgba(55,45,130,0.17);
+}
+
+
+/* =========================================================
+   LOGIN FOOTER
+========================================================= */
+
+.login-footer {
+
+  position: relative;
+
+  z-index: 2;
+
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 28px;
+}
+
+
+.login-footer span {
+
+  flex: 1;
+
+  height: 1px;
+
+  background:
+    rgba(255,255,255,0.48);
+}
+
+
+.login-footer p {
+
+  margin: 0;
+
+  color:
+    rgba(255,255,255,0.82);
+
+  font-size: 11px;
+
+  font-weight: 650;
+
+  letter-spacing: 1.2px;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+
+  text-shadow:
+    0 2px 5px
+    rgba(60,40,130,0.12);
+}
+
+
+/* =========================================================
    MOBILE
-========================================= */
+========================================================= */
 
 @media (max-width: 600px) {
 
-  .login-card {
-    width: 88vw;
-
-    min-height: 300px;
+  .login-page {
 
     padding:
-      75px 25px 38px;
+      20px;
+
+    min-height: 100vh;
+  }
+
+
+  .login-card {
+
+    width:
+      min(90vw, 420px);
+
+    min-height:
+      380px;
+
+    padding:
+      75px 25px 30px;
+
+    border-radius:
+      28px;
   }
 
 
   .profile-icon {
+
     width: 82px;
     height: 82px;
 
     top: -40px;
 
-    font-size: 34px;
+    font-size: 32px;
   }
 
 
   .skill-lab-title {
+
     font-size: 24px;
 
     letter-spacing: 3px;
+
+    margin-bottom: 12px;
   }
 
 
-  .title {
+  .title:not(.skill-lab-title) {
+
     font-size: 27px;
   }
 
 
   .subtitle {
-    font-size: 16px;
 
-    margin-bottom: 24px;
+    font-size: 15px;
+
+    margin:
+      9px 0 24px;
   }
+
+
+  .login-footer {
+
+    margin-top: 23px;
+  }
+
+
+  .login-footer p {
+
+    font-size: 9px;
+
+    letter-spacing: 0.8px;
+  }
+
+
+  .shape-one {
+
+    width: 55px;
+    height: 55px;
+
+    left: 6%;
+  }
+
+
+  .shape-two {
+
+    width: 42px;
+    height: 42px;
+
+    right: 7%;
+  }
+
+
+  .shape-three {
+
+    width: 75px;
+    height: 75px;
+  }
+
+
+  .shape-four {
+
+    width: 45px;
+    height: 45px;
+
+    right: 5%;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .login-card {
+
+    width: 92vw;
+
+    padding:
+      70px 20px 25px;
+  }
+
+
+  .profile-icon {
+
+    width: 76px;
+    height: 76px;
+
+    top: -37px;
+
+    font-size: 29px;
+  }
+
+
+  .skill-lab-title {
+
+    font-size: 22px;
+
+    letter-spacing: 2.5px;
+  }
+
+
+  .title:not(.skill-lab-title) {
+
+    font-size: 25px;
+  }
+
+
+  .subtitle {
+
+    font-size: 14px;
+  }
+
+
+  .login-footer p {
+
+    font-size: 8px;
+  }
+
 }

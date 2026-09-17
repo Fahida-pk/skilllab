@@ -3,36 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { getToken } from "firebase/messaging";
 import { getMessagingInstance } from "../../firebase";
 import "./login.css";
-
-import {
-  FaUser,
-  FaBookOpen,
-  FaGraduationCap,
-  FaStar,
-} from "react-icons/fa";
-
+import { FaUser } from "react-icons/fa";
 
 function Login() {
-
   const navigate = useNavigate();
 
-
-  /* =========================================================
-     GOOGLE LOGIN
-  ========================================================= */
-
   const handleSuccess = async (res) => {
-
     try {
-
       const googleToken = res.credential;
 
       console.log("Google Login Success");
 
-
-      /* =====================================================
-         1. REGISTER FIREBASE SERVICE WORKER
-      ===================================================== */
+      // ==========================================
+      // 1. Register Firebase Service Worker
+      // ==========================================
 
       const registration =
         await navigator.serviceWorker.register(
@@ -42,15 +26,13 @@ function Login() {
       console.log("Service Worker registered");
 
 
-      /* =====================================================
-         2. NOTIFICATION PERMISSION
-      ===================================================== */
+      // ==========================================
+      // 2. Ask Notification Permission
+      // ==========================================
 
       let fcmToken = "";
 
-
       if ("Notification" in window) {
-
         const permission =
           await Notification.requestPermission();
 
@@ -59,70 +41,61 @@ function Login() {
           permission
         );
 
-
-        /* ===================================================
-           3. FIREBASE MESSAGING
-        =================================================== */
-
         if (permission === "granted") {
+
+          // ==========================================
+          // 3. Get Firebase Messaging
+          // ==========================================
 
           const messaging =
             await getMessagingInstance();
 
-
           if (messaging) {
 
-            /* ===============================================
-               4. GET FCM TOKEN
-            =============================================== */
+            // ==========================================
+            // 4. Get FCM Token
+            // ==========================================
 
-            fcmToken =
-              await getToken(
-                messaging,
-                {
-                  vapidKey:
-                    "BANg8hVOS1rmbemDYS0cPbuhLOFSnClKfqVZL5itSLXlBhNEJsb0Rsu0nl2091wKP_ojb6dUIwOZfSx_KDNHzdU",
+            fcmToken = await getToken(
+              messaging,
+              {
+                vapidKey:
+                  "BANg8hVOS1rmbemDYS0cPbuhLOFSnClKfqVZL5itSLXlBhNEJsb0Rsu0nl2091wKP_ojb6dUIwOZfSx_KDNHzdU",
 
-                  serviceWorkerRegistration:
-                    registration,
-                }
-              );
-
+                serviceWorkerRegistration:
+                  registration,
+              }
+            );
 
             console.log(
               "FCM Token:",
               fcmToken
             );
-
           }
-
         }
-
       }
 
 
-      /* =====================================================
-         5. SEND LOGIN TO PHP
-      ===================================================== */
+      // ==========================================
+      // 5. Send Google Token + FCM Token
+      // ==========================================
 
-      const response =
-        await fetch(
-          "https://zyntaweb.com/skilllab/login.php",
-          {
-            method: "POST",
+      const response = await fetch(
+        "https://zyntaweb.com/skilllab/login.php",
+        {
+          method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
 
-            body:
-              JSON.stringify({
-                token: googleToken,
-                fcmToken: fcmToken,
-              }),
-          }
-        );
+          body: JSON.stringify({
+            token: googleToken,
+            fcmToken: fcmToken,
+          }),
+        }
+      );
 
 
       const data =
@@ -135,9 +108,9 @@ function Login() {
       );
 
 
-      /* =====================================================
-         6. LOGIN SUCCESS
-      ===================================================== */
+      // ==========================================
+      // 6. Login Success
+      // ==========================================
 
       if (data.success) {
 
@@ -146,12 +119,10 @@ function Login() {
           JSON.stringify(data.user)
         );
 
-
         localStorage.setItem(
           "token",
           googleToken
         );
-
 
         navigate("/dashboard");
 
@@ -160,9 +131,7 @@ function Login() {
         alert(
           data.message
         );
-
       }
-
 
     } catch (error) {
 
@@ -174,105 +143,50 @@ function Login() {
       alert(
         "Login failed"
       );
-
     }
-
   };
 
 
-  /* =========================================================
-     UI
-  ========================================================= */
-
   return (
-
     <div className="login-page">
 
+      {/* =====================================
+          BACKGROUND DECORATIONS
+      ====================================== */}
 
-      {/* =====================================================
-          BACKGROUND GLOW
-      ===================================================== */}
+      <div className="login-glow login-glow-blue"></div>
 
-      <div className="login-bg-orb orb-blue"></div>
+      <div className="login-glow login-glow-purple"></div>
 
-      <div className="login-bg-orb orb-purple"></div>
-
-      <div className="login-bg-orb orb-pink"></div>
-
-
-      {/* =====================================================
-          SOFT LIGHT
-      ===================================================== */}
-
-      <div className="background-light light-one"></div>
-
-      <div className="background-light light-two"></div>
+      <div className="login-glow login-glow-pink"></div>
 
 
-      {/* =====================================================
-          FLOATING STUDENT ELEMENTS
-      ===================================================== */}
+      {/* Floating decorative circles */}
 
-      <div className="student-decoration student-one">
+      <div className="floating-shape shape-one"></div>
 
-        <div className="student-icon-circle">
-          <FaGraduationCap />
-        </div>
+      <div className="floating-shape shape-two"></div>
 
-      </div>
+      <div className="floating-shape shape-three"></div>
+
+      <div className="floating-shape shape-four"></div>
 
 
-      <div className="student-decoration student-two">
-
-        <div className="student-icon-circle">
-          <FaBookOpen />
-        </div>
-
-      </div>
-
-
-      {/* =====================================================
-          FLOATING STAR
-      ===================================================== */}
-
-      <div className="floating-star star-one">
-        <FaStar />
-      </div>
-
-
-      <div className="floating-star star-two">
-        <FaStar />
-      </div>
-
-
-      {/* =====================================================
-          FLOATING DOTS
-      ===================================================== */}
-
-      <span className="floating-dot dot-one"></span>
-
-      <span className="floating-dot dot-two"></span>
-
-      <span className="floating-dot dot-three"></span>
-
-
-      {/* =====================================================
-          LOGIN CARD
-      ===================================================== */}
+      {/* =====================================
+          GLASS LOGIN CARD
+      ====================================== */}
 
       <div className="login-card">
 
 
-        {/* ===================================================
-            GLASS SHINE
-        =================================================== */}
+        {/* Top Glass Shine */}
 
         <div className="card-shine"></div>
 
 
-        {/* ===================================================
+        {/* =================================
             PROFILE ICON
-        =================================================== */}
+        ================================== */}
 
         <div className="profile-icon">
 
@@ -281,53 +195,43 @@ function Login() {
         </div>
 
 
-        {/* ===================================================
+        {/* =================================
             BRAND
-        =================================================== */}
+        ================================== */}
 
         <h1 className="title skill-lab-title">
-
           SKILL LAB
-
         </h1>
 
 
-        {/* ===================================================
+        {/* =================================
             SIGN IN
-        =================================================== */}
+        ================================== */}
 
-        <h1 className="title login-title">
-
+        <h1 className="title">
           Sign In
-
         </h1>
 
 
-        {/* ===================================================
+        {/* =================================
             SUBTITLE
-        =================================================== */}
+        ================================== */}
 
         <p className="subtitle">
-
           Continue your learning journey
-
         </p>
 
 
-        {/* ===================================================
+        {/* =================================
             GOOGLE LOGIN
-        =================================================== */}
+        ================================== */}
 
         <div className="google-btn">
 
           <GoogleLogin
-
-            onSuccess={
-              handleSuccess
-            }
+            onSuccess={handleSuccess}
 
             onError={() => {
-
               console.log(
                 "Login Failed"
               );
@@ -335,42 +239,36 @@ function Login() {
               alert(
                 "Google Login Failed"
               );
-
             }}
 
             auto_select={false}
 
             useOneTap={false}
-
           />
 
         </div>
 
 
-        {/* ===================================================
+        {/* =================================
             BOTTOM TEXT
-        =================================================== */}
+        ================================== */}
 
-        <div className="login-bottom-text">
+        <div className="login-footer">
 
-          <span className="bottom-line"></span>
+          <span></span>
 
-          <span>
-            Learn • Practice • Grow
-          </span>
+          <p>
+            Learn&nbsp; • &nbsp;Practice&nbsp; • &nbsp;Grow
+          </p>
 
-          <span className="bottom-line"></span>
+          <span></span>
 
         </div>
-
 
       </div>
 
     </div>
-
   );
-
 }
-
 
 export default Login;
