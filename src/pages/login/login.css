@@ -87,8 +87,8 @@ body,
 
   margin: 0 0 14px;
 
-  font-size: 31px;
-  font-weight: 950;
+  font-size: 32px;
+  font-weight: 900;
 
   letter-spacing: 5px;
   line-height: 1;
@@ -99,11 +99,9 @@ body,
   background:
     linear-gradient(
       90deg,
-      #4f46e5 0%,
-      #7c3aed 25%,
-      #c026d3 50%,
-      #ec4899 75%,
-      #4f46e5 100%
+      #4b55d9 0%,
+      #7140dc 48%,
+      #c52eae 100%
     );
 
   background-size: 250% auto;
@@ -114,16 +112,13 @@ body,
 
   filter:
     drop-shadow(
-      0 3px 6px rgba(70, 45, 170, 0.22)
+      0 4px 6px
+      rgba(75, 60, 160, 0.16)
     );
 
- animation: skillLabShine 6s ease-in-out infinite;
+  animation: skillLabShine 3s ease-in-out infinite;
 }
 
-
-/* =========================================
-   GRADIENT SHINE
-========================================= */
 @keyframes skillLabShine {
 
   0% {
@@ -137,6 +132,7 @@ body,
   100% {
     background-position: 0% center;
   }
+
 
 
 }
@@ -832,7 +828,7 @@ body,
   color:
     rgba(45, 35, 100, 0.88);
 
-  font-size: 12px;
+  font-size: 15px;
 
   font-weight: 600;
 
