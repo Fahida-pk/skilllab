@@ -1376,19 +1376,19 @@ const goStudents = () => {
 
                   {/* BUTTON */}
 
-                  <button
-                    className="student-dashboard-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
+           <button
+  className="student-dashboard-button"
+  onClick={(e) => {
+    e.stopPropagation();
 
-                      navigate(
-                        `/admin/students/${student.id}/dashboard`
-                      );
-                    }}
-                  >
-                    View Dashboard
-                    <FaArrowRight />
-                  </button>
+    navigate(
+      `/admin/students/${student.id}/dashboard`
+    );
+  }}
+>
+  View Dashboard
+  <FaArrowRight />
+</button>
 
                 </div>
 
