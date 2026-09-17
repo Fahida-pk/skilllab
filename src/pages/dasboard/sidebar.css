@@ -28,7 +28,7 @@
      LOGIN PAGE BLUE → PURPLE → PINK
   ========================================= */
 
-  background:
+   background:
     radial-gradient(
       circle at 0% 20%,
       rgba(82, 151, 255, 0.75),
@@ -37,7 +37,7 @@
 
     radial-gradient(
       circle at 55% 45%,
-      rgba(144, 100, 255, 0.70),
+      rgba(116, 20, 209, 0.70),
       transparent 52%
     ),
 
@@ -55,6 +55,7 @@
       #dc72df 78%,
       #f36bc9 100%
     );
+
 
   color: white;
 
