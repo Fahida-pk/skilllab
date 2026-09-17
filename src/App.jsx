@@ -89,7 +89,7 @@ function App() {
       ========================================= */}
 
       <Route
-        path="/admin/dashboard"
+        path="/AdminDashboard"
         element={
           <AdminProtectedRoute>
             <AdminDashboard />
