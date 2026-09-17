@@ -6,10 +6,37 @@ import Task from "./pages/task/task.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+
+function AdminProtectedRoute({ children }) {
+  const adminLoggedIn =
+    localStorage.getItem("adminLoggedIn");
+
+  const admin =
+    localStorage.getItem("admin");
+
+  if (
+    adminLoggedIn !== "true" ||
+    !admin
+  ) {
+    return (
+      <Navigate
+        to="/admin/login"
+        replace
+      />
+    );
+  }
+
+  return children;
+}
 
 function App() {
   return (
     <Routes>
+
+      {/* =========================================
+          DEFAULT
+      ========================================= */}
 
       <Route
         path="/"
@@ -21,13 +48,19 @@ function App() {
         }
       />
 
-      {/* Student Login */}
+      {/* =========================================
+          STUDENT LOGIN
+      ========================================= */}
+
       <Route
         path="/login"
         element={<Login />}
       />
 
-      {/* Protected Student Pages */}
+      {/* =========================================
+          STUDENT PROTECTED PAGES
+      ========================================= */}
+
       <Route element={<ProtectedRoute />}>
 
         <Route
@@ -42,13 +75,45 @@ function App() {
 
       </Route>
 
-      {/* Admin */}
+      {/* =========================================
+          ADMIN LOGIN
+      ========================================= */}
+
       <Route
         path="/admin/login"
         element={<AdminLogin />}
       />
 
-      {/* Invalid URL */}
+      {/* =========================================
+          ADMIN DASHBOARD
+      ========================================= */}
+
+      <Route
+        path="/admin/dashboard"
+        element={
+          <AdminProtectedRoute>
+            <AdminDashboard />
+          </AdminProtectedRoute>
+        }
+      />
+
+      {/* =========================================
+          ADMIN STUDENTS
+      ========================================= */}
+
+      <Route
+        path="/admin/students"
+        element={
+          <AdminProtectedRoute>
+            <AdminDashboard />
+          </AdminProtectedRoute>
+        }
+      />
+
+      {/* =========================================
+          INVALID URL
+      ========================================= */}
+
       <Route
         path="*"
         element={
