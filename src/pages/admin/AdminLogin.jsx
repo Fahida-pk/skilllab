@@ -1,47 +1,123 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaArrowRightToBracket } from "react-icons/fa6";
+
 import {
-  FaShieldAlt,
   FaEnvelope,
   FaLock,
-  FaArrowRight,
   FaEye,
   FaEyeSlash,
-  FaCheckCircle,
 } from "react-icons/fa";
+
+import { FaArrowRightToBracket } from "react-icons/fa6";
 
 import "./admin-login.css";
 
+
 function AdminLogin() {
+
   const navigate = useNavigate();
+
+
+  // =========================================
+  // STATES
+  // =========================================
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState("");
 
+
+  // =========================================
+  // CLEAR LOGIN FIELDS ON REFRESH / PAGE SHOW
+  // =========================================
+
+  useEffect(() => {
+
+    const clearLoginFields = () => {
+
+      setEmail("");
+      setPassword("");
+
+      setError("");
+
+      setShowPassword(false);
+
+    };
+
+
+    // Clear when page loads
+    clearLoginFields();
+
+
+    // Clear again when browser restores page
+    window.addEventListener(
+      "pageshow",
+      clearLoginFields
+    );
+
+
+    return () => {
+
+      window.removeEventListener(
+        "pageshow",
+        clearLoginFields
+      );
+
+    };
+
+  }, []);
+
+
+  // =========================================
+  // LOGIN
+  // =========================================
+
   const handleLogin = async (e) => {
+
     e.preventDefault();
 
+
+    // Clear previous error
     setError("");
 
+
+    // =========================================
+    // VALIDATION
+    // =========================================
+
     if (!email.trim() || !password) {
-      setError("Please enter your email and password.");
+
+      setError(
+        "Please enter your email and password."
+      );
+
       return;
     }
 
+
     try {
+
       setLoading(true);
+
+
+      // =========================================
+      // API REQUEST
+      // =========================================
 
       const response = await fetch(
         "https://zyntaweb.com/skilllab/admin-login.php",
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
           },
+
           body: JSON.stringify({
             email: email.trim(),
             password: password,
@@ -49,53 +125,123 @@ function AdminLogin() {
         }
       );
 
+
       const data = await response.json();
 
-      console.log("Admin Login Response:", data);
+
+      console.log(
+        "Admin Login Response:",
+        data
+      );
+
+
+      // =========================================
+      // SUCCESS
+      // =========================================
 
       if (data.success) {
+
         localStorage.setItem(
           "admin",
           JSON.stringify(data.admin)
         );
+
 
         localStorage.setItem(
           "adminLoggedIn",
           "true"
         );
 
+
+        // Clear login fields before navigation
+        setEmail("");
+        setPassword("");
+
+        setError("");
+
+
         navigate("/admin/dashboard");
-      } else {
-        setError(
-          data.message || "Invalid email or password."
-        );
+
       }
-    } catch (error) {
-      console.error("Admin Login Error:", error);
+
+
+      // =========================================
+      // LOGIN FAILED
+      // =========================================
+
+      else {
+
+        setError(
+          data.message ||
+          "Invalid email or password."
+        );
+
+      }
+
+    }
+
+
+    // =========================================
+    // SERVER / NETWORK ERROR
+    // =========================================
+
+    catch (error) {
+
+      console.error(
+        "Admin Login Error:",
+        error
+      );
+
+
       setError(
         "Unable to connect to server. Please try again."
       );
-    } finally {
-      setLoading(false);
+
     }
+
+
+    // =========================================
+    // STOP LOADING
+    // =========================================
+
+    finally {
+
+      setLoading(false);
+
+    }
+
   };
 
+
+  // =========================================
+  // UI
+  // =========================================
+
   return (
+
     <div className="admin-login-page">
+
 
       {/* =====================================
           BACKGROUND
       ====================================== */}
 
       <div className="admin-glow admin-glow-one"></div>
+
       <div className="admin-glow admin-glow-two"></div>
+
       <div className="admin-glow admin-glow-three"></div>
 
+
       <div className="admin-orb orb-one"></div>
+
       <div className="admin-orb orb-two"></div>
+
       <div className="admin-orb orb-three"></div>
 
+
       <div className="admin-grid"></div>
+
 
 
       {/* =====================================
@@ -104,28 +250,30 @@ function AdminLogin() {
 
       <div className="admin-login-card">
 
+
         {/* TOP GLASS HIGHLIGHT */}
+
         <div className="glass-highlight"></div>
 
 
+
         {/* =====================================
-            LOGO
+            SKILL LAB TITLE
         ====================================== */}
 
         <div className="admin-brand">
 
-          
-
           <div className="admin-brand-text">
-           <h1 className="title skill-lab-title">
-          SKILL LAB
-        </h1>
+
+            <h1 className="title skill-lab-title">
+              SKILL LAB
+            </h1>
+
           </div>
 
         </div>
 
 
-     
 
         {/* =====================================
             HEADING
@@ -134,14 +282,16 @@ function AdminLogin() {
         <div className="admin-heading">
 
           <h1>
-            Welcome 
+            Welcome
           </h1>
+
 
           <p>
             Sign in to manage your SkillLab system
           </p>
 
         </div>
+
 
 
         {/* =====================================
@@ -151,9 +301,13 @@ function AdminLogin() {
         <form
           className="admin-login-form"
           onSubmit={handleLogin}
+          autoComplete="off"
         >
 
-          {/* EMAIL */}
+
+          {/* ===================================
+              EMAIL
+          ==================================== */}
 
           <div className="admin-field">
 
@@ -161,28 +315,37 @@ function AdminLogin() {
               Email Address
             </label>
 
+
             <div className="admin-input-wrapper">
+
 
               <FaEnvelope
                 className="admin-input-icon"
               />
 
+
               <input
                 type="email"
+                name="admin-login-email"
                 placeholder="Enter admin email"
                 value={email}
                 onChange={(e) =>
                   setEmail(e.target.value)
                 }
-                autoComplete="username"
+                autoComplete="off"
+                spellCheck="false"
               />
+
 
             </div>
 
           </div>
 
 
-          {/* PASSWORD */}
+
+          {/* ===================================
+              PASSWORD
+          ==================================== */}
 
           <div className="admin-field">
 
@@ -190,11 +353,14 @@ function AdminLogin() {
               Password
             </label>
 
+
             <div className="admin-input-wrapper">
+
 
               <FaLock
                 className="admin-input-icon"
               />
+
 
               <input
                 type={
@@ -202,19 +368,25 @@ function AdminLogin() {
                     ? "text"
                     : "password"
                 }
+                name="admin-login-password"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) =>
                   setPassword(e.target.value)
                 }
-                autoComplete="current-password"
+                autoComplete="new-password"
               />
+
+
+              {/* SHOW / HIDE PASSWORD */}
 
               <button
                 type="button"
                 className="show-password-btn"
                 onClick={() =>
-                  setShowPassword(!showPassword)
+                  setShowPassword(
+                    !showPassword
+                  )
                 }
                 aria-label={
                   showPassword
@@ -224,61 +396,101 @@ function AdminLogin() {
               >
 
                 {showPassword ? (
+
                   <FaEyeSlash />
+
                 ) : (
+
                   <FaEye />
+
                 )}
 
               </button>
+
 
             </div>
 
           </div>
 
 
-          {/* ERROR */}
+
+          {/* ===================================
+              ERROR
+          ==================================== */}
 
           {error && (
+
             <div className="admin-error">
 
               <span className="error-icon">
                 !
               </span>
 
+
               <span>
                 {error}
               </span>
 
             </div>
+
           )}
 
 
-         <button
-  type="submit"
-  className="admin-login-button"
-  disabled={loading}
->
-  {loading ? (
-    <>
-      <span className="admin-spinner"></span>
-      <span>Signing in...</span>
-    </>
-  ) : (
-    <>
-      <FaArrowRightToBracket className="login-icon" />
-      <span>Login</span>
-    </>
-  )}
-</button>
+
+          {/* ===================================
+              LOGIN BUTTON
+          ==================================== */}
+
+          <button
+            type="submit"
+            className="admin-login-button"
+            disabled={loading}
+          >
+
+
+            {loading ? (
+
+              <>
+
+                <span className="admin-spinner"></span>
+
+                <span>
+                  Signing in...
+                </span>
+
+              </>
+
+            ) : (
+
+              <>
+
+                <FaArrowRightToBracket
+                  className="login-icon"
+                />
+
+                <span>
+                  Login
+                </span>
+
+              </>
+
+            )}
+
+
+          </button>
+
 
         </form>
 
 
-        
       </div>
 
+
     </div>
+
   );
+
 }
+
 
 export default AdminLogin;
