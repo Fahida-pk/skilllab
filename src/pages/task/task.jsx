@@ -1621,24 +1621,20 @@ const performancePercentage =
     cursor: not-allowed;
   }
 
-  /* Red highlight when trying to complete a 0% task */
-  .card.task-modern-card .task-check-right.performance-error .custom-check {
-    border: 2px solid #ef4444 !important;
-    background: rgba(239, 68, 68, 0.18) !important;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.20) !important;
-    animation: performanceErrorShake 0.35s ease-in-out;
+  /* Red progress line when trying to complete a 0% task */
+  .card.task-modern-card.performance-error
+    .task-percentage-range::-webkit-slider-runnable-track {
+    background: #ef4444 !important;
   }
 
-  @keyframes performanceErrorShake {
-    0%, 100% {
-      transform: translateX(0);
-    }
-    25% {
-      transform: translateX(-4px);
-    }
-    75% {
-      transform: translateX(4px);
-    }
+  .card.task-modern-card.performance-error
+    .task-percentage-range::-moz-range-track {
+    background: #ef4444 !important;
+  }
+
+  .card.task-modern-card.performance-error
+    .task-percentage-range {
+    accent-color: #ef4444 !important;
   }
 
   /* =========================================================
@@ -2100,6 +2096,10 @@ const performancePercentage =
                 <div
                   className={`card task-modern-card ${
                     task.completed ? "done" : ""
+                  } ${
+                    String(performanceErrorTaskId) === String(task.id)
+                      ? "performance-error"
+                      : ""
                   }`}
                   key={task.id}
                   style={{ background: task.color }}
