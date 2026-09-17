@@ -433,37 +433,56 @@ body {
 }
 
 /* =====================================================
-   TOP-RIGHT ADMIN NAME
+   PROFILE
 ===================================================== */
 
 .admin-profile {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+
+  gap: 11px;
+}
+
+.admin-profile-avatar {
+  width: 44px;
+  height: 44px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #7414d1,
+      #a94cff
+    );
+
+  color: white;
+
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .admin-profile-info {
   display: flex;
-  align-items: center;
+  flex-direction: column;
 }
 
 .admin-profile-info strong {
-  margin: 0;
-
-  font-size: 14px;
-  font-weight: 700;
-
+  font-size: 13px;
   color: #2a2336;
-
-  white-space: nowrap;
 }
 
-/* No round/avatar and no extra role text */
-.admin-profile-avatar,
 .admin-profile-info span {
-  display: none !important;
-}
+  margin-top: 3px;
 
+  font-size: 11px;
+
+  color: #9992a6;
+}
 
 /* =====================================================
    CONTENT
@@ -2381,150 +2400,319 @@ body {
 }
 
 /* =====================================================
-   ADMIN SIDEBAR — CLEAR WHITE TYPOGRAPHY
+   EXTRA STUDENT PERFORMANCE ANALYSIS
 ===================================================== */
 
-.admin-brand-text strong,
-.admin-brand-text small,
-.admin-nav-item,
-.admin-nav-item svg,
-.admin-nav-arrow,
-.admin-submenu button,
-.admin-logout,
-.admin-logout svg {
-  color: #ffffff !important;
+.admin-performance-analysis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
 }
 
-.admin-brand-text strong {
-  font-weight: 900 !important;
-  text-shadow: 0 3px 10px rgba(61, 25, 130, 0.28);
+.analysis-card {
+  background: #ffffff;
+  border: 1px solid #eee8f5;
+  border-radius: 22px;
+  padding: 25px;
+  box-shadow: 0 8px 28px rgba(65, 35, 100, 0.06);
 }
 
-.admin-brand-text small {
-  font-weight: 600 !important;
+.analysis-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 24px;
 }
 
-.admin-nav-item {
-  font-weight: 700 !important;
-  text-shadow: 0 1px 4px rgba(58, 25, 115, 0.18);
+.analysis-card-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #211a31;
 }
 
-.admin-submenu button {
-  font-weight: 600 !important;
+.analysis-card-header p {
+  margin: 6px 0 0;
+  color: #958ba5;
+  font-size: 12px;
 }
 
-.admin-logout {
-  font-weight: 700 !important;
+.analysis-period {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #eaf8f0;
+  color: #16a765;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
 }
-/* =====================================================
-   MOBILE / TABLET - ONE STUDENT CARD PER ROW
-===================================================== */
 
-@media (max-width: 800px) {
+.analysis-period.purple {
+  background: #f0e5ff;
+  color: #7414d1;
+}
 
-  .admin-content {
-    width: 100%;
-    padding: 16px 12px 30px;
-    overflow-x: hidden;
+.analysis-content {
+  display: grid;
+  grid-template-columns: 185px minmax(0, 1fr);
+  gap: 25px;
+  align-items: center;
+}
+
+.analysis-chart-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.student-performance-pie {
+  width: 145px;
+  height: 145px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.student-performance-pie::after {
+  content: "";
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  background: #ffffff;
+  border-radius: 50%;
+}
+
+.pie-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.pie-inner strong {
+  font-size: 25px;
+  font-weight: 800;
+  color: #211a31;
+}
+
+.pie-inner span {
+  font-size: 10px;
+  color: #968da5;
+  margin-top: 1px;
+}
+
+.analysis-legend {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.analysis-legend > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #776e85;
+}
+
+.analysis-legend strong {
+  margin-left: auto;
+  color: #261e34;
+  font-weight: 700;
+}
+
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot.strong {
+  background: #22c55e;
+}
+
+.legend-dot.good {
+  background: #f59e0b;
+}
+
+.legend-dot.weak {
+  background: #ef4444;
+}
+
+.analysis-students {
+  max-height: 225px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.analysis-students::-webkit-scrollbar {
+  width: 4px;
+}
+
+.analysis-students::-webkit-scrollbar-thumb {
+  background: #d8cfe3;
+  border-radius: 10px;
+}
+
+.analysis-list-title {
+  color: #756b82;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.analysis-student-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1edf5;
+}
+
+.analysis-student-row:last-child {
+  border-bottom: none;
+}
+
+.analysis-student-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.analysis-student-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7414d1, #b548e8);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.analysis-student-left > div:last-child {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.analysis-student-left strong {
+  color: #292136;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.analysis-category {
+  font-size: 10px;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.analysis-category.strong {
+  color: #16a765;
+}
+
+.analysis-category.good {
+  color: #d99000;
+}
+
+.analysis-category.weak {
+  color: #ef4444;
+}
+
+.analysis-student-percentage {
+  font-size: 13px;
+  color: #7414d1;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.analysis-no-data {
+  text-align: center;
+  padding: 30px 10px;
+  color: #9b92a7;
+  font-size: 12px;
+}
+
+@media (max-width: 1000px) {
+  .admin-performance-analysis {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-performance-analysis {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 18px;
   }
 
-  .all-students-page {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .student-cards-grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr !important;
-    gap: 14px;
-  }
-
-  .student-card {
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
+  .analysis-card {
     padding: 18px;
-    border-radius: 17px;
-    overflow: hidden;
+    border-radius: 18px;
   }
 
-  .student-card-top {
-    width: 100%;
-    min-width: 0;
+  .analysis-card-header h2 {
+    font-size: 17px;
   }
 
-  .student-card-name {
-    min-width: 0;
-    flex: 1;
-  }
-
-  .student-card-contact {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .student-card-details {
-    width: 100%;
-  }
-
-  .student-card-progress {
-    width: 100%;
-  }
-
-  .student-dashboard-button {
-    width: 100%;
-    max-width: 100%;
-  }
-}
-
-
-/* =====================================================
-   SMALL MOBILE
-===================================================== */
-
-@media (max-width: 480px) {
-
-  .admin-content {
-    padding: 14px 10px 28px;
-  }
-
-  .student-cards-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px;
-  }
-
-  .student-card {
-    width: 100%;
-    padding: 17px;
-    border-radius: 16px;
-  }
-
-  .student-card-photo,
-  .student-card-avatar {
-    width: 52px;
-    height: 52px;
-    min-width: 52px;
-  }
-
-  .student-card-name h3 {
-    font-size: 14px;
-  }
-
-  .student-card-name span {
-    font-size: 9px;
-  }
-
-  .student-card-contact {
-    font-size: 10px;
-  }
-
-  .student-card-details {
-    gap: 8px;
-  }
-
-  .student-dashboard-button {
-    height: 40px;
+  .analysis-card-header p {
     font-size: 11px;
+  }
+
+  .analysis-period {
+    font-size: 10px;
+    padding: 7px 9px;
+  }
+
+  .analysis-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .analysis-chart-area {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .student-performance-pie {
+    width: 125px;
+    height: 125px;
+  }
+
+  .student-performance-pie::after {
+    width: 79px;
+    height: 79px;
+  }
+
+  .pie-inner strong {
+    font-size: 22px;
+  }
+
+  .analysis-legend {
+    width: 125px;
+  }
+
+  .analysis-students {
+    max-height: 250px;
   }
 }

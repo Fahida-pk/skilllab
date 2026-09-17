@@ -58,6 +58,14 @@ function AdminDashboard() {
 
       strongStudents: 0,
       weakStudents: 0,
+
+      weeklyStrongStudents: [],
+      weeklyGoodStudents: [],
+      weeklyWeakStudents: [],
+
+      monthlyStrongStudents: [],
+      monthlyGoodStudents: [],
+      monthlyWeakStudents: [],
     });
 
   const [loading, setLoading] = useState(true);
@@ -343,6 +351,46 @@ const goStudents = () => {
         year: "numeric",
       }
     );
+  };
+
+  /* =========================================
+     EXTRA PERFORMANCE ANALYSIS HELPERS
+  ========================================= */
+
+  const getPerformanceGroups = (period) => {
+    if (period === "weekly") {
+      return {
+        strong: dashboardData.weeklyStrongStudents || [],
+        good: dashboardData.weeklyGoodStudents || [],
+        weak: dashboardData.weeklyWeakStudents || [],
+      };
+    }
+
+    return {
+      strong: dashboardData.monthlyStrongStudents || [],
+      good: dashboardData.monthlyGoodStudents || [],
+      weak: dashboardData.monthlyWeakStudents || [],
+    };
+  };
+
+  const getPieBackground = (groups) => {
+    const strong = groups.strong.length;
+    const good = groups.good.length;
+    const weak = groups.weak.length;
+    const total = strong + good + weak;
+
+    if (total === 0) {
+      return "#eeeaf4";
+    }
+
+    const strongEnd = (strong / total) * 100;
+    const goodEnd = ((strong + good) / total) * 100;
+
+    return `conic-gradient(
+      #22c55e 0% ${strongEnd}%,
+      #f59e0b ${strongEnd}% ${goodEnd}%,
+      #ef4444 ${goodEnd}% 100%
+    )`;
   };
 
   /* =========================================
@@ -908,6 +956,39 @@ const goStudents = () => {
       </section>
 
 
+      {/* =========================================
+          EXTRA STUDENT PERFORMANCE ANALYSIS
+      ========================================= */}
+
+      <section className="admin-performance-analysis">
+
+        {/* WEEKLY */}
+
+        <PerformanceAnalysisCard
+          title="Weekly Student Performance"
+          subtitle="Strong, good and weak performing students"
+          period="This Week"
+          groups={getPerformanceGroups("weekly")}
+          getPieBackground={getPieBackground}
+          getInitials={getInitials}
+          purple={false}
+        />
+
+        {/* MONTHLY */}
+
+        <PerformanceAnalysisCard
+          title="Monthly Student Performance"
+          subtitle="Strong, good and weak performing students"
+          period="This Month"
+          groups={getPerformanceGroups("monthly")}
+          getPieBackground={getPieBackground}
+          getInitials={getInitials}
+          purple={true}
+        />
+
+      </section>
+
+
       {/* PERFORMANCE LIST */}
 
       <section className="admin-student-performance">
@@ -1355,6 +1436,158 @@ function FaEnvelopeIcon() {
     <span className="email-icon">
       @
     </span>
+  );
+}
+
+/* =========================================
+   EXTRA PERFORMANCE ANALYSIS CARD
+========================================= */
+
+function PerformanceAnalysisCard({
+  title,
+  subtitle,
+  period,
+  groups,
+  getPieBackground,
+  getInitials,
+  purple,
+}) {
+
+  const allStudents = [
+    ...groups.strong.map((student) => ({
+      ...student,
+      category: "Strong",
+    })),
+    ...groups.good.map((student) => ({
+      ...student,
+      category: "Good",
+    })),
+    ...groups.weak.map((student) => ({
+      ...student,
+      category: "Weak",
+    })),
+  ].sort(
+    (a, b) =>
+      Number(b.performance || 0) -
+      Number(a.performance || 0)
+  );
+
+  const total = allStudents.length;
+
+  return (
+    <div className="analysis-card">
+
+      <div className="analysis-card-header">
+
+        <div>
+          <h2>{title}</h2>
+          <p>{subtitle}</p>
+        </div>
+
+        <span
+          className={`analysis-period ${
+            purple ? "purple" : ""
+          }`}
+        >
+          {period}
+        </span>
+
+      </div>
+
+      <div className="analysis-content">
+
+        <div className="analysis-chart-area">
+
+          <div
+            className="student-performance-pie"
+            style={{
+              background: getPieBackground(groups),
+            }}
+          >
+            <div className="pie-inner">
+              <strong>{total}</strong>
+              <span>Students</span>
+            </div>
+          </div>
+
+          <div className="analysis-legend">
+
+            <div>
+              <span className="legend-dot strong" />
+              <span>Strong</span>
+              <strong>{groups.strong.length}</strong>
+            </div>
+
+            <div>
+              <span className="legend-dot good" />
+              <span>Good</span>
+              <strong>{groups.good.length}</strong>
+            </div>
+
+            <div>
+              <span className="legend-dot weak" />
+              <span>Weak</span>
+              <strong>{groups.weak.length}</strong>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div className="analysis-students">
+
+          <div className="analysis-list-title">
+            {period === "This Week"
+              ? "Weekly Students"
+              : "Monthly Students"}
+          </div>
+
+          {allStudents.map((student) => (
+
+            <div
+              className="analysis-student-row"
+              key={`${period}-${student.id}`}
+            >
+
+              <div className="analysis-student-left">
+
+                <div className="analysis-student-avatar">
+                  {getInitials(student.name)}
+                </div>
+
+                <div>
+                  <strong>{student.name}</strong>
+
+                  <span
+                    className={`analysis-category ${
+                      student.category.toLowerCase()
+                    }`}
+                  >
+                    {student.category}
+                  </span>
+                </div>
+
+              </div>
+
+              <strong className="analysis-student-percentage">
+                {student.performance}%
+              </strong>
+
+            </div>
+
+          ))}
+
+          {total === 0 && (
+            <div className="analysis-no-data">
+              No {period === "This Week" ? "weekly" : "monthly"} task data available
+            </div>
+          )}
+
+        </div>
+
+      </div>
+
+    </div>
   );
 }
 
