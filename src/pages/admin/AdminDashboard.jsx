@@ -3034,9 +3034,7 @@ const dashboardPerformanceStyles = `
   return (
     <div className="dashboard-page">
 
-      {/* SIDEBAR */}
-      <Sidebar />
-
+      
       {/* MAIN */}
       <main className="dashboard-main">
 
