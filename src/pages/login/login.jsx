@@ -3,7 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { getToken } from "firebase/messaging";
 import { getMessagingInstance } from "../../firebase";
 import "./login.css";
-import { FaUser } from "react-icons/fa";
+
+import {
+  FaUser,
+  FaGraduationCap,
+  FaBookOpen,
+  FaStar,
+} from "react-icons/fa";
 
 function Login() {
   const navigate = useNavigate();
@@ -17,7 +23,6 @@ function Login() {
       // ==========================================
       // 1. Register Firebase Service Worker
       // ==========================================
-
       const registration =
         await navigator.serviceWorker.register(
           "/firebase-messaging-sw.js"
@@ -25,11 +30,9 @@ function Login() {
 
       console.log("Service Worker registered");
 
-
       // ==========================================
-      // 2. Ask Notification Permission
+      // 2. Notification Permission
       // ==========================================
-
       let fcmToken = "";
 
       if ("Notification" in window) {
@@ -42,26 +45,21 @@ function Login() {
         );
 
         if (permission === "granted") {
-
           // ==========================================
-          // 3. Get Firebase Messaging
+          // 3. Firebase Messaging
           // ==========================================
-
           const messaging =
             await getMessagingInstance();
 
           if (messaging) {
-
             // ==========================================
             // 4. Get FCM Token
             // ==========================================
-
             fcmToken = await getToken(
               messaging,
               {
                 vapidKey:
                   "BANg8hVOS1rmbemDYS0cPbuhLOFSnClKfqVZL5itSLXlBhNEJsb0Rsu0nl2091wKP_ojb6dUIwOZfSx_KDNHzdU",
-
                 serviceWorkerRegistration:
                   registration,
               }
@@ -75,11 +73,9 @@ function Login() {
         }
       }
 
-
       // ==========================================
-      // 5. Send Google Token + FCM Token
+      // 5. Send Google + FCM Token to PHP
       // ==========================================
-
       const response = await fetch(
         "https://zyntaweb.com/skilllab/login.php",
         {
@@ -97,23 +93,18 @@ function Login() {
         }
       );
 
-
       const data =
         await response.json();
-
 
       console.log(
         "Backend Response:",
         data
       );
 
-
       // ==========================================
       // 6. Login Success
       // ==========================================
-
       if (data.success) {
-
         localStorage.setItem(
           "user",
           JSON.stringify(data.user)
@@ -125,34 +116,30 @@ function Login() {
         );
 
         navigate("/dashboard");
-
       } else {
-
         alert(
-          data.message
+          data.message ||
+            "Login failed"
         );
       }
-
     } catch (error) {
-
       console.error(
         "Login Error:",
         error
       );
 
       alert(
-        "Login failed"
+        "Login failed. Please try again."
       );
     }
   };
 
-
   return (
     <div className="login-page">
 
-      {/* =====================================
-          BACKGROUND DECORATIONS
-      ====================================== */}
+      {/* =========================================
+          BACKGROUND GLOWS
+      ========================================= */}
 
       <div className="login-glow login-glow-blue"></div>
 
@@ -161,70 +148,89 @@ function Login() {
       <div className="login-glow login-glow-pink"></div>
 
 
-      {/* Floating decorative circles */}
+      {/* =========================================
+          FLOATING GLASS SHAPES
+      ========================================= */}
 
-      <div className="floating-shape shape-one"></div>
+      <div className="floating-shape shape-one">
+        <FaGraduationCap />
+      </div>
 
-      <div className="floating-shape shape-two"></div>
+      <div className="floating-shape shape-two">
+        <FaStar />
+      </div>
 
-      <div className="floating-shape shape-three"></div>
+      <div className="floating-shape shape-three">
+        <FaBookOpen />
+      </div>
 
-      <div className="floating-shape shape-four"></div>
+      <div className="floating-shape shape-four">
+        <FaStar />
+      </div>
 
 
-      {/* =====================================
-          GLASS LOGIN CARD
-      ====================================== */}
+      {/* =========================================
+          SMALL FLOATING DOTS
+      ========================================= */}
+
+      <span className="floating-dot dot-one"></span>
+
+      <span className="floating-dot dot-two"></span>
+
+      <span className="floating-dot dot-three"></span>
+
+      <span className="floating-dot dot-four"></span>
+
+
+      {/* =========================================
+          LOGIN CARD
+      ========================================= */}
 
       <div className="login-card">
 
-
-        {/* Top Glass Shine */}
-
+        {/* Glass shine */}
         <div className="card-shine"></div>
 
 
-        {/* =================================
+        {/* =========================================
             PROFILE ICON
-        ================================== */}
+        ========================================= */}
 
         <div className="profile-icon">
-
           <FaUser />
-
         </div>
 
 
-        {/* =================================
+        {/* =========================================
             BRAND
-        ================================== */}
+        ========================================= */}
 
         <h1 className="title skill-lab-title">
           SKILL LAB
         </h1>
 
 
-        {/* =================================
+        {/* =========================================
             SIGN IN
-        ================================== */}
+        ========================================= */}
 
         <h1 className="title">
           Sign In
         </h1>
 
 
-        {/* =================================
+        {/* =========================================
             SUBTITLE
-        ================================== */}
+        ========================================= */}
 
         <p className="subtitle">
           Continue your learning journey
         </p>
 
 
-        {/* =================================
+        {/* =========================================
             GOOGLE LOGIN
-        ================================== */}
+        ========================================= */}
 
         <div className="google-btn">
 
@@ -249,9 +255,9 @@ function Login() {
         </div>
 
 
-        {/* =================================
-            BOTTOM TEXT
-        ================================== */}
+        {/* =========================================
+            FOOTER
+        ========================================= */}
 
         <div className="login-footer">
 
