@@ -1,4 +1,3 @@
-
  * {
   box-sizing: border-box;
 }
@@ -3464,6 +3463,398 @@ body {
   }
 
   .admin-performance-card .large-progress-fill {
+    border-radius: 0 !important;
+  }
+}
+
+
+/* =========================================================
+   SKILL LAB ADMIN DASHBOARD
+   FINAL LIGHT COLOR-SHADE CARD DESIGN
+   8 CARDS • SQUARE CORNERS • SOFT PROFESSIONAL SHADES
+========================================================= */
+
+/* Main dashboard background */
+.admin-dashboard {
+  background:
+    radial-gradient(
+      circle at 8% 8%,
+      rgba(126, 87, 255, 0.08),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 92% 20%,
+      rgba(86, 156, 255, 0.07),
+      transparent 30%
+    ),
+    #f7f8fc !important;
+}
+
+/* =========================================================
+   FIRST 6 SUMMARY CARDS
+========================================================= */
+
+.admin-stat-card {
+  border-radius: 0 !important;
+  border: 1px solid #e7e2f0 !important;
+  box-shadow:
+    0 8px 28px rgba(48, 31, 79, 0.055) !important;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 1. Total Students — light purple */
+.admin-stat-card:nth-child(1) {
+  background:
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(164, 113, 255, 0.14),
+      transparent 42%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #faf7ff 52%,
+      #f3ebff 100%
+    ) !important;
+
+  border-left: 5px solid #7b35d6 !important;
+}
+
+/* 2. Total Tasks — light blue */
+.admin-stat-card:nth-child(2) {
+  background:
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(80, 153, 245, 0.14),
+      transparent 42%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f7fbff 52%,
+      #eaf4ff 100%
+    ) !important;
+
+  border-left: 5px solid #398be8 !important;
+}
+
+/* 3. Started Students — light green */
+.admin-stat-card:nth-child(3) {
+  background:
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(36, 190, 116, 0.13),
+      transparent 42%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f6fffa 52%,
+      #e8f8f0 100%
+    ) !important;
+
+  border-left: 5px solid #18a86a !important;
+}
+
+/* 4. Not Started — light red */
+.admin-stat-card:nth-child(4) {
+  background:
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(239, 83, 80, 0.12),
+      transparent 42%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #fffafa 52%,
+      #ffeded 100%
+    ) !important;
+
+  border-left: 5px solid #ee4c50 !important;
+}
+
+/* 5. Strong Performance — light green */
+.admin-stat-card:nth-child(5) {
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(34, 185, 107, 0.12),
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f8fffb 52%,
+      #eaf9f1 100%
+    ) !important;
+
+  border-left: 5px solid #18a86a !important;
+}
+
+/* 6. Weak Performance — light orange/red */
+.admin-stat-card:nth-child(6) {
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(239, 83, 80, 0.11),
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #fffafa 52%,
+      #fff0ef 100%
+    ) !important;
+
+  border-left: 5px solid #ee4c50 !important;
+}
+
+/* Summary card hover */
+.admin-stat-card:hover {
+  transform: translateY(-3px) !important;
+  box-shadow:
+    0 14px 34px rgba(48, 31, 79, 0.09) !important;
+}
+
+/* =========================================================
+   ICON BOXES — LIGHT SHADE, NOT FULLY ROUND
+========================================================= */
+
+.admin-stat-icon {
+  border-radius: 0 !important;
+}
+
+.admin-stat-icon.purple {
+  background: #eee3ff !important;
+  color: #7435c9 !important;
+}
+
+.admin-stat-icon.blue {
+  background: #e4f1ff !important;
+  color: #2e83df !important;
+}
+
+.admin-stat-icon.green {
+  background: #def6e9 !important;
+  color: #169b61 !important;
+}
+
+/* =========================================================
+   WEEKLY + MONTHLY PERFORMANCE
+   CARDS 7 & 8
+========================================================= */
+
+.admin-performance-card {
+  border-radius: 0 !important;
+  border: 1px solid #e5dfed !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 8px 30px rgba(48, 31, 79, 0.055) !important;
+  position: relative;
+}
+
+/* 7. Weekly — soft blue/purple */
+.admin-performance-card:first-child {
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(92, 143, 255, 0.16),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(132, 87, 255, 0.09),
+      transparent 45%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f7f9ff 55%,
+      #edf0ff 100%
+    ) !important;
+
+  border-left: 5px solid #4f78ee !important;
+}
+
+/* 8. Monthly — soft purple/pink */
+.admin-performance-card:last-child {
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(221, 91, 218, 0.15),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(125, 76, 245, 0.09),
+      transparent 45%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #faf7ff 55%,
+      #f4ebff 100%
+    ) !important;
+
+  border-left: 5px solid #8246e9 !important;
+}
+
+/* Performance icon boxes */
+.performance-icon {
+  border-radius: 0 !important;
+}
+
+.performance-icon.blue {
+  background: #e4efff !important;
+  color: #3977e5 !important;
+}
+
+.performance-icon.purple {
+  background: #eee2ff !important;
+  color: #7841d6 !important;
+}
+
+/* Percentage */
+.admin-performance-card:first-child
+.performance-card-header > strong {
+  color: #4b74e6 !important;
+}
+
+.admin-performance-card:last-child
+.performance-card-header > strong {
+  color: #7b42dc !important;
+}
+
+/* Progress tracks */
+.large-progress {
+  border-radius: 0 !important;
+  background: #e9e7ef !important;
+}
+
+.large-progress-fill {
+  border-radius: 0 !important;
+}
+
+.large-progress-fill.blue {
+  background:
+    linear-gradient(
+      90deg,
+      #4e78ed 0%,
+      #7656ef 100%
+    ) !important;
+}
+
+.large-progress-fill.purple {
+  background:
+    linear-gradient(
+      90deg,
+      #7841df 0%,
+      #c051df 100%
+    ) !important;
+}
+
+/* =========================================================
+   REMOVE ROUNDING FROM MAIN DASHBOARD CARDS
+========================================================= */
+
+.admin-overview-card,
+.admin-student-performance,
+.student-card {
+  border-radius: 0 !important;
+}
+
+.analysis-card {
+  border-radius: 0 !important;
+}
+
+/* Keep small status pills / dots / avatars round.
+   Only large dashboard cards become square. */
+
+/* =========================================================
+   PERFORMANCE ANALYSIS LIGHT SHADES
+========================================================= */
+
+.analysis-card:nth-child(1) {
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f8fffb 100%
+    ) !important;
+
+  border-left: 5px solid #21ad6b !important;
+}
+
+.analysis-card:nth-child(2) {
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #faf7ff 100%
+    ) !important;
+
+  border-left: 5px solid #7c45df !important;
+}
+
+/* =========================================================
+   SEARCH + BUTTONS — CLEAN LIGHT STYLE
+========================================================= */
+
+.students-search-box {
+  border-radius: 0 !important;
+  background: #ffffff !important;
+}
+
+.refresh-button,
+.student-dashboard-button {
+  border-radius: 0 !important;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 800px) {
+
+  .admin-stat-card {
+    border-radius: 0 !important;
+  }
+
+  .admin-performance-card {
+    border-radius: 0 !important;
+  }
+
+  .admin-overview-card,
+  .admin-student-performance,
+  .student-card,
+  .analysis-card {
+    border-radius: 0 !important;
+  }
+
+  .admin-stat-icon,
+  .performance-icon {
+    border-radius: 0 !important;
+  }
+
+  .large-progress {
+    border-radius: 0 !important;
+  }
+
+  .large-progress-fill {
+    border-radius: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .admin-stat-card,
+  .admin-performance-card,
+  .admin-overview-card,
+  .admin-student-performance,
+  .student-card,
+  .analysis-card {
     border-radius: 0 !important;
   }
 }
