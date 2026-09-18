@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import {
   FaGaugeHigh,
   FaChartLine,
@@ -16,9 +18,9 @@ import {
   FaTriangleExclamation,
   FaCalendarDays,
   FaClock,
-  FaLayerGroup,
-  FaMedal,
-  FaTrophy,
+  FaBookOpen,
+  FaArrowUp,
+  FaArrowDown,
   FaArrowRight,
   FaMagnifyingGlass,
   FaUser,
@@ -699,53 +701,53 @@ const openStudentDashboard = (student) => {
 
       <section className="admin-stat-grid">
 
-      <StatCard
-  icon={<FaUsers />}
-  title="Total Students"
-  value={dashboardData.totalStudents ?? 0}
-  subtitle="All registered students"
-  type="purple"
-/>
+        <StatCard
+          icon={<FaUsers />}
+          title="Total Students"
+          value={dashboardData.totalStudents ?? 0}
+          subtitle="All registered students"
+          type="purple"
+        />
 
-<StatCard
-  icon={<FaLayerGroup />}
-  title="Total Tasks"
-  value={dashboardData.totalTasks ?? 0}
-  subtitle="Tasks this week"
-  type="blue"
-/>
+        <StatCard
+          icon={<FaBookOpen />}
+          title="Total Tasks"
+          value={dashboardData.totalTasks ?? 0}
+          subtitle="Tasks this week"
+          type="blue"
+        />
 
-<StatCard
-  icon={<FaMedal />}
-  title="Started Students"
-  value={dashboardData.startedStudents ?? 0}
-  subtitle="Students who started tasks"
-  type="green"
-/>
+        <StatCard
+          icon={<FaCircleCheck />}
+          title="Started Students"
+          value={dashboardData.startedStudents ?? 0}
+          subtitle="Students who started tasks"
+          type="green"
+        />
 
-<StatCard
-  icon={<FaClock />}
-  title="Not Started"
-  value={dashboardData.notStartedStudents ?? 0}
-  subtitle="Students with no started task"
-  type="red"
-/>
+        <StatCard
+          icon={<FaClock />}
+          title="Not Started"
+          value={dashboardData.notStartedStudents ?? 0}
+          subtitle="Students with no started task"
+          type="purple"
+        />
 
-<StatCard
-  icon={<FaTrophy />}
-  title="Strong Performance"
-  value={dashboardData.strongStudents ?? 0}
-  subtitle="Students at 60% or above"
-  type="green"
-/>
+        <StatCard
+          icon={<FaArrowUp />}
+          title="Strong Performance"
+          value={dashboardData.strongStudents ?? 0}
+          subtitle="Students at 60% or above"
+          type="green"
+        />
 
-<StatCard
-  icon={<FaTriangleExclamation />}
-  title="Weak Performance"
-  value={dashboardData.weakStudents ?? 0}
-  subtitle="Students below 40% or not started"
-  type="red"
-/>
+        <StatCard
+          icon={<FaArrowDown />}
+          title="Weak Performance"
+          value={dashboardData.weakStudents ?? 0}
+          subtitle="Students below 40% or not started"
+          type="blue"
+        />
 
       </section>
 
