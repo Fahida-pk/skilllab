@@ -129,9 +129,13 @@ function AdminDashboard() {
      FETCH ADMIN DATA
   ========================================= */
 
-  const fetchAdminData = async () => {
+  const fetchAdminData = async (silent = false) => {
     try {
-      setRefreshing(true);
+      // Manual Refresh shows the loading state.
+      // Automatic refresh runs silently so the dashboard does not flicker.
+      if (!silent) {
+        setRefreshing(true);
+      }
 
       const savedAdmin =
         localStorage.getItem("admin");
@@ -195,14 +199,51 @@ function AdminDashboard() {
       );
     } finally {
       setLoading(false);
-      setRefreshing(false);
+
+      if (!silent) {
+        setRefreshing(false);
+      }
     }
   };
 
   useEffect(() => {
-    if (admin?.email) {
-      fetchAdminData();
-    }
+    if (!admin?.email) return;
+
+    // First load
+    fetchAdminData();
+
+    // Automatically update admin dashboard when student/task data changes.
+    // No browser refresh is required.
+    const refreshInterval = setInterval(() => {
+      fetchAdminData(true);
+    }, 5000);
+
+    // Refresh immediately when admin comes back to this browser tab.
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchAdminData(true);
+      }
+    };
+
+    const handleWindowFocus = () => {
+      fetchAdminData(true);
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    window.addEventListener("focus", handleWindowFocus);
+
+    return () => {
+      clearInterval(refreshInterval);
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+      window.removeEventListener("focus", handleWindowFocus);
+    };
   }, [admin]);
 
   /* =========================================
