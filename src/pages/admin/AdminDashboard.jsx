@@ -401,7 +401,7 @@ const openStudentDashboard = (student) => {
     }
 
     if (value >= 40) {
-      return "Good Progress";
+      return "Average";
     }
 
     return "Needs Attention";
@@ -814,6 +814,19 @@ const openStudentDashboard = (student) => {
           type="blue"
         />
 
+        <StatCard
+          icon={<FaChartLine />}
+          title="Average Performance"
+          value={Math.max(
+            0,
+            (dashboardData.totalStudents ?? 0) -
+              (dashboardData.strongStudents ?? 0) -
+              (dashboardData.weakStudents ?? 0)
+          )}
+          subtitle="Students between 40% and 59%"
+          type="purple"
+        />
+
       </section>
 
 
@@ -947,7 +960,7 @@ const openStudentDashboard = (student) => {
         {/* TODAY */}
         <PerformanceAnalysisCard
           title="Today Student Performance"
-          subtitle="Strong, good and weak performing students"
+          subtitle="Strong, average and weak performing students"
           period="Today"
           groups={getPerformanceGroups("today")}
           getPieBackground={getPieBackground}
@@ -958,7 +971,7 @@ const openStudentDashboard = (student) => {
         {/* WEEKLY */}
         <PerformanceAnalysisCard
           title="Weekly Student Performance"
-          subtitle="Strong, good and weak performing students"
+          subtitle="Strong, average and weak performing students"
           period="This Week"
           groups={getPerformanceGroups("weekly")}
           getPieBackground={getPieBackground}
@@ -969,7 +982,7 @@ const openStudentDashboard = (student) => {
         {/* MONTHLY */}
         <PerformanceAnalysisCard
           title="Monthly Student Performance"
-          subtitle="Strong, good and weak performing students"
+          subtitle="Strong, average and weak performing students"
           period="This Month"
           groups={getPerformanceGroups("monthly")}
           getPieBackground={getPieBackground}
@@ -1446,7 +1459,7 @@ function PerformanceAnalysisCard({
     })),
     ...groups.good.map((student) => ({
       ...student,
-      category: "Good",
+      category: "Average",
     })),
     ...groups.weak.map((student) => ({
       ...student,
@@ -1506,7 +1519,7 @@ function PerformanceAnalysisCard({
 
             <div>
               <span className="legend-dot good" />
-              <span>Good</span>
+              <span>Average</span>
               <strong>{groups.good.length}</strong>
             </div>
 

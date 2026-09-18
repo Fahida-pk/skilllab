@@ -1,4 +1,4 @@
- * {
+* {
   box-sizing: border-box;
 }
 
@@ -4181,5 +4181,347 @@ body {
 @media (max-width: 700px) {
   .admin-performance-summary-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   FINAL REQUESTED UI FIXES
+   1) All 7 top statistic cards use one light sidebar shade.
+   2) 3 Today/Weekly/Monthly cards remain separate.
+   3) 3 Pie-analysis cards use the same light shade.
+   4) All Students mobile layout is 360px safe.
+========================================================= */
+
+/* ---------- TOP 7 STAT CARDS: SAME LIGHT SIDEBAR SHADE ---------- */
+.admin-stat-grid {
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+
+.admin-stat-card {
+  background:
+    linear-gradient(
+      135deg,
+      #eef3ff 0%,
+      #f3edff 52%,
+      #f8effa 100%
+    ) !important;
+  border: 1px solid #e4dcf0 !important;
+}
+
+/* First four cards */
+.admin-stat-card:nth-child(1),
+.admin-stat-card:nth-child(2),
+.admin-stat-card:nth-child(3),
+.admin-stat-card:nth-child(4) {
+  grid-column: span 3 !important;
+}
+
+/* Last three cards: equal 3-column row */
+.admin-stat-card:nth-child(5),
+.admin-stat-card:nth-child(6),
+.admin-stat-card:nth-child(7) {
+  grid-column: span 4 !important;
+}
+
+/* ---------- PIE / STUDENT PERFORMANCE CARDS: SAME COLOR ---------- */
+.admin-performance-analysis {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+
+.admin-performance-analysis .analysis-card {
+  background:
+    linear-gradient(
+      135deg,
+      #eef3ff 0%,
+      #f3edff 52%,
+      #f8effa 100%
+    ) !important;
+  border: 1px solid #e4dcf0 !important;
+  box-shadow: 0 8px 28px rgba(65, 35, 100, 0.055) !important;
+}
+
+/* Student rows inside all 3 analysis cards use the same background. */
+.admin-performance-analysis .analysis-student-row {
+  background: transparent !important;
+  border-bottom-color: #e5deed !important;
+}
+
+/* Keep the same category colors, but call Good "Average". */
+.analysis-category.good {
+  color: #d99000 !important;
+}
+
+.legend-dot.good {
+  background: #f59e0b !important;
+}
+
+/* ---------- ALL STUDENTS: MOBILE 360px / 740px SAFE ---------- */
+@media (max-width: 800px) {
+  .admin-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 18px 12px 35px !important;
+    overflow-x: hidden !important;
+  }
+
+  .admin-main {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .all-students-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .all-students-header {
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 9px !important;
+  }
+
+  .all-students-header > div:first-child {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  .all-students-header h2 {
+    font-size: 20px !important;
+  }
+
+  .all-students-header p {
+    font-size: 10px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .refresh-button {
+    flex: 0 0 auto !important;
+    height: 34px !important;
+    padding: 0 11px !important;
+    font-size: 10px !important;
+  }
+
+  .students-search-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 44px !important;
+    padding: 0 12px !important;
+  }
+
+  .students-search-box input {
+    width: 100% !important;
+    min-width: 0 !important;
+    font-size: 10px !important;
+  }
+
+  .student-cards-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .student-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 15px !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+
+  .student-card-top {
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 10px !important;
+  }
+
+  .student-card-photo,
+  .student-card-avatar {
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important;
+    border-radius: 14px !important;
+  }
+
+  .student-card-name {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+  }
+
+  .student-card-name h3 {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 13px !important;
+  }
+
+  .student-card-name span {
+    font-size: 9px !important;
+  }
+
+  .student-card-arrow {
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+  }
+
+  .student-card-contact {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-top: 15px !important;
+  }
+
+  .student-card-contact > span:last-child {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 10px !important;
+  }
+
+  .student-card-details {
+    width: 100% !important;
+    min-width: 0 !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .student-card-details > div {
+    min-width: 0 !important;
+  }
+
+  .student-card-details small {
+    font-size: 8px !important;
+  }
+
+  .student-card-details strong {
+    min-width: 0 !important;
+    font-size: 9px !important;
+    gap: 4px !important;
+  }
+
+  .student-card-details strong svg {
+    flex: 0 0 auto !important;
+  }
+
+  .student-card-status-row {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .student-card-progress {
+    width: 100% !important;
+  }
+
+  .student-dashboard-button {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 38px !important;
+    margin-top: 15px !important;
+    font-size: 10px !important;
+  }
+
+  /* Analysis cards stack cleanly on mobile. */
+  .admin-performance-analysis {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  .admin-performance-analysis .analysis-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 17px !important;
+  }
+
+  .analysis-content {
+    min-width: 0 !important;
+  }
+}
+
+/* ---------- 360px CLASS DEVICES ---------- */
+@media (max-width: 380px) {
+  .admin-content {
+    padding-left: 9px !important;
+    padding-right: 9px !important;
+  }
+
+  .all-students-header {
+    gap: 7px !important;
+  }
+
+  .all-students-header h2 {
+    font-size: 19px !important;
+  }
+
+  .refresh-button {
+    padding: 0 9px !important;
+  }
+
+  .students-search-box {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .students-search-box input {
+    font-size: 9px !important;
+  }
+
+  .student-card {
+    padding: 14px !important;
+  }
+
+  .student-card-photo,
+  .student-card-avatar {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+  }
+
+  .student-card-name h3 {
+    font-size: 12px !important;
+  }
+
+  .student-card-name span {
+    font-size: 8px !important;
+  }
+
+  .student-card-contact > span:last-child {
+    font-size: 9px !important;
+  }
+
+  .student-card-details strong {
+    font-size: 8px !important;
+  }
+}
+
+/* ---------- STAT CARDS ON MOBILE ---------- */
+@media (max-width: 800px) {
+  .admin-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .admin-stat-card:nth-child(1),
+  .admin-stat-card:nth-child(2),
+  .admin-stat-card:nth-child(3),
+  .admin-stat-card:nth-child(4),
+  .admin-stat-card:nth-child(5),
+  .admin-stat-card:nth-child(6),
+  .admin-stat-card:nth-child(7) {
+    grid-column: span 1 !important;
   }
 }
