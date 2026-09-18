@@ -18,7 +18,7 @@ import {
   FaXmark,
   FaCircleCheck,
   FaTriangleExclamation,
-  FaCalendar,
+  FaCalendarDays,
   FaClock,
   FaArrowUp,
   FaArrowDown,
@@ -798,11 +798,6 @@ const openStudentDashboard = (student) => {
           type="purple"
         />
 
-      </section>
-
-      {/* STRONG / AVERAGE / WEAK PERFORMANCE */}
-      <section className="admin-performance-summary-grid">
-
         <StatCard
           icon={<FaTrophy />}
           title="Strong Performance"
@@ -812,27 +807,11 @@ const openStudentDashboard = (student) => {
         />
 
         <StatCard
-          icon={<FaChartLine />}
-          title="Average Performance"
-          value={
-            dashboardData.averageStudents ??
-            Math.max(
-              0,
-              Number(dashboardData.totalStudents || 0) -
-                Number(dashboardData.strongStudents || 0) -
-                Number(dashboardData.weakStudents || 0)
-            )
-          }
-          subtitle="Students between 40% and 59%"
-          type="blue"
-        />
-
-        <StatCard
           icon={<FaTriangleExclamation />}
           title="Weak Performance"
           value={dashboardData.weakStudents ?? 0}
           subtitle="Students below 40% or not started"
-          type="red"
+          type="blue"
         />
 
       </section>
@@ -923,7 +902,7 @@ const openStudentDashboard = (student) => {
           <div className="performance-card-header">
             <div className="performance-title">
               <div className="performance-icon purple">
-                <FaCalendar />
+                <FaCalendarDays />
               </div>
               <div>
                 <h2>Monthly Performance</h2>
