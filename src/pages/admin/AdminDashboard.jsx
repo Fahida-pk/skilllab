@@ -287,10 +287,21 @@ const goStudents = () => {
    Pass selected student details to Dashboard.
 ========================================= */
 const openStudentDashboard = (student) => {
+  // Selected student details persist ചെയ്യുക
+  sessionStorage.setItem(
+    `adminViewingStudent_${student.id}`,
+    JSON.stringify({
+      id: student.id,
+      name: student.name,
+      email: student.email,
+    })
+  );
+
   navigate(
     `/admin/students/${student.id}/dashboard`,
     {
       state: {
+        studentId: student.id,
         studentEmail: student.email,
         studentName: student.name,
       },

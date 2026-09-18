@@ -64,16 +64,15 @@ function Task({ adminView = false }) {
     }
   })();
 
-  const adminStudentEmail =
-    location.state?.studentEmail ||
-    storedAdminStudent?.email ||
-    "";
+const adminStudentEmail =
+  location.state?.studentEmail ||
+  storedAdminStudent?.email ||
+  "";
 
-  const adminStudentName =
-    location.state?.studentName ||
-    storedAdminStudent?.name ||
-    "";
-
+const adminStudentName =
+  location.state?.studentName ||
+  storedAdminStudent?.name ||
+  "";
   const taskEmail = adminView
     ? adminStudentEmail
     : user?.email;
