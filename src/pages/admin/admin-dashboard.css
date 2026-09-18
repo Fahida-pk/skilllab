@@ -1,4 +1,5 @@
-* {
+
+ * {
   box-sizing: border-box;
 }
 
@@ -3274,5 +3275,195 @@ body {
   .admin-stat-card,
   .admin-performance-card {
     min-height: auto;
+  }
+}
+
+
+/* =========================================================
+   FINAL PERFORMANCE CARD STYLE
+   COLORFUL SHADES + NO ROUND CORNERS
+   Added without changing the existing styles above.
+========================================================= */
+
+/* Weekly / Monthly performance cards */
+.admin-performance-card {
+  border-radius: 0 !important;
+  border: 1px solid rgba(210, 198, 235, 0.95) !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 12px 35px rgba(75, 38, 120, 0.10) !important;
+}
+
+/* WEEKLY - BLUE + PURPLE SHADE */
+.admin-performance-card:first-child {
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(92, 164, 255, 0.28),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(116, 71, 255, 0.16),
+      transparent 45%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f4f7ff 48%,
+      #eeeaff 100%
+    ) !important;
+
+  border-left: 5px solid #4f7cff !important;
+}
+
+/* MONTHLY - PURPLE + PINK SHADE */
+.admin-performance-card:last-child {
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(242, 101, 214, 0.25),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(116, 71, 255, 0.18),
+      transparent 45%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f7f0ff 48%,
+      #f3e8ff 100%
+    ) !important;
+
+  border-left: 5px solid #8a4dff !important;
+}
+
+/* Remove the old top color strip */
+.admin-performance-card::before {
+  height: 0 !important;
+}
+
+/* Keep decorative shade but make it softer */
+.admin-performance-card::after {
+  border-radius: 0 !important;
+  opacity: 0.75;
+}
+
+/* Weekly icon */
+.admin-performance-card:first-child .performance-icon.blue {
+  border-radius: 0 !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #dceaff,
+      #c5d9ff
+    ) !important;
+
+  color: #3d73e8 !important;
+}
+
+/* Monthly icon */
+.admin-performance-card:last-child .performance-icon.purple {
+  border-radius: 0 !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eadcff,
+      #d8bfff
+    ) !important;
+
+  color: #7a3fe2 !important;
+}
+
+/* Percentage colors */
+.admin-performance-card:first-child
+.performance-card-header > strong {
+  color: #4778ed !important;
+}
+
+.admin-performance-card:last-child
+.performance-card-header > strong {
+  color: #8546e8 !important;
+}
+
+/* Progress track */
+.admin-performance-card .large-progress {
+  border-radius: 0 !important;
+  background: rgba(225, 220, 238, 0.85) !important;
+  overflow: hidden !important;
+}
+
+/* Weekly progress */
+.admin-performance-card:first-child
+.large-progress-fill.blue {
+  border-radius: 0 !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      #4778ff 0%,
+      #7555ff 50%,
+      #ad4cff 100%
+    ) !important;
+}
+
+/* Monthly progress */
+.admin-performance-card:last-child
+.large-progress-fill.purple {
+  border-radius: 0 !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      #743cff 0%,
+      #a747ff 50%,
+      #ed55d0 100%
+    ) !important;
+}
+
+/* Footer */
+.admin-performance-card .performance-card-footer {
+  color: #756b86 !important;
+}
+
+/* Slight colorful hover without rounded corners */
+.admin-performance-card:hover {
+  transform: translateY(-4px) !important;
+  border-radius: 0 !important;
+}
+
+.admin-performance-card:first-child:hover {
+  box-shadow:
+    0 18px 42px rgba(62, 119, 235, 0.16) !important;
+}
+
+.admin-performance-card:last-child:hover {
+  box-shadow:
+    0 18px 42px rgba(137, 66, 226, 0.16) !important;
+}
+
+/* =========================================================
+   MOBILE — KEEP SAME SQUARE CARD STYLE
+========================================================= */
+
+@media (max-width: 700px) {
+  .admin-performance-card {
+    border-radius: 0 !important;
+  }
+
+  .admin-performance-card .performance-icon {
+    border-radius: 0 !important;
+  }
+
+  .admin-performance-card .large-progress {
+    border-radius: 0 !important;
+  }
+
+  .admin-performance-card .large-progress-fill {
+    border-radius: 0 !important;
   }
 }
