@@ -18,7 +18,7 @@ import {
   FaXmark,
   FaCircleCheck,
   FaTriangleExclamation,
-  FaCalendarDays,
+  FaCalendar,
   FaClock,
   FaArrowUp,
   FaArrowDown,
@@ -923,7 +923,7 @@ const openStudentDashboard = (student) => {
           <div className="performance-card-header">
             <div className="performance-title">
               <div className="performance-icon purple">
-                <FaCalendarDays />
+                <FaCalendar />
               </div>
               <div>
                 <h2>Monthly Performance</h2>
