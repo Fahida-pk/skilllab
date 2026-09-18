@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import {
+  FaUsers,
+  FaLayerGroup,
+  FaMedal,
+  FaClock,
+  FaTrophy,
+  FaTriangleExclamation,
+} from "react-icons/fa6";
 import {
   FaGaugeHigh,
   FaChartLine,
@@ -710,7 +717,7 @@ const openStudentDashboard = (student) => {
         />
 
         <StatCard
-          icon={<FaBookOpen />}
+          icon={<FaLayerGroup />}
           title="Total Tasks"
           value={dashboardData.totalTasks ?? 0}
           subtitle="Tasks this week"
@@ -718,7 +725,7 @@ const openStudentDashboard = (student) => {
         />
 
         <StatCard
-          icon={<FaCircleCheck />}
+          icon={<FaMedal />}
           title="Started Students"
           value={dashboardData.startedStudents ?? 0}
           subtitle="Students who started tasks"
@@ -734,7 +741,7 @@ const openStudentDashboard = (student) => {
         />
 
         <StatCard
-          icon={<FaArrowUp />}
+          icon={<FaTrophy />}
           title="Strong Performance"
           value={dashboardData.strongStudents ?? 0}
           subtitle="Students at 60% or above"
@@ -742,7 +749,7 @@ const openStudentDashboard = (student) => {
         />
 
         <StatCard
-          icon={<FaArrowDown />}
+          icon={<FaTriangleExclamation />}
           title="Weak Performance"
           value={dashboardData.weakStudents ?? 0}
           subtitle="Students below 40% or not started"
