@@ -4028,3 +4028,38 @@ body {
     border-radius: 15px !important;
   }
 }
+/* =====================================================
+   FULL STUDENT NAME - NO ELLIPSIS
+===================================================== */
+
+.analysis-student-row {
+  align-items: flex-start;
+}
+
+.analysis-student-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.analysis-student-left > div:last-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.analysis-student-left strong {
+  max-width: none !important;
+
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+
+  word-break: normal;
+  overflow-wrap: break-word;
+
+  line-height: 1.35;
+}
+
+.analysis-student-percentage {
+  flex-shrink: 0;
+  margin-left: 8px;
+}
