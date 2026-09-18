@@ -1,17 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  FaUsers,
-  FaLayerGroup,
-  FaMedal,
-  FaClock,
-  FaTrophy,
-  FaTriangleExclamation,
-} from "react-icons/fa6";
-import {
   FaGaugeHigh,
   FaChartLine,
   FaUsers,
+  FaLayerGroup,
+  FaMedal,
+  FaTrophy,
   FaUserGraduate,
   FaUserTie,
   FaCreditCard,
@@ -25,7 +20,6 @@ import {
   FaTriangleExclamation,
   FaCalendarDays,
   FaClock,
-  FaBookOpen,
   FaArrowUp,
   FaArrowDown,
   FaArrowRight,
