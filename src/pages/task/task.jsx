@@ -34,7 +34,9 @@ import "./task.css";
 
 const API_URL = "https://zyntaweb.com/skilllab/api/task.php";
 
-function Task() {
+function Task({ adminView = false }) {
+  const location = useLocation();
+
   const [date, setDate] = useState(new Date());
   const user = JSON.parse(localStorage.getItem("user") || "null");
 

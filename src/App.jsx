@@ -102,9 +102,7 @@ function App() {
         }
       />
 
-      {/* ADMIN → VIEW STUDENT DASHBOARD
-          NOT protected by student ProtectedRoute.
-          Only admin authentication is required. */}
+      {/* ADMIN → VIEW STUDENT DASHBOARD */}
       <Route
         path="/admin/students/:id/dashboard"
         element={
@@ -115,9 +113,7 @@ function App() {
       />
 
       {/* ADMIN → VIEW STUDENT TASKS
-          READ ONLY.
-          NOT protected by student ProtectedRoute.
-          Only admin authentication is required. */}
+          READ ONLY */}
       <Route
         path="/admin/students/:id/tasks"
         element={
