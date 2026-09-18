@@ -70,6 +70,10 @@ function AdminDashboard() {
       monthlyStrongStudents: [],
       monthlyGoodStudents: [],
       monthlyWeakStudents: [],
+
+      todayStrongStudents: [],
+      todayGoodStudents: [],
+      todayWeakStudents: [],
     });
 
   const [loading, setLoading] = useState(true);
@@ -378,6 +382,14 @@ const openStudentDashboard = (student) => {
   ========================================= */
 
   const getPerformanceGroups = (period) => {
+    if (period === "today") {
+      return {
+        strong: dashboardData.todayStrongStudents || [],
+        good: dashboardData.todayGoodStudents || [],
+        weak: dashboardData.todayWeakStudents || [],
+      };
+    }
+
     if (period === "weekly") {
       return {
         strong: dashboardData.weeklyStrongStudents || [],
@@ -753,143 +765,122 @@ const openStudentDashboard = (student) => {
       </section>
 
 
-      {/* WEEK / MONTH */}
+      {/* TODAY / WEEK / MONTH */}
 
       <section className="admin-performance-grid">
 
-        {/* WEEK */}
-
-        <div className="admin-performance-card">
-
+        {/* TODAY */}
+        <div className="admin-performance-card today-card">
           <div className="performance-card-header">
-
             <div className="performance-title">
-
-              <div className="performance-icon blue">
-                <FaChartLine />
+              <div className="performance-icon green">
+                <FaCircleCheck />
               </div>
-
               <div>
-                <h2>
-                  Weekly Performance
-                </h2>
-
-                <p>
-                  Overall student performance
-                </p>
+                <h2>Today Performance</h2>
+                <p>Overall student performance</p>
               </div>
-
             </div>
-
-            <strong>
-              {dashboardData.weekPerformance ??
-                0}%
-            </strong>
-
+            <strong>{dashboardData.todayPerformance ?? 0}%</strong>
           </div>
 
           <div className="large-progress">
+            <div
+              className="large-progress-fill green"
+              style={{
+                width: `${Math.min(
+                  100,
+                  Number(dashboardData.todayPerformance || 0)
+                )}%`,
+              }}
+            />
+          </div>
 
+          <div className="performance-card-footer">
+            <span>
+              <FaCircleCheck />
+              {dashboardData.todayCompleted ?? 0} completed
+            </span>
+            <span>
+              {dashboardData.todayTotal ?? 0} total tasks
+            </span>
+          </div>
+        </div>
+
+        {/* WEEK */}
+        <div className="admin-performance-card">
+          <div className="performance-card-header">
+            <div className="performance-title">
+              <div className="performance-icon blue">
+                <FaChartLine />
+              </div>
+              <div>
+                <h2>Weekly Performance</h2>
+                <p>Overall student performance</p>
+              </div>
+            </div>
+            <strong>{dashboardData.weekPerformance ?? 0}%</strong>
+          </div>
+
+          <div className="large-progress">
             <div
               className="large-progress-fill blue"
               style={{
                 width: `${Math.min(
                   100,
-                  Number(
-                    dashboardData.weekPerformance ||
-                      0
-                  )
+                  Number(dashboardData.weekPerformance || 0)
                 )}%`,
               }}
             />
-
           </div>
 
           <div className="performance-card-footer">
-
             <span>
               <FaCircleCheck />
-
-              {dashboardData.weekCompleted ??
-                0}{" "}
-              completed
+              {dashboardData.weekCompleted ?? 0} completed
             </span>
-
             <span>
-              {dashboardData.weekTotal ??
-                0} total tasks
+              {dashboardData.weekTotal ?? 0} total tasks
             </span>
-
           </div>
-
         </div>
 
-
         {/* MONTH */}
-
         <div className="admin-performance-card">
-
           <div className="performance-card-header">
-
             <div className="performance-title">
-
               <div className="performance-icon purple">
                 <FaCalendarDays />
               </div>
-
               <div>
-                <h2>
-                  Monthly Performance
-                </h2>
-
-                <p>
-                  Overall student performance
-                </p>
+                <h2>Monthly Performance</h2>
+                <p>Overall student performance</p>
               </div>
-
             </div>
-
-            <strong>
-              {dashboardData.monthPerformance ??
-                0}%
-            </strong>
-
+            <strong>{dashboardData.monthPerformance ?? 0}%</strong>
           </div>
 
           <div className="large-progress">
-
             <div
               className="large-progress-fill purple"
               style={{
                 width: `${Math.min(
                   100,
-                  Number(
-                    dashboardData.monthPerformance ||
-                      0
-                  )
+                  Number(dashboardData.monthPerformance || 0)
                 )}%`,
               }}
             />
-
           </div>
 
           <div className="performance-card-footer">
-
             <span>
               <FaCircleCheck />
-
-              {dashboardData.monthCompleted ??
-                0}{" "}
-              completed
+              {dashboardData.monthCompleted ?? 0} completed
             </span>
-
             <span>
-              {dashboardData.monthTotal ??
-                0} total tasks
+              {dashboardData.monthTotal ?? 0} total tasks
             </span>
-
           </div>
-
         </div>
 
       </section>
@@ -901,8 +892,18 @@ const openStudentDashboard = (student) => {
 
       <section className="admin-performance-analysis">
 
-        {/* WEEKLY */}
+        {/* TODAY */}
+        <PerformanceAnalysisCard
+          title="Today Student Performance"
+          subtitle="Strong, good and weak performing students"
+          period="Today"
+          groups={getPerformanceGroups("today")}
+          getPieBackground={getPieBackground}
+          getInitials={getInitials}
+          purple={false}
+        />
 
+        {/* WEEKLY */}
         <PerformanceAnalysisCard
           title="Weekly Student Performance"
           subtitle="Strong, good and weak performing students"
@@ -914,7 +915,6 @@ const openStudentDashboard = (student) => {
         />
 
         {/* MONTHLY */}
-
         <PerformanceAnalysisCard
           title="Monthly Student Performance"
           subtitle="Strong, good and weak performing students"
@@ -1471,7 +1471,9 @@ function PerformanceAnalysisCard({
         <div className="analysis-students">
 
           <div className="analysis-list-title">
-            {period === "This Week"
+            {period === "Today"
+              ? "Today Students"
+              : period === "This Week"
               ? "Weekly Students"
               : "Monthly Students"}
           </div>
@@ -1513,7 +1515,11 @@ function PerformanceAnalysisCard({
 
           {total === 0 && (
             <div className="analysis-no-data">
-              No {period === "This Week" ? "weekly" : "monthly"} task data available
+              No {period === "Today"
+                ? "today"
+                : period === "This Week"
+                ? "weekly"
+                : "monthly"} task data available
             </div>
           )}
 
