@@ -114,6 +114,19 @@ function App() {
         }
       />
 
+      {/* ADMIN → VIEW STUDENT TASKS
+          READ ONLY.
+          NOT protected by student ProtectedRoute.
+          Only admin authentication is required. */}
+      <Route
+        path="/admin/students/:id/tasks"
+        element={
+          <AdminProtectedRoute>
+            <Task adminView={true} />
+          </AdminProtectedRoute>
+        }
+      />
+
       {/* INVALID URL */}
       <Route
         path="*"

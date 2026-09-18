@@ -2968,12 +2968,13 @@ const dashboardPerformanceStyles = `
     <div className="dashboard-page">
 
       {/* SIDEBAR */}
-<Sidebar
-  adminView={adminView}
-  studentName={adminStudentName}
-  studentEmail={adminStudentEmail}
-  studentId={adminStudentId}
-/>
+      <Sidebar
+        adminView={adminView}
+        studentName={adminStudentName}
+        studentEmail={adminStudentEmail}
+        studentId={adminStudentId}
+      />
+
       {/* MAIN */}
       <main className="dashboard-main">
 

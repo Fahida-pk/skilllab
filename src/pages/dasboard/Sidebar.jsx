@@ -60,7 +60,13 @@ function Sidebar({
 
     if (adminView && studentId) {
       navigate(
-        `/admin/students/${studentId}/dashboard`
+        `/admin/students/${studentId}/dashboard`,
+        {
+          state: {
+            studentEmail,
+            studentName,
+          },
+        }
       );
     } else {
       navigate("/dashboard");

@@ -1,5 +1,6 @@
 import Sidebar from "../dasboard/Sidebar.jsx";
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import {
   FaMoon,
   FaChevronLeft,
@@ -36,6 +37,44 @@ const API_URL = "https://zyntaweb.com/skilllab/api/task.php";
 function Task() {
   const [date, setDate] = useState(new Date());
   const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  /* =====================================================
+     ADMIN STUDENT VIEW
+     Admin can VIEW tasks only.
+     No Add / Edit / Delete / Tick / Percentage changes.
+  ===================================================== */
+  const adminStudentId = adminView
+    ? location.pathname.split("/")[3] || null
+    : null;
+
+  const storedAdminStudent = (() => {
+    if (!adminStudentId) return null;
+
+    try {
+      const saved = sessionStorage.getItem(
+        `adminViewingStudent_${adminStudentId}`
+      );
+
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      console.error("Admin student storage error:", error);
+      return null;
+    }
+  })();
+
+  const adminStudentEmail =
+    location.state?.studentEmail ||
+    storedAdminStudent?.email ||
+    "";
+
+  const adminStudentName =
+    location.state?.studentName ||
+    storedAdminStudent?.name ||
+    "";
+
+  const taskEmail = adminView
+    ? adminStudentEmail
+    : user?.email;
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [fromTime, setFromTime] = useState("");
@@ -632,14 +671,18 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const fetchTasks = async () => {
     try {
-      await ensureDefaultTasksInDatabase();
+      // Admin view is strictly read-only.
+      // Do not create/sync default tasks while viewing a student.
+      if (!adminView) {
+        await ensureDefaultTasksInDatabase();
+      }
 
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "get",
-          email: user?.email,
+          email: taskEmail,
           task_date: currentKey,
         }),
       });
@@ -728,7 +771,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
     fetchTasks();
-  }, [currentKey]);
+  }, [currentKey, taskEmail, adminView]);
 
   const isNextDay = (from, to) => {
     if (!from || !to) return false;
@@ -847,6 +890,8 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const deleteTask = async (task) => {
 
+    if (adminView) return;
+
     if (isPreviousDay) {
       alert("Previous day tasks cannot be deleted.");
       return;
@@ -926,6 +971,8 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
   const toggleTask = async (task) => {
+
+    if (adminView) return;
 
     if (!isToday) {
       alert(
@@ -1043,6 +1090,8 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
   const handlePercentageChange = (task, value) => {
+    if (adminView) return;
+
     const percentage = Math.max(0, Math.min(100, Number(value)));
 
     setTasks((prev) =>
@@ -1053,6 +1102,8 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
   const saveTaskPercentage = async (task, value) => {
+    if (adminView) return;
+
     const percentage = Math.max(0, Math.min(100, Number(value)));
 
     try {
@@ -1084,6 +1135,8 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
   const handleEdit = (task) => {
+
+    if (adminView) return;
 
     if (isPreviousDay) {
       alert("Previous day tasks cannot be edited.");
@@ -1153,6 +1206,8 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
   const handleAddTask = async () => {
+
+    if (adminView) return;
 
     // Ignore repeated clicks while the current save is still running.
     if (saveInProgressRef.current) return;
@@ -1953,7 +2008,12 @@ const performancePercentage =
 `}</style>
 
     <div className="dashboard">
-      <Sidebar />
+      <Sidebar
+        adminView={adminView}
+        studentName={adminStudentName}
+        studentEmail={adminStudentEmail}
+        studentId={adminStudentId}
+      />
 
       <div className="main">
         {/* DATE BAR */}
@@ -2037,7 +2097,7 @@ const performancePercentage =
       Previous day: hidden
       Today/Future: available
   */}
-  {!isPreviousDay && (
+  {!adminView && !isPreviousDay && (
     <button
       className="progress-add-btn"
       onClick={() => {
@@ -2151,8 +2211,9 @@ const performancePercentage =
                       <input
                         type="checkbox"
                         checked={task.completed === true}
-                        disabled={!isToday}
+                        disabled={adminView || !isToday}
                         onChange={() => {
+                          if (adminView) return;
                           if (!isToday) return;
                           toggleTask(task);
                         }}
@@ -2160,7 +2221,7 @@ const performancePercentage =
 
                       <span
                         className={`custom-check ${
-                          !isToday ? "check-disabled" : ""
+                          adminView || !isToday ? "check-disabled" : ""
                         }`}
                       >
                         {task.completed && <FaCheck />}
@@ -2171,7 +2232,7 @@ const performancePercentage =
                   {/* SECOND ROW:
                       EDIT + DELETE + PROGRESS BAR + PERCENTAGE */}
                   <div className="task-bottom-row">
-                    {!isPreviousDay && (
+                    {!adminView && !isPreviousDay && (
                       <div className="actions action-box task-actions">
                         <button
                           onClick={() => handleEdit(task)}
@@ -2207,20 +2268,24 @@ const performancePercentage =
                           0,
                           Math.min(100, Number(task.percentage ?? 0))
                         )}
-                        disabled={isPreviousDay}
+                        disabled={adminView || isPreviousDay}
                         onChange={(e) => {
+                          if (adminView) return;
                           if (isPreviousDay) return;
                           handlePercentageChange(task, e.target.value);
                         }}
-                        onMouseUp={(e) =>
-                          saveTaskPercentage(task, e.currentTarget.value)
-                        }
-                        onTouchEnd={(e) =>
-                          saveTaskPercentage(task, e.currentTarget.value)
-                        }
-                        onBlur={(e) =>
-                          saveTaskPercentage(task, e.currentTarget.value)
-                        }
+                        onMouseUp={(e) => {
+                          if (adminView) return;
+                          saveTaskPercentage(task, e.currentTarget.value);
+                        }}
+                        onTouchEnd={(e) => {
+                          if (adminView) return;
+                          saveTaskPercentage(task, e.currentTarget.value);
+                        }}
+                        onBlur={(e) => {
+                          if (adminView) return;
+                          saveTaskPercentage(task, e.currentTarget.value);
+                        }}
                         aria-label={`Progress percentage for ${task.title}`}
                       />
 
@@ -2244,7 +2309,7 @@ const performancePercentage =
       </div>
 
       {/* ADD / EDIT MODAL */}
-      {showModal && (
+      {!adminView && showModal && (
         <div className="modal" onClick={resetModal}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <h2>{editTask ? "Edit Task" : "Add New Task"}</h2>
@@ -2348,7 +2413,7 @@ const performancePercentage =
           </div>
         </div>
       )}
-      {deleteConfirm && (
+      {!adminView && deleteConfirm && (
   <div
     className="delete-confirm-overlay"
     onClick={() => setDeleteConfirm(null)}
