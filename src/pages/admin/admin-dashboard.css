@@ -2659,7 +2659,186 @@ body {
   color: #9b92a7;
   font-size: 12px;
 }
+/* =========================================================
+   PERFORMANCE CARDS — PURPLE STYLE
+   NO ROUND CORNERS
+========================================================= */
 
+/* Today's Performance */
+.today-performance-card {
+  width: 100% !important;
+
+  background: #ffffff !important;
+
+  border: 1px solid #ddd3ff !important;
+  border-left: 5px solid #7447ff !important;
+
+  border-radius: 0 !important;
+
+  padding: 22px 24px !important;
+
+  box-shadow:
+    0 8px 25px rgba(116, 71, 255, 0.08) !important;
+
+  box-sizing: border-box !important;
+}
+
+
+/* Header */
+.today-performance-card .performance-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 20px !important;
+}
+
+
+/* Title */
+.today-performance-card .performance-header h2 {
+  margin: 0 !important;
+
+  color: #17122b !important;
+
+  font-size: 22px !important;
+  font-weight: 800 !important;
+
+  line-height: 1.25 !important;
+}
+
+
+/* Percentage */
+.today-performance-card .performance-header strong {
+  color: #7447ff !important;
+
+  font-size: 42px !important;
+  font-weight: 900 !important;
+
+  line-height: 1 !important;
+}
+
+
+/* Progress background */
+.today-performance-card .performance-bar {
+  width: 100% !important;
+
+  height: 10px !important;
+
+  margin-top: 22px !important;
+
+  background: #ebe7f5 !important;
+
+  border-radius: 0 !important;
+
+  overflow: hidden !important;
+}
+
+
+/* Progress fill */
+.today-performance-card .performance-bar-fill {
+  height: 100% !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      #6847ff,
+      #b447ff
+    ) !important;
+
+  border-radius: 0 !important;
+
+  transition: width 0.4s ease !important;
+}
+
+
+/* =========================================================
+   WEEK / MONTH PERFORMANCE CARDS
+========================================================= */
+
+/* Apply same style to your weekly/monthly cards */
+.week-performance-card,
+.month-performance-card,
+.weekly-performance-card,
+.monthly-performance-card {
+  background: #ffffff !important;
+
+  border: 1px solid #ddd3ff !important;
+  border-left: 5px solid #7447ff !important;
+
+  border-radius: 0 !important;
+
+  box-shadow:
+    0 8px 25px rgba(116, 71, 255, 0.08) !important;
+}
+
+
+/* If cards use common performance-card class */
+.performance-card {
+  border-radius: 0 !important;
+
+  border: 1px solid #ddd3ff !important;
+  border-left: 5px solid #7447ff !important;
+
+  background: #ffffff !important;
+}
+
+
+/* =========================================================
+   ALL PERFORMANCE CARD PROGRESS BARS
+========================================================= */
+
+.week-performance-card .performance-bar,
+.month-performance-card .performance-bar,
+.weekly-performance-card .performance-bar,
+.monthly-performance-card .performance-bar,
+.performance-card .performance-bar {
+  border-radius: 0 !important;
+
+  background: #ebe7f5 !important;
+}
+
+
+.week-performance-card .performance-bar-fill,
+.month-performance-card .performance-bar-fill,
+.weekly-performance-card .performance-bar-fill,
+.monthly-performance-card .performance-bar-fill,
+.performance-card .performance-bar-fill {
+  border-radius: 0 !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      #6847ff,
+      #b447ff
+    ) !important;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .today-performance-card,
+  .week-performance-card,
+  .month-performance-card,
+  .weekly-performance-card,
+  .monthly-performance-card,
+  .performance-card {
+    border-radius: 0 !important;
+
+    padding: 18px !important;
+  }
+
+  .today-performance-card .performance-header strong {
+    font-size: 32px !important;
+  }
+
+  .today-performance-card .performance-header h2 {
+    font-size: 18px !important;
+  }
+
+}
 @media (max-width: 1000px) {
   .admin-performance-analysis {
     grid-template-columns: 1fr;
