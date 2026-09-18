@@ -806,13 +806,7 @@ const openStudentDashboard = (student) => {
           type="green"
         />
 
-        <StatCard
-          icon={<FaTriangleExclamation />}
-          title="Weak Performance"
-          value={dashboardData.weakStudents ?? 0}
-          subtitle="Students below 40% or not started"
-          type="blue"
-        />
+       
 
         <StatCard
           icon={<FaChartLine />}
@@ -826,7 +820,13 @@ const openStudentDashboard = (student) => {
           subtitle="Students between 40% and 59%"
           type="purple"
         />
-
+ <StatCard
+          icon={<FaTriangleExclamation />}
+          title="Weak Performance"
+          value={dashboardData.weakStudents ?? 0}
+          subtitle="Students below 40% or not started"
+          type="blue"
+        />
       </section>
 
 
