@@ -3858,3 +3858,161 @@ body {
     border-radius: 0 !important;
   }
 }
+
+/* =========================================================
+   FINAL STANDARD LIGHT DOUBLE-COLOR CARD DESIGN
+   - No corner circles
+   - No double side strips
+   - Soft two-color backgrounds
+   - Clean single accent border
+========================================================= */
+
+/* Remove old decorative corner shapes and duplicate strips */
+.admin-stat-card::before,
+.admin-stat-card::after,
+.admin-performance-card::before,
+.admin-performance-card::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Main statistic cards */
+.admin-stat-card {
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 145px !important;
+  padding: 22px 24px !important;
+  border: 1px solid #e8e3ef !important;
+  border-left-width: 4px !important;
+  border-radius: 18px !important;
+  box-shadow: 0 7px 25px rgba(45, 30, 70, 0.055) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* Total Students - soft purple double shade */
+.admin-stat-card:nth-child(1) {
+  background: linear-gradient(135deg, #ffffff 0%, #fbf7ff 58%, #f3eaff 100%) !important;
+  border-left-color: #7438c9 !important;
+}
+
+/* Total Tasks - soft blue double shade */
+.admin-stat-card:nth-child(2) {
+  background: linear-gradient(135deg, #ffffff 0%, #f7fbff 58%, #eaf3ff 100%) !important;
+  border-left-color: #3687df !important;
+}
+
+/* Started Students - soft green double shade */
+.admin-stat-card:nth-child(3) {
+  background: linear-gradient(135deg, #ffffff 0%, #f7fcf9 58%, #e7f8ef 100%) !important;
+  border-left-color: #18a76a !important;
+}
+
+/* Not Started - soft red double shade */
+.admin-stat-card:nth-child(4) {
+  background: linear-gradient(135deg, #ffffff 0%, #fffafa 58%, #ffeded 100%) !important;
+  border-left-color: #ee4f53 !important;
+}
+
+/* Strong Performance - soft green double shade */
+.admin-stat-card:nth-child(5) {
+  background: linear-gradient(135deg, #ffffff 0%, #f7fcf9 58%, #e5f8ee 100%) !important;
+  border-left-color: #18a76a !important;
+}
+
+/* Weak Performance - soft red double shade */
+.admin-stat-card:nth-child(6) {
+  background: linear-gradient(135deg, #ffffff 0%, #fffafa 58%, #ffeded 100%) !important;
+  border-left-color: #ee4f53 !important;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 11px 30px rgba(45, 30, 70, 0.075) !important;
+}
+
+/* Keep icon boxes clean */
+.admin-stat-icon {
+  border-radius: 13px !important;
+  box-shadow: none !important;
+}
+
+.admin-stat-icon.purple {
+  background: #eee4ff !important;
+  color: #7438c9 !important;
+}
+
+.admin-stat-icon.blue {
+  background: #e5f1ff !important;
+  color: #2e83df !important;
+}
+
+.admin-stat-icon.green {
+  background: #ddf6e9 !important;
+  color: #159d62 !important;
+}
+
+/* Weekly + Monthly cards */
+.admin-performance-card {
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1px solid #e8e3ef !important;
+  border-left-width: 4px !important;
+  border-radius: 18px !important;
+  box-shadow: 0 7px 25px rgba(45, 30, 70, 0.05) !important;
+}
+
+/* Weekly - blue/purple light double shade */
+.admin-performance-card:first-child {
+  background: linear-gradient(135deg, #ffffff 0%, #f7f9ff 55%, #edf1ff 100%) !important;
+  border-left-color: #4b79eb !important;
+}
+
+/* Monthly - purple/pink light double shade */
+.admin-performance-card:last-child {
+  background: linear-gradient(135deg, #ffffff 0%, #fbf8ff 55%, #f5eaff 100%) !important;
+  border-left-color: #8246e9 !important;
+}
+
+/* Clean performance icons */
+.performance-icon {
+  border-radius: 12px !important;
+}
+
+.performance-icon.blue {
+  background: #e6f0ff !important;
+  color: #3979e5 !important;
+}
+
+.performance-icon.purple {
+  background: #eee4ff !important;
+  color: #7841d6 !important;
+}
+
+/* Progress tracks */
+.large-progress {
+  background: #e9e6f0 !important;
+  border-radius: 20px !important;
+}
+
+.large-progress-fill {
+  border-radius: 20px !important;
+}
+
+/* Keep 8-card desktop layout */
+.admin-stat-card:nth-child(5),
+.admin-stat-card:nth-child(6) {
+  grid-column: span 2 !important;
+}
+
+/* Mobile */
+@media (max-width: 800px) {
+  .admin-stat-card {
+    min-height: 115px !important;
+    padding: 15px !important;
+    border-radius: 15px !important;
+  }
+
+  .admin-performance-card {
+    border-radius: 15px !important;
+  }
+}
