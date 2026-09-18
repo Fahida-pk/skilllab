@@ -2724,3 +2724,97 @@ body {
     max-height: 250px;
   }
 }
+
+
+/* =========================================================
+   STRONG / WEAK PERFORMANCE — SPECIAL CARD ICONS
+   Keeps the existing JSX unchanged.
+========================================================= */
+
+/* Strong Performance */
+.admin-stat-card:nth-child(5) .admin-stat-icon {
+  position: relative;
+  background: linear-gradient(135deg, #dcfce7, #c7f9dd) !important;
+  color: #16a765 !important;
+  box-shadow:
+    0 8px 20px rgba(22, 167, 101, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.admin-stat-card:nth-child(5) .admin-stat-icon svg {
+  display: none;
+}
+
+.admin-stat-card:nth-child(5) .admin-stat-icon::before {
+  content: "🏆";
+  font-size: 25px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(22, 167, 101, 0.16));
+}
+
+/* Weak Performance */
+.admin-stat-card:nth-child(6) .admin-stat-icon {
+  position: relative;
+  background: linear-gradient(135deg, #e8f3ff, #d8ebff) !important;
+  color: #2585e8 !important;
+  box-shadow:
+    0 8px 20px rgba(37, 133, 232, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.admin-stat-card:nth-child(6) .admin-stat-icon svg {
+  display: none;
+}
+
+.admin-stat-card:nth-child(6) .admin-stat-icon::before {
+  content: "📉";
+  font-size: 24px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(37, 133, 232, 0.15));
+}
+
+/* Slightly stronger card hierarchy */
+.admin-stat-card:nth-child(5),
+.admin-stat-card:nth-child(6) {
+  overflow: hidden;
+  position: relative;
+}
+
+.admin-stat-card:nth-child(5)::after,
+.admin-stat-card:nth-child(6)::after {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  right: -35px;
+  top: -45px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.admin-stat-card:nth-child(5)::after {
+  background: rgba(34, 197, 94, 0.055);
+}
+
+.admin-stat-card:nth-child(6)::after {
+  background: rgba(37, 133, 232, 0.055);
+}
+
+/* Keep the icon above the decorative circle */
+.admin-stat-card:nth-child(5) .admin-stat-icon,
+.admin-stat-card:nth-child(6) .admin-stat-icon,
+.admin-stat-card:nth-child(5) .admin-stat-details,
+.admin-stat-card:nth-child(6) .admin-stat-details {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 800px) {
+  .admin-stat-card:nth-child(5) .admin-stat-icon::before {
+    font-size: 20px;
+  }
+
+  .admin-stat-card:nth-child(6) .admin-stat-icon::before {
+    font-size: 19px;
+  }
+}
