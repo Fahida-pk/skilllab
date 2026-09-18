@@ -1,4 +1,4 @@
-* {
+ * {
   box-sizing: border-box;
 }
 
@@ -4523,5 +4523,48 @@ body {
   .admin-stat-card:nth-child(6),
   .admin-stat-card:nth-child(7) {
     grid-column: span 1 !important;
+  }
+}
+
+/* =========================================================
+   MOBILE FINAL — ONE CARD PER ROW
+   360px / 740px and all mobile widths
+========================================================= */
+@media (max-width: 800px) {
+  .admin-stat-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    gap: 12px !important;
+  }
+
+  .admin-stat-grid .admin-stat-card,
+  .admin-stat-card:nth-child(1),
+  .admin-stat-card:nth-child(2),
+  .admin-stat-card:nth-child(3),
+  .admin-stat-card:nth-child(4),
+  .admin-stat-card:nth-child(5),
+  .admin-stat-card:nth-child(6),
+  .admin-stat-card:nth-child(7) {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .admin-stat-card {
+    min-height: 112px !important;
+    padding: 18px !important;
+  }
+}
+
+/* Exact small-phone layout */
+@media (max-width: 380px) {
+  .admin-stat-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .admin-stat-card {
+    min-height: 108px !important;
+    padding: 16px !important;
   }
 }
