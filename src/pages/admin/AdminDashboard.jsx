@@ -826,7 +826,7 @@ const openStudentDashboard = (student) => {
           <div className="performance-card-header">
             <div className="performance-title">
               <div className="performance-icon green">
-                <FaCircleCheck />
+                <FaCalendarDays />
               </div>
               <div>
                 <h2>Today Performance</h2>
@@ -864,7 +864,7 @@ const openStudentDashboard = (student) => {
           <div className="performance-card-header">
             <div className="performance-title">
               <div className="performance-icon blue">
-                <FaChartLine />
+                <FaCalendarDays />
               </div>
               <div>
                 <h2>Weekly Performance</h2>

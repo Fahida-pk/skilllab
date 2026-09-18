@@ -4183,3 +4183,351 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* =========================================================
+   FINAL FIX — STANDARD LIGHT SIDEBAR SHADE + MOBILE CARDS
+   Added as the last CSS block so it overrides older styles.
+========================================================= */
+
+/* Light version of the sidebar palette.
+   All dashboard cards use the same standard light shade. */
+.admin-stat-card,
+.admin-performance-card,
+.analysis-card,
+.admin-overview-card,
+.admin-student-performance {
+  background:
+    linear-gradient(
+      135deg,
+      #eef4ff 0%,
+      #f4efff 52%,
+      #faeef8 100%
+    ) !important;
+  border-color: #e4dcef !important;
+}
+
+/* Keep only a small standard accent on the left. */
+.admin-stat-card,
+.admin-performance-card,
+.analysis-card {
+  border-left-width: 4px !important;
+}
+
+/* Calendar icon boxes — same clean standard treatment. */
+.performance-icon.green,
+.performance-icon.blue,
+.performance-icon.purple {
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #eee4ff !important;
+  color: #7438c9 !important;
+}
+
+.performance-icon svg {
+  font-size: 18px !important;
+}
+
+/* Student cards use the same light sidebar family. */
+.student-card {
+  width: 100%;
+  min-width: 0;
+  background:
+    linear-gradient(
+      135deg,
+      #eef4ff 0%,
+      #f4efff 52%,
+      #faeef8 100%
+    ) !important;
+  border: 1px solid #e4dcef !important;
+}
+
+/* Never let long email/name content push a card outside the viewport. */
+.student-card-top,
+.student-card-contact,
+.student-card-details,
+.student-card-status-row,
+.student-card-name {
+  min-width: 0;
+}
+
+.student-card-contact span,
+.student-card-name h3 {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* =========================================================
+   MOBILE — Samsung / Android / 360px safe layout
+========================================================= */
+@media (max-width: 800px) {
+  .admin-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px 12px 32px !important;
+    overflow-x: hidden;
+  }
+
+  .admin-main {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .all-students-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .all-students-header {
+    width: 100%;
+    min-width: 0;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .all-students-header > div:first-child {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .all-students-header h2 {
+    font-size: 20px !important;
+  }
+
+  .all-students-header p {
+    font-size: 11px !important;
+    line-height: 1.45;
+  }
+
+  .refresh-button {
+    flex: 0 0 auto;
+    height: 36px;
+    padding: 0 12px;
+    font-size: 10px;
+  }
+
+  .students-search-box {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: 46px;
+    margin-bottom: 16px;
+    padding: 0 12px;
+  }
+
+  .students-search-box input {
+    min-width: 0;
+    font-size: 11px;
+  }
+
+  .student-cards-grid {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .student-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 16px !important;
+    border-radius: 16px !important;
+    overflow: hidden;
+  }
+
+  .student-card-top {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .student-card-photo,
+  .student-card-avatar {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    border-radius: 14px;
+  }
+
+  .student-card-name {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .student-card-name h3 {
+    font-size: 14px;
+  }
+
+  .student-card-name span {
+    font-size: 9px;
+  }
+
+  .student-card-arrow {
+    flex: 0 0 auto;
+  }
+
+  .student-card-contact {
+    width: 100%;
+    margin-top: 16px;
+    gap: 7px;
+  }
+
+  .student-card-contact span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 10px;
+  }
+
+  .student-card-details {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    margin-top: 15px;
+    padding-top: 14px;
+  }
+
+  .student-card-details > div {
+    min-width: 0;
+  }
+
+  .student-card-details small {
+    font-size: 8px;
+  }
+
+  .student-card-details strong {
+    min-width: 0;
+    font-size: 9px;
+    gap: 4px;
+  }
+
+  .student-card-status-row {
+    width: 100%;
+    margin-top: 15px;
+  }
+
+  .student-card-performance-text {
+    font-size: 13px;
+  }
+
+  .student-card-progress {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .student-dashboard-button {
+    width: 100% !important;
+    height: 38px;
+    margin-top: 15px;
+    font-size: 10px;
+  }
+
+  /* Keep the three performance cards readable on phones. */
+  .admin-performance-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .admin-performance-card {
+    width: 100%;
+    min-width: 0;
+    padding: 16px !important;
+    border-radius: 16px !important;
+  }
+
+  .performance-card-header {
+    min-width: 0;
+    align-items: center;
+  }
+
+  .performance-title {
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .performance-title > div:last-child {
+    min-width: 0;
+  }
+
+  .performance-title h2 {
+    font-size: 15px !important;
+  }
+
+  .performance-title p {
+    font-size: 9px !important;
+  }
+
+  .performance-card-header > strong {
+    flex: 0 0 auto;
+    font-size: 21px !important;
+  }
+
+  .large-progress {
+    margin-top: 20px;
+  }
+}
+
+/* Extra-small phones: exact 360px-class viewport safe rules. */
+@media (max-width: 380px) {
+  .admin-topbar {
+    padding: 12px 12px !important;
+  }
+
+  .admin-topbar-left {
+    gap: 9px;
+    min-width: 0;
+  }
+
+  .admin-topbar h1 {
+    font-size: 17px !important;
+  }
+
+  .mobile-menu-button {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .admin-content {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .all-students-header {
+    gap: 8px;
+  }
+
+  .refresh-button {
+    height: 34px;
+    padding: 0 9px;
+  }
+
+  .student-card {
+    padding: 14px !important;
+  }
+
+  .student-card-photo,
+  .student-card-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+  }
+
+  .student-card-name h3 {
+    font-size: 13px;
+  }
+
+  .student-card-details strong {
+    font-size: 8.5px;
+  }
+}
