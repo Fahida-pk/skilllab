@@ -1279,6 +1279,9 @@ customTasks.forEach((task) => {
                 dashboardEmail,
 
               date,
+
+              adminView:
+                adminView ? 1 : 0,
             }),
           }
         );
@@ -1319,6 +1322,7 @@ customTasks.forEach((task) => {
               action: "get",
               email: dashboardEmail,
               task_date: date,
+              admin_view: adminView ? 1 : 0,
             }),
           }
         );
@@ -1401,14 +1405,17 @@ customTasks.forEach((task) => {
         );
 
       /*
-       * Database tasks + localStorage
-       * built-in tasks.
+       * The Dashboard API now returns the complete server-side task list,
+       * including default tasks, edited defaults and date-wise deletions.
+       * Admin must never merge its own browser localStorage with the
+       * selected student's task data.
        */
-      const mergedTasks =
-        mergeDashboardTasks(
-          tasksWithPercentages,
-          date
-        );
+      const mergedTasks = adminView
+        ? tasksWithPercentages
+        : mergeDashboardTasks(
+            tasksWithPercentages,
+            date
+          );
 
       /*
        * Recalculate TODAY using the
