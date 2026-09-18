@@ -714,9 +714,7 @@ const openStudentDashboard = (student) => {
     </strong>
   </div>
 
-  <div className="admin-profile-avatar">
-    A
-  </div>
+ 
 </div>
     </header>
   );

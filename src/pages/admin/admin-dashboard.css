@@ -443,28 +443,7 @@ body {
   gap: 11px;
 }
 
-.admin-profile-avatar {
-  width: 44px;
-  height: 44px;
 
-  border-radius: 50%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background:
-    linear-gradient(
-      135deg,
-      #7414d1,
-      #a94cff
-    );
-
-  color: white;
-
-  font-size: 13px;
-  font-weight: 700;
-}
 
 .admin-profile-info {
   display: flex;
