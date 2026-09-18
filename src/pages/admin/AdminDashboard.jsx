@@ -58,6 +58,9 @@ function AdminDashboard() {
 
       strongStudents: 0,
       weakStudents: 0,
+      startedStudents: 0,
+      notStartedStudents: 0,
+      totalTasks: 0,
 
       weeklyStrongStudents: [],
       weeklyGoodStudents: [],
@@ -701,36 +704,49 @@ const openStudentDashboard = (student) => {
         <StatCard
           icon={<FaUsers />}
           title="Total Students"
-          value={
-            dashboardData.totalStudents ??
-            0
-          }
-          subtitle="Registered students"
+          value={dashboardData.totalStudents ?? 0}
+          subtitle="All registered students"
           type="purple"
         />
 
         <StatCard
           icon={<FaBookOpen />}
-          title="Today Performance"
-          value={`${dashboardData.todayPerformance ?? 0}%`}
-          subtitle={`${dashboardData.todayCompleted ?? 0} of ${dashboardData.todayTotal ?? 0} tasks completed`}
+          title="Total Tasks"
+          value={dashboardData.totalTasks ?? 0}
+          subtitle="Tasks this week"
           type="blue"
         />
 
         <StatCard
-          icon={<FaArrowUp />}
-          title="This Week"
-          value={`${dashboardData.weekPerformance ?? 0}%`}
-          subtitle="Overall weekly performance"
+          icon={<FaCircleCheck />}
+          title="Started Students"
+          value={dashboardData.startedStudents ?? 0}
+          subtitle="Students who started tasks"
           type="green"
         />
 
         <StatCard
-          icon={<FaCalendarDays />}
-          title="This Month"
-          value={`${dashboardData.monthPerformance ?? 0}%`}
-          subtitle="Overall monthly performance"
+          icon={<FaClock />}
+          title="Not Started"
+          value={dashboardData.notStartedStudents ?? 0}
+          subtitle="Students with no started task"
           type="purple"
+        />
+
+        <StatCard
+          icon={<FaArrowUp />}
+          title="Strong Performance"
+          value={dashboardData.strongStudents ?? 0}
+          subtitle="Students at 60% or above"
+          type="green"
+        />
+
+        <StatCard
+          icon={<FaArrowDown />}
+          title="Weak Performance"
+          value={dashboardData.weakStudents ?? 0}
+          subtitle="Students below 40% or not started"
+          type="blue"
         />
 
       </section>
@@ -878,100 +894,6 @@ const openStudentDashboard = (student) => {
       </section>
 
 
-      {/* OVERALL STATUS */}
-
-      <section className="admin-overview-grid">
-
-        <div
-          className="admin-overview-card"
-          id="good-performance"
-        >
-
-          <div className="overview-icon good">
-            <FaArrowUp />
-          </div>
-
-          <div>
-
-            <span>
-              Strong Performance
-            </span>
-
-            <strong>
-              {dashboardData.strongStudents ??
-                0}
-            </strong>
-
-            <small>
-              Students at 60% or above
-            </small>
-
-          </div>
-
-        </div>
-
-
-        <div
-          className="admin-overview-card"
-          id="weak-performance"
-        >
-
-          <div className="overview-icon weak">
-            <FaArrowDown />
-          </div>
-
-          <div>
-
-            <span>
-              Weak Performance
-            </span>
-
-            <strong>
-              {dashboardData.weakStudents ??
-                0}
-            </strong>
-
-            <small>
-              Students below 40%
-            </small>
-
-          </div>
-
-        </div>
-
-
-        <div className="admin-overview-card">
-
-          <div className="overview-icon">
-            <FaClock />
-          </div>
-
-          <div>
-
-            <span>
-              Students With Tasks
-            </span>
-
-            <strong>
-              {students.filter(
-                (student) =>
-                  Number(
-                    student.weekTotal || 0
-                  ) > 0
-              ).length}
-            </strong>
-
-            <small>
-              Active task activity
-            </small>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
       {/* =========================================
           EXTRA STUDENT PERFORMANCE ANALYSIS
       ========================================= */}
@@ -1017,7 +939,7 @@ const openStudentDashboard = (student) => {
             </h2>
 
             <p>
-              Weekly performance overview
+              Weekly performance overview - all students
             </p>
           </div>
 
@@ -1064,7 +986,6 @@ const openStudentDashboard = (student) => {
                     a.weekPerformance || 0
                   )
               )
-              .slice(0, 6)
               .map((student) => {
 
                 const percentage =
