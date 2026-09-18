@@ -4141,3 +4141,45 @@ body {
   }
 
 }
+/* =====================================================
+   STRONG / AVERAGE / WEAK PERFORMANCE — 3 CARDS
+===================================================== */
+
+.admin-performance-summary-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.admin-performance-summary-grid .admin-stat-card {
+  min-height: 145px;
+}
+
+.admin-performance-summary-grid .admin-stat-icon.red {
+  background: #ffe8e8;
+  color: #ef4444;
+}
+
+.admin-performance-summary-grid .admin-stat-icon.blue {
+  background: #e8f2ff;
+  color: #2585e8;
+}
+
+.admin-performance-summary-grid .admin-stat-icon.green {
+  background: #e2f8ed;
+  color: #16a365;
+}
+
+@media (max-width: 1000px) {
+  .admin-performance-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-performance-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
