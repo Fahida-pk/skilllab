@@ -11,41 +11,145 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import "./sidebar.css";
 
-function Sidebar() {
+function Sidebar({
+  adminView = false,
+  studentName = "",
+  studentEmail = "",
+  studentId = null,
+}) {
   const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const user = JSON.parse(
+    localStorage.getItem("user") || "null"
+  );
+
+  /* =====================================================
+     DISPLAY USER
+  ===================================================== */
+
+  const displayName = adminView
+    ? studentName || "Student"
+    : user?.name || "User";
+
+  const displayEmail = adminView
+    ? studentEmail || ""
+    : user?.email || "";
+
+  const displayPicture = adminView
+    ? ""
+    : user?.picture || "";
+
+  /* =====================================================
+     NAVIGATION
+  ===================================================== */
 
   const goTo = (path) => {
     setOpen(false);
     navigate(path);
   };
 
+  /* =====================================================
+     DASHBOARD
+  ===================================================== */
+
+  const handleDashboard = () => {
+    setOpen(false);
+
+    if (adminView && studentId) {
+      navigate(
+        `/admin/students/${studentId}/dashboard`
+      );
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
+  /* =====================================================
+     TASKS
+  ===================================================== */
+
+  const handleTasks = () => {
+    setOpen(false);
+
+    if (adminView && studentId) {
+      navigate(
+        `/admin/students/${studentId}/tasks`,
+        {
+          state: {
+            studentEmail,
+            studentName,
+          },
+        }
+      );
+    } else {
+      navigate("/task");
+    }
+  };
+
+  /* =====================================================
+     LOGOUT
+  ===================================================== */
+
   const handleLogout = () => {
+    setOpen(false);
+
+    /*
+     * ADMIN VIEW:
+     * Do NOT remove admin login.
+     * Just return to Admin Students page.
+     */
+    if (adminView) {
+      navigate("/admin/students");
+      return;
+    }
+
+    /*
+     * NORMAL STUDENT:
+     * Existing logout behavior.
+     */
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-
-    setOpen(false);
 
     navigate("/login");
   };
 
+  /* =====================================================
+     ACTIVE STATES
+  ===================================================== */
+
+  const isDashboardActive = adminView
+    ? location.pathname.includes(
+        `/admin/students/${studentId}/dashboard`
+      )
+    : location.pathname === "/dashboard";
+
+  const isTasksActive = adminView
+    ? location.pathname.includes(
+        `/admin/students/${studentId}/tasks`
+      )
+    : location.pathname === "/task" ||
+      location.pathname === "/tasks";
+
   return (
     <>
       {/* ================= MOBILE HEADER ================= */}
+
       <div className="mobile-navbar">
+
         <FaBars
           className="mobile-menu-icon"
           onClick={() => setOpen(!open)}
         />
 
         <h2>SKILL LAB</h2>
+
       </div>
 
       {/* ================= OVERLAY ================= */}
+
       {open && (
         <div
           className="sidebar-overlay"
@@ -54,41 +158,49 @@ function Sidebar() {
       )}
 
       {/* ================= SIDEBAR ================= */}
-      <aside className={`sidebar ${open ? "show" : ""}`}>
+
+      <aside
+        className={`sidebar ${
+          open ? "show" : ""
+        }`}
+      >
 
         {/* LOGO */}
+
         <div className="sidebar-logo">
           SKILL LAB
         </div>
 
         {/* MENU */}
+
         <nav className="sidebar-menu">
 
-          {/* DASHBOARD */}
+          {/* ================= DASHBOARD ================= */}
+
           <button
             type="button"
             className={
-              location.pathname === "/dashboard"
+              isDashboardActive
                 ? "sidebar-menu-item active"
                 : "sidebar-menu-item"
             }
-            onClick={() => goTo("/dashboard")}
+            onClick={handleDashboard}
           >
             <FaThLarge className="sidebar-menu-icon" />
 
             <span>Dashboard</span>
           </button>
 
-          {/* TASKS */}
+          {/* ================= TASKS ================= */}
+
           <button
             type="button"
             className={
-              location.pathname === "/task" ||
-              location.pathname === "/tasks"
+              isTasksActive
                 ? "sidebar-menu-item active"
                 : "sidebar-menu-item"
             }
-            onClick={() => goTo("/task")}
+            onClick={handleTasks}
           >
             <FaTasks className="sidebar-menu-icon" />
 
@@ -98,11 +210,14 @@ function Sidebar() {
         </nav>
 
         {/* PROFILE */}
+
         <div className="sidebar-profile">
 
-          {user?.picture ? (
+          {/* PROFILE IMAGE */}
+
+          {displayPicture ? (
             <img
-              src={user.picture}
+              src={displayPicture}
               alt="Profile"
               className="sidebar-profile-image"
             />
@@ -110,15 +225,20 @@ function Sidebar() {
             <FaUserCircle className="sidebar-profile-icon" />
           )}
 
+          {/* STUDENT NAME */}
+
           <div className="sidebar-user-name">
-            {user?.name || "User"}
+            {displayName}
           </div>
 
+          {/* STUDENT EMAIL */}
+
           <div className="sidebar-user-email">
-            {user?.email || ""}
+            {displayEmail}
           </div>
 
           {/* LOGOUT */}
+
           <button
             type="button"
             className="sidebar-logout"
