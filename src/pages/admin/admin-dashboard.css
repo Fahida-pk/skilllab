@@ -738,7 +738,13 @@ body {
       #6baaf0
     );
 }
-
+.large-progress-fill.green {
+  background: linear-gradient(
+    90deg,
+    #16a365,
+    #4fd18b
+  );
+}
 .large-progress-fill.purple {
   background:
     linear-gradient(
