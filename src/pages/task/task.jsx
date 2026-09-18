@@ -699,11 +699,17 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       ];
 
       if (data.success) {
-        const deletedRaw = localStorage.getItem(getDeletedDefaultKey(currentKey));
+        // Admin view must not use the admin browser's localStorage
+        // deletion markers. Admin should see the student's default tasks.
+        const deletedRaw = adminView
+          ? null
+          : localStorage.getItem(getDeletedDefaultKey(currentKey));
         const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
-        const deletedDefaultTitles = getDateDefaultTasks(currentKey)
-          .filter((task) => deletedIds.includes(String(task.id)))
-          .map((task) => String(task.title).trim().toLowerCase());
+        const deletedDefaultTitles = adminView
+          ? []
+          : getDateDefaultTasks(currentKey)
+              .filter((task) => deletedIds.includes(String(task.id)))
+              .map((task) => String(task.title).trim().toLowerCase());
 
         const formatted = data.tasks
           .filter((t) => !deletedDefaultTitles.includes(String(t.title).trim().toLowerCase()))
@@ -731,6 +737,52 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           default_id: t.default_id || t.defaultId || null,
           nextDay: isNextDay(t.from, t.to),
         }));
+
+        // =========================================================
+        // ADMIN VIEW: ALWAYS SHOW THE BUILT-IN DEFAULT TASKS
+        // =========================================================
+        // The normal user page creates these rows in the database with
+        // ensure_defaults(). Admin view is read-only, so it must NOT create
+        // anything in the database. If an older user is missing one of the
+        // built-in rows, add only a UI copy here. Existing DB rows (including
+        // completed state and percentage) are kept unchanged.
+        if (adminView) {
+          const existingDefaultIds = new Set(
+            formatted
+              .map((task) => task.default_id || task.defaultId)
+              .filter(Boolean)
+              .map(String)
+          );
+
+          const existingTitles = new Set(
+            formatted.map((task) =>
+              String(task.title || "").trim().toLowerCase()
+            )
+          );
+
+          DEFAULT_TASKS.forEach((defaultTask) => {
+            const defaultId = String(defaultTask.id);
+            const title = String(defaultTask.title)
+              .trim()
+              .toLowerCase();
+
+            if (
+              existingDefaultIds.has(defaultId) ||
+              existingTitles.has(title)
+            ) {
+              return;
+            }
+
+            formatted.push({
+              ...defaultTask,
+              id: `admin-default-${defaultId}`,
+              default_id: defaultId,
+              completed: false,
+              percentage: 0,
+              nextDay: Boolean(defaultTask.nextDay),
+            });
+          });
+        }
 
         // Apply date-wise schedule to built-in rows and prevent duplicate
         // built-in rows from ever being shown after an edit.
