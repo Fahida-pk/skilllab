@@ -538,8 +538,8 @@ const openStudentDashboard = (student) => {
             <button
               className={`admin-nav-item ${
                 !isStudentsPage &&
-                location.pathname ===
-                  "/admin/dashboard"
+                (location.pathname === "/admin/dashboard" ||
+                  location.pathname === "/AdminDashboard")
                   ? "active"
                   : ""
               }`}
@@ -713,6 +713,10 @@ const openStudentDashboard = (student) => {
       Welcome Admin
     </strong>
   </div>
+
+  <div className="admin-profile-avatar">
+    A
+  </div>
 </div>
     </header>
   );
@@ -795,7 +799,7 @@ const openStudentDashboard = (student) => {
           title="Not Started"
           value={dashboardData.notStartedStudents ?? 0}
           subtitle="Students with no started task"
-          type="purple"
+          type="red"
         />
 
         <StatCard
@@ -818,14 +822,14 @@ const openStudentDashboard = (student) => {
               (dashboardData.weakStudents ?? 0)
           )}
           subtitle="Students between 40% and 59%"
-          type="purple"
+          type="orange"
         />
  <StatCard
           icon={<FaTriangleExclamation />}
           title="Weak Performance"
           value={dashboardData.weakStudents ?? 0}
           subtitle="Students below 40% or not started"
-          type="blue"
+          type="red"
         />
       </section>
 
