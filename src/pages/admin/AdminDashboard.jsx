@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-
 import {
   FaGaugeHigh,
   FaChartLine,
@@ -18,17 +16,12 @@ import {
   FaTriangleExclamation,
   FaCalendarDays,
   FaClock,
-  FaBookOpen,
   FaLayerGroup,
   FaMedal,
   FaTrophy,
   FaArrowRight,
   FaMagnifyingGlass,
-  FaUser,FaLayerGroup,
-FaMedal,
-FaTrophy,
-FaTriangleExclamation,
-FaClock,
+  FaUser,
 } from "react-icons/fa6";
 
 import "./admin-dashboard.css";
