@@ -532,6 +532,14 @@ body {
     0.25s ease;
 }
 
+/* Make Strong + Weak Performance cards the same width as
+   Weekly + Monthly Performance cards */
+.admin-stat-card:nth-child(5),
+.admin-stat-card:nth-child(6) {
+  grid-column: span 2;
+}
+
+
 .admin-stat-card:hover {
   transform:
     translateY(-3px);
