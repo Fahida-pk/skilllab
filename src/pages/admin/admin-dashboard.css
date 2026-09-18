@@ -4232,13 +4232,8 @@ body {
 }
 
 .admin-performance-analysis .analysis-card {
-  background:
-    linear-gradient(
-      135deg,
-      #eef3ff 0%,
-      #f3edff 52%,
-      #f8effa 100%
-    ) !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
   border: 1px solid #e4dcf0 !important;
   box-shadow: 0 8px 28px rgba(65, 35, 100, 0.055) !important;
 }
@@ -5122,4 +5117,18 @@ body {
   .performance-card-header > strong {
     font-size: 25px !important;
   }
+}
+
+
+/* =========================================================
+   FINAL — TODAY / WEEKLY / MONTHLY STUDENT PERFORMANCE
+   WHITE CARD BACKGROUND
+========================================================= */
+
+.admin-performance-analysis .analysis-card,
+.admin-performance-analysis .analysis-card:nth-child(1),
+.admin-performance-analysis .analysis-card:nth-child(2),
+.admin-performance-analysis .analysis-card:nth-child(3) {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
 }
