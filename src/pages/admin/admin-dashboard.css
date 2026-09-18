@@ -724,7 +724,29 @@ body {
       #6baaf0
     );
 }
+.large-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.5s ease;
+}
 
+.large-progress-fill.blue {
+  background:
+    linear-gradient(
+      90deg,
+      #2585e8,
+      #6baaf0
+    );
+}
+
+.large-progress-fill.purple {
+  background:
+    linear-gradient(
+      90deg,
+      #7414d1,
+      #b65af2
+    );
+}
 .large-progress-fill.purple {
   background:
     linear-gradient(
