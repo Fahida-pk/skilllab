@@ -1,4 +1,5 @@
-* {
+
+ * {
   box-sizing: border-box;
 }
 
@@ -2727,53 +2728,71 @@ body {
 
 
 /* =========================================================
-   STRONG / WEAK PERFORMANCE — SPECIAL CARD ICONS
-   Keeps the existing JSX unchanged.
+   STRONG / WEAK / STARTED / NOT STARTED — STANDARD ICONS
+   No emoji replacement and no arrow icons.
 ========================================================= */
 
 /* Strong Performance */
 .admin-stat-card:nth-child(5) .admin-stat-icon {
-  position: relative;
-  background: linear-gradient(135deg, #dcfce7, #c7f9dd) !important;
+  background: linear-gradient(135deg, #e1f8ec, #cff3df) !important;
   color: #16a765 !important;
   box-shadow:
-    0 8px 20px rgba(22, 167, 101, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 8px 20px rgba(22, 167, 101, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .admin-stat-card:nth-child(5) .admin-stat-icon svg {
-  display: none;
+  display: block !important;
+  color: #16a765 !important;
+  font-size: 22px;
 }
 
-.admin-stat-card:nth-child(5) .admin-stat-icon::before {
-  content: "🏆";
-  font-size: 25px;
-  line-height: 1;
-  filter: drop-shadow(0 2px 2px rgba(22, 167, 101, 0.16));
-}
-
-/* Weak Performance */
-.admin-stat-card:nth-child(6) .admin-stat-icon {
-  position: relative;
-  background: linear-gradient(135deg, #e8f3ff, #d8ebff) !important;
-  color: #2585e8 !important;
+/* Not Started — red */
+.admin-stat-card:nth-child(4) .admin-stat-icon {
+  background: linear-gradient(135deg, #ffeaea, #ffdede) !important;
+  color: #e54848 !important;
   box-shadow:
-    0 8px 20px rgba(37, 133, 232, 0.13),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 8px 20px rgba(229, 72, 72, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.admin-stat-card:nth-child(4) .admin-stat-icon svg {
+  display: block !important;
+  color: #e54848 !important;
+  font-size: 21px;
+}
+
+/* Started Students — green */
+.admin-stat-card:nth-child(3) .admin-stat-icon {
+  background: linear-gradient(135deg, #e1f8ec, #cff3df) !important;
+  color: #16a765 !important;
+  box-shadow:
+    0 8px 20px rgba(22, 167, 101, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.admin-stat-card:nth-child(3) .admin-stat-icon svg {
+  display: block !important;
+  color: #16a765 !important;
+  font-size: 21px;
+}
+
+/* Weak Performance — standard warning icon */
+.admin-stat-card:nth-child(6) .admin-stat-icon {
+  background: linear-gradient(135deg, #ffeaea, #ffdede) !important;
+  color: #e54848 !important;
+  box-shadow:
+    0 8px 20px rgba(229, 72, 72, 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .admin-stat-card:nth-child(6) .admin-stat-icon svg {
-  display: none;
+  display: block !important;
+  color: #e54848 !important;
+  font-size: 21px;
 }
 
-.admin-stat-card:nth-child(6) .admin-stat-icon::before {
-  content: "📉";
-  font-size: 24px;
-  line-height: 1;
-  filter: drop-shadow(0 2px 2px rgba(37, 133, 232, 0.15));
-}
-
-/* Slightly stronger card hierarchy */
+/* Keep the two performance cards visually clean */
 .admin-stat-card:nth-child(5),
 .admin-stat-card:nth-child(6) {
   overflow: hidden;
@@ -2797,10 +2816,10 @@ body {
 }
 
 .admin-stat-card:nth-child(6)::after {
-  background: rgba(37, 133, 232, 0.055);
+  background: rgba(229, 72, 72, 0.045);
 }
 
-/* Keep the icon above the decorative circle */
+/* Keep icons and details above decorative circles */
 .admin-stat-card:nth-child(5) .admin-stat-icon,
 .admin-stat-card:nth-child(6) .admin-stat-icon,
 .admin-stat-card:nth-child(5) .admin-stat-details,
@@ -2810,11 +2829,10 @@ body {
 }
 
 @media (max-width: 800px) {
-  .admin-stat-card:nth-child(5) .admin-stat-icon::before {
-    font-size: 20px;
-  }
-
-  .admin-stat-card:nth-child(6) .admin-stat-icon::before {
-    font-size: 19px;
+  .admin-stat-card:nth-child(3) .admin-stat-icon svg,
+  .admin-stat-card:nth-child(4) .admin-stat-icon svg,
+  .admin-stat-card:nth-child(5) .admin-stat-icon svg,
+  .admin-stat-card:nth-child(6) .admin-stat-icon svg {
+    font-size: 18px;
   }
 }

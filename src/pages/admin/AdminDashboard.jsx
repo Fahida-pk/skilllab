@@ -19,8 +19,7 @@ import {
   FaCalendarDays,
   FaClock,
   FaBookOpen,
-  FaArrowUp,
-  FaArrowDown,
+  FaTrophy,
   FaArrowRight,
   FaMagnifyingGlass,
   FaUser,
@@ -734,7 +733,7 @@ const openStudentDashboard = (student) => {
         />
 
         <StatCard
-          icon={<FaArrowUp />}
+          icon={<FaTrophy />}
           title="Strong Performance"
           value={dashboardData.strongStudents ?? 0}
           subtitle="Students at 60% or above"
@@ -742,7 +741,7 @@ const openStudentDashboard = (student) => {
         />
 
         <StatCard
-          icon={<FaArrowDown />}
+          icon={<FaTriangleExclamation />}
           title="Weak Performance"
           value={dashboardData.weakStudents ?? 0}
           subtitle="Students below 40% or not started"
