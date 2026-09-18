@@ -24,7 +24,11 @@ import {
   FaTrophy,
   FaArrowRight,
   FaMagnifyingGlass,
-  FaUser,
+  FaUser,FaLayerGroup,
+FaMedal,
+FaTrophy,
+FaTriangleExclamation,
+FaClock,
 } from "react-icons/fa6";
 
 import "./admin-dashboard.css";
@@ -702,7 +706,14 @@ const openStudentDashboard = (student) => {
 
       <section className="admin-stat-grid">
 
-      {/* Total Tasks */}
+      <StatCard
+  icon={<FaUsers />}
+  title="Total Students"
+  value={dashboardData.totalStudents ?? 0}
+  subtitle="All registered students"
+  type="purple"
+/>
+
 <StatCard
   icon={<FaLayerGroup />}
   title="Total Tasks"
@@ -711,7 +722,6 @@ const openStudentDashboard = (student) => {
   type="blue"
 />
 
-{/* Started Students */}
 <StatCard
   icon={<FaMedal />}
   title="Started Students"
@@ -720,7 +730,14 @@ const openStudentDashboard = (student) => {
   type="green"
 />
 
-{/* Strong Performance */}
+<StatCard
+  icon={<FaClock />}
+  title="Not Started"
+  value={dashboardData.notStartedStudents ?? 0}
+  subtitle="Students with no started task"
+  type="red"
+/>
+
 <StatCard
   icon={<FaTrophy />}
   title="Strong Performance"
@@ -729,7 +746,6 @@ const openStudentDashboard = (student) => {
   type="green"
 />
 
-{/* Weak Performance */}
 <StatCard
   icon={<FaTriangleExclamation />}
   title="Weak Performance"
