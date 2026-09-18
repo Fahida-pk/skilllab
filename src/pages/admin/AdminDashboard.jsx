@@ -1484,24 +1484,20 @@ function PerformanceAnalysisCard({
               className="analysis-student-row"
               key={`${period}-${student.id}`}
             >
+<div className="analysis-student-left">
 
-              <div className="analysis-student-left">
+  <div>
+    <strong>{student.name}</strong>
 
-                <div className="analysis-student-avatar">
-                  {getInitials(student.name)}
-                </div>
+    <span
+      className={`analysis-category ${
+        student.category.toLowerCase()
+      }`}
+    >
+      {student.category}
+    </span>
+  </div>
 
-                <div>
-                  <strong>{student.name}</strong>
-
-                  <span
-                    className={`analysis-category ${
-                      student.category.toLowerCase()
-                    }`}
-                  >
-                    {student.category}
-                  </span>
-                </div>
 
               </div>
 
