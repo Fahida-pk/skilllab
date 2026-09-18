@@ -5132,3 +5132,69 @@ body {
   background: #ffffff !important;
   background-color: #ffffff !important;
 }
+
+/* =========================================================
+   FINAL CARD COLORS — ADMIN DASHBOARD
+   Today Performance = GREEN
+   Average Performance = ORANGE
+   Weak Performance = RED
+========================================================= */
+
+/* TODAY PERFORMANCE */
+.admin-performance-grid .today-card {
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #f4fbf7 55%,
+    #edf9f2 100%
+  ) !important;
+  border-left: 4px solid #2585e8 !important;
+}
+
+/* TODAY green progress/icon */
+.admin-performance-grid .today-card .performance-icon.green {
+  background: #dff7e9 !important;
+  color: #16a765 !important;
+}
+
+.admin-performance-grid .today-card .large-progress-fill.green {
+  background: linear-gradient(
+    90deg,
+    #16a765,
+    #4fd18b
+  ) !important;
+}
+
+/* AVERAGE PERFORMANCE — 6th stat card */
+.admin-stat-grid .admin-stat-card:nth-child(6) {
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #fffaf0 55%,
+    #fff2df 100%
+  ) !important;
+  border-left: 4px solid #f59e0b !important;
+}
+
+/* Average icon */
+.admin-stat-grid .admin-stat-card:nth-child(6) .admin-stat-icon {
+  background: #ffeccf !important;
+  color: #f59e0b !important;
+}
+
+/* WEAK PERFORMANCE — 7th stat card */
+.admin-stat-grid .admin-stat-card:nth-child(7) {
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #fff7f7 55%,
+    #ffeded 100%
+  ) !important;
+  border-left: 4px solid #ef4444 !important;
+}
+
+/* Weak icon */
+.admin-stat-grid .admin-stat-card:nth-child(7) .admin-stat-icon {
+  background: #ffe2e2 !important;
+  color: #ef4444 !important;
+}

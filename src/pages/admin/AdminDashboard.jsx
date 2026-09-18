@@ -699,7 +699,7 @@ const openStudentDashboard = (student) => {
 
           <p>
             {isStudentsPage
-              ? "View and manage all registered students."
+              ? "View and manage all  Students."
               : "Monitor today, weekly, monthly and overall student performance."}
           </p>
 
@@ -1145,9 +1145,7 @@ const openStudentDashboard = (student) => {
             All Students
           </h2>
 
-          <p>
-            All registered students in SkillLab
-          </p>
+          
 
         </div>
 
