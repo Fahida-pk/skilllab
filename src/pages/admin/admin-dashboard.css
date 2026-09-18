@@ -2565,22 +2565,8 @@ body {
   width: 100%;
   min-width: 0;
 }
-.analysis-content {
-  display: grid;
-  grid-template-columns: 185px minmax(0, 1fr);
-  gap: 25px;
-  align-items: center;
-  min-width: 0;
-}
 
-.analysis-students {
-  max-height: 225px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  width: 100%;
-  min-width: 0;
-  padding-right: 5px;
-}
+
 .analysis-students::-webkit-scrollbar {
   width: 4px;
 }
