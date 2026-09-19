@@ -1729,52 +1729,82 @@ const performancePercentage =
     cursor: not-allowed;
   }
 
- /* =========================================
-   0% CHECKBOX CLICK
-   ONLY SLIDER ROUND KNOB BECOMES RED
-   TRACK STAYS DARK
-========================================= */
+  /* =========================================
+   TASK PROGRESS SLIDER
+   NORMAL  -> WHITE ROUND + DARK TRACK
+   ERROR   -> RED ROUND + DARK TRACK
+   ========================================= */
 
-.card.task-modern-card.performance-error
-  .task-percentage-range::-webkit-slider-runnable-track {
-  background: #333 !important;
-}
-
-.card.task-modern-card.performance-error
-  .task-percentage-range::-moz-range-track {
-  background: #333 !important;
-}
-
-/* Chrome / Edge / Safari - ONLY ROUND KNOB */
-.card.task-modern-card.performance-error
-  .task-percentage-range::-webkit-slider-thumb {
-  -webkit-appearance: none !important;
+.card.task-modern-card .task-percentage-range {
   appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  accent-color: transparent !important;
+}
+
+/* DARK TRACK */
+.card.task-modern-card
+  .task-percentage-range::-webkit-slider-runnable-track {
+  height: 7px !important;
+  background: #333 !important;
+  border-radius: 10px !important;
+}
+
+.card.task-modern-card
+  .task-percentage-range::-moz-range-track {
+  height: 7px !important;
+  background: #333 !important;
+  border-radius: 10px !important;
+}
+
+/* NORMAL WHITE ROUND */
+.card.task-modern-card
+  .task-percentage-range::-webkit-slider-thumb {
+  appearance: none !important;
+  -webkit-appearance: none !important;
 
   width: 18px !important;
   height: 18px !important;
 
-  border-radius: 50% !important;
-  background: #ef4444 !important;
+  margin-top: -5.5px !important;
+
   border: none !important;
+  border-radius: 50% !important;
 
-  cursor: pointer !important;
-
-  margin-top: -6px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
 }
 
-/* Firefox - ONLY ROUND KNOB */
-.card.task-modern-card.performance-error
+.card.task-modern-card
   .task-percentage-range::-moz-range-thumb {
   width: 18px !important;
   height: 18px !important;
 
-  border-radius: 50% !important;
-  background: #ef4444 !important;
   border: none !important;
+  border-radius: 50% !important;
 
-  cursor: pointer !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
 }
+
+/* =========================================
+   0% ERROR
+   ONLY ROUND BECOMES RED
+   TRACK STAYS DARK
+   ========================================= */
+
+.card.task-modern-card.performance-error
+  .task-percentage-range::-webkit-slider-thumb {
+  background: #ef2222 !important;
+  box-shadow: none !important;
+}
+
+.card.task-modern-card.performance-error
+  .task-percentage-range::-moz-range-thumb {
+  background: #ef2222 !important;
+  box-shadow: none !important;
+}
+
   /* =========================================================
      EXACT COMPACT TASK CARD
      Row 1 : Icon + Title/Time + Tick
