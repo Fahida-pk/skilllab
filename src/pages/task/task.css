@@ -2910,7 +2910,11 @@ body,
 }
 
 /* Normal slider track - stays dark */
-.card.task-modern-card .task-progress-inline
+.card.task-modern-card .task-progress-inline{
+   height: 4px !important;
+  border-radius: 10px !important;
+  background: #2d2c2c !important;
+}
 .task-percentage-range::-webkit-slider-runnable-track {
   height: 4px !important;
   border-radius: 10px !important;
