@@ -783,7 +783,22 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
                   Math.min(100, Number(t.task_accuracy_percentage ?? 0))
                 )
               : 0,
-          performanceTime: getPerformanceTimes(currentKey)[String(t.id)] || 0,
+          // Performance Time is the score based on when the task was marked:
+          // <= 15 min = 100, <= 1 hour = 50, > 1 hour = 30.
+          // Use the saved accuracy value so old localStorage elapsed-minute
+          // values can never make the Task Accuracy card exceed the intended calculation.
+          performanceTime:
+            t.completed === true ||
+            t.completed === 1 ||
+            t.completed === "1"
+              ? Math.max(
+                  0,
+                  Math.min(
+                    100,
+                    Number(t.task_accuracy_percentage ?? 0)
+                  )
+                )
+              : 0,
           color: t.color || colors[index % colors.length],
           icon: t.icon || null,
           iconImage: t.icon_image || t.iconImage || null,
@@ -1024,37 +1039,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       }
 
       await fetchTasks();
-      // Use the exact values calculated by the server.
-      if (newStatus === 1) {
-        const serverAccuracy = Math.max(
-          0,
-          Math.min(100, Number(data.task_accuracy_percentage ?? nextAccuracy))
-        );
-
-        const serverPerformanceTime = Math.max(
-          0,
-          Number(data.performance_time ?? nextPerformanceTime)
-        );
-
-        savePerformanceTime(
-          currentKey,
-          task.id,
-          serverPerformanceTime
-        );
-
-        setTasks((prev) =>
-          prev.map((t) =>
-            t.id === task.id
-              ? {
-                  ...t,
-                  accuracy: serverAccuracy,
-                  performanceTime: serverPerformanceTime,
-                }
-              : t
-          )
-        );
-      }
-
       notifyTaskUpdated();
     } catch (error) {
       console.error("Delete error:", error);
@@ -1121,12 +1105,10 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       // A task ticked before its start time gets 0 elapsed minutes.
       elapsed = Math.max(0, elapsed);
 
-      nextPerformanceTime = elapsed;
-
-      // Accuracy rule:
-      // 15 minutes or before = 100%
-      // 1 hour or before = 50%
-      // after 1 hour = 30%
+      // Accuracy / Performance Time score:
+      // 15 minutes or before = 100
+      // 1 hour or before = 50
+      // after 1 hour = 30
       if (elapsed <= 15) {
         nextAccuracy = 100;
       } else if (elapsed <= 60) {
@@ -1134,6 +1116,10 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       } else {
         nextAccuracy = 30;
       }
+
+      // IMPORTANT:
+      // Performance Time is the score (100 / 50 / 30), NOT raw elapsed minutes.
+      nextPerformanceTime = nextAccuracy;
 
       savePerformanceTime(currentKey, task.id, nextPerformanceTime);
     } else {
@@ -1194,6 +1180,37 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
         alert(data.message || "Could not update task");
         return;
+      }
+
+      // Use the server's exact 100/50/30 score.
+      if (newStatus === 1) {
+        const serverAccuracy = Math.max(
+          0,
+          Math.min(100, Number(data.task_accuracy_percentage ?? nextAccuracy))
+        );
+
+        const serverPerformanceTime = Math.max(
+          0,
+          Math.min(100, Number(data.performance_time ?? serverAccuracy))
+        );
+
+        savePerformanceTime(
+          currentKey,
+          task.id,
+          serverPerformanceTime
+        );
+
+        setTasks((prev) =>
+          prev.map((t) =>
+            t.id === task.id
+              ? {
+                  ...t,
+                  accuracy: serverAccuracy,
+                  performanceTime: serverPerformanceTime,
+                }
+              : t
+          )
+        );
       }
 
       // If the task was unticked, also persist percentage = 0 so that
