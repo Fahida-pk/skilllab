@@ -49,41 +49,12 @@ body {
 
   color: #172033;
 }
-/* =================================
-   PERFORMANCE PERCENTAGE COLORS
-================================= */
 
-.performance-card-header > strong.today-percentage {
-  color: #16a365 !important;
-}
-
-.performance-card-header > strong.weekly-percentage {
-  color: #2585e8 !important;
-}
 /* =====================================================
    SIDEBAR
    SAME STYLE AS STUDENT DASHBOARD
 ===================================================== */
-/* ================================
-   TODAY PERFORMANCE - GREEN
-================================ */
 
-.today-card .performance-card-header > strong {
-  color: #16a765 !important;
-}
-
-.today-card .performance-icon.green {
-  color: #16a765;
-  background: #dcf7e9;
-}
-
-.today-card .large-progress-fill.green {
-  background: #16a765 !important;
-}
-
-.today-card .performance-card-footer svg {
-  color: #16a765;
-}
 .admin-sidebar {
   position: fixed;
   left: 0;
@@ -918,7 +889,17 @@ body {
     0 8px 30px
       rgba(35, 16, 59, 0.045);
 }
+/* =================================
+   PERFORMANCE PERCENTAGE COLORS
+================================= */
 
+.performance-card-header > strong.today-percentage {
+  color: #16a365 !important;
+}
+
+.performance-card-header > strong.weekly-percentage {
+  color: #2585e8 !important;
+}
 .performance-section-header {
   padding:
     22px 24px;
