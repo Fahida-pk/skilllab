@@ -2588,119 +2588,27 @@ body,
    ========================================================= */
 
 /* ---------- PERCENTAGE SLIDER ---------- */
-/* =========================================
-   0% ERROR
-   ONLY ROUND THUMB BLINKS RED
-   NO SLIDER BACKGROUND
-========================================= */
 
-/* Remove slider line/background */
 .card.task-modern-card .task-progress-inline
 .task-percentage-range {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  background: transparent !important;
-  accent-color: transparent !important;
+  height: 4px !important;          /* line thinner */
+  max-width: 100% !important;
+  border-radius: 10px !important;
 }
 
-/* Chrome / Edge - remove track */
-.card.task-modern-card .task-progress-inline
-.task-percentage-range::-webkit-slider-runnable-track {
-  background: transparent !important;
-  border: none !important;
-}
-
-/* Firefox - remove track */
-.card.task-modern-card .task-progress-inline
-.task-percentage-range::-moz-range-track {
-  background: transparent !important;
-  border: none !important;
-}
-
-
-/* =========================================
-   NORMAL ROUND THUMB
-========================================= */
-
+/* Slider thumb smaller */
 .card.task-modern-card .task-progress-inline
 .task-percentage-range::-webkit-slider-thumb {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-
   width: 12px !important;
   height: 12px !important;
-
-  border-radius: 50% !important;
-  border: none !important;
-
-  background: #ffffff !important;
-
-  cursor: pointer;
 }
-
 
 .card.task-modern-card .task-progress-inline
 .task-percentage-range::-moz-range-thumb {
   width: 12px !important;
   height: 12px !important;
-
-  border-radius: 50% !important;
-  border: none !important;
-
-  background: #ffffff !important;
-
-  cursor: pointer;
 }
 
-
-/* =========================================
-   ERROR STATE
-   ONLY WHITE ROUND -> RED BLINK
-========================================= */
-
-.card.task-modern-card.performance-error
-.task-progress-inline
-.task-percentage-range::-webkit-slider-thumb {
-  background: #ff2f3f !important;
-
-  animation: errorThumbBlink 0.45s ease-in-out 4;
-}
-
-
-.card.task-modern-card.performance-error
-.task-progress-inline
-.task-percentage-range::-moz-range-thumb {
-  background: #ff2f3f !important;
-
-  animation: errorThumbBlink 0.45s ease-in-out 4;
-}
-
-
-/* =========================================
-   RED ROUND BLINK
-========================================= */
-
-@keyframes errorThumbBlink {
-
-  0% {
-    background: #ffffff;
-    transform: scale(1);
-    box-shadow: none;
-  }
-
-  50% {
-    background: #ff2f3f;
-    transform: scale(1.35);
-    box-shadow: 0 0 0 4px rgba(255, 47, 63, 0.25);
-  }
-
-  100% {
-    background: #ffffff;
-    transform: scale(1);
-    box-shadow: none;
-  }
-
-}
 
 /* ---------- TICK BOX BIGGER ---------- */
 
