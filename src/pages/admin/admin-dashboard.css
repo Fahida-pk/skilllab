@@ -54,7 +54,26 @@ body {
    SIDEBAR
    SAME STYLE AS STUDENT DASHBOARD
 ===================================================== */
+/* ================================
+   TODAY PERFORMANCE - GREEN
+================================ */
 
+.today-card .performance-card-header > strong {
+  color: #16a765 !important;
+}
+
+.today-card .performance-icon.green {
+  color: #16a765;
+  background: #dcf7e9;
+}
+
+.today-card .large-progress-fill.green {
+  background: #16a765 !important;
+}
+
+.today-card .performance-card-footer svg {
+  color: #16a765;
+}
 .admin-sidebar {
   position: fixed;
   left: 0;
