@@ -2593,27 +2593,52 @@ body,
    ONLY ROUND THUMB BECOMES RED
 ========================================= */
 
-/* Keep slider line WHITE during error */
+/* =========================================
+   0% CHECKBOX CLICK
+   ONLY SLIDER ROUND KNOB BECOMES RED
+   TRACK STAYS DARK
+========================================= */
+
 .card.task-modern-card.performance-error
-.task-progress-inline
-.task-percentage-range::-webkit-slider-runnable-track {
-  background: #ffffff !important;
+  .task-percentage-range::-webkit-slider-runnable-track {
+  background: #333 !important;
 }
 
 .card.task-modern-card.performance-error
-.task-progress-inline
-.task-percentage-range::-moz-range-track {
-  background: #ffffff !important;
+  .task-percentage-range::-moz-range-track {
+  background: #333 !important;
 }
 
-/* Keep the slider itself white */
+/* Chrome / Edge / Safari - ONLY ROUND KNOB */
 .card.task-modern-card.performance-error
-.task-progress-inline
-.task-percentage-range {
-  background: transparent !important;
-  accent-color: #ffffff !important;
+  .task-percentage-range::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+
+  width: 18px !important;
+  height: 18px !important;
+
+  border-radius: 50% !important;
+  background: #ef4444 !important;
+  border: none !important;
+
+  cursor: pointer !important;
+
+  margin-top: -6px !important;
 }
 
+/* Firefox - ONLY ROUND KNOB */
+.card.task-modern-card.performance-error
+  .task-percentage-range::-moz-range-thumb {
+  width: 18px !important;
+  height: 18px !important;
+
+  border-radius: 50% !important;
+  background: #ef4444 !important;
+  border: none !important;
+
+  cursor: pointer !important;
+}
 
 
 /* =========================================================
