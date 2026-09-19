@@ -2615,24 +2615,6 @@ body,
 }
 
 
-/* =========================================
-   0% ERROR
-   ONLY SLIDER ROUND BECOMES RED
-========================================= */
-
-.card.task-modern-card.performance-error
-.task-progress-inline
-.task-percentage-range::-webkit-slider-thumb {
-  background: #ff2f3f !important;
-  animation: redThumbBlink 0.45s ease-in-out 4 !important;
-}
-
-.card.task-modern-card.performance-error
-.task-progress-inline
-.task-percentage-range::-moz-range-thumb {
-  background: #ff2f3f !important;
-  animation: redThumbBlink 0.45s ease-in-out 4 !important;
-}
 
 /* =========================================================
    0% ERROR / CHECKED STATE
