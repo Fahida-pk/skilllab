@@ -10,6 +10,7 @@ import {
   FaLanguage,
   FaDumbbell,
   FaCheck,
+  FaClock,
   FaCoffee,
   FaUtensils,
   FaLaptop,
@@ -30,6 +31,7 @@ import {
   FaWater,
   FaAppleAlt
 } from "react-icons/fa";
+import { FaChartBar } from "react-icons/fa";
 import "./task.css";
 
 const API_URL = "https://zyntaweb.com/skilllab/api/task.php";
@@ -2470,55 +2472,99 @@ const taskAccuracyPercentage =
               Percentage + graph fill appear only
               after at least one task is ticked.
           ========================= */}
-          <div className="today-performance-card">
-            <div className="performance-header">
-              <div>
-                <h2>Today's Performance Progress</h2>
-              </div>
+         <div className="today-performance-card">
 
-              {completedTaskList.length > 0 && (
-                <strong>{performancePercentage}%</strong>
-              )}
-            </div>
+  <div className="performance-top">
 
-            <div className="performance-bar">
-              {completedTaskList.length > 0 && (
-                <div
-                  className="performance-bar-fill"
-                  style={{ width: `${performancePercentage}%` }}
-                />
-              )}
-            </div>
-          </div>
+    {/* PERFORMANCE ICON */}
+    <div className="performance-icon">
+      <FaChartBar />
+    </div>
+
+    {/* TITLE + SUBTITLE */}
+    <div className="performance-title">
+      <h2>Today's Performance Progress</h2>
+      <p>Completed task performance</p>
+    </div>
+
+    {/* PERCENTAGE */}
+    {completedTaskList.length > 0 && (
+      <div className="performance-value">
+        {performancePercentage}%
+      </div>
+    )}
+
+  </div>
+
+  {/* PROGRESS BAR */}
+  <div className="performance-bar">
+    {completedTaskList.length > 0 && (
+      <div
+        className="performance-bar-fill"
+        style={{
+          width: `${Math.min(
+            100,
+            Math.max(0, performancePercentage)
+          )}%`,
+        }}
+      />
+    )}
+  </div>
+
+</div>
 
           {/* =========================
               TASK ACCURACY PERCENTAGE
               Today's Performance Progress above
               is intentionally unchanged.
           ========================= */}
-          <div className="task-accuracy-card">
-            <div className="task-accuracy-header">
-              <h2>Task Accuracy Percentage</h2>
+    {/* =========================
+    TASK ACCURACY PERCENTAGE
+========================= */}
 
-              {completedTaskList.length > 0 && (
-                <strong>{taskAccuracyPercentage}%</strong>
-              )}
-            </div>
+<div className="task-accuracy-card">
 
-            <div className="task-accuracy-bar">
-              {completedTaskList.length > 0 && (
-                <div
-                  className="task-accuracy-bar-fill"
-                  style={{
-                    width: `${Math.min(
-                      100,
-                      Math.max(0, taskAccuracyPercentage)
-                    )}%`,
-                  }}
-                />
-              )}
-            </div>
-          </div>
+  <div className="task-accuracy-top">
+
+    {/* CLOCK ICON */}
+    <div className="task-accuracy-icon">
+      <FaClock />
+    </div>
+
+    {/* TITLE */}
+    <div className="task-accuracy-title">
+      <h2>Task Accuracy Percentage</h2>
+
+      <p>Based on task completion time</p>
+    </div>
+
+    {/* PERCENTAGE */}
+    {completedTaskList.length > 0 && (
+      <div className="task-accuracy-value">
+        {taskAccuracyPercentage}%
+      </div>
+    )}
+
+  </div>
+
+  {/* PROGRESS BAR */}
+  <div className="task-accuracy-bar">
+
+    {completedTaskList.length > 0 && (
+      <div
+        className="task-accuracy-bar-fill"
+        style={{
+          width: `${Math.min(
+            100,
+            Math.max(0, taskAccuracyPercentage)
+          )}%`,
+        }}
+      />
+    )}
+
+  </div>
+
+</div>
 
 
           {/* TASK CARDS */}
