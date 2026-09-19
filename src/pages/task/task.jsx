@@ -99,6 +99,48 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const currentKey = getDateKey(date);
 
+  // Performance time is the actual elapsed time (in minutes)
+  // from the task start time until the moment the task is ticked.
+  // It is kept in localStorage so no extra database column is required.
+  const getPerformanceTimeKey = (dateKey) =>
+    `taskPerformanceTime_${dateKey}`;
+
+  const getPerformanceTimes = (dateKey) => {
+    try {
+      const saved = localStorage.getItem(getPerformanceTimeKey(dateKey));
+      const parsed = saved ? JSON.parse(saved) : {};
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  };
+
+  const savePerformanceTime = (dateKey, taskId, minutes) => {
+    const current = getPerformanceTimes(dateKey);
+
+    const updated = {
+      ...current,
+      [String(taskId)]: Math.max(0, Number(minutes) || 0),
+    };
+
+    localStorage.setItem(
+      getPerformanceTimeKey(dateKey),
+      JSON.stringify(updated)
+    );
+
+    return updated;
+  };
+
+  const removePerformanceTime = (dateKey, taskId) => {
+    const current = getPerformanceTimes(dateKey);
+    delete current[String(taskId)];
+
+    localStorage.setItem(
+      getPerformanceTimeKey(dateKey),
+      JSON.stringify(current)
+    );
+  };
+
   // =========================================================
   // DATE PERMISSIONS
   // Previous day  -> Add/Edit/Delete/Tick disabled
@@ -732,6 +774,16 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
             t.completed === "1"
               ? Math.max(0, Math.min(100, Number(t.percentage ?? 0)))
               : 0,
+          accuracy:
+            t.completed === true ||
+            t.completed === 1 ||
+            t.completed === "1"
+              ? Math.max(
+                  0,
+                  Math.min(100, Number(t.task_accuracy_percentage ?? 0))
+                )
+              : 0,
+          performanceTime: getPerformanceTimes(currentKey)[String(t.id)] || 0,
           color: t.color || colors[index % colors.length],
           icon: t.icon || null,
           iconImage: t.icon_image || t.iconImage || null,
@@ -972,6 +1024,37 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       }
 
       await fetchTasks();
+      // Use the exact values calculated by the server.
+      if (newStatus === 1) {
+        const serverAccuracy = Math.max(
+          0,
+          Math.min(100, Number(data.task_accuracy_percentage ?? nextAccuracy))
+        );
+
+        const serverPerformanceTime = Math.max(
+          0,
+          Number(data.performance_time ?? nextPerformanceTime)
+        );
+
+        savePerformanceTime(
+          currentKey,
+          task.id,
+          serverPerformanceTime
+        );
+
+        setTasks((prev) =>
+          prev.map((t) =>
+            t.id === task.id
+              ? {
+                  ...t,
+                  accuracy: serverAccuracy,
+                  performanceTime: serverPerformanceTime,
+                }
+              : t
+          )
+        );
+      }
+
       notifyTaskUpdated();
     } catch (error) {
       console.error("Delete error:", error);
@@ -992,8 +1075,8 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       return;
     }
 
-    // A task cannot be marked complete while its performance percentage
-    // is still 0%. The user must set the slider first.
+    // The existing task-performance slider is still required.
+    // task.percentage is the task performance percentage.
     const currentPercentage = Math.max(
       0,
       Math.min(100, Number(task.percentage ?? 0))
@@ -1014,8 +1097,49 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
     const newStatus = task.completed ? 0 : 1;
 
-    // When a completed task is unticked, its percentage is reset to 0.
-    // This keeps performance based only on currently completed tasks.
+    let nextAccuracy = 0;
+    let nextPerformanceTime = 0;
+
+    if (newStatus === 1) {
+      const fromMinutes = toMin(task.from || task.time);
+      const toMinutes = task.to ? toMin(task.to) : null;
+
+      const now = new Date();
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+      let elapsed = nowMinutes - fromMinutes;
+
+      // Overnight task, for example 10 PM -> 8 AM.
+      if (
+        elapsed < 0 &&
+        toMinutes !== null &&
+        toMinutes < fromMinutes
+      ) {
+        elapsed += 24 * 60;
+      }
+
+      // A task ticked before its start time gets 0 elapsed minutes.
+      elapsed = Math.max(0, elapsed);
+
+      nextPerformanceTime = elapsed;
+
+      // Accuracy rule:
+      // 15 minutes or before = 100%
+      // 1 hour or before = 50%
+      // after 1 hour = 30%
+      if (elapsed <= 15) {
+        nextAccuracy = 100;
+      } else if (elapsed <= 60) {
+        nextAccuracy = 50;
+      } else {
+        nextAccuracy = 30;
+      }
+
+      savePerformanceTime(currentKey, task.id, nextPerformanceTime);
+    } else {
+      removePerformanceTime(currentKey, task.id);
+    }
+
     const nextPercentage = newStatus === 0 ? 0 : currentPercentage;
 
     // Update UI immediately.
@@ -1026,6 +1150,8 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
               ...t,
               completed: newStatus === 1,
               percentage: nextPercentage,
+              accuracy: newStatus === 1 ? nextAccuracy : 0,
+              performanceTime: newStatus === 1 ? nextPerformanceTime : 0,
             }
           : t
       )
@@ -1040,6 +1166,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           email: user?.email,
           id: task.id,
           status: newStatus,
+          task_accuracy_percentage: nextAccuracy,
         }),
       });
 
@@ -1050,10 +1177,21 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
         setTasks((prev) =>
           prev.map((t) =>
             t.id === task.id
-              ? { ...t, completed: task.completed, percentage: task.percentage ?? 0 }
+              ? {
+                  ...t,
+                  completed: task.completed,
+                  percentage: task.percentage ?? 0,
+                  accuracy: task.accuracy ?? 0,
+                  performanceTime: task.performanceTime ?? 0,
+                }
               : t
           )
         );
+
+        if (newStatus === 1) {
+          removePerformanceTime(currentKey, task.id);
+        }
+
         alert(data.message || "Could not update task");
         return;
       }
@@ -1086,10 +1224,20 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     } catch (error) {
       console.error("Toggle error:", error);
 
+      if (newStatus === 1) {
+        removePerformanceTime(currentKey, task.id);
+      }
+
       setTasks((prev) =>
         prev.map((t) =>
           t.id === task.id
-            ? { ...t, completed: task.completed, percentage: task.percentage ?? 0 }
+            ? {
+                ...t,
+                completed: task.completed,
+                percentage: task.percentage ?? 0,
+                accuracy: task.accuracy ?? 0,
+                performanceTime: task.performanceTime ?? 0,
+              }
             : t
         )
       );
@@ -1097,6 +1245,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       alert("Unable to mark task complete");
     }
   };
+
 
   const handlePercentageChange = (task, value) => {
     if (adminView) return;
@@ -1714,6 +1863,44 @@ const performancePercentage =
       )
     : 0;
 
+// =========================================================
+// TASK ACCURACY PERCENTAGE
+//
+// Performance Task       = sum of task performance percentages
+// Sum of Performance Time = sum of elapsed minutes for marked tasks
+// Total Task             = all tasks for the selected date
+// Marked Task             = only ticked/completed tasks
+//
+// Formula:
+// (Performance Task + Sum of Performance Time)
+// ---------------------------------------------
+//          (Total Task × Marked Task)
+// =========================================================
+
+const performanceTask = completedTaskList.reduce(
+  (total, task) =>
+    total +
+    Math.max(0, Math.min(100, Number(task.percentage ?? 0))),
+  0
+);
+
+const sumOfPerformanceTime = completedTaskList.reduce(
+  (total, task) =>
+    total + Math.max(0, Number(task.performanceTime ?? 0)),
+  0
+);
+
+const markedTaskCount = completedTaskList.length;
+
+const taskAccuracyPercentage =
+  markedTaskCount > 0 && totalTasks > 0
+    ? Math.round(
+        (performanceTask + sumOfPerformanceTime) /
+          (totalTasks * markedTaskCount)
+      )
+    : 0;
+
+
 
   const radius = 48;
   const circumference = 2 * Math.PI * radius;
@@ -2198,6 +2385,35 @@ const performancePercentage =
                 <div
                   className="performance-bar-fill"
                   style={{ width: `${performancePercentage}%` }}
+                />
+              )}
+            </div>
+          </div>
+
+          {/* =========================
+              TASK ACCURACY PERCENTAGE
+              Today's Performance Progress above
+              is intentionally unchanged.
+          ========================= */}
+          <div className="task-accuracy-card">
+            <div className="task-accuracy-header">
+              <h2>Task Accuracy Percentage</h2>
+
+              {completedTaskList.length > 0 && (
+                <strong>{taskAccuracyPercentage}%</strong>
+              )}
+            </div>
+
+            <div className="task-accuracy-bar">
+              {completedTaskList.length > 0 && (
+                <div
+                  className="task-accuracy-bar-fill"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      Math.max(0, taskAccuracyPercentage)
+                    )}%`,
+                  }}
                 />
               )}
             </div>

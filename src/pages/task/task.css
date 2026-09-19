@@ -2981,3 +2981,99 @@ body,
   }
 }
 
+
+
+/* =========================================
+   TASK ACCURACY PERCENTAGE CARD
+   Added below Today's Performance Progress.
+   Existing performance card is unchanged.
+========================================= */
+
+.task-accuracy-card {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 14px 18px !important;
+  margin: 0 0 14px !important;
+
+  background: linear-gradient(
+    135deg,
+    #f8f8ff,
+    #ffffff
+  ) !important;
+
+  border: 1px solid rgba(104, 87, 255, 0.14) !important;
+  border-radius: 18px !important;
+
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.06) !important;
+}
+
+.task-accuracy-header {
+  width: 100% !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+.task-accuracy-header h2 {
+  margin: 0 !important;
+  font-size: 17px !important;
+  line-height: 1.2 !important;
+  font-weight: 700 !important;
+  color: #202020 !important;
+}
+
+.task-accuracy-header strong {
+  flex: 0 0 auto !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  color: #6857ff !important;
+}
+
+.task-accuracy-bar {
+  width: 100% !important;
+  height: 8px !important;
+  margin-top: 14px !important;
+
+  overflow: hidden !important;
+  border-radius: 20px !important;
+
+  background: #ededf4 !important;
+}
+
+.task-accuracy-bar-fill {
+  height: 100% !important;
+  border-radius: inherit !important;
+
+  background: linear-gradient(
+    90deg,
+    #6857ff,
+    #b04cff
+  ) !important;
+
+  transition: width 0.35s ease !important;
+}
+
+@media (max-width: 600px) {
+  .task-accuracy-card {
+    padding: 12px 14px !important;
+    margin-bottom: 12px !important;
+    border-radius: 18px !important;
+  }
+
+  .task-accuracy-header h2 {
+    font-size: 15px !important;
+  }
+
+  .task-accuracy-header strong {
+    font-size: 20px !important;
+  }
+
+  .task-accuracy-bar {
+    height: 7px !important;
+    margin-top: 12px !important;
+  }
+}
