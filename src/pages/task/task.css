@@ -2587,103 +2587,29 @@ body,
    Percentage line smaller + Tick box bigger
    ========================================================= */
 
-/* =========================================
-   0% ERROR
-   LINE STAYS WHITE
-   ONLY ROUND THUMB BECOMES RED
-========================================= */
+/* ---------- PERCENTAGE SLIDER ---------- */
 
-/* =========================================
-   0% CHECKBOX CLICK
-   ONLY SLIDER ROUND KNOB BECOMES RED
-   TRACK STAYS DARK
-========================================= */
-
-.card.task-modern-card.performance-error
-  .task-percentage-range::-webkit-slider-runnable-track {
-  background: #333 !important;
+.card.task-modern-card .task-progress-inline
+.task-percentage-range {
+  height: 4px !important;          /* line thinner */
+  max-width: 100% !important;
+  border-radius: 10px !important;
 }
 
-.card.task-modern-card.performance-error
-  .task-percentage-range::-moz-range-track {
-  background: #333 !important;
-}
-
-/* Chrome / Edge / Safari - ONLY ROUND KNOB */
-.card.task-modern-card.performance-error
-  .task-percentage-range::-webkit-slider-thumb {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-
-  width: 18px !important;
-  height: 18px !important;
-
-  border-radius: 50% !important;
-  background: #ef4444 !important;
-  border: none !important;
-
-  cursor: pointer !important;
-
-  margin-top: -6px !important;
-}
-
-/* Firefox - ONLY ROUND KNOB */
-.card.task-modern-card.performance-error
-  .task-percentage-range::-moz-range-thumb {
-  width: 18px !important;
-  height: 18px !important;
-
-  border-radius: 50% !important;
-  background: #ef4444 !important;
-  border: none !important;
-
-  cursor: pointer !important;
-}
-
-
-/* =========================================================
-   0% ERROR / CHECKED STATE
-   ONLY RED ROUND THUMB
-   NO RAYS
-   NO GLOW
-   NO EXTRA LINE
-   ========================================================= */
-
-.card.task-modern-card.performance-error
-.task-progress-inline
+/* Slider thumb smaller */
+.card.task-modern-card .task-progress-inline
 .task-percentage-range::-webkit-slider-thumb {
-  background: #ff2f3f !important;
-
-  /* NO animation */
-  animation: none !important;
-
-  /* NO glow / rays */
-  box-shadow: none !important;
-
   width: 12px !important;
   height: 12px !important;
-
-  border: none !important;
-  outline: none !important;
 }
 
-.card.task-modern-card.performance-error
-.task-progress-inline
+.card.task-modern-card .task-progress-inline
 .task-percentage-range::-moz-range-thumb {
-  background: #ff2f3f !important;
-
-  /* NO animation */
-  animation: none !important;
-
-  /* NO glow / rays */
-  box-shadow: none !important;
-
   width: 12px !important;
   height: 12px !important;
-
-  border: none !important;
-  outline: none !important;
 }
+
+
 /* ---------- TICK BOX BIGGER ---------- */
 
 .card.task-modern-card .task-check-right {
