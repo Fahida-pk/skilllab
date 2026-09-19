@@ -2895,43 +2895,75 @@ body,
   filter: saturate(0.90) !important;
   opacity: 0.92 !important;
 }
+
 /* =====================================================
-   0% TASK ERROR - RED ROUND KNOB ONLY
+   FINAL 0% TASK ERROR
+   ONLY THE ROUND SLIDER KNOB BLINKS RED
+   ===================================================== */
+
+/* Normal slider */
+.card.task-modern-card .task-progress-inline .task-percentage-range {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: transparent !important;
+  accent-color: #ffffff !important;
+}
+
+/* Normal slider track - stays dark */
+.card.task-modern-card .task-progress-inline
+.task-percentage-range::-webkit-slider-runnable-track {
+  height: 4px !important;
+  border-radius: 10px !important;
+  background: #3f3f3f !important;
+}
+
+.card.task-modern-card .task-progress-inline
+.task-percentage-range::-moz-range-track {
+  height: 4px !important;
+  border-radius: 10px !important;
+  background: #3f3f3f !important;
+}
+
+/* Normal knob - WHITE */
+.card.task-modern-card .task-progress-inline
+.task-percentage-range::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 12px !important;
+  height: 12px !important;
+  margin-top: -4px !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.card.task-modern-card .task-progress-inline
+.task-percentage-range::-moz-range-thumb {
+  width: 12px !important;
+  height: 12px !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* =====================================================
+   WHEN 0% TASK IS CLICKED:
+   ONLY THE ROUND KNOB BECOMES RED + BLINKS
    ===================================================== */
 
 .card.task-modern-card.performance-error
-  .task-percentage-range::-webkit-slider-thumb {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-
-  width: 12px !important;
-  height: 12px !important;
-
-  border-radius: 50% !important;
-
+.task-progress-inline .task-percentage-range::-webkit-slider-thumb {
   background: #ef4444 !important;
-  border: 0 !important;
-
-  box-shadow: none !important;
-
   animation: performanceRedBlink 0.45s infinite !important;
 }
 
 .card.task-modern-card.performance-error
-  .task-percentage-range::-moz-range-thumb {
-  width: 12px !important;
-  height: 12px !important;
-
-  border-radius: 50% !important;
-
+.task-progress-inline .task-percentage-range::-moz-range-thumb {
   background: #ef4444 !important;
-  border: 0 !important;
-
-  box-shadow: none !important;
-
   animation: performanceRedBlink 0.45s infinite !important;
 }
-
 
 /* Blink ONLY the round knob */
 @keyframes performanceRedBlink {
@@ -2944,3 +2976,4 @@ body,
     opacity: 0;
   }
 }
+
