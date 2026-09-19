@@ -200,7 +200,48 @@
 
   transform: translateX(2px);
 }
+/* =========================================
+   SIDEBAR MENU HOVER
+========================================= */
 
+.sidebar-menu-item:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  transform: translateX(3px);
+  transition: all 0.2s ease;
+}
+
+
+/* =========================================
+   SIDEBAR ACTIVE
+========================================= */
+
+.sidebar-menu-item.active {
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+
+/* =========================================
+   LOGOUT / BACK BUTTON HOVER
+========================================= */
+
+.sidebar-logout:hover {
+  background: rgba(255, 255, 255, 0.30);
+  color: #ffffff;
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+
+
+/* =========================================
+   BUTTON TRANSITION
+========================================= */
+
+.sidebar-menu-item,
+.sidebar-logout {
+  transition: all 0.2s ease;
+}
 /* =========================================
    ACTIVE
 ========================================= */
