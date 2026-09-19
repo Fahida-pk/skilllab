@@ -2589,24 +2589,41 @@ body,
 
 /* ---------- PERCENTAGE SLIDER ---------- */
 
-.card.task-modern-card .task-progress-inline
-.task-percentage-range {
-  height: 4px !important;          /* line thinner */
-  max-width: 100% !important;
-  border-radius: 10px !important;
+/* =========================================
+   0% TASK ERROR
+   ONLY WHITE SLIDER THUMB BLINKS
+========================================= */
+
+.card.task-modern-card.performance-error
+  .task-percentage-range::-webkit-slider-thumb {
+  background: #ffffff !important;
+  animation: whiteThumbBlink 0.5s ease-in-out 4;
 }
 
-/* Slider thumb smaller */
-.card.task-modern-card .task-progress-inline
-.task-percentage-range::-webkit-slider-thumb {
-  width: 12px !important;
-  height: 12px !important;
+.card.task-modern-card.performance-error
+  .task-percentage-range::-moz-range-thumb {
+  background: #ffffff !important;
+  animation: whiteThumbBlink 0.5s ease-in-out 4;
 }
 
-.card.task-modern-card .task-progress-inline
-.task-percentage-range::-moz-range-thumb {
-  width: 12px !important;
-  height: 12px !important;
+@keyframes whiteThumbBlink {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+
+  50% {
+    opacity: 0.35;
+    transform: scale(1.35);
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.35);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
 }
 
 
