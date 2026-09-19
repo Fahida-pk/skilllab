@@ -49,7 +49,17 @@ body {
 
   color: #172033;
 }
+/* =================================
+   PERFORMANCE PERCENTAGE COLORS
+================================= */
 
+.performance-card-header > strong.today-percentage {
+  color: #16a365 !important;
+}
+
+.performance-card-header > strong.weekly-percentage {
+  color: #2585e8 !important;
+}
 /* =====================================================
    SIDEBAR
    SAME STYLE AS STUDENT DASHBOARD
