@@ -1729,15 +1729,28 @@ const performancePercentage =
     cursor: not-allowed;
   }
 
-  /* Red ROUND KNOB only when checkbox is clicked at 0% */
+  /* RED ROUND KNOB ONLY - BLINK */
 .card.task-modern-card.performance-error
   .task-percentage-range::-webkit-slider-thumb {
   background: #ef4444 !important;
+  animation: redKnobBlink 0.45s infinite;
 }
 
 .card.task-modern-card.performance-error
   .task-percentage-range::-moz-range-thumb {
   background: #ef4444 !important;
+  animation: redKnobBlink 0.45s infinite;
+}
+
+@keyframes redKnobBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
 }
   /* =========================================================
      EXACT COMPACT TASK CARD
