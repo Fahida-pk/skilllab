@@ -2596,13 +2596,13 @@ body,
 
 .card.task-modern-card.performance-error
   .task-percentage-range::-webkit-slider-thumb {
-  background: #ffffff !important;
+  background: #bb1919 !important;
   animation: whiteThumbBlink 0.5s ease-in-out 4;
 }
 
 .card.task-modern-card.performance-error
   .task-percentage-range::-moz-range-thumb {
-  background: #ffffff !important;
+  background: #7c0c0c !important;
   animation: whiteThumbBlink 0.5s ease-in-out 4;
 }
 
