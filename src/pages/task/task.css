@@ -2918,7 +2918,7 @@ body,
 .task-percentage-range::-webkit-slider-runnable-track {
   height: 4px !important;
   border-radius: 10px !important;
-  background: #f4e8e8 !important;
+  background: #3f3f3f !important;
 }
 
 .card.task-modern-card .task-progress-inline
