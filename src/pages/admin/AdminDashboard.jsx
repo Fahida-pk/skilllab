@@ -848,7 +848,11 @@ const openStudentDashboard = (student) => {
                 <p>Overall student performance</p>
               </div>
             </div>
-<strong className="today-percentage">
+<strong
+  className={`performance-percentage ${getPerformanceClass(
+    dashboardData.todayPerformance
+  )}`}
+>
   {dashboardData.todayPerformance ?? 0}%
 </strong>
           </div>
@@ -888,7 +892,11 @@ const openStudentDashboard = (student) => {
                 <p>Overall student performance</p>
               </div>
             </div>
-         <strong className="weekly-percentage">
+     <strong
+  className={`performance-percentage ${getPerformanceClass(
+    dashboardData.weekPerformance
+  )}`}
+>
   {dashboardData.weekPerformance ?? 0}%
 </strong>
           </div>
