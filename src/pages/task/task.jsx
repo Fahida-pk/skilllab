@@ -1729,22 +1729,16 @@ const performancePercentage =
     cursor: not-allowed;
   }
 
-  /* Red progress line when trying to complete a 0% task */
-  .card.task-modern-card.performance-error
-    .task-percentage-range::-webkit-slider-runnable-track {
-    background: #ef4444 !important;
-  }
+  /* Red ROUND KNOB only when checkbox is clicked at 0% */
+.card.task-modern-card.performance-error
+  .task-percentage-range::-webkit-slider-thumb {
+  background: #ef4444 !important;
+}
 
-  .card.task-modern-card.performance-error
-    .task-percentage-range::-moz-range-track {
-    background: #ef4444 !important;
-  }
-
-  .card.task-modern-card.performance-error
-    .task-percentage-range {
-    accent-color: #ef4444 !important;
-  }
-
+.card.task-modern-card.performance-error
+  .task-percentage-range::-moz-range-thumb {
+  background: #ef4444 !important;
+}
   /* =========================================================
      EXACT COMPACT TASK CARD
      Row 1 : Icon + Title/Time + Tick
