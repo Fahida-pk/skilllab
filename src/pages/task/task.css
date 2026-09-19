@@ -2955,16 +2955,20 @@ body,
 
 .card.task-modern-card.performance-error
 .task-progress-inline .task-percentage-range::-webkit-slider-thumb {
+  width: 16px !important;
+  height: 16px !important;
+  margin-top: -6px !important;
   background: #ef4444 !important;
   animation: performanceRedBlink 0.45s infinite !important;
 }
 
 .card.task-modern-card.performance-error
 .task-progress-inline .task-percentage-range::-moz-range-thumb {
+  width: 16px !important;
+  height: 16px !important;
   background: #ef4444 !important;
   animation: performanceRedBlink 0.45s infinite !important;
 }
-
 /* Blink ONLY the round knob */
 @keyframes performanceRedBlink {
   0%,
