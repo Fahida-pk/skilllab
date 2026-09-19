@@ -1729,22 +1729,52 @@ const performancePercentage =
     cursor: not-allowed;
   }
 
-  /* Red progress line when trying to complete a 0% task */
-  .card.task-modern-card.performance-error
-    .task-percentage-range::-webkit-slider-runnable-track {
-    background: #ef4444 !important;
-  }
+ /* =========================================
+   0% CHECKBOX CLICK
+   ONLY SLIDER ROUND KNOB BECOMES RED
+   TRACK STAYS DARK
+========================================= */
 
-  .card.task-modern-card.performance-error
-    .task-percentage-range::-moz-range-track {
-    background: #ef4444 !important;
-  }
+.card.task-modern-card.performance-error
+  .task-percentage-range::-webkit-slider-runnable-track {
+  background: #333 !important;
+}
 
-  .card.task-modern-card.performance-error
-    .task-percentage-range {
-    accent-color: #ef4444 !important;
-  }
+.card.task-modern-card.performance-error
+  .task-percentage-range::-moz-range-track {
+  background: #333 !important;
+}
 
+/* Chrome / Edge / Safari - ONLY ROUND KNOB */
+.card.task-modern-card.performance-error
+  .task-percentage-range::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+
+  width: 18px !important;
+  height: 18px !important;
+
+  border-radius: 50% !important;
+  background: #ef4444 !important;
+  border: none !important;
+
+  cursor: pointer !important;
+
+  margin-top: -6px !important;
+}
+
+/* Firefox - ONLY ROUND KNOB */
+.card.task-modern-card.performance-error
+  .task-percentage-range::-moz-range-thumb {
+  width: 18px !important;
+  height: 18px !important;
+
+  border-radius: 50% !important;
+  background: #ef4444 !important;
+  border: none !important;
+
+  cursor: pointer !important;
+}
   /* =========================================================
      EXACT COMPACT TASK CARD
      Row 1 : Icon + Title/Time + Tick
