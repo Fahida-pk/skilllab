@@ -2909,19 +2909,14 @@ body,
   accent-color: #ffffff !important;
 }
 
+/* Normal slider track - stays dark */
 .card.task-modern-card .task-progress-inline
 .task-percentage-range::-webkit-slider-runnable-track {
   height: 4px !important;
   border-radius: 10px !important;
-  background: transparent !important;
+  background: #f4e8e8 !important;
 }
 
-.card.task-modern-card .task-progress-inline
-.task-percentage-range::-moz-range-track {
-  height: 4px !important;
-  border-radius: 10px !important;
-  background: transparent !important;
-}
 .card.task-modern-card .task-progress-inline
 .task-percentage-range::-moz-range-track {
   height: 4px !important;
