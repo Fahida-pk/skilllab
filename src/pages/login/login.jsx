@@ -9,69 +9,148 @@ import { FaUser } from "react-icons/fa";
 function Login() {
   const navigate = useNavigate();
 
-  const handleSuccess = async (res) => {
+  // =====================================================
+  // FCM REGISTRATION
+  // Runs AFTER login/dashboard navigation
+  // =====================================================
+  const registerFCM = async (googleToken) => {
     try {
-      const googleToken = res.credential;
-
-      console.log("Google Login Success");
-
-      // ==========================================
+      // =================================================
       // 1. Register Firebase Service Worker
-      // ==========================================
+      // =================================================
       const registration =
         await navigator.serviceWorker.register(
           "/firebase-messaging-sw.js"
         );
 
-      console.log("Service Worker registered");
+      console.log(
+        "Service Worker registered"
+      );
 
-      // ==========================================
-      // 2. Notification Permission
-      // ==========================================
-      let fcmToken = "";
-
-      if ("Notification" in window) {
-        const permission =
-          await Notification.requestPermission();
-
+      // =================================================
+      // 2. Check Notification Support
+      // =================================================
+      if (!("Notification" in window)) {
         console.log(
-          "Notification permission:",
-          permission
+          "Notifications are not supported"
         );
-
-        if (permission === "granted") {
-          // ==========================================
-          // 3. Firebase Messaging
-          // ==========================================
-          const messaging =
-            await getMessagingInstance();
-
-          if (messaging) {
-            // ==========================================
-            // 4. Get FCM Token
-            // ==========================================
-            fcmToken = await getToken(
-              messaging,
-              {
-                vapidKey:
-                  "BANg8hVOS1rmbemDYS0cPbuhLOFSnClKfqVZL5itSLXlBhNEJsb0Rsu0nl2091wKP_ojb6dUIwOZfSx_KDNHzdU",
-
-                serviceWorkerRegistration:
-                  registration,
-              }
-            );
-
-            console.log(
-              "FCM Token:",
-              fcmToken
-            );
-          }
-        }
+        return;
       }
 
-      // ==========================================
-      // 5. Send Google + FCM Token to PHP
-      // ==========================================
+      // =================================================
+      // 3. Notification Permission
+      // =================================================
+      const permission =
+        await Notification.requestPermission();
+
+      console.log(
+        "Notification permission:",
+        permission
+      );
+
+      if (permission !== "granted") {
+        console.log(
+          "Notification permission not granted"
+        );
+        return;
+      }
+
+      // =================================================
+      // 4. Firebase Messaging
+      // =================================================
+      const messaging =
+        await getMessagingInstance();
+
+      if (!messaging) {
+        console.log(
+          "Firebase Messaging unavailable"
+        );
+        return;
+      }
+
+      // =================================================
+      // 5. Get FCM Token
+      // =================================================
+      const fcmToken = await getToken(
+        messaging,
+        {
+          vapidKey:
+            "BANg8hVOS1rmbemDYS0cPbuhLOFSnClKfqVZL5itSLXlBhNEJsb0Rsu0nl2091wKP_ojb6dUIwOZfSx_KDNHzdU",
+
+          serviceWorkerRegistration:
+            registration,
+        }
+      );
+
+      console.log(
+        "FCM Token:",
+        fcmToken
+      );
+
+      // =================================================
+      // 6. Save FCM Token
+      // =================================================
+      if (fcmToken) {
+        try {
+          const response = await fetch(
+            "https://zyntaweb.com/skilllab/login.php",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+
+              body: JSON.stringify({
+                token: googleToken,
+                fcmToken: fcmToken,
+              }),
+            }
+          );
+
+          const data =
+            await response.json();
+
+          console.log(
+            "FCM Token Save Response:",
+            data
+          );
+        } catch (error) {
+          console.error(
+            "FCM token save failed:",
+            error
+          );
+        }
+      }
+    } catch (error) {
+      // =================================================
+      // IMPORTANT:
+      // FCM ERROR SHOULD NOT AFFECT LOGIN
+      // =================================================
+      console.error(
+        "FCM registration error:",
+        error
+      );
+    }
+  };
+
+  // =====================================================
+  // GOOGLE LOGIN SUCCESS
+  // =====================================================
+  const handleSuccess = async (res) => {
+    try {
+      const googleToken =
+        res.credential;
+
+      console.log(
+        "Google Login Success"
+      );
+
+      // =================================================
+      // 1. LOGIN PHP FIRST
+      // Don't wait for FCM
+      // =================================================
       const response = await fetch(
         "https://zyntaweb.com/skilllab/login.php",
         {
@@ -84,10 +163,19 @@ function Login() {
 
           body: JSON.stringify({
             token: googleToken,
-            fcmToken: fcmToken,
+            fcmToken: "",
           }),
         }
       );
+
+      // =================================================
+      // Check HTTP response
+      // =================================================
+      if (!response.ok) {
+        throw new Error(
+          `Server error: ${response.status}`
+        );
+      }
 
       const data =
         await response.json();
@@ -97,36 +185,46 @@ function Login() {
         data
       );
 
-      // ==========================================
-      // 6. Login Success
-      // ==========================================
-      if (data.success) {
-
-        localStorage.setItem(
-          "user",
-          JSON.stringify(data.user)
-        );
-
-        localStorage.setItem(
-          "token",
-          googleToken
-        );
-
-        // Replace login history
-        navigate("/dashboard", {
-          replace: true,
-        });
-
-      } else {
-
+      // =================================================
+      // 2. LOGIN FAILED
+      // =================================================
+      if (!data.success) {
         alert(
           data.message ||
           "Login failed"
         );
+
+        return;
       }
 
-    } catch (error) {
+      // =================================================
+      // 3. SAVE USER
+      // =================================================
+      localStorage.setItem(
+        "user",
+        JSON.stringify(data.user)
+      );
 
+      localStorage.setItem(
+        "token",
+        googleToken
+      );
+
+      // =================================================
+      // 4. GO TO DASHBOARD IMMEDIATELY
+      // =================================================
+      navigate("/dashboard", {
+        replace: true,
+      });
+
+      // =================================================
+      // 5. FCM AFTER LOGIN
+      // =================================================
+      // Do NOT await this.
+      // Dashboard opens immediately.
+      registerFCM(googleToken);
+
+    } catch (error) {
       console.error(
         "Login Error:",
         error
@@ -138,6 +236,22 @@ function Login() {
     }
   };
 
+  // =====================================================
+  // GOOGLE LOGIN ERROR
+  // =====================================================
+  const handleError = () => {
+    console.log(
+      "Google Login Failed"
+    );
+
+    alert(
+      "Google Login Failed"
+    );
+  };
+
+  // =====================================================
+  // UI
+  // =====================================================
   return (
     <div className="login-page">
 
@@ -159,6 +273,7 @@ function Login() {
       <div className="login-card">
 
         {/* Glass Shine */}
+
         <div className="card-shine"></div>
 
 
@@ -207,15 +322,7 @@ function Login() {
           <GoogleLogin
             onSuccess={handleSuccess}
 
-            onError={() => {
-              console.log(
-                "Login Failed"
-              );
-
-              alert(
-                "Google Login Failed"
-              );
-            }}
+            onError={handleError}
 
             auto_select={false}
 
@@ -230,9 +337,11 @@ function Login() {
         ========================================= */}
 
         <div className="login-footer">
+
           <p>
             Learn • Practice • Grow
           </p>
+
         </div>
 
       </div>
