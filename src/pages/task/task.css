@@ -2587,28 +2587,78 @@ body,
    Percentage line smaller + Tick box bigger
    ========================================================= */
 
-/* ---------- PERCENTAGE SLIDER ---------- */
+/* =========================================
+   0% ERROR
+   LINE STAYS WHITE
+   ONLY ROUND THUMB BECOMES RED
+========================================= */
 
-.card.task-modern-card .task-progress-inline
+/* Keep slider line WHITE during error */
+.card.task-modern-card.performance-error
+.task-progress-inline
+.task-percentage-range::-webkit-slider-runnable-track {
+  background: #ffffff !important;
+}
+
+.card.task-modern-card.performance-error
+.task-progress-inline
+.task-percentage-range::-moz-range-track {
+  background: #ffffff !important;
+}
+
+/* Keep the slider itself white */
+.card.task-modern-card.performance-error
+.task-progress-inline
 .task-percentage-range {
-  height: 4px !important;          /* line thinner */
-  max-width: 100% !important;
-  border-radius: 10px !important;
+  background: transparent !important;
+  accent-color: #ffffff !important;
 }
 
-/* Slider thumb smaller */
-.card.task-modern-card .task-progress-inline
+
+/* =========================================
+   ONLY ROUND THUMB RED + BLINK
+========================================= */
+
+.card.task-modern-card.performance-error
+.task-progress-inline
 .task-percentage-range::-webkit-slider-thumb {
-  width: 12px !important;
-  height: 12px !important;
+  background: #ff2f3f !important;
+
+  animation: redThumbBlink 0.45s ease-in-out 4;
 }
 
-.card.task-modern-card .task-progress-inline
+.card.task-modern-card.performance-error
+.task-progress-inline
 .task-percentage-range::-moz-range-thumb {
-  width: 12px !important;
-  height: 12px !important;
+  background: #ff2f3f !important;
+
+  animation: redThumbBlink 0.45s ease-in-out 4;
 }
 
+
+/* =========================================
+   RED ROUND BLINK
+========================================= */
+
+@keyframes redThumbBlink {
+  0% {
+    background: #ff2f3f;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 47, 63, 0);
+  }
+
+  50% {
+    background: #ff2f3f;
+    transform: scale(1.35);
+    box-shadow: 0 0 0 5px rgba(255, 47, 63, 0.25);
+  }
+
+  100% {
+    background: #ff2f3f;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 47, 63, 0);
+  }
+}
 
 /* ---------- TICK BOX BIGGER ---------- */
 
