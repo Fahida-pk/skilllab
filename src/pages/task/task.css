@@ -2620,8 +2620,7 @@ body,
    ONLY SLIDER ROUND BECOMES RED
 ========================================= */
 
-.card.task-modern-card.performance-error
-.task-progress-inline
+
 .task-percentage-range::-webkit-slider-thumb {
   background: #ff2f3f !important;
   animation: redThumbBlink 0.45s ease-in-out 4 !important;
