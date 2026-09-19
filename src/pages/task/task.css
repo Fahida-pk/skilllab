@@ -2616,35 +2616,28 @@ body,
 
 
 /* =========================================
-   ONLY ROUND THUMB RED + BLINK
+   0% ERROR
+   ONLY SLIDER ROUND BECOMES RED
 ========================================= */
 
 .card.task-modern-card.performance-error
 .task-progress-inline
 .task-percentage-range::-webkit-slider-thumb {
   background: #ff2f3f !important;
-
-  animation: redThumbBlink 0.45s ease-in-out 4;
+  animation: redThumbBlink 0.45s ease-in-out 4 !important;
 }
 
 .card.task-modern-card.performance-error
 .task-progress-inline
 .task-percentage-range::-moz-range-thumb {
   background: #ff2f3f !important;
-
-  animation: redThumbBlink 0.45s ease-in-out 4;
+  animation: redThumbBlink 0.45s ease-in-out 4 !important;
 }
-
-
-/* =========================================
-   RED ROUND BLINK
-========================================= */
 
 @keyframes redThumbBlink {
   0% {
     background: #ff2f3f;
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 47, 63, 0);
   }
 
   50% {
@@ -2656,10 +2649,8 @@ body,
   100% {
     background: #ff2f3f;
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 47, 63, 0);
   }
 }
-
 /* ---------- TICK BOX BIGGER ---------- */
 
 .card.task-modern-card .task-check-right {
