@@ -1058,7 +1058,41 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       );
       return;
     }
+    // Task can be completed only after its start time.
+    // Overnight tasks like 11:00 PM - 6:00 AM are allowed
+    // from 11:00 PM until 6:00 AM next day.
+    if (!task.completed) {
+      const fromMinutes = toMin(task.from || task.time);
+      const toMinutes = task.to ? toMin(task.to) : null;
 
+      const now = new Date();
+      const nowMinutes =
+        now.getHours() * 60 + now.getMinutes();
+
+      let startReached = false;
+
+      if (toMinutes !== null && toMinutes < fromMinutes) {
+        // Overnight task: 11 PM -> 6 AM
+        startReached =
+          nowMinutes >= fromMinutes ||
+          nowMinutes <= toMinutes;
+      } else {
+        // Normal task
+        startReached = nowMinutes >= fromMinutes;
+      }
+
+      if (!startReached) {
+        setPerformanceErrorTaskId(task.id);
+
+        window.setTimeout(() => {
+          setPerformanceErrorTaskId((prev) =>
+            String(prev) === String(task.id) ? null : prev
+          );
+        }, 2000);
+
+        return;
+      }
+    }
     // The existing task-performance slider is still required.
     // task.percentage is the task performance percentage.
     const currentPercentage = Math.max(
@@ -1345,6 +1379,33 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     } catch {
       return 0;
     }
+  };
+
+  // =========================================================
+  // TASK START TIME CHECK
+  // The checkbox is available only when the task start time
+  // has been reached. Overnight tasks such as 11:00 PM -> 6:00 AM
+  // are allowed from 11:00 PM until 6:00 AM next day.
+  // =========================================================
+  const isTaskStartReached = (task) => {
+    if (!task?.from && !task?.time) return true;
+
+    const fromMinutes = toMin(task.from || task.time);
+    const toMinutes = task.to ? toMin(task.to) : null;
+
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // Overnight task, for example 11:00 PM -> 6:00 AM.
+    if (toMinutes !== null && toMinutes < fromMinutes) {
+      return (
+        nowMinutes >= fromMinutes ||
+        nowMinutes <= toMinutes
+      );
+    }
+
+    // Normal task.
+    return nowMinutes >= fromMinutes;
   };
 
   const saveTaskImage = async (taskId) => {
@@ -2527,17 +2588,31 @@ const taskAccuracyPercentage =
                       <input
                         type="checkbox"
                         checked={task.completed === true}
-                        disabled={adminView || !isToday}
+                        disabled={
+                          adminView ||
+                          !isToday ||
+                          (!task.completed && !isTaskStartReached(task))
+                        }
                         onChange={() => {
                           if (adminView) return;
                           if (!isToday) return;
+
+                          // Do not allow ticking before the task start time.
+                          if (!task.completed && !isTaskStartReached(task)) {
+                            return;
+                          }
+
                           toggleTask(task);
                         }}
                       />
 
                       <span
                         className={`custom-check ${
-                          adminView || !isToday ? "check-disabled" : ""
+                          adminView ||
+                          !isToday ||
+                          (!task.completed && !isTaskStartReached(task))
+                            ? "check-disabled"
+                            : ""
                         }`}
                       >
                         {task.completed && <FaCheck />}
