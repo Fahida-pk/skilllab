@@ -4,6 +4,7 @@ import {
   FaUserCircle,
   FaSignOutAlt,
   FaBars,
+  FaArrowLeft,
 } from "react-icons/fa";
 
 import { useState } from "react";
@@ -11,20 +12,24 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import "./sidebar.css";
 
+
 function Sidebar({
   adminView = false,
   studentName = "",
   studentEmail = "",
   studentId = null,
 }) {
+
   const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
+
   const user = JSON.parse(
     localStorage.getItem("user") || "null"
   );
+
 
   /* =====================================================
      DISPLAY USER
@@ -42,6 +47,7 @@ function Sidebar({
     ? ""
     : user?.picture || "";
 
+
   /* =====================================================
      NAVIGATION
   ===================================================== */
@@ -51,14 +57,17 @@ function Sidebar({
     navigate(path);
   };
 
+
   /* =====================================================
      DASHBOARD
   ===================================================== */
 
   const handleDashboard = () => {
+
     setOpen(false);
 
     if (adminView && studentId) {
+
       navigate(
         `/admin/students/${studentId}/dashboard`,
         {
@@ -68,19 +77,25 @@ function Sidebar({
           },
         }
       );
+
     } else {
+
       navigate("/dashboard");
+
     }
   };
+
 
   /* =====================================================
      TASKS
   ===================================================== */
 
   const handleTasks = () => {
+
     setOpen(false);
 
     if (adminView && studentId) {
+
       navigate(
         `/admin/students/${studentId}/tasks`,
         {
@@ -90,37 +105,55 @@ function Sidebar({
           },
         }
       );
+
     } else {
+
       navigate("/task");
+
     }
   };
 
+
   /* =====================================================
-     LOGOUT
+     LOGOUT / BACK TO ADMIN DASHBOARD
   ===================================================== */
 
   const handleLogout = () => {
+
     setOpen(false);
 
+
     /*
-     * ADMIN VIEW:
+     * ADMIN VIEW
+     *
+     * Admin is viewing a student's dashboard.
+     *
      * Do NOT remove admin login.
-     * Just return to Admin Students page.
+     * Go directly back to Admin Dashboard.
      */
     if (adminView) {
-      navigate("/admin/students");
+
+      navigate("/AdminDashboard", {
+        replace: true,
+      });
+
       return;
     }
 
+
     /*
-     * NORMAL STUDENT:
+     * NORMAL STUDENT
+     *
      * Existing logout behavior.
      */
     localStorage.removeItem("user");
     localStorage.removeItem("token");
 
-    navigate("/login");
+    navigate("/login", {
+      replace: true,
+    });
   };
+
 
   /* =====================================================
      ACTIVE STATES
@@ -132,12 +165,14 @@ function Sidebar({
       )
     : location.pathname === "/dashboard";
 
+
   const isTasksActive = adminView
     ? location.pathname.includes(
         `/admin/students/${studentId}/tasks`
       )
     : location.pathname === "/task" ||
       location.pathname === "/tasks";
+
 
   return (
     <>
@@ -154,6 +189,7 @@ function Sidebar({
 
       </div>
 
+
       {/* ================= OVERLAY ================= */}
 
       {open && (
@@ -163,6 +199,7 @@ function Sidebar({
         />
       )}
 
+
       {/* ================= SIDEBAR ================= */}
 
       <aside
@@ -171,15 +208,18 @@ function Sidebar({
         }`}
       >
 
+
         {/* LOGO */}
 
         <div className="sidebar-logo">
           SKILL LAB
         </div>
 
+
         {/* MENU */}
 
         <nav className="sidebar-menu">
+
 
           {/* ================= DASHBOARD ================= */}
 
@@ -192,10 +232,15 @@ function Sidebar({
             }
             onClick={handleDashboard}
           >
+
             <FaThLarge className="sidebar-menu-icon" />
 
-            <span>Dashboard</span>
+            <span>
+              Dashboard
+            </span>
+
           </button>
+
 
           {/* ================= TASKS ================= */}
 
@@ -208,28 +253,41 @@ function Sidebar({
             }
             onClick={handleTasks}
           >
+
             <FaTasks className="sidebar-menu-icon" />
 
-            <span>Tasks</span>
+            <span>
+              Tasks
+            </span>
+
           </button>
 
         </nav>
+
 
         {/* PROFILE */}
 
         <div className="sidebar-profile">
 
+
           {/* PROFILE IMAGE */}
 
           {displayPicture ? (
+
             <img
               src={displayPicture}
               alt="Profile"
               className="sidebar-profile-image"
             />
+
           ) : (
-            <FaUserCircle className="sidebar-profile-icon" />
+
+            <FaUserCircle
+              className="sidebar-profile-icon"
+            />
+
           )}
+
 
           {/* STUDENT NAME */}
 
@@ -237,22 +295,34 @@ function Sidebar({
             {displayName}
           </div>
 
+
           {/* STUDENT EMAIL */}
 
           <div className="sidebar-user-email">
             {displayEmail}
           </div>
 
-          {/* LOGOUT */}
+
+          {/* LOGOUT / BACK BUTTON */}
 
           <button
             type="button"
             className="sidebar-logout"
             onClick={handleLogout}
           >
-            <FaSignOutAlt />
 
-            <span>Logout</span>
+            {adminView ? (
+              <FaArrowLeft />
+            ) : (
+              <FaSignOutAlt />
+            )}
+
+            <span>
+              {adminView
+                ? "Back to Admin Dashboard"
+                : "Logout"}
+            </span>
+
           </button>
 
         </div>
@@ -261,5 +331,6 @@ function Sidebar({
     </>
   );
 }
+
 
 export default Sidebar;
