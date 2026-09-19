@@ -1894,16 +1894,37 @@ const performancePercentage =
 //          (Total Task × Marked Task)
 // =========================================================
 
+// =========================================================
+// TASK ACCURACY PERCENTAGE
+//
+// Performance Task       = sum of task percentages
+// Sum of Performance Time = 100 / 50 / 30 score for marked tasks
+// Total Task             = all visible tasks
+// Marked Task             = only completed/ticked tasks
+//
+// Formula:
+// (Performance Task + Sum of Performance Time)
+// ---------------------------------------------
+//          (Total Task × Marked Task)
+// =========================================================
+
 const performanceTask = completedTaskList.reduce(
   (total, task) =>
     total +
-    Math.max(0, Math.min(100, Number(task.percentage ?? 0))),
+    Math.max(
+      0,
+      Math.min(100, Number(task.percentage ?? 0))
+    ),
   0
 );
 
 const sumOfPerformanceTime = completedTaskList.reduce(
   (total, task) =>
-    total + Math.max(0, Number(task.performanceTime ?? 0)),
+    total +
+    Math.max(
+      0,
+      Math.min(100, Number(task.performanceTime ?? 0))
+    ),
   0
 );
 
@@ -1911,9 +1932,11 @@ const markedTaskCount = completedTaskList.length;
 
 const taskAccuracyPercentage =
   markedTaskCount > 0 && totalTasks > 0
-    ? Math.round(
-        (performanceTask + sumOfPerformanceTime) /
+    ? Number(
+        (
+          (performanceTask + sumOfPerformanceTime) /
           (totalTasks * markedTaskCount)
+        ).toFixed(2)
       )
     : 0;
 
