@@ -2910,22 +2910,18 @@ body,
 }
 
 /* Normal slider track - stays dark */
-.card.task-modern-card .task-progress-inline{
-   height: 4px !important;
-  border-radius: 10px !important;
-  background: #2d2c2c !important;
-}
+.card.task-modern-card .task-progress-inline
 .task-percentage-range::-webkit-slider-runnable-track {
   height: 4px !important;
   border-radius: 10px !important;
-  background: #3f3f3f !important;
+  background: #f4e8e8 !important;
 }
 
 .card.task-modern-card .task-progress-inline
 .task-percentage-range::-moz-range-track {
   height: 4px !important;
   border-radius: 10px !important;
-  background: #3f3f3f !important;
+  background: #dedbdb !important;
 }
 
 /* Normal knob - WHITE */
