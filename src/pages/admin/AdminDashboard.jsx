@@ -936,8 +936,13 @@ const openStudentDashboard = (student) => {
                 <p>Overall student performance</p>
               </div>
             </div>
-            <strong>{dashboardData.monthPerformance ?? 0}%</strong>
-          </div>
+<strong
+  className={`performance-percentage ${getPerformanceClass(
+    dashboardData.monthPerformance
+  )}`}
+>
+  {dashboardData.monthPerformance ?? 0}%
+</strong>          </div>
 
           <div className="large-progress">
             <div

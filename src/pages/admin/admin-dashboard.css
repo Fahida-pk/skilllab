@@ -868,7 +868,25 @@ body {
 
   color: #aaa4b1;
 }
+/* =================================
+   PERFORMANCE PERCENTAGE COLORS
+================================= */
 
+.performance-card-header > strong.performance-percentage {
+  font-size: 28px;
+}
+
+.performance-card-header > strong.performance-percentage.strong {
+  color: #16a365 !important;
+}
+
+.performance-card-header > strong.performance-percentage.good {
+  color: #f5a623 !important;
+}
+
+.performance-card-header > strong.performance-percentage.weak {
+  color: #ef5350 !important;
+}
 /* =====================================================
    STUDENT PERFORMANCE LIST
 ===================================================== */
@@ -889,35 +907,7 @@ body {
     0 8px 30px
       rgba(35, 16, 59, 0.045);
 }
-/* =================================
-   PERFORMANCE PERCENTAGE COLORS
-================================= */
-/* =================================
-   PERFORMANCE PERCENTAGE COLORS
-================================= */
 
-.performance-card-header > strong.performance-percentage {
-  font-size: 28px;
-}
-
-.performance-card-header > strong.performance-percentage.strong {
-  color: #16a365 !important;
-}
-
-.performance-card-header > strong.performance-percentage.good {
-  color: #f5a623 !important;
-}
-
-.performance-card-header > strong.performance-percentage.weak {
-  color: #ef5350 !important;
-}
-.performance-card-header > strong.today-percentage {
-  color: #16a365 !important;
-}
-
-.performance-card-header > strong.weekly-percentage {
-  color: #2585e8 !important;
-}
 .performance-section-header {
   padding:
     22px 24px;
