@@ -1728,81 +1728,152 @@ const performancePercentage =
     opacity: 0.45;
     cursor: not-allowed;
   }
-
-  /* =========================================
+/* =========================================
    TASK PROGRESS SLIDER
-   NORMAL  -> WHITE ROUND + DARK TRACK
-   ERROR   -> RED ROUND + DARK TRACK
+   NORMAL:
+   WHITE ROUND + WHITE PROGRESS + DARK TRACK
    ========================================= */
 
 .card.task-modern-card .task-percentage-range {
   appearance: none !important;
   -webkit-appearance: none !important;
+
+  width: 100% !important;
+
   background: transparent !important;
   accent-color: transparent !important;
 }
 
-/* DARK TRACK */
+/* =========================================
+   CHROME / EDGE / SAFARI
+   WHITE PROGRESS + DARK REMAINING TRACK
+   ========================================= */
+
 .card.task-modern-card
-  .task-percentage-range::-webkit-slider-runnable-track {
+.task-percentage-range::-webkit-slider-runnable-track {
   height: 7px !important;
-  background: #333 !important;
+
+  background: linear-gradient(
+    to right,
+    #ffffff 0%,
+    #ffffff var(--progress, 0%),
+    #333333 var(--progress, 0%),
+    #333333 100%
+  ) !important;
+
   border-radius: 10px !important;
 }
 
+/* =========================================
+   FIREFOX
+   ========================================= */
+
 .card.task-modern-card
-  .task-percentage-range::-moz-range-track {
+.task-percentage-range::-moz-range-track {
   height: 7px !important;
-  background: #333 !important;
+
+  background: linear-gradient(
+    to right,
+    #ffffff 0%,
+    #ffffff var(--progress, 0%),
+    #333333 var(--progress, 0%),
+    #333333 100%
+  ) !important;
+
   border-radius: 10px !important;
 }
 
-/* NORMAL WHITE ROUND */
+/* =========================================
+   NORMAL WHITE ROUND
+   BIGGER ROUND
+   ========================================= */
+
 .card.task-modern-card
-  .task-percentage-range::-webkit-slider-thumb {
+.task-percentage-range::-webkit-slider-thumb {
   appearance: none !important;
   -webkit-appearance: none !important;
 
-  width: 18px !important;
-  height: 18px !important;
+  width: 22px !important;
+  height: 22px !important;
 
-  margin-top: -5.5px !important;
+  margin-top: -7.5px !important;
 
   border: none !important;
   border-radius: 50% !important;
 
   background: #ffffff !important;
+
   box-shadow: none !important;
+
+  cursor: pointer !important;
 }
 
 .card.task-modern-card
-  .task-percentage-range::-moz-range-thumb {
-  width: 18px !important;
-  height: 18px !important;
+.task-percentage-range::-moz-range-thumb {
+  width: 22px !important;
+  height: 22px !important;
 
   border: none !important;
   border-radius: 50% !important;
 
   background: #ffffff !important;
+
   box-shadow: none !important;
+
+  cursor: pointer !important;
 }
 
 /* =========================================
    0% ERROR
-   ONLY ROUND BECOMES RED
-   TRACK STAYS DARK
+   RED ROUND ONLY
+   BIG + BLINK
    ========================================= */
 
 .card.task-modern-card.performance-error
-  .task-percentage-range::-webkit-slider-thumb {
-  background: #ef2222 !important;
+.task-percentage-range::-webkit-slider-thumb {
+  width: 22px !important;
+  height: 22px !important;
+
+  background: #ff2638 !important;
+
+  border: none !important;
   box-shadow: none !important;
+
+  animation: redProgressBlink 0.65s ease-in-out infinite !important;
 }
 
 .card.task-modern-card.performance-error
-  .task-percentage-range::-moz-range-thumb {
-  background: #ef2222 !important;
+.task-percentage-range::-moz-range-thumb {
+  width: 22px !important;
+  height: 22px !important;
+
+  background: #ff2638 !important;
+
+  border: none !important;
   box-shadow: none !important;
+
+  animation: redProgressBlink 0.65s ease-in-out infinite !important;
+}
+
+/* =========================================
+   RED ROUND BLINK
+   ========================================= */
+
+@keyframes redProgressBlink {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.15;
+    transform: scale(0.72);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
   /* =========================================================
