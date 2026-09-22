@@ -10,6 +10,7 @@ import {
   FaArrowRightFromBracket,
   FaChevronDown,
   FaXmark,
+  FaBars,
 } from "react-icons/fa6";
 
 import "./admin-dashboard.css";
@@ -24,6 +25,10 @@ export default function Sidebar() {
     location.pathname.startsWith("/admin/students")
   );
 
+  const [parentsOpen, setParentsOpen] = useState(
+    location.pathname.startsWith("/admin/parents")
+  );
+
   const isStudentsPage =
     location.pathname === "/admin/students" ||
     location.pathname.startsWith("/admin/students/");
@@ -33,22 +38,35 @@ export default function Sidebar() {
     location.pathname === "/admin/dashboard";
 
   const isParentsPage =
-    location.pathname.startsWith("/admin/parents");
+    location.pathname === "/admin/parents" ||
+    location.pathname.startsWith("/admin/parents/");
+
+
+  /* =========================
+     NAVIGATION
+  ========================= */
 
   const goDashboard = () => {
     navigate("/AdminDashboard");
     setMobileOpen(false);
   };
 
+
   const goStudents = () => {
     navigate("/admin/students");
     setMobileOpen(false);
   };
 
+
   const goParents = () => {
     navigate("/admin/parents");
     setMobileOpen(false);
   };
+
+
+  /* =========================
+     LOGOUT
+  ========================= */
 
   const handleLogout = () => {
     localStorage.removeItem("admin");
@@ -59,9 +77,29 @@ export default function Sidebar() {
     });
   };
 
+
   return (
     <>
-      {/* MOBILE OVERLAY */}
+      {/* =====================================================
+          MOBILE MENU BUTTON
+      ===================================================== */}
+
+      {!mobileOpen && (
+        <button
+          type="button"
+          className="mobile-sidebar-menu"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open menu"
+        >
+          <FaBars />
+        </button>
+      )}
+
+
+      {/* =====================================================
+          MOBILE OVERLAY
+      ===================================================== */}
+
       {mobileOpen && (
         <div
           className="admin-sidebar-overlay"
@@ -69,32 +107,55 @@ export default function Sidebar() {
         />
       )}
 
-      {/* SIDEBAR */}
+
+      {/* =====================================================
+          SIDEBAR
+      ===================================================== */}
+
       <aside
         className={`admin-sidebar ${
           mobileOpen ? "mobile-open" : ""
         }`}
       >
-        {/* BRAND */}
+
+        {/* =================================================
+            BRAND
+        ================================================= */}
+
         <div className="admin-brand">
+
           <div className="admin-brand-text">
             <strong>SKILL LAB</strong>
           </div>
+
+
+          {/* MOBILE CLOSE */}
 
           <button
             type="button"
             className="mobile-sidebar-close"
             onClick={() => setMobileOpen(false)}
+            aria-label="Close menu"
           >
             <FaXmark />
           </button>
+
         </div>
 
-        {/* NAVIGATION */}
+
+        {/* =================================================
+            NAVIGATION
+        ================================================= */}
+
         <div className="admin-sidebar-content">
 
-          {/* DASHBOARD */}
+
+          {/* =================================================
+              DASHBOARD
+          ================================================= */}
+
           <div className="admin-nav-group">
+
             <button
               type="button"
               className={`admin-nav-item ${
@@ -102,36 +163,53 @@ export default function Sidebar() {
               }`}
               onClick={goDashboard}
             >
+
               <FaGaugeHigh />
 
-              <span>Dashboard</span>
+              <span>
+                Dashboard
+              </span>
+
             </button>
+
           </div>
 
-          {/* STUDENTS */}
+
+          {/* =================================================
+              STUDENTS
+          ================================================= */}
+
           <div className="admin-nav-group">
+
             <button
               type="button"
               className={`admin-nav-item ${
                 isStudentsPage ? "active" : ""
               }`}
-              onClick={() =>
-                setStudentsOpen((prev) => !prev)
-              }
+              onClick={() => {
+                setStudentsOpen((prev) => !prev);
+              }}
             >
+
               <FaUsers />
 
-              <span>Students</span>
+              <span>
+                Students
+              </span>
+
 
               <FaChevronDown
                 className={`admin-nav-arrow ${
                   studentsOpen ? "rotate" : ""
                 }`}
               />
+
             </button>
+
 
             {studentsOpen && (
               <div className="admin-submenu">
+
                 <button
                   type="button"
                   className={
@@ -141,56 +219,133 @@ export default function Sidebar() {
                   }
                   onClick={goStudents}
                 >
+
                   <FaUserGraduate />
 
-                  <span>All Students</span>
+                  <span>
+                    All Students
+                  </span>
+
                 </button>
+
               </div>
             )}
+
           </div>
 
-          {/* PARENTS */}
+
+          {/* =================================================
+              PARENTS
+          ================================================= */}
+
           <div className="admin-nav-group">
+
             <button
               type="button"
               className={`admin-nav-item ${
                 isParentsPage ? "active" : ""
               }`}
-              onClick={goParents}
+              onClick={() => {
+
+                setParentsOpen((prev) => !prev);
+
+                if (!isParentsPage) {
+                  navigate("/admin/parents");
+                  setMobileOpen(false);
+                }
+
+              }}
             >
+
               <FaUserTie />
 
-              <span>Parents</span>
+              <span>
+                Parents
+              </span>
 
-              <FaChevronDown className="admin-nav-arrow" />
+
+              <FaChevronDown
+                className={`admin-nav-arrow ${
+                  parentsOpen ? "rotate" : ""
+                }`}
+              />
+
             </button>
+
+
+            {parentsOpen && (
+              <div className="admin-submenu">
+
+                <button
+                  type="button"
+                  className={
+                    isParentsPage
+                      ? "submenu-active"
+                      : ""
+                  }
+                  onClick={goParents}
+                >
+
+                  <FaUserTie />
+
+                  <span>
+                    All Parents
+                  </span>
+
+                </button>
+
+              </div>
+            )}
+
           </div>
 
-          {/* PAYMENT GATEWAY */}
+
+          {/* =================================================
+              PAYMENT GATEWAY
+          ================================================= */}
+
           <div className="admin-nav-group">
+
             <button
               type="button"
               className="admin-nav-item"
             >
+
               <FaCreditCard />
 
-              <span>Payment Gateway</span>
+              <span>
+                Payment Gateway
+              </span>
+
             </button>
+
           </div>
+
         </div>
 
-        {/* LOGOUT */}
+
+        {/* =================================================
+            LOGOUT
+        ================================================= */}
+
         <div className="admin-sidebar-bottom">
+
           <button
             type="button"
             className="admin-logout"
             onClick={handleLogout}
           >
+
             <FaArrowRightFromBracket />
 
-            <span>Logout</span>
+            <span>
+              Logout
+            </span>
+
           </button>
+
         </div>
+
       </aside>
     </>
   );

@@ -1932,3 +1932,941 @@
     padding: 0 7px;
   }
 }
+/* =====================================================
+   MOBILE SIDEBAR + PARENT PAGE
+   FINAL MOBILE RESPONSIVE
+===================================================== */
+
+
+/* =====================================================
+   PARENT BASE
+===================================================== */
+
+.parent-layout {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  background: #f5f6fb;
+  overflow-x: hidden;
+}
+
+.parent-main {
+  flex: 1;
+  min-width: 0;
+  margin-left: 0;
+  padding: 28px;
+  box-sizing: border-box;
+}
+
+
+/* =====================================================
+   MOBILE SIDEBAR BUTTON
+===================================================== */
+
+.mobile-sidebar-menu {
+  display: none;
+
+  position: fixed;
+
+  top: 14px;
+  left: 14px;
+
+  width: 42px;
+  height: 42px;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid #e3d9ef;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #7438c9;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  z-index: 11000;
+
+  box-shadow:
+    0 5px 18px rgba(45, 30, 70, 0.12);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+
+.mobile-sidebar-menu:hover {
+  box-shadow:
+    0 7px 22px rgba(45, 30, 70, 0.16);
+}
+
+
+.mobile-sidebar-menu:active {
+  transform: scale(0.95);
+}
+
+
+/* =====================================================
+   SIDEBAR OVERLAY
+===================================================== */
+
+.admin-sidebar-overlay {
+  display: none;
+
+  position: fixed;
+
+  inset: 0;
+
+  background:
+    rgba(20, 15, 30, 0.42);
+
+  backdrop-filter: blur(2px);
+
+  z-index: 9998;
+}
+
+
+/* =====================================================
+   SIDEBAR MOBILE
+===================================================== */
+
+@media (max-width: 800px) {
+
+  /* -----------------------------------------------
+     SIDEBAR CLOSED
+  ------------------------------------------------ */
+
+  .admin-sidebar {
+    position: fixed !important;
+
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+
+    width: 265px !important;
+    min-width: 265px !important;
+    max-width: 82vw !important;
+
+    height: 100vh !important;
+
+    margin: 0 !important;
+
+    transform: translateX(-105%);
+
+    transition:
+      transform 0.28s ease;
+
+    z-index: 10000 !important;
+
+    overflow-y: auto !important;
+
+    visibility: visible !important;
+  }
+
+
+  /* -----------------------------------------------
+     SIDEBAR OPEN
+  ------------------------------------------------ */
+
+  .admin-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+
+  /* -----------------------------------------------
+     OVERLAY
+  ------------------------------------------------ */
+
+  .admin-sidebar-overlay {
+    display: block;
+  }
+
+
+  /* -----------------------------------------------
+     MENU BUTTON
+  ------------------------------------------------ */
+
+  .mobile-sidebar-menu {
+    display: flex;
+  }
+
+
+  /* -----------------------------------------------
+     SIDEBAR CLOSE BUTTON
+  ------------------------------------------------ */
+
+  .mobile-sidebar-close {
+    display: flex !important;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #f3edff;
+
+    color: #7134d8;
+
+    cursor: pointer;
+
+    font-size: 17px;
+  }
+
+
+  /* -----------------------------------------------
+     PARENT MAIN
+  ------------------------------------------------ */
+
+  .parent-layout {
+    display: block !important;
+
+    width: 100% !important;
+
+    min-height: 100vh !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+  }
+
+
+  .parent-main {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin-left: 0 !important;
+
+    padding:
+      68px
+      14px
+      25px !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  .parent-management-page {
+    width: 100% !important;
+
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  /* -----------------------------------------------
+     HEADER
+  ------------------------------------------------ */
+
+  .parent-page-header {
+    width: 100% !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    align-items: stretch !important;
+
+    gap: 14px !important;
+
+    margin-bottom: 16px !important;
+  }
+
+
+  .parent-title-row {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+  }
+
+
+  .parent-title-icon {
+    width: 44px !important;
+    height: 44px !important;
+
+    min-width: 44px !important;
+
+    border-radius: 11px !important;
+
+    font-size: 18px !important;
+  }
+
+
+  .parent-title-row h2 {
+    font-size: 21px !important;
+
+    line-height: 1.2;
+  }
+
+
+  .parent-title-row p {
+    margin-top: 4px !important;
+
+    font-size: 11px !important;
+
+    line-height: 1.4;
+  }
+
+
+  /* -----------------------------------------------
+     ADD PARENT
+  ------------------------------------------------ */
+
+  .parent-add-button {
+    width: 100% !important;
+
+    height: 44px !important;
+
+    justify-content: center !important;
+
+    font-size: 13px !important;
+  }
+
+
+  /* -----------------------------------------------
+     LIST CARD
+  ------------------------------------------------ */
+
+  .parent-list-card {
+    width: 100% !important;
+
+    border-radius: 14px !important;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+  }
+
+
+  /* -----------------------------------------------
+     LIST HEADER
+  ------------------------------------------------ */
+
+  .parent-list-header {
+    width: 100% !important;
+
+    min-height: auto !important;
+
+    padding: 14px !important;
+
+    box-sizing: border-box;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    align-items: stretch !important;
+
+    gap: 12px !important;
+  }
+
+
+  .parent-list-header h3 {
+    font-size: 16px !important;
+  }
+
+
+  .parent-list-header span {
+    font-size: 11px !important;
+  }
+
+
+  /* -----------------------------------------------
+     SEARCH + REFRESH
+  ------------------------------------------------ */
+
+  .parent-list-actions {
+    width: 100% !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 7px !important;
+  }
+
+
+  .parent-search {
+    width: auto !important;
+
+    min-width: 0 !important;
+
+    flex: 1 !important;
+
+    height: 40px !important;
+  }
+
+
+  .parent-search input {
+    min-width: 0 !important;
+
+    font-size: 12px !important;
+  }
+
+
+  .parent-refresh-button {
+    width: 40px !important;
+
+    min-width: 40px !important;
+
+    height: 40px !important;
+  }
+
+
+  /* =================================================
+     MOBILE TABLE
+  ================================================= */
+
+  .parent-table-wrapper {
+    width: 100% !important;
+
+    overflow: visible !important;
+  }
+
+
+  .parent-table {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    border-collapse: separate !important;
+
+    border-spacing: 0 !important;
+  }
+
+
+  /* Hide desktop headings */
+
+  .parent-table thead {
+    display: none !important;
+  }
+
+
+  .parent-table,
+  .parent-table tbody,
+  .parent-table tr,
+  .parent-table td {
+    display: block !important;
+
+    width: 100% !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  /* Each parent = card */
+
+  .parent-table tbody tr {
+    width: 100% !important;
+
+    padding: 13px !important;
+
+    border-bottom:
+      1px solid #eeeaf3 !important;
+
+    background: #fff;
+
+    box-sizing: border-box;
+  }
+
+
+  .parent-table tbody tr:last-child {
+    border-bottom: 0 !important;
+  }
+
+
+  /* Hide everything first */
+
+  .parent-table tbody td {
+    display: none !important;
+
+    width: 100% !important;
+
+    padding: 0 !important;
+
+    border: 0 !important;
+  }
+
+
+  /* Parent */
+
+  .parent-table tbody td:nth-child(1),
+  .parent-table tbody td:nth-child(2) {
+    display: flex !important;
+
+    align-items: center !important;
+  }
+
+
+  /* Username */
+
+  .parent-table tbody td:nth-child(2) {
+    margin-top: 8px !important;
+
+    margin-bottom: 8px !important;
+  }
+
+
+  .parent-table tbody td:nth-child(2)::before {
+    content: "Username";
+
+    margin-right: 8px;
+
+    color: #8e8699;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    flex-shrink: 0;
+  }
+
+
+  /* Password */
+
+  .parent-table tbody td:nth-child(3) {
+    display: flex !important;
+
+    align-items: center !important;
+
+    margin-bottom: 10px !important;
+  }
+
+
+  .parent-table tbody td:nth-child(3)::before {
+    content: "Password";
+
+    margin-right: 8px;
+
+    color: #8e8699;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    flex-shrink: 0;
+  }
+
+
+  /* Actions */
+
+  .parent-table tbody td:nth-child(4) {
+    display: flex !important;
+
+    justify-content: flex-end !important;
+
+    align-items: center !important;
+  }
+
+
+  /* -----------------------------------------------
+     PARENT NAME
+  ------------------------------------------------ */
+
+  .parent-name-cell {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+  }
+
+
+  .parent-avatar {
+    width: 35px !important;
+    height: 35px !important;
+
+    min-width: 35px !important;
+
+    border-radius: 9px !important;
+  }
+
+
+  .parent-name-cell strong {
+    font-size: 12px !important;
+  }
+
+
+  /* -----------------------------------------------
+     USERNAME
+  ------------------------------------------------ */
+
+  .parent-username {
+    padding: 5px 8px !important;
+
+    border-radius: 7px !important;
+
+    font-size: 11px !important;
+  }
+
+
+  /* -----------------------------------------------
+     PASSWORD
+  ------------------------------------------------ */
+
+  .parent-password {
+    font-size: 11px !important;
+
+    color: #777080;
+  }
+
+
+  /* -----------------------------------------------
+     ACTIONS
+  ------------------------------------------------ */
+
+  .parent-actions {
+    width: 100%;
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    align-items: center;
+
+    gap: 6px;
+  }
+
+
+  .parent-view-button,
+  .parent-edit-button,
+  .parent-delete-button {
+    width: 34px !important;
+
+    min-width: 34px !important;
+
+    height: 34px !important;
+  }
+
+
+  /* =================================================
+     ADD / EDIT MODAL
+  ================================================= */
+
+  .parent-modal-overlay {
+    padding: 10px !important;
+
+    align-items: center !important;
+  }
+
+
+  .parent-modal {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    max-height: 94vh !important;
+
+    border-radius: 14px !important;
+  }
+
+
+  .parent-modal-header {
+    padding: 16px !important;
+  }
+
+
+  .parent-modal-header h3 {
+    font-size: 17px !important;
+  }
+
+
+  .parent-modal-header p {
+    font-size: 11px !important;
+  }
+
+
+  .parent-form-grid {
+    padding: 16px !important;
+
+    grid-template-columns: 1fr !important;
+
+    gap: 13px !important;
+  }
+
+
+  .parent-form-group.full {
+    grid-column: auto !important;
+  }
+
+
+  .parent-modal-footer {
+    padding: 12px 16px !important;
+
+    flex-direction: row !important;
+  }
+
+
+  .parent-modal-footer button {
+    flex: 1 !important;
+
+    min-width: 0 !important;
+  }
+
+
+  /* =================================================
+     STUDENT PICKER
+  ================================================= */
+
+  .student-section-title {
+    align-items: flex-start !important;
+
+    flex-direction: column !important;
+
+    gap: 7px !important;
+  }
+
+
+  .student-section-title > strong {
+    align-self: flex-start;
+  }
+
+
+  .student-picker-top {
+    padding: 8px !important;
+  }
+
+
+  .student-search {
+    min-width: 0 !important;
+  }
+
+
+  .student-search input {
+    font-size: 12px !important;
+  }
+
+
+  .student-list {
+    max-height: 190px !important;
+  }
+
+
+  .student-row {
+    padding: 9px !important;
+
+    gap: 8px !important;
+  }
+
+
+  .student-avatar {
+    width: 32px !important;
+    height: 32px !important;
+
+    min-width: 32px !important;
+  }
+
+
+  .student-info strong {
+    font-size: 12px !important;
+  }
+
+
+  .student-info small {
+    font-size: 10px !important;
+  }
+
+
+  /* =================================================
+     VIEW STUDENTS MODAL
+  ================================================= */
+
+  .parent-students-modal {
+    width: 100% !important;
+  }
+
+
+  .parent-students-toolbar {
+    padding: 12px 16px !important;
+  }
+
+
+  .parent-students-list {
+    padding:
+      10px
+      16px
+      16px !important;
+
+    max-height: 260px !important;
+  }
+
+
+  .assigned-student-row {
+    padding: 8px !important;
+
+    gap: 7px !important;
+  }
+
+
+  .assigned-student-number {
+    width: 18px !important;
+  }
+
+
+  .assigned-student-info strong {
+    font-size: 12px !important;
+  }
+
+
+  .assigned-student-info small {
+    font-size: 10px !important;
+  }
+
+
+  .student-action-body {
+    padding:
+      14px
+      16px
+      18px !important;
+  }
+
+
+  .student-modal-search {
+    height: 40px !important;
+  }
+
+
+  .student-choice-list {
+    max-height: 230px !important;
+  }
+
+}
+
+
+/* =====================================================
+   SMALL PHONE
+   427px / 414px / 390px / 375px
+===================================================== */
+
+@media (max-width: 480px) {
+
+  .mobile-sidebar-menu {
+    top: 10px;
+
+    left: 10px;
+
+    width: 40px;
+
+    height: 40px;
+
+    border-radius: 10px;
+  }
+
+
+  .parent-main {
+    padding:
+      60px
+      10px
+      20px !important;
+  }
+
+
+  .parent-title-row {
+    gap: 9px !important;
+  }
+
+
+  .parent-title-icon {
+    width: 41px !important;
+
+    height: 41px !important;
+
+    min-width: 41px !important;
+  }
+
+
+  .parent-title-row h2 {
+    font-size: 19px !important;
+  }
+
+
+  .parent-title-row p {
+    font-size: 10px !important;
+  }
+
+
+  .parent-add-button {
+    height: 42px !important;
+
+    font-size: 13px !important;
+  }
+
+
+  .parent-list-card {
+    border-radius: 12px !important;
+  }
+
+
+  .parent-list-header {
+    padding: 12px !important;
+  }
+
+
+  .parent-list-header h3 {
+    font-size: 15px !important;
+  }
+
+
+  .parent-search {
+    height: 39px !important;
+  }
+
+
+  .parent-refresh-button {
+    width: 39px !important;
+
+    min-width: 39px !important;
+
+    height: 39px !important;
+  }
+
+
+  .parent-table tbody tr {
+    padding: 12px !important;
+  }
+
+
+  .parent-avatar {
+    width: 32px !important;
+
+    min-width: 32px !important;
+
+    height: 32px !important;
+  }
+
+
+  .parent-name-cell strong {
+    font-size: 12px !important;
+  }
+
+
+  .parent-view-button,
+  .parent-edit-button,
+  .parent-delete-button {
+    width: 33px !important;
+
+    min-width: 33px !important;
+
+    height: 33px !important;
+  }
+
+}
