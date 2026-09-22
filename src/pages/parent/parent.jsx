@@ -726,17 +726,10 @@ export default function Parents() {
   ========================================= */
 
   return (
+<div className="parent-layout">
+  {/* <Sidebar /> */}
 
-    <div className="parent-layout">
-
-      {/* SIDEBAR */}
-
-      <Sidebar />
-
-
-      {/* MAIN */}
-
-      <main className="parent-main">
+  <main className="parent-main">
 
         <section className="parent-management-page">
 
