@@ -2,20 +2,20 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   FaPlus,
-  FaMagnifyingGlass,
+  FaSearch,
   FaPen,
   FaTrash,
-  FaXmark,
+  FaTimes,
   FaUserTie,
   FaPhone,
   FaEnvelope,
-  FaLocationDot,
+  FaMapMarkerAlt,
   FaUser,
   FaLock,
-  FaArrowsRotate,
+  FaSyncAlt,
   FaGraduationCap,
   FaCheck,
-} from "react-icons/fa6";
+} from "react-icons/fa";
 
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -727,7 +727,7 @@ export default function Parents() {
 
   return (
 <div className="parent-layout">
-  {/* <Sidebar /> */}
+  <Sidebar />
 
   <main className="parent-main">
 
@@ -802,7 +802,7 @@ export default function Parents() {
 
                 <div className="parent-search">
 
-                  <FaMagnifyingGlass />
+                  <FaSearch />
 
                   <input
                     type="text"
@@ -825,7 +825,7 @@ export default function Parents() {
                   title="Refresh"
                 >
 
-                  <FaArrowsRotate
+                  <FaSyncAlt
                     className={
                       loading
                         ? "spin"
@@ -844,7 +844,7 @@ export default function Parents() {
 
               <div className="parent-empty-state">
 
-                <FaArrowsRotate
+                <FaSyncAlt
                   className="spin empty-icon"
                 />
 
@@ -1078,7 +1078,7 @@ export default function Parents() {
                     disabled={saving}
                   >
 
-                    <FaXmark />
+                    <FaTimes />
 
                   </button>
 
@@ -1163,7 +1163,7 @@ export default function Parents() {
 
                       <div className="parent-input-wrap parent-textarea-wrap">
 
-                        <FaLocationDot />
+                        <FaMapMarkerAlt />
 
                         <textarea
                           name="address"
@@ -1301,7 +1301,7 @@ export default function Parents() {
 
                           <div className="student-search">
 
-                            <FaMagnifyingGlass />
+                            <FaSearch />
 
                             <input
                               type="text"
@@ -1327,7 +1327,7 @@ export default function Parents() {
                             title="Refresh students"
                           >
 
-                            <FaArrowsRotate
+                            <FaSyncAlt
                               className={
                                 studentLoading
                                   ? "spin"
@@ -1346,7 +1346,7 @@ export default function Parents() {
 
                             <div className="student-empty">
 
-                              <FaArrowsRotate
+                              <FaSyncAlt
                                 className="spin"
                               />
 
