@@ -4498,3 +4498,201 @@
     padding-right: 8px !important;
   }
 }
+
+/* =========================================================
+   PARENTS PAGE — FINAL MOBILE FULL WIDTH
+   The Parents page now uses the Admin Dashboard wrapper:
+   .admin-dashboard > .admin-main > .admin-content
+   So mobile rules must target those classes directly.
+========================================================= */
+
+html,
+body,
+#root {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+.parent-admin-dashboard {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 100vh !important;
+  display: flex !important;
+  overflow-x: hidden !important;
+}
+
+.parent-admin-dashboard .admin-main {
+  width: calc(100% - 265px) !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin-left: 265px !important;
+  box-sizing: border-box !important;
+}
+
+.parent-admin-content {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.parent-admin-content .parent-management-page {
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+/* Desktop */
+@media (min-width: 801px) {
+  .parent-admin-dashboard .admin-main {
+    width: calc(100% - 265px) !important;
+    margin-left: 265px !important;
+  }
+
+  .parent-admin-dashboard .admin-content {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
+/* Tablet + mobile */
+@media (max-width: 800px) {
+
+  .parent-admin-dashboard {
+    width: 100vw !important;
+    min-width: 0 !important;
+    display: block !important;
+    overflow-x: hidden !important;
+  }
+
+  .parent-admin-dashboard .admin-main {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  .parent-admin-dashboard .admin-topbar {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .parent-admin-dashboard .admin-content,
+  .parent-admin-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 18px 12px 35px !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  .parent-admin-content .parent-management-page {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .parent-admin-content .parent-page-header {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .parent-admin-content .parent-list-card {
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .parent-admin-content .parent-list-header {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .parent-admin-content .parent-table-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .parent-admin-content .parent-table {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+    box-sizing: border-box !important;
+  }
+
+  .parent-admin-content .parent-table tbody,
+  .parent-admin-content .parent-table tbody tr,
+  .parent-admin-content .parent-table tbody td {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .parent-admin-content .parent-table tbody tr {
+    display: block !important;
+  }
+
+  .parent-admin-content .parent-table tbody td {
+    display: flex !important;
+  }
+
+  /* Keep the mobile parent card compact but full width. */
+  .parent-admin-content .parent-table tbody td:nth-child(1),
+  .parent-admin-content .parent-table tbody td:nth-child(2),
+  .parent-admin-content .parent-table tbody td:nth-child(3),
+  .parent-admin-content .parent-table tbody td:nth-child(4) {
+    width: 100% !important;
+  }
+
+  .parent-admin-content .parent-search {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .parent-admin-content .parent-list-actions {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .parent-admin-content .parent-add-button {
+    width: 100% !important;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+
+  .parent-admin-dashboard .admin-topbar {
+    min-height: 68px !important;
+    padding: 12px !important;
+  }
+
+  .parent-admin-dashboard .admin-content,
+  .parent-admin-content {
+    padding: 14px 10px 30px !important;
+  }
+
+  .parent-admin-content .parent-list-header {
+    padding: 11px !important;
+  }
+
+  .parent-admin-content .parent-table tbody tr {
+    padding: 11px !important;
+  }
+}
