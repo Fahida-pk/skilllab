@@ -1135,19 +1135,8 @@ export default function Parents() {
                           country="in"
                           value={form.phone}
                           onChange={handlePhoneChange}
-                          enableSearch
-                          searchPlaceholder="Search country"
-                          preferredCountries={[
-                            "in",
-                            "ae",
-                            "sa",
-                            "qa",
-                            "om",
-                            "kw",
-                          ]}
-                          inputProps={{
-                            name: "phone",
-                            required: true,
+                          inputStyle={{
+                            width: "100%",
                           }}
                         />
 
