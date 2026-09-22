@@ -18,8 +18,15 @@ import {
   FaCheck,
 } from "react-icons/fa";
 
-import PhoneInput from "react-phone-input-2";
+import * as PhoneInputModule from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+
+const PhoneInput =
+  typeof PhoneInputModule?.default === "function"
+    ? PhoneInputModule.default
+    : typeof PhoneInputModule === "function"
+    ? PhoneInputModule
+    : PhoneInputModule?.default?.default;
 
 import Sidebar from "../admin/Sidebar.jsx";
 
