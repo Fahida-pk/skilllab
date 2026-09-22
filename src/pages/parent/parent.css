@@ -1311,3 +1311,60 @@
   }
 
 }
+
+/* =====================================================
+   PHONE INPUT - SAME MODEL AS ALAFIYA DRIVER
+   Base package CSS is imported in parent.jsx.
+===================================================== */
+.parent-phone-wrap .react-tel-input {
+  width: 100%;
+  position: relative;
+}
+
+.parent-phone-wrap .react-tel-input .form-control {
+  width: 100% !important;
+  height: 52px !important;
+  box-sizing: border-box;
+  border: 1px solid #ddd8eb !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  color: #21192f !important;
+  background: #fff !important;
+  padding-left: 58px !important;
+}
+
+.parent-phone-wrap .react-tel-input .form-control:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.09) !important;
+}
+
+.parent-phone-wrap .react-tel-input .flag-dropdown {
+  border: 1px solid #ddd8eb !important;
+  border-radius: 10px 0 0 10px !important;
+  background: #fff !important;
+}
+
+.parent-phone-wrap .react-tel-input .selected-flag {
+  width: 52px !important;
+  height: 50px !important;
+  border-radius: 10px 0 0 10px !important;
+  padding: 0 0 0 14px !important;
+}
+
+.parent-phone-wrap .react-tel-input .selected-flag:hover,
+.parent-phone-wrap .react-tel-input .selected-flag:focus {
+  background: #faf9fd !important;
+}
+
+.parent-phone-wrap .react-tel-input .country-list {
+  width: 280px;
+  max-height: 230px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(30, 20, 60, 0.16);
+  z-index: 10000;
+}
+
+/* Address - map/pin icon model */
+.parent-textarea-wrap > svg {
+  color: #8d879b;
+}

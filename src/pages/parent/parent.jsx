@@ -18,10 +18,8 @@ import {
   FaCheck,
 } from "react-icons/fa";
 
-import PhoneInputModule from "react-phone-input-2";
-
-const PhoneInput =
-  PhoneInputModule?.default || PhoneInputModule;
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 import Sidebar from "../admin/Sidebar.jsx";
 
@@ -490,26 +488,6 @@ export default function Parents() {
 
       alert(
         "Please enter parent name."
-      );
-
-      return;
-    }
-
-
-    if (!form.phone.trim()) {
-
-      alert(
-        "Please enter phone number."
-      );
-
-      return;
-    }
-
-
-    if (!form.email.trim()) {
-
-      alert(
-        "Please enter email."
       );
 
       return;
@@ -1129,7 +1107,7 @@ export default function Parents() {
                     <div className="parent-form-group">
 
                       <label>
-                        Phone Number *
+                        Phone Number
                       </label>
 
                       <div className="parent-phone-wrap">
@@ -1178,7 +1156,7 @@ export default function Parents() {
                     <div className="parent-form-group">
 
                       <label>
-                        Mail ID *
+                        Mail ID
                       </label>
 
                       <div className="parent-input-wrap">
