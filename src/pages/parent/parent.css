@@ -2870,3 +2870,599 @@
   }
 
 }
+/* =========================================================
+   ALL STUDENTS
+   MOBILE REFERENCE MODEL
+========================================================= */
+
+@media (max-width: 800px) {
+
+  /* -----------------------------------------
+     PAGE
+  ----------------------------------------- */
+
+  .all-students-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+
+  /* -----------------------------------------
+     HEADER
+  ----------------------------------------- */
+
+  .all-students-header {
+    width: 100% !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 10px !important;
+
+    margin-bottom: 12px !important;
+  }
+
+  .all-students-header h2 {
+    margin: 0 !important;
+
+    font-size: 18px !important;
+
+    line-height: 1.2 !important;
+
+    color: #251b31 !important;
+  }
+
+
+  /* -----------------------------------------
+     REFRESH
+  ----------------------------------------- */
+
+  .refresh-button {
+    height: 34px !important;
+
+    padding: 0 11px !important;
+
+    flex-shrink: 0 !important;
+
+    border-radius: 7px !important;
+
+    font-size: 9px !important;
+  }
+
+
+  /* -----------------------------------------
+     SEARCH
+  ----------------------------------------- */
+
+  .students-search-box {
+    width: 100% !important;
+
+    height: 36px !important;
+
+    margin-bottom: 14px !important;
+
+    padding: 0 10px !important;
+
+    gap: 7px !important;
+
+    border-radius: 7px !important;
+
+    box-sizing: border-box !important;
+  }
+
+  .students-search-box svg {
+    font-size: 11px !important;
+  }
+
+  .students-search-box input {
+    min-width: 0 !important;
+
+    font-size: 9px !important;
+  }
+
+
+  /* -----------------------------------------
+     CARDS GRID
+  ----------------------------------------- */
+
+  .student-cards-grid {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns: 1fr !important;
+
+    gap: 10px !important;
+  }
+
+
+  /* -----------------------------------------
+     STUDENT CARD
+  ----------------------------------------- */
+
+  .student-card {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    box-sizing: border-box !important;
+
+    padding: 11px !important;
+
+    border-radius: 12px !important;
+
+    background: #ffffff !important;
+
+    border: 1px solid #eeeaf4 !important;
+
+    box-shadow:
+      0 3px 12px rgba(43, 31, 70, 0.05) !important;
+
+    cursor: pointer !important;
+  }
+
+
+  /* -----------------------------------------
+     TOP
+  ----------------------------------------- */
+
+  .student-card-top {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 8px !important;
+  }
+
+
+  /* -----------------------------------------
+     AVATAR
+  ----------------------------------------- */
+
+  .student-card-avatar,
+  .student-card-photo {
+    width: 38px !important;
+
+    height: 38px !important;
+
+    min-width: 38px !important;
+
+    border-radius: 10px !important;
+  }
+
+  .student-card-avatar {
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    background:
+      linear-gradient(
+        135deg,
+        #7424d8,
+        #9b32e9
+      ) !important;
+
+    color: #fff !important;
+
+    font-size: 11px !important;
+
+    font-weight: 800 !important;
+  }
+
+
+  /* -----------------------------------------
+     NAME
+  ----------------------------------------- */
+
+  .student-card-name {
+    min-width: 0 !important;
+
+    flex: 1 !important;
+  }
+
+  .student-card-name h3 {
+    margin: 0 !important;
+
+    font-size: 10px !important;
+
+    line-height: 1.3 !important;
+
+    color: #302638 !important;
+
+    font-weight: 700 !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+
+    white-space: nowrap !important;
+  }
+
+  .student-card-name span {
+    display: block !important;
+
+    margin-top: 2px !important;
+
+    font-size: 7px !important;
+
+    color: #9a91a4 !important;
+  }
+
+
+  /* -----------------------------------------
+     ARROW
+  ----------------------------------------- */
+
+  .student-card-arrow {
+    flex-shrink: 0 !important;
+
+    color: #a56ad9 !important;
+
+    font-size: 10px !important;
+  }
+
+
+  /* -----------------------------------------
+     EMAIL
+  ----------------------------------------- */
+
+  .student-card-contact {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 7px !important;
+
+    margin-top: 9px !important;
+
+    padding-bottom: 9px !important;
+
+    border-bottom:
+      1px solid #f0edf4 !important;
+  }
+
+  .student-card-contact svg {
+    width: 16px !important;
+
+    height: 16px !important;
+
+    min-width: 16px !important;
+
+    padding: 4px !important;
+
+    box-sizing: border-box !important;
+
+    border-radius: 5px !important;
+
+    background: #f3edff !important;
+
+    color: #7134d8 !important;
+
+    font-size: 8px !important;
+  }
+
+  .student-card-contact span {
+    min-width: 0 !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+
+    white-space: nowrap !important;
+
+    font-size: 8px !important;
+
+    color: #6f6679 !important;
+  }
+
+
+  /* -----------------------------------------
+     DETAILS
+  ----------------------------------------- */
+
+  .student-card-details {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns: 1fr 1fr !important;
+
+    gap: 10px !important;
+
+    margin-top: 10px !important;
+  }
+
+  .student-card-details > div {
+    min-width: 0 !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    gap: 4px !important;
+  }
+
+  .student-card-details small {
+    font-size: 6px !important;
+
+    color: #a39aa9 !important;
+
+    text-transform: uppercase !important;
+
+    letter-spacing: .3px !important;
+  }
+
+  .student-card-details strong {
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 4px !important;
+
+    font-size: 8px !important;
+
+    color: #746b7d !important;
+
+    font-weight: 500 !important;
+  }
+
+  .student-card-details strong svg {
+    color: #7c3aed !important;
+
+    font-size: 8px !important;
+  }
+
+
+  /* -----------------------------------------
+     STATUS + PERFORMANCE
+  ----------------------------------------- */
+
+  .student-card-status-row {
+    width: 100% !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: space-between !important;
+
+    margin-top: 9px !important;
+  }
+
+  .student-status {
+    display: inline-flex !important;
+
+    align-items: center !important;
+
+    gap: 4px !important;
+
+    padding: 4px 7px !important;
+
+    border-radius: 20px !important;
+
+    font-size: 7px !important;
+
+    font-weight: 600 !important;
+  }
+
+  .student-status.active {
+    background: #e7f8ef !important;
+
+    color: #1a9b5b !important;
+  }
+
+  .student-status.expired {
+    background: #fff0f0 !important;
+
+    color: #e54848 !important;
+  }
+
+  .student-status.expiring {
+    background: #fff6df !important;
+
+    color: #d99100 !important;
+  }
+
+  .status-dot {
+    width: 4px !important;
+
+    height: 4px !important;
+
+    border-radius: 50% !important;
+
+    background: currentColor !important;
+  }
+
+  .student-card-performance-text {
+    font-size: 9px !important;
+
+    color: #5d19d2 !important;
+
+    font-weight: 700 !important;
+  }
+
+
+  /* -----------------------------------------
+     PROGRESS
+  ----------------------------------------- */
+
+  .student-card-progress {
+    width: 100% !important;
+
+    margin-top: 7px !important;
+  }
+
+  .student-card-progress-track {
+    width: 100% !important;
+
+    height: 4px !important;
+
+    overflow: hidden !important;
+
+    border-radius: 10px !important;
+
+    background: #eeeaf3 !important;
+  }
+
+  .student-card-progress-fill {
+    height: 100% !important;
+
+    border-radius: inherit !important;
+  }
+
+
+  /* -----------------------------------------
+     VIEW DASHBOARD
+  ----------------------------------------- */
+
+  .student-card-dashboard-button {
+    width: 100% !important;
+
+    height: 30px !important;
+
+    margin-top: 9px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    gap: 6px !important;
+
+    border:
+      1px solid #eadcf8 !important;
+
+    border-radius: 0 !important;
+
+    background: #fbf8ff !important;
+
+    color: #651bc9 !important;
+
+    font-size: 7px !important;
+
+    font-weight: 700 !important;
+
+    box-sizing: border-box !important;
+  }
+
+  .student-card-dashboard-button svg {
+    font-size: 8px !important;
+  }
+
+
+  /* -----------------------------------------
+     LOADING
+  ----------------------------------------- */
+
+  .students-page-loading {
+    width: 100% !important;
+
+    min-height: 150px !important;
+  }
+
+
+  /* -----------------------------------------
+     EMPTY
+  ----------------------------------------- */
+
+  .students-empty {
+    width: 100% !important;
+
+    box-sizing: border-box !important;
+  }
+
+}
+
+
+/* =========================================================
+   EXACT SMALL MOBILE
+   430 / 425 / 414 / 390 / 375
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .all-students-page {
+    padding: 0 !important;
+  }
+
+  .all-students-header {
+    margin-bottom: 10px !important;
+  }
+
+  .all-students-header h2 {
+    font-size: 17px !important;
+  }
+
+  .refresh-button {
+    height: 32px !important;
+
+    padding: 0 10px !important;
+
+    font-size: 8px !important;
+  }
+
+  .students-search-box {
+    height: 35px !important;
+
+    margin-bottom: 11px !important;
+  }
+
+  .student-cards-grid {
+    gap: 9px !important;
+  }
+
+  .student-card {
+    padding: 11px !important;
+
+    border-radius: 12px !important;
+  }
+
+  .student-card-avatar,
+  .student-card-photo {
+    width: 37px !important;
+
+    height: 37px !important;
+
+    min-width: 37px !important;
+  }
+
+  .student-card-name h3 {
+    font-size: 10px !important;
+  }
+
+  .student-card-name span {
+    font-size: 7px !important;
+  }
+
+  .student-card-contact span {
+    font-size: 8px !important;
+  }
+
+  .student-card-details small {
+    font-size: 6px !important;
+  }
+
+  .student-card-details strong {
+    font-size: 8px !important;
+  }
+
+  .student-card-dashboard-button {
+    height: 30px !important;
+
+    font-size: 7px !important;
+  }
+
+}
