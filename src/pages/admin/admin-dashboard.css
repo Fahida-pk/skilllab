@@ -5192,3 +5192,637 @@ body {
   background: #ffe2e2 !important;
   color: #ef4444 !important;
 }
+/* =========================================================
+   ALL STUDENTS MOBILE
+   SAME MODEL / WIDTH AS PARENT MOBILE
+   327px centered layout
+========================================================= */
+
+@media (max-width: 650px) {
+
+  /* PAGE BACKGROUND */
+  .admin-dashboard {
+    width: 100% !important;
+    min-height: 100vh !important;
+
+    display: flex !important;
+    justify-content: center !important;
+
+    background: #eef4fb !important;
+    overflow-x: hidden !important;
+  }
+
+  /* =====================================================
+     MAIN CONTAINER
+  ===================================================== */
+
+  .admin-main {
+    width: 327px !important;
+    max-width: calc(100vw - 30px) !important;
+
+    min-width: 0 !important;
+
+    margin: 0 auto !important;
+    padding: 0 !important;
+
+    background: transparent !important;
+
+    overflow-x: hidden !important;
+  }
+
+  /* =====================================================
+     TOP HEADER
+  ===================================================== */
+
+  .admin-topbar {
+    width: 100% !important;
+
+    min-height: 56px !important;
+    height: 56px !important;
+
+    padding: 0 10px !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    background: #ffffff !important;
+
+    border-bottom: 1px solid #eeeaf4 !important;
+
+    position: relative !important;
+  }
+
+  .admin-topbar-left {
+    width: 100% !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 8px !important;
+
+    min-width: 0 !important;
+  }
+
+  /* Hamburger */
+  .mobile-menu-button {
+    display: flex !important;
+
+    width: 31px !important;
+    height: 31px !important;
+
+    min-width: 31px !important;
+
+    padding: 0 !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    border: 1px solid #eee7f5 !important;
+
+    border-radius: 8px !important;
+
+    background: #ffffff !important;
+
+    color: #7438c9 !important;
+
+    font-size: 12px !important;
+  }
+
+  .admin-topbar-left > div {
+    min-width: 0 !important;
+  }
+
+  .admin-topbar h1 {
+    margin: 0 !important;
+
+    font-size: 14px !important;
+
+    line-height: 1.2 !important;
+
+    font-weight: 800 !important;
+
+    color: #241c35 !important;
+
+    white-space: nowrap !important;
+  }
+
+  .admin-topbar p {
+    display: none !important;
+  }
+
+  .admin-profile {
+    display: none !important;
+  }
+
+
+  /* =====================================================
+     CONTENT
+  ===================================================== */
+
+  .admin-content {
+    width: 100% !important;
+
+    max-width: 327px !important;
+
+    min-width: 0 !important;
+
+    padding: 0 !important;
+
+    margin: 0 auto !important;
+
+    box-sizing: border-box !important;
+
+    overflow-x: hidden !important;
+  }
+
+
+  /* =====================================================
+     ALL STUDENTS PAGE
+  ===================================================== */
+
+  .all-students-page {
+    width: 100% !important;
+
+    max-width: 327px !important;
+
+    min-width: 0 !important;
+
+    margin: 0 auto !important;
+
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    background: #f0edff !important;
+  }
+
+
+  /* =====================================================
+     ALL STUDENTS HEADER
+  ===================================================== */
+
+  .all-students-header {
+    width: 100% !important;
+
+    min-height: 42px !important;
+
+    margin: 0 !important;
+
+    padding: 8px 10px !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: space-between !important;
+
+    gap: 7px !important;
+  }
+
+  .all-students-header > div:first-child {
+    min-width: 0 !important;
+
+    flex: 1 1 auto !important;
+  }
+
+  .all-students-header h2 {
+    margin: 0 !important;
+
+    font-size: 12px !important;
+
+    line-height: 1.2 !important;
+
+    font-weight: 600 !important;
+
+    color: #241b35 !important;
+  }
+
+  .all-students-header p {
+    display: none !important;
+  }
+
+
+  /* REFRESH */
+
+  .refresh-button {
+    width: auto !important;
+
+    height: 30px !important;
+
+    flex: 0 0 auto !important;
+
+    padding: 0 9px !important;
+
+    border: 1px solid #e9dff7 !important;
+
+    border-radius: 6px !important;
+
+    background: #ffffff !important;
+
+    color: #6d28d9 !important;
+
+    font-size: 7px !important;
+
+    font-weight: 600 !important;
+  }
+
+
+  /* =====================================================
+     SEARCH
+  ===================================================== */
+
+  .students-search-box {
+    width: calc(100% - 20px) !important;
+
+    height: 33px !important;
+
+    margin: 0 10px 9px !important;
+
+    padding: 0 8px !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 5px !important;
+
+    border: 0 !important;
+
+    border-radius: 5px !important;
+
+    background: #ffffff !important;
+
+    box-shadow: none !important;
+  }
+
+  .students-search-box svg {
+    font-size: 9px !important;
+
+    flex: 0 0 auto !important;
+  }
+
+  .students-search-box input {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    font-size: 7px !important;
+  }
+
+
+  /* =====================================================
+     STUDENT CARDS
+  ===================================================== */
+
+  .student-cards-grid {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    min-width: 0 !important;
+
+    padding: 0 10px 10px !important;
+
+    box-sizing: border-box !important;
+
+    display: grid !important;
+
+    grid-template-columns: minmax(0, 1fr) !important;
+
+    gap: 9px !important;
+  }
+
+  .student-card {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    min-width: 0 !important;
+
+    padding: 11px !important;
+
+    box-sizing: border-box !important;
+
+    border-radius: 11px !important;
+
+    background: #ffffff !important;
+
+    border: 0 !important;
+
+    box-shadow:
+      0 2px 8px rgba(60, 40, 90, 0.04) !important;
+
+    overflow: hidden !important;
+  }
+
+  .student-card:hover {
+    transform: none !important;
+
+    box-shadow:
+      0 2px 8px rgba(60, 40, 90, 0.04) !important;
+  }
+
+
+  /* =====================================================
+     STUDENT TOP
+  ===================================================== */
+
+  .student-card-top {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 8px !important;
+  }
+
+  .student-card-photo,
+  .student-card-avatar {
+    width: 37px !important;
+
+    height: 37px !important;
+
+    min-width: 37px !important;
+
+    border-radius: 9px !important;
+  }
+
+  .student-card-avatar {
+    font-size: 11px !important;
+  }
+
+  .student-card-name {
+    min-width: 0 !important;
+
+    flex: 1 1 auto !important;
+
+    overflow: hidden !important;
+  }
+
+  .student-card-name h3 {
+    max-width: 100% !important;
+
+    margin: 0 !important;
+
+    font-size: 10px !important;
+
+    line-height: 1.2 !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+
+    white-space: nowrap !important;
+  }
+
+  .student-card-name span {
+    margin-top: 3px !important;
+
+    font-size: 7px !important;
+  }
+
+  .student-card-arrow {
+    flex: 0 0 auto !important;
+
+    margin-left: auto !important;
+
+    font-size: 8px !important;
+  }
+
+
+  /* =====================================================
+     EMAIL
+  ===================================================== */
+
+  .student-card-contact {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin-top: 12px !important;
+
+    gap: 6px !important;
+
+    font-size: 8px !important;
+  }
+
+  .email-icon {
+    width: 18px !important;
+
+    height: 18px !important;
+
+    min-width: 18px !important;
+
+    border-radius: 6px !important;
+
+    font-size: 8px !important;
+  }
+
+  .student-card-contact span {
+    min-width: 0 !important;
+
+    flex: 1 1 auto !important;
+
+    font-size: 8px !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+
+    white-space: nowrap !important;
+  }
+
+
+  /* =====================================================
+     JOIN / EXPIRY
+  ===================================================== */
+
+  .student-card-details {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr) !important;
+
+    gap: 8px !important;
+
+    margin-top: 11px !important;
+
+    padding-top: 10px !important;
+  }
+
+  .student-card-details > div {
+    min-width: 0 !important;
+
+    gap: 4px !important;
+  }
+
+  .student-card-details small {
+    font-size: 6px !important;
+
+    letter-spacing: 0.2px !important;
+  }
+
+  .student-card-details strong {
+    min-width: 0 !important;
+
+    font-size: 8px !important;
+
+    gap: 4px !important;
+
+    white-space: nowrap !important;
+  }
+
+  .student-card-details strong svg {
+    flex: 0 0 auto !important;
+
+    font-size: 7px !important;
+  }
+
+
+  /* =====================================================
+     STATUS + PERFORMANCE
+  ===================================================== */
+
+  .student-card-status-row {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin-top: 11px !important;
+  }
+
+  .student-status {
+    padding: 4px 7px !important;
+
+    gap: 4px !important;
+
+    font-size: 7px !important;
+  }
+
+  .status-dot {
+    width: 4px !important;
+
+    height: 4px !important;
+  }
+
+  .student-card-performance-text {
+    font-size: 9px !important;
+
+    font-weight: 700 !important;
+  }
+
+
+  /* =====================================================
+     PROGRESS
+  ===================================================== */
+
+  .student-card-progress {
+    width: 100% !important;
+
+    margin-top: 7px !important;
+  }
+
+  .student-card-progress-track {
+    width: 100% !important;
+
+    height: 4px !important;
+
+    border-radius: 10px !important;
+  }
+
+
+  /* =====================================================
+     VIEW DASHBOARD
+  ===================================================== */
+
+  .student-dashboard-button {
+    width: 100% !important;
+
+    height: 30px !important;
+
+    margin-top: 9px !important;
+
+    border-radius: 0 !important;
+
+    font-size: 7px !important;
+
+    gap: 6px !important;
+  }
+
+  .student-dashboard-button svg {
+    font-size: 8px !important;
+  }
+
+
+  /* LOADING */
+
+  .students-page-loading {
+    width: 100% !important;
+
+    min-height: 150px !important;
+  }
+
+  .students-empty {
+    width: calc(100% - 20px) !important;
+
+    margin: 0 10px !important;
+
+    box-sizing: border-box !important;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 360px) {
+
+  .admin-main {
+    width: 100% !important;
+
+    max-width: calc(100vw - 20px) !important;
+  }
+
+  .admin-content,
+  .all-students-page {
+    max-width: 100% !important;
+  }
+
+  .student-card {
+    padding: 10px !important;
+  }
+
+  .student-card-photo,
+  .student-card-avatar {
+    width: 35px !important;
+
+    height: 35px !important;
+
+    min-width: 35px !important;
+  }
+
+  .student-card-name h3 {
+    font-size: 9px !important;
+  }
+
+  .student-card-name span {
+    font-size: 6px !important;
+  }
+
+  .student-card-contact span {
+    font-size: 7px !important;
+  }
+}
