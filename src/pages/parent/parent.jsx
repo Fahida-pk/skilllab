@@ -16,6 +16,9 @@ import {
   FaSyncAlt,
   FaGraduationCap,
   FaCheck,
+  FaEye,
+  FaUserPlus,
+  FaUserMinus,
 } from "react-icons/fa";
 
 import * as PhoneInputModule from "react-phone-input-2";
@@ -48,7 +51,33 @@ export default function Parents() {
   const [students, setStudents] = useState([]);
   const [studentSearch, setStudentSearch] = useState("");
   const [selectedStudents, setSelectedStudents] = useState([]);
+
   const [studentLoading, setStudentLoading] = useState(false);
+
+  // Student assignments are stored only in this browser.
+  // Nothing is saved to the parents database table.
+  const [showStudentsModal, setShowStudentsModal] = useState(false);
+  const [viewingParent, setViewingParent] = useState(null);
+  const [viewStudents, setViewStudents] = useState([]);
+  const [viewStudentSearch, setViewStudentSearch] = useState("");
+
+  const getStoredStudents = (parentId) => {
+    try {
+      const saved = localStorage.getItem(
+        `skilllab_parent_students_${parentId}`
+      );
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const storeStudents = (parentId, list) => {
+    localStorage.setItem(
+      `skilllab_parent_students_${parentId}`,
+      JSON.stringify(list)
+    );
+  };
 
   const emptyForm = {
     name: "",
@@ -276,6 +305,17 @@ export default function Parents() {
     studentSearch,
   ]);
 
+  const filteredViewStudents = useMemo(() => {
+    const value = viewStudentSearch.trim().toLowerCase();
+    if (!value) return students;
+
+    return students.filter((student) =>
+      [student.name, student.email].some((item) =>
+        String(item || "").toLowerCase().includes(value)
+      )
+    );
+  }, [students, viewStudentSearch]);
+
 
   /* =========================================
      SELECT STUDENT
@@ -410,7 +450,11 @@ export default function Parents() {
       password: "",
     });
 
-    setSelectedStudents([]);
+    setSelectedStudents(
+      getStoredStudents(parent.id).map((item) =>
+        Number(item.id ?? item)
+      )
+    );
 
     setStudentSearch("");
 
@@ -593,6 +637,16 @@ export default function Parents() {
         );
       }
 
+      // Student assignment is browser-only; it is not sent to PHP/database.
+      const savedParentId = Number(editingId || data.id);
+      const selectedStudentObjects = students.filter((student) =>
+        selectedStudents.includes(Number(student.id))
+      );
+
+      if (savedParentId > 0) {
+        storeStudents(savedParentId, selectedStudentObjects);
+      }
+
 
       alert(
         editingId
@@ -602,6 +656,10 @@ export default function Parents() {
 
 
       closeModal();
+
+      localStorage.removeItem(
+        `skilllab_parent_students_${id}`
+      );
 
       await loadParents();
 
@@ -622,6 +680,55 @@ export default function Parents() {
       setSaving(false);
 
     }
+  };
+
+
+  /* =========================================
+     VIEW / MANAGE STUDENTS
+  ========================================= */
+
+  const openStudentsView = (parent, e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    setViewingParent(parent);
+    setViewStudents(getStoredStudents(parent.id));
+    setViewStudentSearch("");
+    setShowStudentsModal(true);
+    loadStudents();
+  };
+
+  const closeStudentsView = () => {
+    setShowStudentsModal(false);
+    setViewingParent(null);
+    setViewStudents([]);
+    setViewStudentSearch("");
+  };
+
+  const addStudentToParent = (student) => {
+    if (!viewingParent) return;
+
+    setViewStudents((prev) => {
+      if (prev.some((item) => Number(item.id) === Number(student.id))) {
+        return prev;
+      }
+
+      const next = [...prev, student];
+      storeStudents(viewingParent.id, next);
+      return next;
+    });
+  };
+
+  const removeStudentFromParent = (studentId) => {
+    if (!viewingParent) return;
+
+    setViewStudents((prev) => {
+      const next = prev.filter(
+        (item) => Number(item.id) !== Number(studentId)
+      );
+      storeStudents(viewingParent.id, next);
+      return next;
+    });
   };
 
 
@@ -871,148 +978,85 @@ export default function Parents() {
                 <table className="parent-table">
 
                   <thead>
-
                     <tr>
-
-                      <th>#</th>
-                      <th>Parent</th>
-                      <th>Address</th>
-                      <th>Phone</th>
-                      <th>Email</th>
+                      <th>Name</th>
                       <th>Username</th>
+                      <th>Password</th>
                       <th>Actions</th>
-
                     </tr>
-
                   </thead>
 
-
                   <tbody>
+                    {filteredParents.map((parent) => (
+                      <tr key={parent.id}>
 
-                    {filteredParents.map(
-                      (parent, index) => (
-
-                        <tr key={parent.id}>
-
-                          <td>
-                            {index + 1}
-                          </td>
-
-
-                          <td>
-
-                            <div className="parent-name-cell">
-
-                              <div className="parent-avatar">
-
-                                {parent.name
-                                  ?.trim()
-                                  ?.charAt(0)
-                                  ?.toUpperCase() ||
-                                  "P"}
-
-                              </div>
-
-                              <strong>
-                                {parent.name}
-                              </strong>
-
+                        <td>
+                          <div className="parent-name-cell">
+                            <div className="parent-avatar">
+                              {parent.name
+                                ?.trim()
+                                ?.charAt(0)
+                                ?.toUpperCase() || "P"}
                             </div>
+                            <strong>{parent.name}</strong>
+                          </div>
+                        </td>
 
-                          </td>
+                        <td>
+                          <span className="parent-username">
+                            @{parent.username}
+                          </span>
+                        </td>
 
+                        <td>
+                          <span className="parent-password">
+                            ••••••••
+                          </span>
+                        </td>
 
-                          <td>
+                        <td>
+                          <div className="parent-actions">
 
-                            <span className="parent-address">
+                            <button
+                              type="button"
+                              className="parent-view-button"
+                              onClick={(e) =>
+                                openStudentsView(parent, e)
+                              }
+                              title="View students"
+                            >
+                              <FaEye />
+                            </button>
 
-                              {parent.address ||
-                                "—"}
+                            <button
+                              type="button"
+                              className="parent-edit-button"
+                              onClick={(e) =>
+                                openEdit(parent, e)
+                              }
+                              title="Edit"
+                            >
+                              <FaPen />
+                            </button>
 
-                            </span>
+                            <button
+                              type="button"
+                              className="parent-delete-button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                deleteParent(parent.id);
+                              }}
+                              title="Delete"
+                            >
+                              <FaTrash />
+                            </button>
 
-                          </td>
+                          </div>
+                        </td>
 
-
-                          <td>
-
-                            <span className="parent-contact">
-
-                              <FaPhone />
-
-                              {parent.phone}
-
-                            </span>
-
-                          </td>
-
-
-                          <td>
-
-                            <span className="parent-contact">
-
-                              <FaEnvelope />
-
-                              {parent.email}
-
-                            </span>
-
-                          </td>
-
-
-                          <td>
-
-                            <span className="parent-username">
-
-                              @{parent.username}
-
-                            </span>
-
-                          </td>
-
-
-                          <td>
-
-                            <div className="parent-actions">
-
-                              <button
-                                type="button"
-                                className="parent-edit-button"
-                                onClick={(e) =>
-                                  openEdit(parent, e)
-                                }
-                                title="Edit"
-                              >
-
-                                <FaPen />
-
-                              </button>
-
-
-                              <button
-                                type="button"
-                                className="parent-delete-button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  deleteParent(parent.id);
-                                }}
-                                title="Delete"
-                              >
-
-                                <FaTrash />
-
-                              </button>
-
-                            </div>
-
-                          </td>
-
-                        </tr>
-
-                      )
-                    )}
-
+                      </tr>
+                    ))}
                   </tbody>
 
                 </table>
@@ -1023,6 +1067,208 @@ export default function Parents() {
 
           </div>
 
+
+          {/* VIEW ASSIGNED STUDENTS MODAL */}
+
+          {showStudentsModal &&
+            createPortal(
+              <div
+                className="parent-modal-overlay"
+                onClick={closeStudentsView}
+              >
+                <div
+                  className="parent-modal parent-students-modal"
+                  onClick={(e) => e.stopPropagation()}
+                >
+
+                  <div className="parent-modal-header">
+                    <div>
+                      <h3>
+                        {viewingParent?.name || "Parent"} - Students
+                      </h3>
+                      <p>
+                        View and manage students for this parent.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="parent-modal-close"
+                      onClick={closeStudentsView}
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+
+                  <div className="parent-students-toolbar">
+                    <div>
+                      <strong>Assigned Students</strong>
+                      <span>
+                        {viewStudents.length} student
+                        {viewStudents.length === 1 ? "" : "s"} assigned
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="parent-students-list">
+                    {viewStudents.length === 0 ? (
+                      <div className="parent-empty-state parent-view-empty">
+                        <FaGraduationCap className="empty-icon" />
+                        <strong>No students assigned</strong>
+                        <span>Use the search below to add students.</span>
+                      </div>
+                    ) : (
+                      viewStudents.map((student, index) => (
+                        <div
+                          className="assigned-student-row"
+                          key={student.id}
+                        >
+                          <span className="assigned-student-number">
+                            {index + 1}
+                          </span>
+
+                          <div className="student-avatar">
+                            {student.name
+                              ?.charAt(0)
+                              ?.toUpperCase() || "S"}
+                          </div>
+
+                          <div className="assigned-student-info">
+                            <strong>
+                              {student.name || "Unnamed Student"}
+                            </strong>
+                            <small>
+                              {student.email || `Student #${student.id}`}
+                            </small>
+                          </div>
+
+                          <div className="assigned-student-actions">
+                            <button
+                              type="button"
+                              className="parent-view-delete-student"
+                              onClick={() =>
+                                removeStudentFromParent(student.id)
+                              }
+                              title="Remove student"
+                            >
+                              <FaUserMinus />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div className="student-action-body">
+
+                    <div className="student-add-heading">
+                      <div>
+                        <strong>Add Student</strong>
+                        <span>
+                          Search and add a student to this parent.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="student-modal-search">
+                      <FaSearch />
+                      <input
+                        type="text"
+                        placeholder="Search student by name or email..."
+                        value={viewStudentSearch}
+                        onChange={(e) =>
+                          setViewStudentSearch(e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <div className="student-choice-list">
+                      {studentLoading ? (
+                        <div className="student-empty">
+                          <FaSyncAlt className="spin" />
+                          Loading students...
+                        </div>
+                      ) : filteredViewStudents.length === 0 ? (
+                        <div className="student-empty">
+                          <FaGraduationCap />
+                          No students found.
+                        </div>
+                      ) : (
+                        filteredViewStudents.map((student) => {
+                          const alreadyAdded = viewStudents.some(
+                            (item) =>
+                              Number(item.id) === Number(student.id)
+                          );
+
+                          return (
+                            <div
+                              className={`student-choice-row ${
+                                alreadyAdded ? "selected" : ""
+                              }`}
+                              key={student.id}
+                            >
+                              <div className="student-avatar">
+                                {student.name
+                                  ?.charAt(0)
+                                  ?.toUpperCase() || "S"}
+                              </div>
+
+                              <div className="student-info">
+                                <strong>
+                                  {student.name || "Unnamed Student"}
+                                </strong>
+                                <small>
+                                  {student.email ||
+                                    `Student #${student.id}`}
+                                </small>
+                              </div>
+
+                              <button
+                                type="button"
+                                className={
+                                  alreadyAdded
+                                    ? "student-added-button"
+                                    : "student-add-small-button"
+                                }
+                                disabled={alreadyAdded}
+                                onClick={() =>
+                                  addStudentToParent(student)
+                                }
+                              >
+                                {alreadyAdded ? (
+                                  <>
+                                    <FaCheck />
+                                    Added
+                                  </>
+                                ) : (
+                                  <>
+                                    <FaUserPlus />
+                                    Add
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                  </div>
+
+                  <div className="parent-modal-footer">
+                    <button
+                      type="button"
+                      className="parent-cancel-button"
+                      onClick={closeStudentsView}
+                    >
+                      Close
+                    </button>
+                  </div>
+
+                </div>
+              </div>,
+              document.body
+            )}
 
           {/* MODAL */}
 
@@ -1258,9 +1504,8 @@ export default function Parents() {
                           <span>
                             Select students for
                             this parent.
-                            Selection is only
-                            shown here and is
-                            not saved yet.
+                            Selection is kept in this
+                            browser only.
                           </span>
 
                         </div>
