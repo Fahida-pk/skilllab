@@ -5192,3 +5192,279 @@ body {
   background: #ffe2e2 !important;
   color: #ef4444 !important;
 }
+/* =========================================================
+   FINAL MOBILE SIDEBAR
+   Same mobile sidebar model as the Admin Dashboard
+========================================================= */
+
+/* Hidden on desktop */
+.mobile-sidebar-menu {
+  display: none;
+}
+
+
+/* =========================================================
+   MOBILE SIDEBAR
+========================================================= */
+
+@media (max-width: 800px) {
+
+  /* -----------------------------------------
+     SIDEBAR CLOSED
+  ----------------------------------------- */
+
+  .admin-sidebar {
+    position: fixed !important;
+
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+
+    width: 275px !important;
+    max-width: 82vw !important;
+
+    height: 100vh !important;
+
+    transform: translateX(-100%) !important;
+
+    transition:
+      transform 0.28s ease !important;
+
+    z-index: 10000 !important;
+  }
+
+
+  /* -----------------------------------------
+     SIDEBAR OPEN
+  ----------------------------------------- */
+
+  .admin-sidebar.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+
+  /* -----------------------------------------
+     OVERLAY
+  ----------------------------------------- */
+
+  .admin-sidebar-overlay {
+    position: fixed !important;
+
+    inset: 0 !important;
+
+    width: 100vw !important;
+    height: 100vh !important;
+
+    background:
+      rgba(25, 10, 45, 0.42) !important;
+
+    backdrop-filter:
+      blur(2px) !important;
+
+    -webkit-backdrop-filter:
+      blur(2px) !important;
+
+    z-index: 9999 !important;
+  }
+
+
+  /* -----------------------------------------
+     MOBILE MENU BUTTON
+  ----------------------------------------- */
+
+  .mobile-sidebar-menu {
+    display: flex !important;
+
+    position: fixed !important;
+
+    top: 14px !important;
+    left: 14px !important;
+
+    width: 40px !important;
+    height: 40px !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    border: 1px solid #e8e1ef !important;
+
+    border-radius: 10px !important;
+
+    background: #ffffff !important;
+
+    color: #5d5069 !important;
+
+    font-size: 16px !important;
+
+    cursor: pointer !important;
+
+    z-index: 5000 !important;
+
+    box-shadow:
+      0 4px 14px rgba(40, 20, 70, 0.08) !important;
+
+    transition:
+      background 0.2s ease,
+      transform 0.2s ease !important;
+  }
+
+
+  .mobile-sidebar-menu:hover {
+    background: #f7f2ff !important;
+
+    color: #7414d1 !important;
+  }
+
+
+  .mobile-sidebar-menu:active {
+    transform: scale(0.95) !important;
+  }
+
+
+  /* -----------------------------------------
+     CLOSE BUTTON
+  ----------------------------------------- */
+
+  .mobile-sidebar-close {
+    display: flex !important;
+
+    width: 32px !important;
+    height: 32px !important;
+
+    margin-left: auto !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    border: none !important;
+
+    border-radius: 8px !important;
+
+    background:
+      rgba(255, 255, 255, 0.12) !important;
+
+    color: #ffffff !important;
+
+    font-size: 14px !important;
+
+    cursor: pointer !important;
+  }
+
+
+  .mobile-sidebar-close:hover {
+    background:
+      rgba(255, 255, 255, 0.22) !important;
+  }
+
+
+  /* -----------------------------------------
+     MAIN CONTENT
+  ----------------------------------------- */
+
+  .admin-main {
+    width: 100% !important;
+
+    margin-left: 0 !important;
+
+    min-width: 0 !important;
+  }
+
+
+  /* -----------------------------------------
+     TOPBAR
+  ----------------------------------------- */
+
+  .admin-topbar {
+    min-height: 68px !important;
+
+    height: auto !important;
+
+    padding:
+      12px 14px 12px 66px !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  /* Existing dashboard hamburger hidden
+     because we use the same sidebar button */
+  .mobile-menu-button {
+    display: none !important;
+  }
+
+
+  .admin-topbar h1 {
+    font-size: 18px !important;
+
+    line-height: 1.2 !important;
+  }
+
+
+  .admin-topbar p {
+    display: none !important;
+  }
+
+
+  .admin-profile-info {
+    display: none !important;
+  }
+
+
+  /* -----------------------------------------
+     CONTENT
+  ----------------------------------------- */
+
+  .admin-content {
+    width: 100% !important;
+
+    padding:
+      14px 12px 35px !important;
+
+    box-sizing: border-box !important;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .admin-sidebar {
+    width: 270px !important;
+
+    max-width: 84vw !important;
+  }
+
+
+  .mobile-sidebar-menu {
+    top: 12px !important;
+    left: 12px !important;
+
+    width: 38px !important;
+    height: 38px !important;
+
+    border-radius: 9px !important;
+
+    font-size: 15px !important;
+  }
+
+
+  .admin-topbar {
+    min-height: 64px !important;
+
+    padding-left: 62px !important;
+  }
+
+
+  .admin-topbar h1 {
+    font-size: 17px !important;
+  }
+
+
+  .admin-content {
+    padding:
+      12px 10px 30px !important;
+  }
+}

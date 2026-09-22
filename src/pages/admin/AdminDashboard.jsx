@@ -485,26 +485,34 @@ const openStudentDashboard = (student) => {
   /* =========================================
      SIDEBAR
   ========================================= */
-
-  const renderSidebar = () => (
-    <>
-      {mobileOpen && (
-        <div
-          className="admin-sidebar-overlay"
-          onClick={() =>
-            setMobileOpen(false)
-          }
-        />
-      )}
-
-      <aside
-        className={`admin-sidebar ${
-          mobileOpen
-            ? "mobile-open"
-            : ""
-        }`}
+const renderSidebar = () => (
+  <>
+    {/* MOBILE MENU BUTTON */}
+    {!mobileOpen && (
+      <button
+        type="button"
+        className="mobile-sidebar-menu"
+        onClick={() => setMobileOpen(true)}
+        aria-label="Open menu"
       >
+        <FaBars />
+      </button>
+    )}
 
+    {/* MOBILE OVERLAY */}
+    {mobileOpen && (
+      <div
+        className="admin-sidebar-overlay"
+        onClick={() => setMobileOpen(false)}
+      />
+    )}
+
+    {/* SIDEBAR */}
+    <aside
+      className={`admin-sidebar ${
+        mobileOpen ? "mobile-open" : ""
+      }`}
+    >
         {/* BRAND */}
 
         <div className="admin-brand">
