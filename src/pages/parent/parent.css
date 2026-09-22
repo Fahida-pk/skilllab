@@ -3938,3 +3938,563 @@
     padding-right: 8px !important;
   }
 }
+/* =========================================================
+   FINAL MOBILE FIX
+   PARENT PAGE = SAME MOBILE MODEL AS ALL STUDENTS
+========================================================= */
+
+@media (max-width: 650px) {
+
+  /* OUTER PAGE */
+  .parent-layout {
+    width: 100% !important;
+    min-height: 100vh !important;
+
+    display: flex !important;
+    justify-content: center !important;
+
+    background: #eef4fb !important;
+
+    overflow-x: hidden !important;
+  }
+
+
+  /* MAIN 327px MOBILE FRAME */
+  .parent-main {
+    width: 327px !important;
+    max-width: calc(100vw - 30px) !important;
+
+    min-width: 0 !important;
+
+    margin: 0 auto !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    background: transparent !important;
+
+    overflow-x: hidden !important;
+  }
+
+
+  /* PAGE */
+  .parent-management-page {
+    width: 100% !important;
+    max-width: 327px !important;
+
+    min-width: 0 !important;
+
+    margin: 0 auto !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    background: #f0edff !important;
+  }
+
+
+  /* =====================================================
+     TOP HEADER
+  ===================================================== */
+
+  .parent-page-header {
+    width: 100% !important;
+
+    height: 56px !important;
+    min-height: 56px !important;
+
+    margin: 0 !important;
+    padding: 0 10px !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+    flex-direction: row !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 8px !important;
+
+    background: #ffffff !important;
+
+    border-bottom: 1px solid #eeeaf4 !important;
+  }
+
+
+  .parent-title-row {
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 8px !important;
+
+    min-width: 0 !important;
+  }
+
+
+  .parent-title-icon {
+    width: 31px !important;
+    height: 31px !important;
+
+    min-width: 31px !important;
+
+    border-radius: 8px !important;
+
+    font-size: 13px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+
+  .parent-title-row h2 {
+    margin: 0 !important;
+
+    font-size: 14px !important;
+
+    line-height: 1.2 !important;
+
+    font-weight: 800 !important;
+
+    white-space: nowrap !important;
+  }
+
+
+  .parent-title-row p {
+    display: none !important;
+  }
+
+
+  /* ADD PARENT */
+  .parent-add-button {
+    width: auto !important;
+
+    height: 30px !important;
+
+    min-width: 0 !important;
+
+    padding: 0 9px !important;
+
+    flex-shrink: 0 !important;
+
+    border-radius: 6px !important;
+
+    font-size: 8px !important;
+
+    gap: 4px !important;
+
+    white-space: nowrap !important;
+  }
+
+
+  /* =====================================================
+     LIST AREA
+  ===================================================== */
+
+  .parent-list-card {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border: 0 !important;
+
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+
+    background: #f0edff !important;
+
+    overflow: visible !important;
+  }
+
+
+  /* LIST HEADER */
+
+  .parent-list-header {
+    width: 100% !important;
+
+    min-height: 48px !important;
+
+    margin: 0 !important;
+
+    padding: 8px 10px !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+
+    flex-direction: row !important;
+
+    align-items: center !important;
+
+    justify-content: space-between !important;
+
+    gap: 6px !important;
+
+    background: transparent !important;
+
+    border: 0 !important;
+  }
+
+
+  .parent-list-header h3 {
+    margin: 0 !important;
+
+    font-size: 12px !important;
+
+    font-weight: 500 !important;
+
+    color: #241b35 !important;
+
+    line-height: 1.2 !important;
+  }
+
+
+  .parent-list-header span {
+    display: none !important;
+  }
+
+
+  .parent-list-actions {
+    width: auto !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 5px !important;
+
+    flex-shrink: 0 !important;
+  }
+
+
+  /* SEARCH */
+
+  .parent-search {
+    width: 210px !important;
+
+    height: 33px !important;
+
+    min-width: 0 !important;
+
+    padding: 0 8px !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 5px !important;
+
+    border: 0 !important;
+
+    border-radius: 5px !important;
+
+    background: #ffffff !important;
+  }
+
+
+  .parent-search svg {
+    flex-shrink: 0 !important;
+
+    font-size: 9px !important;
+  }
+
+
+  .parent-search input {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    font-size: 7px !important;
+  }
+
+
+  /* REFRESH */
+
+  .parent-refresh-button {
+    width: 32px !important;
+    height: 33px !important;
+
+    min-width: 32px !important;
+
+    padding: 0 !important;
+
+    border: 1px solid #e9dff7 !important;
+
+    border-radius: 5px !important;
+
+    background: #ffffff !important;
+
+    color: #6d28d9 !important;
+
+    font-size: 8px !important;
+  }
+
+
+  /* =====================================================
+     PARENT TABLE
+     FORCE FULL WIDTH
+  ===================================================== */
+
+  .parent-table-wrapper {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    margin: 0 !important;
+
+    padding: 0 10px 10px !important;
+
+    box-sizing: border-box !important;
+
+    overflow: visible !important;
+  }
+
+
+  .parent-table {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    table-layout: fixed !important;
+
+    border-collapse: separate !important;
+
+    border-spacing: 0 9px !important;
+  }
+
+
+  .parent-table thead {
+    display: none !important;
+  }
+
+
+  .parent-table tbody {
+    width: 100% !important;
+  }
+
+
+  /* EACH PARENT CARD */
+  .parent-table tbody tr {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    margin: 0 !important;
+
+    background: #ffffff !important;
+
+    border-radius: 11px !important;
+
+    box-shadow:
+      0 2px 8px rgba(60, 40, 90, .04) !important;
+  }
+
+
+  /* RESET CELLS */
+  .parent-table tbody td {
+    box-sizing: border-box !important;
+
+    border: 0 !important;
+
+    background: transparent !important;
+  }
+
+
+  /* =====================================================
+     NAME
+  ===================================================== */
+
+  .parent-table tbody td:nth-child(1) {
+    display: table-cell !important;
+
+    width: 100% !important;
+
+    padding: 11px 10px 7px !important;
+
+    border-radius: 11px 11px 0 0 !important;
+  }
+
+
+  .parent-name-cell {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 8px !important;
+  }
+
+
+  .parent-avatar {
+    width: 36px !important;
+    height: 36px !important;
+
+    min-width: 36px !important;
+
+    border-radius: 9px !important;
+
+    font-size: 11px !important;
+
+    flex-shrink: 0 !important;
+  }
+
+
+  .parent-name-cell strong {
+    min-width: 0 !important;
+
+    font-size: 9px !important;
+
+    white-space: nowrap !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+  }
+
+
+  /* =====================================================
+     USERNAME
+  ===================================================== */
+
+  .parent-table tbody td:nth-child(2) {
+    display: table-cell !important;
+
+    width: 100% !important;
+
+    padding: 5px 10px 8px !important;
+  }
+
+
+  .parent-table tbody td:nth-child(2)::before {
+    content: "Username" !important;
+
+    display: block !important;
+
+    margin-bottom: 3px !important;
+
+    font-size: 6px !important;
+
+    color: #a098a9 !important;
+
+    text-transform: uppercase !important;
+  }
+
+
+  .parent-username {
+    display: inline-flex !important;
+
+    padding: 0 !important;
+
+    background: transparent !important;
+
+    color: #6d28d9 !important;
+
+    font-size: 7px !important;
+
+    font-weight: 500 !important;
+  }
+
+
+  /* =====================================================
+     PASSWORD
+  ===================================================== */
+
+  .parent-table tbody td:nth-child(3) {
+    display: none !important;
+  }
+
+
+  /* =====================================================
+     ACTION BUTTONS
+  ===================================================== */
+
+  .parent-table tbody td:nth-child(4) {
+    display: table-cell !important;
+
+    width: 100% !important;
+
+    padding: 6px 10px 10px !important;
+
+    border-radius: 0 0 11px 11px !important;
+  }
+
+
+  .parent-actions {
+    width: 100% !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: flex-end !important;
+
+    gap: 5px !important;
+
+    padding-top: 6px !important;
+
+    border-top: 1px solid #f1edf5 !important;
+  }
+
+
+  .parent-view-button,
+  .parent-edit-button,
+  .parent-delete-button {
+    width: 26px !important;
+    height: 26px !important;
+
+    min-width: 26px !important;
+
+    padding: 0 !important;
+
+    border-radius: 6px !important;
+
+    font-size: 9px !important;
+  }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+========================================================= */
+
+@media (max-width: 360px) {
+
+  .parent-main {
+    width: 100% !important;
+
+    max-width: calc(100vw - 20px) !important;
+  }
+
+  .parent-management-page {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .parent-search {
+    width: 175px !important;
+  }
+
+  .parent-list-header {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  .parent-table-wrapper {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
