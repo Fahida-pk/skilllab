@@ -19,6 +19,7 @@ import {
   FaEye,
   FaUserPlus,
   FaUserMinus,
+  FaBars,
 } from "react-icons/fa";
 
 import * as PhoneInputModule from "react-phone-input-2";
@@ -823,12 +824,55 @@ export default function Parents() {
   ========================================= */
 
   return (
-<div className="parent-layout">
-  <Sidebar />
+    <div className="admin-dashboard parent-admin-dashboard">
 
-  <main className="parent-main">
+      <Sidebar />
 
-        <section className="parent-management-page">
+      <main className="admin-main">
+
+        {/* SAME TOPBAR MODEL AS ADMIN DASHBOARD / ALL STUDENTS */}
+        <header className="admin-topbar">
+
+          <div className="admin-topbar-left">
+
+            <button
+              type="button"
+              className="mobile-menu-button"
+              aria-label="Open menu"
+              onClick={() => {
+                const sidebarButton = document.querySelector(
+                  ".mobile-sidebar-menu"
+                );
+
+                if (sidebarButton) {
+                  sidebarButton.click();
+                }
+              }}
+            >
+              <FaBars />
+            </button>
+
+            <div>
+              <h1>Parents</h1>
+
+              <p>
+                Manage parent accounts and contact details.
+              </p>
+            </div>
+
+          </div>
+
+          <div className="admin-profile">
+            <div className="admin-profile-info">
+              <strong>Welcome Admin</strong>
+            </div>
+          </div>
+
+        </header>
+
+        <div className="admin-content parent-admin-content">
+
+          <section className="parent-management-page">
 
           {/* HEADER */}
 
@@ -1716,7 +1760,9 @@ export default function Parents() {
               document.body
             )}
 
-        </section>
+          </section>
+
+        </div>
 
       </main>
 
