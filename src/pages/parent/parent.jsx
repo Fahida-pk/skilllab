@@ -16,17 +16,10 @@ import {
   FaSyncAlt,
   FaGraduationCap,
   FaCheck,
+  FaEye,
+  FaUserPlus,
+  FaExchangeAlt,
 } from "react-icons/fa";
-
-import * as PhoneInputModule from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
-
-const PhoneInput =
-  typeof PhoneInputModule?.default === "function"
-    ? PhoneInputModule.default
-    : typeof PhoneInputModule === "function"
-    ? PhoneInputModule
-    : PhoneInputModule?.default?.default;
 
 import Sidebar from "../admin/Sidebar.jsx";
 
@@ -50,11 +43,17 @@ export default function Parents() {
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [studentLoading, setStudentLoading] = useState(false);
 
+  // Student selections are intentionally LOCAL ONLY.
+  // They are not saved to the database.
+  const [parentStudentMap, setParentStudentMap] = useState({});
+  const [viewParent, setViewParent] = useState(null);
+  const [showStudentManager, setShowStudentManager] = useState(false);
+  const [studentManagerMode, setStudentManagerMode] = useState("add");
+  const [studentManagerId, setStudentManagerId] = useState(null);
+  const [studentManagerSearch, setStudentManagerSearch] = useState("");
+
   const emptyForm = {
     name: "",
-    address: "",
-    phone: "",
-    email: "",
     username: "",
     password: "",
   };
@@ -339,14 +338,7 @@ export default function Parents() {
 
       return parents.filter(
         (parent) =>
-
-          [
-            parent.name,
-            parent.address,
-            parent.phone,
-            parent.email,
-            parent.username,
-          ].some((item) =>
+          [parent.name, parent.username].some((item) =>
             String(item || "")
               .toLowerCase()
               .includes(value)
@@ -372,8 +364,6 @@ export default function Parents() {
     setSelectedStudents([]);
     setStudentSearch("");
     setShowModal(true);
-
-    // Load students after opening the modal.
     loadStudents();
   };
 
@@ -382,40 +372,26 @@ export default function Parents() {
      EDIT
   ========================================= */
 
-  const openEdit = (
-    parent,
-    e
-  ) => {
+  const openEdit = (parent, e) => {
     e?.preventDefault();
     e?.stopPropagation();
 
     setEditingId(parent.id);
 
     setForm({
-      name:
-        parent.name || "",
-
-      address:
-        parent.address || "",
-
-      phone:
-        parent.phone || "",
-
-      email:
-        parent.email || "",
-
-      username:
-        parent.username || "",
-
+      name: parent.name || "",
+      username: parent.username || "",
       password: "",
     });
 
-    setSelectedStudents([]);
+    setSelectedStudents(
+      Array.isArray(parentStudentMap[parent.id])
+        ? parentStudentMap[parent.id]
+        : []
+    );
 
     setStudentSearch("");
-
     setShowModal(true);
-
     loadStudents();
   };
 
@@ -425,60 +401,128 @@ export default function Parents() {
   ========================================= */
 
   const closeModal = () => {
-
     if (saving) return;
 
     setShowModal(false);
-
     setEditingId(null);
-
-    setForm(emptyForm);
-
+    setForm({ ...emptyForm });
     setSelectedStudents([]);
-
     setStudentSearch("");
   };
 
 
   /* =========================================
-     FORM CHANGE
+     VIEW PARENT STUDENTS
   ========================================= */
 
-  const handleChange = (
-    e
-  ) => {
+  const getParentStudents = (parentId) => {
+    const ids = Array.isArray(parentStudentMap[parentId])
+      ? parentStudentMap[parentId]
+      : [];
 
-    const {
-      name,
-      value,
-    } = e.target;
-
-
-    setForm(
-      (prev) => ({
-        ...prev,
-        [name]: value,
-      })
+    return students.filter((student) =>
+      ids.includes(Number(student.id))
     );
   };
 
 
-  /* =========================================
-     PHONE CHANGE
-  ========================================= */
+  const openView = (parent, e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
 
-  const handlePhoneChange = (
-    value
-  ) => {
-
-    setForm(
-      (prev) => ({
-        ...prev,
-        phone: value,
-      })
-    );
+    setViewParent(parent);
+    setStudentManagerSearch("");
   };
 
+
+  const closeView = () => {
+    if (showStudentManager) return;
+
+    setViewParent(null);
+    setStudentManagerSearch("");
+    setStudentManagerId(null);
+  };
+
+
+  const openAddStudent = () => {
+    setStudentManagerMode("add");
+    setStudentManagerId(null);
+    setStudentManagerSearch("");
+    setShowStudentManager(true);
+
+    if (!students.length) {
+      loadStudents();
+    }
+  };
+
+
+  const openEditStudent = (student) => {
+    setStudentManagerMode("edit");
+    setStudentManagerId(Number(student.id));
+    setStudentManagerSearch("");
+    setShowStudentManager(true);
+
+    if (!students.length) {
+      loadStudents();
+    }
+  };
+
+
+  const closeStudentManager = () => {
+    setShowStudentManager(false);
+    setStudentManagerId(null);
+    setStudentManagerSearch("");
+  };
+
+
+  const saveStudentFromManager = (studentId) => {
+    if (!viewParent) return;
+
+    const parentId = Number(viewParent.id);
+    const current = Array.isArray(parentStudentMap[parentId])
+      ? parentStudentMap[parentId]
+      : [];
+
+    if (studentManagerMode === "edit") {
+      const oldId = Number(studentManagerId);
+
+      setParentStudentMap((prev) => ({
+        ...prev,
+        [parentId]: current.map((id) =>
+          Number(id) === oldId ? Number(studentId) : Number(id)
+        ),
+      }));
+    } else {
+      if (!current.includes(Number(studentId))) {
+        setParentStudentMap((prev) => ({
+          ...prev,
+          [parentId]: [...current, Number(studentId)],
+        }));
+      }
+    }
+
+    closeStudentManager();
+  };
+
+
+  const deleteParentStudent = (studentId) => {
+    if (!viewParent) return;
+
+    const confirmed = window.confirm(
+      "Remove this student from this parent's list?"
+    );
+
+    if (!confirmed) return;
+
+    const parentId = Number(viewParent.id);
+
+    setParentStudentMap((prev) => ({
+      ...prev,
+      [parentId]: (prev[parentId] || []).filter(
+        (id) => Number(id) !== Number(studentId)
+      ),
+    }));
+  };
 
   /* =========================================
      SAVE PARENT
@@ -557,25 +601,11 @@ export default function Parents() {
               name:
                 form.name.trim(),
 
-              address:
-                form.address.trim(),
-
-              phone:
-                form.phone.trim(),
-
-              email:
-                form.email.trim(),
-
               username:
                 form.username.trim(),
 
               password:
-                form.password,
-
-              /*
-                Selected students are
-                intentionally NOT saved.
-              */
+                form.password
             }),
           }
         );
@@ -600,6 +630,16 @@ export default function Parents() {
           : "Parent added successfully."
       );
 
+
+      const savedParentId =
+        Number(editingId) || Number(data.id || data.parent_id || 0);
+
+      if (savedParentId > 0) {
+        setParentStudentMap((prev) => ({
+          ...prev,
+          [savedParentId]: [...selectedStudents],
+        }));
+      }
 
       closeModal();
 
@@ -876,9 +916,6 @@ export default function Parents() {
 
                       <th>#</th>
                       <th>Parent</th>
-                      <th>Address</th>
-                      <th>Phone</th>
-                      <th>Email</th>
                       <th>Username</th>
                       <th>Actions</th>
 
@@ -898,96 +935,47 @@ export default function Parents() {
                             {index + 1}
                           </td>
 
-
                           <td>
-
                             <div className="parent-name-cell">
-
                               <div className="parent-avatar">
-
                                 {parent.name
                                   ?.trim()
                                   ?.charAt(0)
-                                  ?.toUpperCase() ||
-                                  "P"}
-
+                                  ?.toUpperCase() || "P"}
                               </div>
 
                               <strong>
                                 {parent.name}
                               </strong>
-
                             </div>
-
                           </td>
 
-
                           <td>
-
-                            <span className="parent-address">
-
-                              {parent.address ||
-                                "—"}
-
-                            </span>
-
-                          </td>
-
-
-                          <td>
-
-                            <span className="parent-contact">
-
-                              <FaPhone />
-
-                              {parent.phone}
-
-                            </span>
-
-                          </td>
-
-
-                          <td>
-
-                            <span className="parent-contact">
-
-                              <FaEnvelope />
-
-                              {parent.email}
-
-                            </span>
-
-                          </td>
-
-
-                          <td>
-
                             <span className="parent-username">
-
                               @{parent.username}
-
                             </span>
-
                           </td>
 
-
                           <td>
-
                             <div className="parent-actions">
 
                               <button
                                 type="button"
-                                className="parent-edit-button"
-                                onClick={(e) =>
-                                  openEdit(parent, e)
-                                }
-                                title="Edit"
+                                className="parent-view-button"
+                                onClick={(e) => openView(parent, e)}
+                                title="View Students"
                               >
-
-                                <FaPen />
-
+                                <FaEye />
                               </button>
 
+                              <button
+                                type="button"
+                                className="parent-edit-button"
+                                onClick={(e) => openEdit(parent, e)}
+                                title="Edit"
+                              >
+                                <FaPen />
+                              </button>
 
                               <button
                                 type="button"
@@ -999,13 +987,10 @@ export default function Parents() {
                                 }}
                                 title="Delete"
                               >
-
                                 <FaTrash />
-
                               </button>
 
                             </div>
-
                           </td>
 
                         </tr>
@@ -1084,17 +1069,11 @@ export default function Parents() {
 
                   <div className="parent-form-grid">
 
-
                     {/* NAME */}
-
-                    <div className="parent-form-group">
-
-                      <label>
-                        Parent Name *
-                      </label>
+                    <div className="parent-form-group full">
+                      <label>Parent Name *</label>
 
                       <div className="parent-input-wrap">
-
                         <FaUser />
 
                         <input
@@ -1102,97 +1081,17 @@ export default function Parents() {
                           value={form.name}
                           onChange={handleChange}
                           placeholder="Enter parent name"
+                          autoComplete="off"
                         />
-
                       </div>
-
-                    </div>
-
-
-                    {/* PHONE */}
-
-                    <div className="parent-form-group">
-
-                      <label>
-                        Phone Number
-                      </label>
-
-                      <div className="parent-phone-wrap">
-
-                        <PhoneInput
-                          country="in"
-                          value={form.phone}
-                          onChange={handlePhoneChange}
-                          inputStyle={{
-                            width: "100%",
-                          }}
-                        />
-
-                      </div>
-
-                    </div>
-
-
-                    {/* ADDRESS */}
-
-                    <div className="parent-form-group full">
-
-                      <label>
-                        Address
-                      </label>
-
-                      <div className="parent-input-wrap parent-textarea-wrap">
-
-                        <FaMapMarkerAlt />
-
-                        <textarea
-                          name="address"
-                          value={form.address}
-                          onChange={handleChange}
-                          placeholder="Enter address"
-                          rows="3"
-                        />
-
-                      </div>
-
-                    </div>
-
-
-                    {/* EMAIL */}
-
-                    <div className="parent-form-group">
-
-                      <label>
-                        Mail ID
-                      </label>
-
-                      <div className="parent-input-wrap">
-
-                        <FaEnvelope />
-
-                        <input
-                          type="email"
-                          name="email"
-                          value={form.email}
-                          onChange={handleChange}
-                          placeholder="Enter email"
-                        />
-
-                      </div>
-
                     </div>
 
 
                     {/* USERNAME */}
-
-                    <div className="parent-form-group">
-
-                      <label>
-                        Username *
-                      </label>
+                    <div className="parent-form-group full">
+                      <label>Username *</label>
 
                       <div className="parent-input-wrap">
-
                         <FaUser />
 
                         <input
@@ -1202,27 +1101,19 @@ export default function Parents() {
                           placeholder="Enter username"
                           autoComplete="off"
                         />
-
                       </div>
-
                     </div>
 
 
                     {/* PASSWORD */}
-
                     <div className="parent-form-group full">
-
                       <label>
-
                         Password{" "}
-
                         {editingId &&
                           "(leave blank to keep current)"}
-
                       </label>
 
                       <div className="parent-input-wrap">
-
                         <FaLock />
 
                         <input
@@ -1237,50 +1128,30 @@ export default function Parents() {
                           }
                           autoComplete="new-password"
                         />
-
                       </div>
-
                     </div>
 
 
-                    {/* STUDENTS */}
-
+                    {/* STUDENTS - DISPLAY / CHECK ONLY, NOT SAVED */}
                     <div className="parent-form-group full">
-
                       <div className="student-section-title">
-
                         <div>
-
-                          <label>
-                            Assign Students
-                          </label>
-
+                          <label>Students</label>
                           <span>
-                            Select students for
-                            this parent.
-                            Selection is only
-                            shown here and is
-                            not saved yet.
+                            Tick the students for this parent.
+                            This selection is only kept on this page.
                           </span>
-
                         </div>
 
-
                         <strong>
-                          {selectedStudents.length}
-                          {" "}
-                          selected
+                          {selectedStudents.length} selected
                         </strong>
-
                       </div>
-
 
                       <div className="student-picker">
 
                         <div className="student-picker-top">
-
                           <div className="student-search">
-
                             <FaSearch />
 
                             <input
@@ -1288,147 +1159,88 @@ export default function Parents() {
                               placeholder="Search student..."
                               value={studentSearch}
                               onChange={(e) =>
-                                setStudentSearch(
-                                  e.target.value
-                                )
+                                setStudentSearch(e.target.value)
                               }
                             />
-
                           </div>
-
 
                           <button
                             type="button"
                             className="student-refresh"
                             onClick={loadStudents}
-                            disabled={
-                              studentLoading
-                            }
+                            disabled={studentLoading}
                             title="Refresh students"
                           >
-
                             <FaSyncAlt
                               className={
-                                studentLoading
-                                  ? "spin"
-                                  : ""
+                                studentLoading ? "spin" : ""
                               }
                             />
-
                           </button>
-
                         </div>
-
 
                         <div className="student-list">
 
                           {studentLoading ? (
-
                             <div className="student-empty">
-
-                              <FaSyncAlt
-                                className="spin"
-                              />
-
+                              <FaSyncAlt className="spin" />
                               Loading students...
-
                             </div>
-
                           ) : filteredStudents.length === 0 ? (
-
                             <div className="student-empty">
-
                               <FaGraduationCap />
-
                               No students found.
-
                             </div>
-
                           ) : (
-
-                            filteredStudents.map(
-                              (student) => {
-
-                                const checked =
-                                  selectedStudents.includes(
-                                    Number(
-                                      student.id
-                                    )
-                                  );
-
-
-                                return (
-
-                                  <button
-                                    type="button"
-                                    key={student.id}
-                                    className={
-                                      `student-row ${
-                                        checked
-                                          ? "selected"
-                                          : ""
-                                      }`
-                                    }
-                                    onClick={() =>
-                                      toggleStudent(
-                                        student.id
-                                      )
-                                    }
-                                  >
-
-                                    <span
-                                      className={
-                                        `student-check ${
-                                          checked
-                                            ? "checked"
-                                            : ""
-                                        }`
-                                      }
-                                    >
-
-                                      {checked && (
-                                        <FaCheck />
-                                      )}
-
-                                    </span>
-
-
-                                    <span className="student-avatar">
-
-                                      {student.name
-                                        ?.charAt(0)
-                                        ?.toUpperCase() ||
-                                        "S"}
-
-                                    </span>
-
-
-                                    <span className="student-info">
-
-                                      <strong>
-                                        {student.name ||
-                                          "Unnamed Student"}
-                                      </strong>
-
-                                      <small>
-                                        {student.email ||
-                                          `Student #${student.id}`}
-                                      </small>
-
-                                    </span>
-
-                                  </button>
-
+                            filteredStudents.map((student) => {
+                              const checked =
+                                selectedStudents.includes(
+                                  Number(student.id)
                                 );
-                              }
-                            )
 
+                              return (
+                                <button
+                                  type="button"
+                                  key={student.id}
+                                  className={`student-row ${
+                                    checked ? "selected" : ""
+                                  }`}
+                                  onClick={() =>
+                                    toggleStudent(student.id)
+                                  }
+                                >
+                                  <span
+                                    className={`student-check ${
+                                      checked ? "checked" : ""
+                                    }`}
+                                  >
+                                    {checked && <FaCheck />}
+                                  </span>
+
+                                  <span className="student-avatar">
+                                    {student.name
+                                      ?.charAt(0)
+                                      ?.toUpperCase() || "S"}
+                                  </span>
+
+                                  <span className="student-info">
+                                    <strong>
+                                      {student.name ||
+                                        "Unnamed Student"}
+                                    </strong>
+
+                                    <small>
+                                      {student.email ||
+                                        `Student #${student.id}`}
+                                    </small>
+                                  </span>
+                                </button>
+                              );
+                            })
                           )}
 
                         </div>
-
                       </div>
-
                     </div>
 
                   </div>
@@ -1471,6 +1283,279 @@ export default function Parents() {
               document.body
             )}
 
+
+          {/* VIEW PARENT -> STUDENTS */}
+          {viewParent &&
+            createPortal(
+              <div
+                className="parent-modal-overlay"
+                onClick={closeView}
+              >
+                <div
+                  className="parent-modal parent-students-modal"
+                  onClick={(e) => e.stopPropagation()}
+                >
+
+                  <div className="parent-modal-header">
+                    <div>
+                      <h3>{viewParent.name}</h3>
+                      <p>
+                        @{viewParent.username} · Students
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="parent-modal-close"
+                      onClick={closeView}
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+
+
+                  <div className="parent-students-toolbar">
+                    <div>
+                      <strong>Students List</strong>
+                      <span>
+                        {getParentStudents(viewParent.id).length}
+                        {" "}student(s)
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="parent-student-add-button"
+                      onClick={openAddStudent}
+                    >
+                      <FaUserPlus />
+                      Add Student
+                    </button>
+                  </div>
+
+
+                  <div className="parent-students-list">
+
+                    {getParentStudents(viewParent.id).length === 0 ? (
+                      <div className="student-empty parent-view-empty">
+                        <FaGraduationCap />
+                        <strong>No students selected</strong>
+                        <span>
+                          Click Add Student to add from the student list.
+                        </span>
+                      </div>
+                    ) : (
+                      getParentStudents(viewParent.id).map(
+                        (student, index) => (
+                          <div
+                            className="assigned-student-row"
+                            key={student.id}
+                          >
+                            <div className="assigned-student-number">
+                              {index + 1}
+                            </div>
+
+                            <div className="student-avatar">
+                              {student.name
+                                ?.charAt(0)
+                                ?.toUpperCase() || "S"}
+                            </div>
+
+                            <div className="assigned-student-info">
+                              <strong>
+                                {student.name ||
+                                  "Unnamed Student"}
+                              </strong>
+
+                              <small>
+                                {student.email ||
+                                  `Student #${student.id}`}
+                              </small>
+                            </div>
+
+                            <div className="assigned-student-actions">
+
+                              <button
+                                type="button"
+                                className="parent-view-edit-student"
+                                title="Edit Student"
+                                onClick={() =>
+                                  openEditStudent(student)
+                                }
+                              >
+                                <FaExchangeAlt />
+                              </button>
+
+                              <button
+                                type="button"
+                                className="parent-view-delete-student"
+                                title="Delete from list"
+                                onClick={() =>
+                                  deleteParentStudent(student.id)
+                                }
+                              >
+                                <FaTrash />
+                              </button>
+
+                            </div>
+                          </div>
+                        )
+                      )
+                    )}
+
+                  </div>
+                </div>
+              </div>,
+              document.body
+            )}
+
+
+          {/* ADD / EDIT STUDENT - LOCAL ONLY */}
+          {showStudentManager &&
+            viewParent &&
+            createPortal(
+              <div
+                className="parent-modal-overlay student-action-overlay"
+                onClick={closeStudentManager}
+              >
+                <div
+                  className="parent-modal student-action-modal"
+                  onClick={(e) => e.stopPropagation()}
+                >
+
+                  <div className="parent-modal-header">
+                    <div>
+                      <h3>
+                        {studentManagerMode === "edit"
+                          ? "Edit Student"
+                          : "Add Student"}
+                      </h3>
+
+                      <p>
+                        Select from the existing student list.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="parent-modal-close"
+                      onClick={closeStudentManager}
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+
+
+                  <div className="student-action-body">
+
+                    <div className="student-modal-search">
+                      <FaSearch />
+
+                      <input
+                        type="text"
+                        placeholder="Search student..."
+                        value={studentManagerSearch}
+                        onChange={(e) =>
+                          setStudentManagerSearch(
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
+
+
+                    <div className="student-choice-list">
+
+                      {students
+                        .filter((student) => {
+                          const q =
+                            studentManagerSearch
+                              .trim()
+                              .toLowerCase();
+
+                          if (!q) return true;
+
+                          return (
+                            String(student.name || "")
+                              .toLowerCase()
+                              .includes(q) ||
+                            String(student.email || "")
+                              .toLowerCase()
+                              .includes(q)
+                          );
+                        })
+                        .map((student) => {
+                          const alreadySelected =
+                            getParentStudents(
+                              viewParent.id
+                            ).some(
+                              (item) =>
+                                Number(item.id) ===
+                                Number(student.id)
+                            );
+
+                          const selected =
+                            studentManagerMode === "edit"
+                              ? Number(studentManagerId) ===
+                                Number(student.id)
+                              : alreadySelected;
+
+                          return (
+                            <button
+                              type="button"
+                              key={student.id}
+                              className={`student-choice-row ${
+                                selected ? "selected" : ""
+                              }`}
+                              onClick={() =>
+                                saveStudentFromManager(
+                                  student.id
+                                )
+                              }
+                            >
+                              <span
+                                className={`student-check ${
+                                  selected ? "checked" : ""
+                                }`}
+                              >
+                                {selected && <FaCheck />}
+                              </span>
+
+                              <span className="student-avatar">
+                                {student.name
+                                  ?.charAt(0)
+                                  ?.toUpperCase() || "S"}
+                              </span>
+
+                              <span className="student-info">
+                                <strong>
+                                  {student.name ||
+                                    "Unnamed Student"}
+                                </strong>
+
+                                <small>
+                                  {student.email ||
+                                    `Student #${student.id}`}
+                                </small>
+                              </span>
+                            </button>
+                          );
+                        })}
+
+                      {students.length === 0 && (
+                        <div className="student-empty">
+                          <FaGraduationCap />
+                          No students found.
+                        </div>
+                      )}
+
+                    </div>
+                  </div>
+
+                </div>
+              </div>,
+              document.body
+            )}
         </section>
 
       </main>

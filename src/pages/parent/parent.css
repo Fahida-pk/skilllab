@@ -1120,24 +1120,451 @@
 
 }
 
-/* =====================================================
-   PHONE INPUT
-   Use react-phone-input-2 base CSS exactly like Alafiya Driver.
-===================================================== */
-.parent-phone-wrap {
-  width: 100%;
-}
-
-/* Keep the library's flag + country-code + number layout */
-.parent-phone-wrap .react-tel-input {
-  width: 100%;
-}
-
-.parent-phone-wrap .react-tel-input .form-control {
-  width: 100%;
-}
-
 /* Address - map/pin icon model */
 .parent-textarea-wrap > svg {
   color: #8d879b;
+}
+
+
+/* =====================================================
+   FINAL PARENT LIST
+   Only Parent / Username / Actions
+===================================================== */
+
+.parent-table {
+  min-width: 0 !important;
+}
+
+.parent-view-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  border: 1px solid #cdb9f8;
+  background: #fff;
+  color: #6d28d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.parent-view-button:hover {
+  background: #f5efff;
+}
+
+.parent-actions {
+  align-items: center;
+}
+
+
+/* =====================================================
+   VIEW STUDENTS
+===================================================== */
+
+.parent-students-modal {
+  width: min(620px, 100%);
+}
+
+.parent-students-toolbar {
+  padding: 15px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #eeeaf5;
+}
+
+.parent-students-toolbar > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.parent-students-toolbar strong {
+  color: #30283b;
+  font-size: 15px;
+}
+
+.parent-students-toolbar span {
+  color: #968da1;
+  font-size: 12px;
+}
+
+.parent-student-add-button {
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6d28d9, #9c35e8);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.parent-students-list {
+  padding: 12px 24px 20px;
+  max-height: 430px;
+  overflow-y: auto;
+}
+
+.assigned-student-row {
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  margin-bottom: 7px;
+  border: 1px solid #eee9f5;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.assigned-student-row:last-child {
+  margin-bottom: 0;
+}
+
+.assigned-student-number {
+  width: 24px;
+  flex-shrink: 0;
+  text-align: center;
+  color: #9a91a4;
+  font-size: 12px;
+}
+
+.assigned-student-info {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.assigned-student-info strong {
+  color: #302838;
+  font-size: 13px;
+}
+
+.assigned-student-info small {
+  color: #958c9f;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assigned-student-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.parent-view-edit-student,
+.parent-view-delete-student {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.parent-view-edit-student {
+  border: 1px solid #d9c9ff;
+  color: #7134d8;
+}
+
+.parent-view-delete-student {
+  border: 1px solid #ffcbd1;
+  color: #e5394f;
+}
+
+.parent-view-empty {
+  min-height: 190px;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.parent-view-empty strong {
+  color: #4b4255;
+  font-size: 13px;
+}
+
+.parent-view-empty span {
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   ADD / EDIT STUDENT POPUP
+===================================================== */
+
+.student-action-overlay {
+  z-index: 10001;
+}
+
+.student-action-modal {
+  width: min(520px, 100%);
+}
+
+.student-action-body {
+  padding: 18px 24px 22px;
+}
+
+.student-modal-search {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 11px;
+  border: 1px solid #ddd7e6;
+  border-radius: 8px;
+  color: #91899d;
+  margin-bottom: 10px;
+}
+
+.student-modal-search:focus-within {
+  border-color: #7c3aed;
+}
+
+.student-modal-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  font-size: 13px;
+  background: transparent;
+}
+
+.student-choice-list {
+  max-height: 330px;
+  overflow-y: auto;
+  border: 1px solid #eee9f5;
+  border-radius: 10px;
+}
+
+.student-choice-row {
+  width: 100%;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 1px solid #f0edf5;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.student-choice-row:last-child {
+  border-bottom: 0;
+}
+
+.student-choice-row:hover,
+.student-choice-row.selected {
+  background: #f4efff;
+}
+
+
+/* =====================================================
+   MOBILE SIDEBAR + PARENT LIST
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .parent-layout {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    overflow-x: hidden;
+  }
+
+  /* Keep the admin sidebar visible on mobile */
+  .parent-layout > aside,
+  .parent-layout .sidebar,
+  .parent-layout .admin-sidebar {
+    display: flex !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 215px !important;
+    min-width: 215px !important;
+    height: 100vh !important;
+    z-index: 10000 !important;
+    overflow-y: auto !important;
+    visibility: visible !important;
+  }
+
+  .parent-main {
+    width: calc(100% - 215px) !important;
+    min-width: calc(100% - 215px) !important;
+    margin-left: 215px !important;
+    padding: 14px !important;
+    box-sizing: border-box;
+  }
+
+  .parent-management-page {
+    width: 100%;
+    padding: 0 !important;
+  }
+
+  .parent-page-header {
+    margin-bottom: 14px;
+    gap: 10px;
+  }
+
+  .parent-title-row {
+    gap: 8px;
+  }
+
+  .parent-title-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 17px;
+  }
+
+  .parent-title-row h2 {
+    font-size: 18px;
+  }
+
+  .parent-title-row p {
+    font-size: 10px;
+  }
+
+  .parent-add-button {
+    width: 100%;
+    height: 40px;
+    font-size: 12px;
+  }
+
+  .parent-list-card {
+    border-radius: 12px;
+  }
+
+  .parent-list-header {
+    padding: 11px;
+    min-height: auto;
+  }
+
+  .parent-list-header h3 {
+    font-size: 15px;
+  }
+
+  .parent-list-actions {
+    width: 100%;
+  }
+
+  .parent-search {
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+  }
+
+  .parent-refresh-button {
+    width: 38px;
+    height: 38px;
+  }
+
+  /* Mobile = compact cards, not the old wide table */
+  .parent-table-wrapper {
+    overflow: visible;
+  }
+
+  .parent-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .parent-table thead {
+    display: none;
+  }
+
+  .parent-table,
+  .parent-table tbody,
+  .parent-table tr,
+  .parent-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .parent-table tbody tr {
+    padding: 11px;
+    border-bottom: 1px solid #eeeaf3;
+  }
+
+  .parent-table tbody td {
+    display: none;
+    padding: 0;
+    border: 0;
+  }
+
+  .parent-table tbody td:nth-child(2),
+  .parent-table tbody td:nth-child(3),
+  .parent-table tbody td:nth-child(4) {
+    display: flex;
+  }
+
+  .parent-table tbody td:nth-child(2) {
+    align-items: center;
+    margin-bottom: 9px;
+  }
+
+  .parent-table tbody td:nth-child(3) {
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .parent-table tbody td:nth-child(3)::before {
+    content: "Username";
+    margin-right: 7px;
+    color: #8e8699;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .parent-table tbody td:nth-child(4) {
+    justify-content: flex-end;
+  }
+
+  .parent-name-cell strong {
+    font-size: 12px;
+  }
+
+  .parent-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .parent-username {
+    font-size: 11px;
+  }
+
+  .parent-view-button,
+  .parent-edit-button,
+  .parent-delete-button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .parent-students-toolbar {
+    padding: 12px 16px;
+  }
+
+  .parent-students-list {
+    padding: 10px 16px 16px;
+  }
+
+  .student-action-body {
+    padding: 14px 16px 18px;
+  }
 }
