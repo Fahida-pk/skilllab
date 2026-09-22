@@ -322,7 +322,12 @@ const goStudents = () => {
 
   setMobileOpen(false);
 };
+const goParents = () => {
 
+  navigate("/admin/parents");
+
+  setMobileOpen(false);
+};
 /* =========================================
    VIEW STUDENT DASHBOARD
    Pass selected student details to Dashboard.
@@ -612,23 +617,30 @@ const openStudentDashboard = (student) => {
 
           {/* PARENTS */}
 
-          <div className="admin-nav-group">
+        {/* PARENTS */}
 
-            <button
-              className="admin-nav-item"
-            >
-              <FaUserTie />
+<div className="admin-nav-group">
 
-              <span>
-                Parents
-              </span>
+  <button
+    className={`admin-nav-item ${
+      location.pathname.startsWith("/admin/parents")
+        ? "active"
+        : ""
+    }`}
+    onClick={goParents}
+  >
+    <FaUserTie />
 
-              <FaChevronDown
-                className="admin-nav-arrow"
-              />
-            </button>
+    <span>
+      Parents
+    </span>
 
-          </div>
+    <FaChevronDown
+      className="admin-nav-arrow"
+    />
+  </button>
+
+</div>
 
           {/* PAYMENT */}
 
