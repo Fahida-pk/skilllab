@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 import {
   FaPlus,
@@ -355,18 +356,17 @@ export default function Parents() {
      ADD
   ========================================= */
 
-  const openAdd = () => {
+  const openAdd = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
 
     setEditingId(null);
-
-    setForm(emptyForm);
-
+    setForm({ ...emptyForm });
     setSelectedStudents([]);
-
     setStudentSearch("");
-
     setShowModal(true);
 
+    // Load students after opening the modal.
     loadStudents();
   };
 
@@ -376,8 +376,11 @@ export default function Parents() {
   ========================================= */
 
   const openEdit = (
-    parent
+    parent,
+    e
   ) => {
+    e?.preventDefault();
+    e?.stopPropagation();
 
     setEditingId(parent.id);
 
@@ -764,6 +767,7 @@ export default function Parents() {
 
 
             <button
+              type="button"
               className="parent-add-button"
               onClick={openAdd}
             >
@@ -985,9 +989,10 @@ export default function Parents() {
                             <div className="parent-actions">
 
                               <button
+                                type="button"
                                 className="parent-edit-button"
-                                onClick={() =>
-                                  openEdit(parent)
+                                onClick={(e) =>
+                                  openEdit(parent, e)
                                 }
                                 title="Edit"
                               >
@@ -998,12 +1003,13 @@ export default function Parents() {
 
 
                               <button
+                                type="button"
                                 className="parent-delete-button"
-                                onClick={() =>
-                                  deleteParent(
-                                    parent.id
-                                  )
-                                }
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  deleteParent(parent.id);
+                                }}
                                 title="Delete"
                               >
 
@@ -1033,19 +1039,17 @@ export default function Parents() {
 
           {/* MODAL */}
 
-          {showModal && (
-
-            <div
-              className="parent-modal-overlay"
-              onMouseDown={closeModal}
-            >
-
+          {showModal &&
+            createPortal(
               <div
-                className="parent-modal"
-                onMouseDown={(e) =>
-                  e.stopPropagation()
-                }
+                className="parent-modal-overlay"
+                onClick={closeModal}
               >
+
+                <div
+                  className="parent-modal"
+                  onClick={(e) => e.stopPropagation()}
+                >
 
                 {/* MODAL HEADER */}
 
@@ -1486,11 +1490,10 @@ export default function Parents() {
 
                 </form>
 
-              </div>
-
-            </div>
-
-          )}
+                </div>
+              </div>,
+              document.body
+            )}
 
         </section>
 
