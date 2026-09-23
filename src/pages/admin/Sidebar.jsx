@@ -240,22 +240,22 @@ export default function Sidebar() {
 
           <div className="admin-nav-group">
 
-            <button
-              type="button"
-              className={`admin-nav-item ${
-                isParentsPage ? "active" : ""
-              }`}
-              onClick={() => {
+          <button
+  type="button"
+  className={`admin-nav-item ${
+    isParentsPage ? "active" : ""
+  }`}
+  onClick={() => {
 
-                setParentsOpen((prev) => !prev);
+    setParentsOpen((prev) => !prev);
 
-                if (!isParentsPage) {
-                  navigate("/admin/parents");
-                  setMobileOpen(false);
-                }
+    if (!isParentsPage) {
+      navigate("/admin/parents");
+      setMobileOpen(false);
+    }
 
-              }}
-            >
+  }}
+>
 
               <FaUserTie />
 
