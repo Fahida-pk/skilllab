@@ -569,11 +569,10 @@ const openStudentDashboard = (student) => {
                   ? "active"
                   : ""
               }`}
-              onClick={() =>
-                setStudentsOpen(
-                  !studentsOpen
-                )
-              }
+           onClick={() => {
+  setStudentsOpen((prev) => !prev);
+  setParentsOpen(false);
+}}
             >
               <FaUsers />
 
@@ -631,8 +630,9 @@ const openStudentDashboard = (student) => {
         : ""
     }`}
     onClick={() => {
-      setParentsOpen((prev) => !prev);
-    }}
+  setParentsOpen((prev) => !prev);
+  setStudentsOpen(false);
+}}
   >
 
     <FaUserTie />
