@@ -5031,168 +5031,331 @@ body,
   }
 }
 /* =========================================================
-   FINAL MOBILE PARENT UI
-   All Students MODEL
+   PARENT TABLE - MOBILE
+   Keep table structure inside ONE full-width card
 ========================================================= */
 
 @media (max-width: 650px) {
 
-  /* =====================================
-     MAIN PAGE
-  ===================================== */
+  /* Main parent list card */
+  .parent-admin-content .parent-list-card {
+    width: 100% !important;
+    max-width: 100% !important;
 
-  .parent-management-page {
-    padding: 8px !important;
+    margin-top: 52px !important;
+
+    background: #fff !important;
+    border: 1px solid #ece8f3 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 5px 18px rgba(43, 31, 70, 0.05) !important;
+
+    overflow: hidden !important;
   }
 
 
-  /* =====================================
-     TOP PARENTS HEADER
-  ===================================== */
+  /* -----------------------------------------
+     Parents List + Refresh
+  ----------------------------------------- */
 
-  .parent-page-header {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
+  .parent-admin-content .parent-list-header {
+    width: 100% !important;
 
-    gap: 6px !important;
-    margin-bottom: 8px !important;
-    padding: 0 2px !important;
-  }
-
-  .parent-title-row {
-    gap: 6px !important;
-  }
-
-  .parent-title-icon {
-    width: 30px !important;
-    height: 30px !important;
-    min-width: 30px !important;
-
-    border-radius: 7px !important;
-    font-size: 12px !important;
-  }
-
-  .parent-title-row h2 {
-    font-size: 15px !important;
-  }
-
-  .parent-title-row p {
-    display: none !important;
-  }
-
-
-  /* =====================================
-     SMALL ADD PARENT BUTTON
-  ===================================== */
-
-  .parent-add-button {
-    width: 10px !important;
-    height: 10px !important;
-
-    min-width: 0 !important;
+    min-height: 40px !important;
 
     padding: 0 8px !important;
 
-    border-radius: 5px !important;
-
-    font-size: 7px !important;
-    font-weight: 700 !important;
-
-    gap: 3px !important;
-
-    box-shadow: none !important;
-  }
-
-  .parent-add-button svg {
-    font-size: 7px !important;
-  }
-
-
-  /* =====================================
-     PARENT LIST CARD
-  ===================================== */
-
-  .parent-list-card {
-    width: 100% !important;
-
-    background: transparent !important;
-
-    border: 0 !important;
-    border-radius: 0 !important;
-
-    box-shadow: none !important;
-
-    overflow: visible !important;
-  }
-
-
-  /* =====================================
-     PARENTS LIST HEADER
-     NAME + REFRESH
-  ===================================== */
-
-  .parent-list-header {
-    width: 100% !important;
-
     display: flex !important;
     flex-direction: row !important;
 
     align-items: center !important;
     justify-content: space-between !important;
 
-    flex-wrap: wrap !important;
-
-    min-height: 0 !important;
-
-    padding: 0 2px !important;
-
-    gap: 5px !important;
-
     border: 0 !important;
-
     background: transparent !important;
+
+    box-sizing: border-box !important;
   }
 
-
-  /* Parents List text */
-
-  .parent-list-header > div:first-child {
-    display: flex !important;
-    align-items: center !important;
+  .parent-admin-content .parent-list-header > div:first-child {
+    width: auto !important;
   }
 
-  .parent-list-header h3 {
+  .parent-admin-content .parent-list-header h3 {
     margin: 0 !important;
 
-    font-size: 10px !important;
-    font-weight: 600 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
 
-    color: #30233e !important;
+    color: #292232 !important;
   }
 
-  .parent-list-header span {
+  .parent-admin-content .parent-list-header span {
     display: none !important;
   }
 
 
-  /* =====================================
-     REFRESH
-  ===================================== */
+  /* Refresh button */
+  .parent-admin-content .parent-refresh-button {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
 
-  .parent-list-actions {
+    padding: 0 !important;
+
+    border-radius: 7px !important;
+
+    font-size: 9px !important;
+  }
+
+
+  /* -----------------------------------------
+     Search
+  ----------------------------------------- */
+
+  .parent-admin-content .parent-list-actions {
+    position: absolute !important;
+
+    left: 10px !important;
+    right: 10px !important;
+
+    margin-top: 48px !important;
+
     width: auto !important;
 
     display: flex !important;
-
-    align-items: center !important;
-    justify-content: flex-end !important;
-
-    gap: 4px !important;
   }
 
-  .parent-refresh-button {
+  .parent-admin-content .parent-search {
+    width: 100% !important;
+    height: 34px !important;
+
+    min-width: 0 !important;
+
+    padding: 0 9px !important;
+
+    border-radius: 7px !important;
+
+    box-sizing: border-box !important;
+  }
+
+  .parent-admin-content .parent-search input {
+    font-size: 10px !important;
+  }
+
+
+  /* -----------------------------------------
+     TABLE WRAPPER
+  ----------------------------------------- */
+
+  .parent-admin-content .parent-table-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    margin-top: 8px !important;
+
+    overflow-x: hidden !important;
+
+    border-top: 1px solid #eeeaf4 !important;
+  }
+
+
+  /* -----------------------------------------
+     TABLE
+  ----------------------------------------- */
+
+  .parent-admin-content .parent-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    table-layout: fixed !important;
+
+    border-collapse: collapse !important;
+  }
+
+
+  /* -----------------------------------------
+     TABLE HEADER - KEEP IT
+  ----------------------------------------- */
+
+  .parent-admin-content .parent-table thead {
+    display: table-header-group !important;
+  }
+
+  .parent-admin-content .parent-table thead tr {
+    display: table-row !important;
+  }
+
+  .parent-admin-content .parent-table th {
+    display: table-cell !important;
+
+    padding: 9px 6px !important;
+
+    background: #f8f7fa !important;
+
+    border-bottom: 1px solid #e8e4ed !important;
+
+    color: #625a6d !important;
+
+    font-size: 8px !important;
+    font-weight: 700 !important;
+
+    text-align: left !important;
+
+    white-space: nowrap !important;
+  }
+
+
+  /* -----------------------------------------
+     COLUMN WIDTHS
+  ----------------------------------------- */
+
+  .parent-admin-content .parent-table th:nth-child(1),
+  .parent-admin-content .parent-table td:nth-child(1) {
+    width: 31% !important;
+  }
+
+  .parent-admin-content .parent-table th:nth-child(2),
+  .parent-admin-content .parent-table td:nth-child(2) {
+    width: 21% !important;
+  }
+
+  .parent-admin-content .parent-table th:nth-child(3),
+  .parent-admin-content .parent-table td:nth-child(3) {
+    width: 23% !important;
+  }
+
+  .parent-admin-content .parent-table th:nth-child(4),
+  .parent-admin-content .parent-table td:nth-child(4) {
+    width: 25% !important;
+  }
+
+
+  /* -----------------------------------------
+     BODY
+  ----------------------------------------- */
+
+  .parent-admin-content .parent-table tbody {
+    display: table-row-group !important;
+    width: 100% !important;
+  }
+
+  .parent-admin-content .parent-table tbody tr {
+    display: table-row !important;
+
+    width: 100% !important;
+
+    padding: 0 !important;
+
+    background: #fff !important;
+
+    border: 0 !important;
+  }
+
+  .parent-admin-content .parent-table tbody td {
+    display: table-cell !important;
+
+    width: auto !important;
+
+    padding: 11px 6px !important;
+
+    border-bottom: 1px solid #eeeaf3 !important;
+
+    background: #fff !important;
+
+    color: #403849 !important;
+
+    font-size: 9px !important;
+
+    vertical-align: middle !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  /* -----------------------------------------
+     NAME
+  ----------------------------------------- */
+
+  .parent-admin-content .parent-name-cell {
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 6px !important;
+
+    min-width: 0 !important;
+  }
+
+  .parent-admin-content .parent-avatar {
+    width: 28px !important;
+    height: 28px !important;
+
+    min-width: 28px !important;
+
+    border-radius: 8px !important;
+
+    font-size: 10px !important;
+  }
+
+  .parent-admin-content .parent-name-cell strong {
+    max-width: 75px !important;
+
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+
+    font-size: 9px !important;
+  }
+
+
+  /* -----------------------------------------
+     USERNAME
+  ----------------------------------------- */
+
+  .parent-admin-content .parent-username {
+    display: inline-block !important;
+
+    max-width: 60px !important;
+
+    padding: 4px 5px !important;
+
+    border-radius: 5px !important;
+
+    font-size: 8px !important;
+
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+
+  /* -----------------------------------------
+     PASSWORD
+  ----------------------------------------- */
+
+  .parent-admin-content .parent-password {
+    font-size: 8px !important;
+
+    letter-spacing: 1px !important;
+
+    white-space: nowrap !important;
+  }
+
+
+  /* -----------------------------------------
+     ACTIONS
+  ----------------------------------------- */
+
+  .parent-admin-content .parent-actions {
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 3px !important;
+  }
+
+  .parent-admin-content .parent-actions button {
     width: 25px !important;
     height: 25px !important;
 
@@ -5200,649 +5363,20 @@ body,
 
     padding: 0 !important;
 
-    border-radius: 5px !important;
+    border-radius: 6px !important;
 
-    border: 1px solid #e4dcef !important;
-
-    background: #fff !important;
-
-    color: #7134d8 !important;
-
-    font-size: 8px !important;
-  }
-
-  .parent-refresh-button svg {
-    font-size: 8px !important;
-  }
-
-
-  /* =====================================
-     SEARCH
-     BELOW PARENTS LIST
-  ===================================== */
-
-  .parent-list-header .parent-search {
-    order: 5 !important;
-
-    width: 100% !important;
-
-    flex: 0 0 100% !important;
-
-    height: 30px !important;
-
-    margin-top: 3px !important;
-
-    padding: 0 8px !important;
-
-    box-sizing: border-box !important;
-
-    display: flex !important;
-    align-items: center !important;
-
-    gap: 5px !important;
-
-    border: 1px solid #e4dcef !important;
-
-    border-radius: 5px !important;
-
-    background: #fff !important;
-  }
-
-  .parent-list-header .parent-search svg {
-    flex-shrink: 0 !important;
-
-    font-size: 8px !important;
-
-    color: #aaa0b5 !important;
-  }
-
-  .parent-list-header .parent-search input {
-    width: 100% !important;
-
-    min-width: 0 !important;
-
-    height: 100% !important;
-
-    padding: 0 !important;
-
-    font-size: 7px !important;
-
-    border: 0 !important;
-
-    outline: none !important;
-  }
-
-
-  /* =====================================
-     PARENT TABLE
-  ===================================== */
-
-  .parent-table-wrapper {
-    width: 100% !important;
-
-    padding: 0 !important;
-
-    margin-top: 7px !important;
-
-    overflow: visible !important;
-  }
-
-  .parent-table {
-    width: 100% !important;
-
-    min-width: 0 !important;
-
-    table-layout: fixed !important;
-
-    border-collapse: separate !important;
-
-    border-spacing: 0 7px !important;
-  }
-
-
-  /* Hide table heading */
-
-  .parent-table thead {
-    display: none !important;
-  }
-
-
-  /* Parent row */
-
-  .parent-table tbody tr {
-    width: 100% !important;
-
-    background: #fff !important;
-
-    box-shadow: 0 2px 8px rgba(50, 30, 80, .05) !important;
-
-    border-radius: 9px !important;
-  }
-
-
-  /* =====================================
-     NAME
-     NO LABEL
-  ===================================== */
-
-  .parent-table tbody td:nth-child(1) {
-    display: table-cell !important;
-
-    width: 52% !important;
-
-    padding: 10px 5px 8px 10px !important;
-
-    border: 0 !important;
-  }
-
-  /* IMPORTANT:
-     remove Name label */
-
-  .parent-table tbody td:nth-child(1)::before {
-    display: none !important;
-    content: none !important;
-  }
-
-  .parent-name-cell {
     display: flex !important;
 
     align-items: center !important;
-
-    gap: 6px !important;
-
-    white-space: nowrap !important;
-  }
-
-  .parent-avatar {
-    width: 28px !important;
-    height: 28px !important;
-
-    min-width: 28px !important;
-
-    border-radius: 7px !important;
+    justify-content: center !important;
 
     font-size: 9px !important;
   }
 
-  .parent-name-cell strong {
-    font-size: 8px !important;
 
-    overflow: hidden !important;
-
-    text-overflow: ellipsis !important;
-  }
-
-
-  /* =====================================
-     USERNAME
-     NO LABEL
-  ===================================== */
-
-  .parent-table tbody td:nth-child(2) {
-    display: table-cell !important;
-
-    width: 25% !important;
-
-    padding: 10px 3px !important;
-
-    border: 0 !important;
-  }
-
-  /* IMPORTANT:
-     remove Username label */
-
-  .parent-table tbody td:nth-child(2)::before {
-    display: none !important;
-    content: none !important;
-  }
-
-  .parent-username {
-    padding: 0 !important;
-
-    background: transparent !important;
-
-    color: #7134d8 !important;
-
-    font-size: 7px !important;
-
-    font-weight: 600 !important;
-  }
-
-
-  /* =====================================
-     PASSWORD HIDDEN
-  ===================================== */
-
-  .parent-table tbody td:nth-child(3) {
-    display: none !important;
-  }
-
-
-  /* =====================================
-     ACTIONS
-  ===================================== */
-
-  .parent-table tbody td:nth-child(4) {
-    display: table-cell !important;
-
-    width: 23% !important;
-
-    padding: 10px 8px 10px 2px !important;
-
-    border: 0 !important;
-  }
-
-  .parent-actions {
-    display: flex !important;
-
-    align-items: center !important;
-
-    justify-content: flex-end !important;
-
-    gap: 3px !important;
-  }
-
-
-  /* Small action buttons */
-
-  .parent-view-button,
-  .parent-edit-button,
-  .parent-delete-button {
-    width: 23px !important;
-    height: 23px !important;
-
-    min-width: 23px !important;
-
-    padding: 0 !important;
-
-    border-radius: 5px !important;
-
-    font-size: 7px !important;
-  }
-
-  .parent-view-button svg,
-  .parent-edit-button svg,
-  .parent-delete-button svg {
-    font-size: 7px !important;
-  }
-
-
-  /* =====================================
-     NO PARENT / LOADING
-  ===================================== */
-
-  .parent-empty-state {
-    min-height: 150px !important;
-
-    padding: 15px !important;
-  }
-
-  .parent-empty-state h3 {
-    font-size: 11px !important;
-  }
-
-  .parent-empty-state p {
-    font-size: 8px !important;
-  }
-
-}
-@media (max-width: 650px) {
-
-  .parent-list-header {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-
-    align-items: center !important;
-    justify-content: space-between !important;
-
-    padding: 0 2px !important;
-
-    gap: 6px !important;
-
-    border: 0 !important;
-    background: transparent !important;
-  }
-
-  .parent-list-header > div:first-child {
-    width: auto !important;
-  }
-
-  .parent-list-header h3 {
-    font-size: 11px !important;
-    margin: 0 !important;
-  }
-
-  .parent-list-header span {
-    display: none !important;
-  }
-
-  .parent-list-actions {
-    width: auto !important;
-  }
-
-  .parent-list-actions .parent-search {
-    order: 10 !important;
-
-    position: absolute !important;
-
-    left: 0 !important;
-    right: 0 !important;
-
-    margin-top: 48px !important;
-
-    width: 100% !important;
-
-    height: 32px !important;
-  }
-
-  .parent-list-actions .parent-search input {
-    font-size: 9px !important;
-  }
-
-  .parent-refresh-button {
-    width: 27px !important;
-    height: 27px !important;
-    min-width: 27px !important;
-
-    font-size: 9px !important;
-  }
-
-  .parent-list-card {
-    margin-top: 52px !important;
-
-    background: transparent !important;
-
-    border: 0 !important;
-
-    box-shadow: none !important;
-  }
-
-  .parent-cards {
-    margin-top: 8px !important;
-  }
-
-  /* OLD TABLE COMPLETELY HIDDEN */
-  .parent-table-wrapper,
-  .parent-table {
-    display: none !important;
-  }
-
-}
-/* =========================================================
-   MOBILE - PARENT TABLE AS CARD
-   DESKTOP TABLE WILL REMAIN SAME
-========================================================= */
-
-@media (max-width: 650px) {
-
-  /* Parent table wrapper */
-  .parent-table-wrapper {
-    width: 100%;
-    overflow: visible;
-    padding: 12px;
-    box-sizing: border-box;
-  }
-
-  /* Remove desktop table minimum width */
-  .parent-table {
-    width: 100%;
-    min-width: 0 !important;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-
-  /* Hide table heading on mobile */
-  .parent-table thead {
-    display: none;
-  }
-
-  /* Table body becomes normal block */
-  .parent-table tbody {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-  }
-
-  /* Each row becomes a card */
-  .parent-table tbody tr {
-    width: 100%;
-    min-height: 92px;
-
-    box-sizing: border-box;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 10px;
-
-    padding: 14px;
-
-    background: #fff;
-
-    border: 1px solid #eee8f5;
-    border-radius: 14px;
-
-    box-shadow: 0 4px 14px rgba(50, 30, 80, 0.06);
-  }
-
-  .parent-table tbody tr:hover {
-    background: #fff;
-  }
-
-  /* All TD */
-  .parent-table tbody td {
-    padding: 0;
-    border: 0;
-
-    background: transparent;
-
-    font-size: 12px;
-
-    vertical-align: middle;
-  }
-
-  /* =====================================================
-     NAME
-  ===================================================== */
-
-  .parent-table tbody td:nth-child(1) {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .parent-name-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    min-width: 0;
-  }
-
-  .parent-avatar {
-    width: 42px;
-    height: 42px;
-
-    min-width: 42px;
-
-    border-radius: 11px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: linear-gradient(
-      135deg,
-      #7925df,
-      #932ce8
-    );
-
-    color: #fff;
-
-    font-size: 13px;
-    font-weight: 800;
-  }
-
-  .parent-name-cell strong {
-    display: block;
-
-    max-width: 110px;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    color: #292232;
-
-    font-size: 13px;
-    font-weight: 700;
-  }
-
-
-  /* =====================================================
-     USERNAME
-  ===================================================== */
-
-  .parent-table tbody td:nth-child(2) {
-    flex-shrink: 1;
-    min-width: 0;
-  }
-
-  .parent-username {
-    display: inline-block;
-
-    max-width: 75px;
-
-    padding: 5px 7px;
-
-    border-radius: 7px;
-
-    background: #f3efff;
-
-    color: #6d28d9;
-
-    font-size: 10px;
-    font-weight: 600;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-
-  /* =====================================================
-     PASSWORD
-  ===================================================== */
-
-  .parent-table tbody td:nth-child(3) {
-    display: none;
-  }
-
-
-  /* =====================================================
-     ACTIONS
-  ===================================================== */
-
-  .parent-table tbody td:nth-child(4) {
-    flex-shrink: 0;
-  }
-
-  .parent-actions {
-    display: flex;
-    align-items: center;
-
-    gap: 5px;
-  }
-
-
-  .parent-actions button {
-    width: 32px;
-    height: 32px;
-
-    min-width: 32px;
-
-    padding: 0;
-
-    border-radius: 8px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #fff;
-
-    font-size: 11px;
-  }
-
-
-  .parent-view-button {
-    border: 1px solid #d9c9ff;
-    color: #7134d8;
-  }
-
-
-  .parent-edit-button {
-    border: 1px solid #d9c9ff;
-    color: #7134d8;
-  }
-
-
-  .parent-delete-button {
-    border: 1px solid #ffcbd1;
-    color: #e5394f;
-  }
-
-
-  /* =====================================================
-     PARENT LIST CARD
-  ===================================================== */
-
-  .parent-list-card {
-    width: 100%;
-    overflow: hidden;
-  }
-
-
-  /* =====================================================
-     MOBILE HEADER
-  ===================================================== */
-
-  .parent-list-header {
-    padding: 14px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: stretch;
-
-    gap: 10px;
-  }
-
-
-  .parent-list-actions {
-    width: 100%;
-
-    display: flex;
-    align-items: center;
-
-    gap: 7px;
-  }
-
-
-  .parent-search {
-    flex: 1;
-    width: auto;
-  }
-
-
-  .parent-refresh-button {
-    width: 40px;
-    height: 40px;
-
-    min-width: 40px;
+  /* Last row */
+  .parent-admin-content .parent-table tbody tr:last-child td {
+    border-bottom: 0 !important;
   }
 
 }
