@@ -5380,3 +5380,217 @@ body,
   }
 
 }
+/* =========================================
+   PARENTS LIST - REQUIRED DESIGN
+========================================= */
+
+.parent-list-header {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 14px 16px;
+  min-height: auto;
+  border-bottom: 1px solid #eeeaf4;
+}
+
+/* Parents List title */
+.parent-list-title {
+  width: 100%;
+}
+
+.parent-list-title h3 {
+  margin: 0;
+  color: #2b2435;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Search + refresh row */
+.parent-list-actions {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Full width search */
+.parent-search {
+  width: auto;
+  flex: 1;
+  height: 38px;
+  box-sizing: border-box;
+  padding: 0 11px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  border: 1px solid #ddd7e6;
+  border-radius: 7px;
+  background: #fff;
+  color: #91899d;
+}
+
+.parent-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #2c2634;
+  font-size: 11px;
+}
+
+/* Refresh button */
+.parent-refresh-button {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+
+  border: 1px solid #ddd7e6;
+  border-radius: 7px;
+
+  background: #fff;
+  color: #6d28d9;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.parent-refresh-button:hover {
+  background: #f5f0ff;
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.parent-table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
+}
+
+.parent-table th {
+  padding: 9px 12px;
+  background: #faf9fc;
+  border-bottom: 1px solid #e8e4ed;
+
+  color: #6f6878;
+  text-align: left;
+
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.parent-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid #eeeaf3;
+
+  color: #403849;
+  font-size: 10px;
+  vertical-align: middle;
+}
+
+/* Name */
+.parent-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.parent-avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 7px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  background: #eee7ff;
+  color: #7134d8;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.parent-name-cell strong {
+  color: #292232;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* Username */
+.parent-username {
+  padding: 0;
+  background: transparent;
+
+  color: #7134d8;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+/* Password */
+.parent-password {
+  color: #625a6d;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+/* Actions */
+.parent-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.parent-view-button,
+.parent-edit-button,
+.parent-delete-button {
+  width: 27px;
+  height: 27px;
+
+  padding: 0;
+
+  border-radius: 7px;
+  background: #fff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.parent-view-button {
+  border: 1px solid #d9c9ff;
+  color: #7134d8;
+}
+
+.parent-edit-button {
+  border: 1px solid #d9c9ff;
+  color: #7134d8;
+}
+
+.parent-delete-button {
+  border: 1px solid #ffcbd1;
+  color: #e5394f;
+}
+
+.parent-view-button:hover,
+.parent-edit-button:hover {
+  background: #f5f0ff;
+}
+
+.parent-delete-button:hover {
+  background: #fff2f3;
+}

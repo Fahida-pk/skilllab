@@ -1152,63 +1152,44 @@ export default function Parents() {
 
           <div className="parent-list-card">
 
-            <div className="parent-list-header">
+     <div className="parent-list-header">
 
-              <div>
+  {/* TITLE */}
+  <div className="parent-list-title">
+    <h3>Parents List</h3>
+  </div>
 
-                <h3>
-                  Parents List
-                </h3>
+  {/* SEARCH + REFRESH */}
+  <div className="parent-list-actions">
 
-                <span>
-                  {filteredParents.length}
-                  {" "}
-                  parent(s)
-                </span>
+    <div className="parent-search">
+      <FaSearch />
 
-              </div>
+      <input
+        type="text"
+        placeholder="Search parent..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+    </div>
 
+    <button
+      type="button"
+      className="parent-refresh-button"
+      onClick={loadParents}
+      disabled={loading}
+      title="Refresh"
+    >
+      <FaSyncAlt
+        className={loading ? "spin" : ""}
+      />
+    </button>
 
-              <div className="parent-list-actions">
+  </div>
 
-                <div className="parent-search">
-
-                  <FaSearch />
-
-                  <input
-                    type="text"
-                    placeholder="Search parent..."
-                    value={search}
-                    onChange={(e) =>
-                      setSearch(
-                        e.target.value
-                      )
-                    }
-                  />
-
-                </div>
+</div>
 
 
-                <button
-                  className="parent-refresh-button"
-                  onClick={loadParents}
-                  disabled={loading}
-                  title="Refresh"
-                >
-
-                  <FaSyncAlt
-                    className={
-                      loading
-                        ? "spin"
-                        : ""
-                    }
-                  />
-
-                </button>
-
-              </div>
-
-            </div>
 
 
             {loading ? (
