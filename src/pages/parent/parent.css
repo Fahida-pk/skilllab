@@ -5486,3 +5486,86 @@ body,
   }
 
 }
+@media (max-width: 650px) {
+
+  .parent-list-header {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    padding: 0 2px !important;
+
+    gap: 6px !important;
+
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .parent-list-header > div:first-child {
+    width: auto !important;
+  }
+
+  .parent-list-header h3 {
+    font-size: 11px !important;
+    margin: 0 !important;
+  }
+
+  .parent-list-header span {
+    display: none !important;
+  }
+
+  .parent-list-actions {
+    width: auto !important;
+  }
+
+  .parent-list-actions .parent-search {
+    order: 10 !important;
+
+    position: absolute !important;
+
+    left: 0 !important;
+    right: 0 !important;
+
+    margin-top: 48px !important;
+
+    width: 100% !important;
+
+    height: 32px !important;
+  }
+
+  .parent-list-actions .parent-search input {
+    font-size: 9px !important;
+  }
+
+  .parent-refresh-button {
+    width: 27px !important;
+    height: 27px !important;
+    min-width: 27px !important;
+
+    font-size: 9px !important;
+  }
+
+  .parent-list-card {
+    margin-top: 52px !important;
+
+    background: transparent !important;
+
+    border: 0 !important;
+
+    box-shadow: none !important;
+  }
+
+  .parent-cards {
+    margin-top: 8px !important;
+  }
+
+  /* OLD TABLE COMPLETELY HIDDEN */
+  .parent-table-wrapper,
+  .parent-table {
+    display: none !important;
+  }
+
+}
