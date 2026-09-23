@@ -15602,3 +15602,334 @@ body,
   }
 
 }
+/* =========================================================
+   PARENT LIST - SEPARATE SECTIONS
+========================================================= */
+
+.parent-list-card {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ece8f3;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+
+/* -----------------------------------------
+   PARENTS LIST TITLE
+----------------------------------------- */
+
+.parent-list-title-section {
+  width: 100%;
+  padding: 12px 14px;
+
+  background: #fff;
+
+  box-sizing: border-box;
+}
+
+
+.parent-list-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+.parent-title-icon-small {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  background: #eee8ff;
+  color: #7134d8;
+
+  border-radius: 7px;
+
+  font-size: 11px;
+}
+
+
+.parent-list-title h3 {
+  margin: 0;
+
+  color: #2b2435;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+
+/* -----------------------------------------
+   SEARCH SECTION - SEPARATE
+----------------------------------------- */
+
+.parent-search-section {
+  width: 100%;
+
+  padding: 0 14px 10px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  box-sizing: border-box;
+
+  background: #fff;
+}
+
+
+.parent-search-section .parent-search {
+  flex: 1;
+
+  min-width: 0;
+
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 0 8px;
+
+  border: 1px solid #ddd7e6;
+  border-radius: 7px;
+
+  background: #fff;
+
+  box-sizing: border-box;
+}
+
+
+.parent-search-section .parent-search input {
+  width: 100%;
+  min-width: 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  font-size: 9px;
+}
+
+
+.parent-search-section .parent-refresh-button {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #ddd7e6;
+  border-radius: 7px;
+
+  background: #fff;
+
+  color: #6d28d9;
+
+  box-sizing: border-box;
+}
+
+
+/* -----------------------------------------
+   TABLE - COMPLETELY SEPARATE
+----------------------------------------- */
+
+.parent-table-section {
+  width: 100%;
+
+  border-top: 1px solid #eeeaf4;
+
+  background: #fff;
+}
+
+
+.parent-table-wrapper {
+  width: 100%;
+
+  overflow: hidden;
+}
+
+
+.parent-table {
+  width: 100%;
+
+  min-width: 0;
+
+  table-layout: fixed;
+
+  border-collapse: collapse;
+}
+
+
+/* HEADER */
+
+.parent-table thead {
+  display: table-header-group !important;
+}
+
+
+.parent-table thead tr {
+  display: table-row !important;
+}
+
+
+.parent-table th {
+  display: table-cell !important;
+
+  height: 32px;
+
+  padding: 0 5px;
+
+  background: #faf9fc;
+
+  color: #625a6d;
+
+  border-bottom: 1px solid #e8e4ed;
+
+  text-align: left;
+
+  font-size: 7px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+
+/* BODY */
+
+.parent-table tbody {
+  display: table-row-group !important;
+}
+
+
+.parent-table tbody tr {
+  display: table-row !important;
+}
+
+
+.parent-table td {
+  display: table-cell !important;
+
+  height: 48px;
+
+  padding: 0 5px;
+
+  border-bottom: 1px solid #eeeaf3;
+
+  vertical-align: middle;
+
+  font-size: 8px;
+}
+
+
+/* COLUMN WIDTH */
+
+.parent-table th:nth-child(1),
+.parent-table td:nth-child(1) {
+  width: 31%;
+}
+
+.parent-table th:nth-child(2),
+.parent-table td:nth-child(2) {
+  width: 22%;
+}
+
+.parent-table th:nth-child(3),
+.parent-table td:nth-child(3) {
+  width: 20%;
+}
+
+.parent-table th:nth-child(4),
+.parent-table td:nth-child(4) {
+  width: 27%;
+}
+
+
+/* -----------------------------------------
+   MOBILE
+----------------------------------------- */
+
+@media (max-width: 650px) {
+
+  .parent-list-card {
+    width: 100%;
+    margin: 0;
+
+    border-radius: 10px;
+  }
+
+
+  .parent-list-title-section {
+    padding: 9px 8px 7px;
+  }
+
+
+  .parent-list-title h3 {
+    font-size: 11px;
+  }
+
+
+  .parent-title-icon-small {
+    width: 27px;
+    height: 27px;
+
+    font-size: 9px;
+  }
+
+
+  .parent-search-section {
+    padding: 0 8px 8px;
+
+    gap: 5px;
+  }
+
+
+  .parent-search-section .parent-search {
+    height: 31px;
+  }
+
+
+  .parent-search-section .parent-refresh-button {
+    width: 31px;
+    min-width: 31px;
+    height: 31px;
+  }
+
+
+  .parent-table-section {
+    border-top: 1px solid #eeeaf4;
+  }
+
+
+  .parent-table th {
+    height: 29px;
+
+    padding: 0 4px;
+
+    font-size: 6.5px;
+  }
+
+
+  .parent-table td {
+    height: 46px;
+
+    padding: 0 4px;
+
+    font-size: 7px;
+  }
+
+}
