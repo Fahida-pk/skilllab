@@ -15251,3 +15251,354 @@ body,
   }
 
 }
+/* =========================================================
+   FINAL MOBILE - NO OVERLAP
+========================================================= */
+
+@media (max-width: 650px) {
+
+  /* Parent list card */
+  .parent-admin-dashboard .parent-list-card {
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+
+  /* -----------------------------------------
+     PARENTS LIST HEADER
+  ----------------------------------------- */
+
+  .parent-admin-dashboard .parent-list-header {
+    position: static !important;
+
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    padding: 9px 8px 9px !important;
+
+    margin: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    align-items: stretch !important;
+
+    gap: 8px !important;
+
+    box-sizing: border-box !important;
+
+    overflow: visible !important;
+
+    border-bottom: 1px solid #eeeaf4 !important;
+  }
+
+
+  /* Parents List */
+
+  .parent-admin-dashboard .parent-list-title {
+    position: static !important;
+
+    width: 100% !important;
+
+    height: 25px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 6px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-title-icon-small {
+    width: 27px !important;
+    min-width: 27px !important;
+
+    height: 27px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 7px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-list-title h3 {
+    display: block !important;
+
+    visibility: visible !important;
+
+    position: static !important;
+
+    margin: 0 !important;
+
+    font-size: 11px !important;
+
+    line-height: 1 !important;
+
+    white-space: nowrap !important;
+  }
+
+
+  /* -----------------------------------------
+     SEARCH + REFRESH
+     IMPORTANT: normal flow, NOT absolute
+  ----------------------------------------- */
+
+  .parent-admin-dashboard .parent-list-actions {
+    position: static !important;
+
+    width: 100% !important;
+
+    height: 31px !important;
+
+    min-height: 31px !important;
+
+    display: flex !important;
+
+    flex-direction: row !important;
+
+    align-items: center !important;
+
+    gap: 5px !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    overflow: visible !important;
+  }
+
+
+  .parent-admin-dashboard .parent-search {
+    position: static !important;
+
+    width: auto !important;
+
+    height: 31px !important;
+
+    min-width: 0 !important;
+
+    flex: 1 1 auto !important;
+
+    margin: 0 !important;
+
+    padding: 0 7px !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 5px !important;
+
+    border-radius: 7px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-search input {
+    position: static !important;
+
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    height: 100% !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    font-size: 8px !important;
+  }
+
+
+  /* Refresh */
+
+  .parent-admin-dashboard .parent-refresh-button {
+    position: static !important;
+
+    width: 31px !important;
+
+    min-width: 31px !important;
+
+    max-width: 31px !important;
+
+    height: 31px !important;
+
+    min-height: 31px !important;
+
+    flex: 0 0 31px !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    box-sizing: border-box !important;
+
+    border-radius: 7px !important;
+  }
+
+
+  /* -----------------------------------------
+     TABLE MUST START AFTER HEADER
+  ----------------------------------------- */
+
+  .parent-admin-dashboard .parent-table-wrapper {
+    position: static !important;
+
+    clear: both !important;
+
+    width: 100% !important;
+
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table {
+    position: static !important;
+
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    table-layout: fixed !important;
+
+    border-collapse: collapse !important;
+  }
+
+
+  /* -----------------------------------------
+     TABLE HEADER
+  ----------------------------------------- */
+
+  .parent-admin-dashboard .parent-table thead {
+    display: table-header-group !important;
+
+    visibility: visible !important;
+
+    position: static !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table thead tr {
+    display: table-row !important;
+
+    position: static !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table th {
+    display: table-cell !important;
+
+    visibility: visible !important;
+
+    position: static !important;
+
+    height: 30px !important;
+
+    padding: 0 4px !important;
+
+    background: #faf9fc !important;
+
+    color: #625a6d !important;
+
+    border-bottom: 1px solid #e8e4ed !important;
+
+    font-size: 6.5px !important;
+
+    font-weight: 800 !important;
+
+    text-align: left !important;
+
+    vertical-align: middle !important;
+
+    white-space: nowrap !important;
+
+    overflow: visible !important;
+  }
+
+
+  /* -----------------------------------------
+     TABLE BODY
+  ----------------------------------------- */
+
+  .parent-admin-dashboard .parent-table tbody {
+    display: table-row-group !important;
+
+    position: static !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table tbody tr {
+    display: table-row !important;
+
+    position: static !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table td {
+    display: table-cell !important;
+
+    position: static !important;
+
+    height: 47px !important;
+
+    padding: 0 4px !important;
+
+    vertical-align: middle !important;
+
+    overflow: hidden !important;
+  }
+
+
+  /* Columns */
+
+  .parent-admin-dashboard .parent-table th:nth-child(1),
+  .parent-admin-dashboard .parent-table td:nth-child(1) {
+    width: 31% !important;
+  }
+
+  .parent-admin-dashboard .parent-table th:nth-child(2),
+  .parent-admin-dashboard .parent-table td:nth-child(2) {
+    width: 22% !important;
+  }
+
+  .parent-admin-dashboard .parent-table th:nth-child(3),
+  .parent-admin-dashboard .parent-table td:nth-child(3) {
+    width: 20% !important;
+  }
+
+  .parent-admin-dashboard .parent-table th:nth-child(4),
+  .parent-admin-dashboard .parent-table td:nth-child(4) {
+    width: 27% !important;
+  }
+
+}
