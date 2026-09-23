@@ -1134,12 +1134,13 @@ export default function Parents() {
 
           </div>
 
-{/* LIST */}
+
+        {/* LIST */}
 
 <div className="parent-list-card">
 
-  {/* 1. PARENTS LIST TITLE */}
-  <div className="parent-list-title-section">
+  {/* LIST HEADER */}
+  <div className="parent-list-header">
 
     <div className="parent-list-title">
       <div className="parent-title-icon-small">
@@ -1149,44 +1150,38 @@ export default function Parents() {
       <h3>Parents List</h3>
     </div>
 
-  </div>
+    {/* SEARCH + REFRESH */}
+    <div className="parent-list-actions">
 
+      <div className="parent-search">
+        <FaSearch />
 
-  {/* 2. SEARCH + REFRESH - SEPARATE DIV */}
-  <div className="parent-search-section">
+        <input
+          type="text"
+          placeholder="Search parent..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
-    <div className="parent-search">
-
-      <FaSearch />
-
-      <input
-        type="text"
-        placeholder="Search parent..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <button
+        type="button"
+        className="parent-refresh-button"
+        onClick={loadParents}
+        disabled={loading}
+        title="Refresh"
+      >
+        <FaSyncAlt
+          className={loading ? "spin" : ""}
+        />
+      </button>
 
     </div>
 
-
-    <button
-      type="button"
-      className="parent-refresh-button"
-      onClick={loadParents}
-      disabled={loading}
-      title="Refresh"
-    >
-
-      <FaSyncAlt
-        className={loading ? "spin" : ""}
-      />
-
-    </button>
-
   </div>
 
 
-  {/* 3. TABLE - COMPLETELY SEPARATE DIV */}
+  {/* CONTENT */}
 
   {loading ? (
 
@@ -1212,132 +1207,118 @@ export default function Parents() {
 
     </div>
 
+
   ) : (
 
-    <div className="parent-table-section">
+    /* TABLE */
 
-      <div className="parent-table-wrapper">
+    <div className="parent-table-wrapper">
 
-        <table className="parent-table">
+      <table className="parent-table">
 
-          <thead>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-            <tr>
-              <th>Name</th>
-              <th>Username</th>
-              <th>Password</th>
-              <th>Actions</th>
+        <tbody>
+
+          {filteredParents.map((parent) => (
+
+            <tr key={parent.id}>
+
+              <td>
+                <div className="parent-name-cell">
+
+                  <div className="parent-avatar">
+                    {parent.name
+                      ?.trim()
+                      ?.charAt(0)
+                      ?.toUpperCase() || "P"}
+                  </div>
+
+                  <strong>
+                    {parent.name}
+                  </strong>
+
+                </div>
+              </td>
+
+              <td>
+                <span className="parent-username">
+                  @{parent.username}
+                </span>
+              </td>
+
+              <td>
+                <span className="parent-password">
+                  ••••••••
+                </span>
+              </td>
+
+              <td>
+
+                <div className="parent-actions">
+
+                  <button
+                    type="button"
+                    className="parent-view-button"
+                    onClick={(e) =>
+                      openStudentsView(parent, e)
+                    }
+                    title="View students"
+                  >
+                    <FaEye />
+                  </button>
+
+                  <button
+                    type="button"
+                    className="parent-edit-button"
+                    onClick={(e) =>
+                      openEdit(parent, e)
+                    }
+                    title="Edit"
+                  >
+                    <FaPen />
+                  </button>
+
+                  <button
+                    type="button"
+                    className="parent-delete-button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      deleteParent(parent.id);
+                    }}
+                    title="Delete"
+                  >
+                    <FaTrash />
+                  </button>
+
+                </div>
+
+              </td>
+
             </tr>
 
-          </thead>
+          ))}
 
+        </tbody>
 
-          <tbody>
+      </table>
 
-            {filteredParents.map((parent) => (
-
-              <tr key={parent.id}>
-
-                <td>
-
-                  <div className="parent-name-cell">
-
-                    <div className="parent-avatar">
-
-                      {parent.name
-                        ?.trim()
-                        ?.charAt(0)
-                        ?.toUpperCase() || "P"}
-
-                    </div>
-
-                    <strong>
-                      {parent.name}
-                    </strong>
-
-                  </div>
-
-                </td>
-
-
-                <td>
-
-                  <span className="parent-username">
-                    @{parent.username}
-                  </span>
-
-                </td>
-
-
-                <td>
-
-                  <span className="parent-password">
-                    ••••••••
-                  </span>
-
-                </td>
-
-
-                <td>
-
-                  <div className="parent-actions">
-
-                    <button
-                      type="button"
-                      className="parent-view-button"
-                      onClick={(e) =>
-                        openStudentsView(parent, e)
-                      }
-                      title="View students"
-                    >
-                      <FaEye />
-                    </button>
-
-
-                    <button
-                      type="button"
-                      className="parent-edit-button"
-                      onClick={(e) =>
-                        openEdit(parent, e)
-                      }
-                      title="Edit"
-                    >
-                      <FaPen />
-                    </button>
-
-
-                    <button
-                      type="button"
-                      className="parent-delete-button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        deleteParent(parent.id);
-                      }}
-                      title="Delete"
-                    >
-                      <FaTrash />
-                    </button>
-
-                  </div>
-
-                </td>
-
-              </tr>
-
-            ))}
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </div>
+</div>
 
   )}
 
+
+            
 </div>
+
 
          
 
