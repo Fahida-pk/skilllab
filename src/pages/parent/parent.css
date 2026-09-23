@@ -5030,3 +5030,631 @@ body,
     height: 34px !important;
   }
 }
+/* =========================================================
+   PARENTS MOBILE VIEW
+   SAME MODEL AS ALL STUDENTS
+========================================================= */
+
+@media (max-width: 800px) {
+
+  /* MAIN PAGE */
+  .parent-admin-dashboard {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .parent-admin-dashboard .admin-main {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* CONTENT */
+  .parent-admin-dashboard .parent-admin-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    padding: 18px 12px 35px !important;
+
+    overflow-x: hidden !important;
+  }
+
+  .parent-management-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+
+  /* =====================================================
+     TOP PARENT HEADER
+  ===================================================== */
+
+  .parent-page-header {
+    width: 100% !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 10px !important;
+
+    margin-bottom: 14px !important;
+  }
+
+  .parent-title-row {
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 9px !important;
+  }
+
+  .parent-title-icon {
+    width: 34px !important;
+    height: 34px !important;
+
+    min-width: 34px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 9px !important;
+
+    background: #f0e5ff !important;
+    color: #7414d1 !important;
+
+    font-size: 14px !important;
+  }
+
+  .parent-page-header h2 {
+    margin: 0 !important;
+
+    font-size: 18px !important;
+    line-height: 1.2 !important;
+
+    color: #251b31 !important;
+  }
+
+  .parent-page-header p {
+    margin: 3px 0 0 !important;
+
+    font-size: 9px !important;
+
+    color: #938c9e !important;
+  }
+
+
+  /* =====================================================
+     ADD PARENT BUTTON
+  ===================================================== */
+
+  .parent-add-button {
+    height: 34px !important;
+
+    padding: 0 10px !important;
+
+    flex-shrink: 0 !important;
+
+    border-radius: 8px !important;
+
+    font-size: 9px !important;
+
+    gap: 5px !important;
+
+    white-space: nowrap !important;
+  }
+
+  .parent-add-button svg {
+    font-size: 9px !important;
+  }
+
+
+  /* =====================================================
+     PARENTS LIST CONTAINER
+  ===================================================== */
+
+  .parent-list-card {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    overflow: hidden !important;
+
+    border-radius: 0 !important;
+
+    background: transparent !important;
+
+    border: none !important;
+
+    box-shadow: none !important;
+  }
+
+
+  /* =====================================================
+     LIST HEADER
+  ===================================================== */
+
+  .parent-list-header {
+    width: 100% !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 8px !important;
+
+    padding: 10px 8px !important;
+
+    background: #eeeaff !important;
+
+    border-radius: 0 !important;
+  }
+
+  .parent-list-header h3 {
+    margin: 0 !important;
+
+    font-size: 12px !important;
+
+    color: #291c38 !important;
+  }
+
+  .parent-list-header span {
+    font-size: 8px !important;
+
+    color: #9389a2 !important;
+  }
+
+
+  /* =====================================================
+     SEARCH / TOOLBAR
+  ===================================================== */
+
+  .parent-list-toolbar {
+    width: 100% !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 7px !important;
+
+    margin-top: 8px !important;
+
+    margin-bottom: 10px !important;
+  }
+
+  .parent-search-box {
+    flex: 1 !important;
+
+    min-width: 0 !important;
+
+    height: 36px !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    padding: 0 10px !important;
+
+    background: #ffffff !important;
+
+    border: 1px solid #e7def0 !important;
+
+    border-radius: 8px !important;
+
+    box-sizing: border-box !important;
+  }
+
+  .parent-search-box svg {
+    flex-shrink: 0 !important;
+
+    font-size: 10px !important;
+
+    color: #9b8cab !important;
+  }
+
+  .parent-search-box input {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    border: none !important;
+    outline: none !important;
+
+    background: transparent !important;
+
+    font-size: 9px !important;
+
+    color: #33283e !important;
+  }
+
+  .parent-search-box input::placeholder {
+    color: #aaa2b3 !important;
+  }
+
+
+  /* REFRESH BUTTON */
+
+  .parent-refresh-button {
+    width: 36px !important;
+    height: 36px !important;
+
+    min-width: 36px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 0 !important;
+
+    border: 1px solid #e4d7ef !important;
+
+    border-radius: 8px !important;
+
+    background: #faf7ff !important;
+
+    color: #7414d1 !important;
+
+    font-size: 11px !important;
+  }
+
+
+  /* =====================================================
+     PARENT CARDS
+  ===================================================== */
+
+  .parent-grid,
+  .parents-grid,
+  .parent-cards-grid {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns: 1fr !important;
+
+    gap: 8px !important;
+
+    min-width: 0 !important;
+  }
+
+  .parent-card {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    padding: 13px !important;
+
+    border-radius: 12px !important;
+
+    background: #ffffff !important;
+
+    border: 1px solid #eee7f5 !important;
+
+    box-shadow: 0 4px 14px rgba(65, 35, 100, 0.05) !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  /* =====================================================
+     PARENT CARD TOP
+  ===================================================== */
+
+  .parent-card-header {
+    width: 100% !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    justify-content: space-between !important;
+
+    gap: 8px !important;
+  }
+
+  .parent-card-profile {
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 9px !important;
+
+    min-width: 0 !important;
+  }
+
+  .parent-avatar {
+    width: 38px !important;
+    height: 38px !important;
+
+    min-width: 38px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 10px !important;
+
+    background: linear-gradient(
+      135deg,
+      #7414d1,
+      #a94cff
+    ) !important;
+
+    color: white !important;
+
+    font-size: 11px !important;
+
+    font-weight: 700 !important;
+  }
+
+  .parent-card-name {
+    min-width: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .parent-card-name h4 {
+    margin: 0 !important;
+
+    font-size: 11px !important;
+
+    color: #292130 !important;
+
+    white-space: nowrap !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+  }
+
+  .parent-card-name span {
+    margin-top: 2px !important;
+
+    font-size: 8px !important;
+
+    color: #9992a4 !important;
+  }
+
+
+  /* =====================================================
+     PARENT CARD DETAILS
+  ===================================================== */
+
+  .parent-card-details {
+    margin-top: 10px !important;
+
+    padding-top: 9px !important;
+
+    border-top: 1px solid #f1edf5 !important;
+  }
+
+  .parent-card-detail {
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 6px !important;
+
+    margin-bottom: 6px !important;
+
+    min-width: 0 !important;
+  }
+
+  .parent-card-detail svg {
+    width: 10px !important;
+
+    min-width: 10px !important;
+
+    color: #8b55d6 !important;
+
+    font-size: 9px !important;
+  }
+
+  .parent-card-detail span {
+    min-width: 0 !important;
+
+    font-size: 8px !important;
+
+    color: #71687d !important;
+
+    white-space: nowrap !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+  }
+
+
+  /* =====================================================
+     ACTION BUTTONS
+  ===================================================== */
+
+  .parent-card-actions {
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 5px !important;
+  }
+
+  .parent-card-actions button {
+    width: 28px !important;
+    height: 28px !important;
+
+    min-width: 28px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 0 !important;
+
+    border-radius: 7px !important;
+
+    font-size: 9px !important;
+  }
+
+
+  /* =====================================================
+     VIEW / EDIT / DELETE
+  ===================================================== */
+
+  .parent-view-button,
+  .parent-edit-button,
+  .parent-delete-button {
+    width: 28px !important;
+    height: 28px !important;
+
+    min-width: 28px !important;
+
+    padding: 0 !important;
+  }
+
+
+  /* =====================================================
+     EMPTY / LOADING
+  ===================================================== */
+
+  .parent-empty-state {
+    width: 100% !important;
+
+    padding: 35px 15px !important;
+
+    text-align: center !important;
+  }
+
+
+  /* =====================================================
+     MODAL MOBILE
+  ===================================================== */
+
+  .parent-modal-overlay {
+    padding: 10px !important;
+
+    align-items: center !important;
+  }
+
+  .parent-modal {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    max-height: calc(100vh - 20px) !important;
+
+    margin: 0 !important;
+
+    border-radius: 14px !important;
+
+    overflow-y: auto !important;
+  }
+
+  .parent-modal-header {
+    padding: 14px !important;
+  }
+
+  .parent-modal-header h3 {
+    font-size: 16px !important;
+  }
+
+  .parent-modal-header p {
+    font-size: 9px !important;
+  }
+
+  .parent-form-grid {
+    grid-template-columns: 1fr !important;
+
+    gap: 12px !important;
+  }
+
+  .parent-modal-footer {
+    padding: 12px !important;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES — 360px / 375px
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .parent-admin-dashboard .parent-admin-content {
+    padding-left: 9px !important;
+    padding-right: 9px !important;
+  }
+
+  .parent-page-header {
+    gap: 6px !important;
+  }
+
+  .parent-page-header h2 {
+    font-size: 17px !important;
+  }
+
+  .parent-page-header p {
+    font-size: 8px !important;
+  }
+
+  .parent-add-button {
+    height: 32px !important;
+
+    padding: 0 8px !important;
+
+    font-size: 8px !important;
+  }
+
+  .parent-list-header {
+    padding: 9px 7px !important;
+  }
+
+  .parent-list-header h3 {
+    font-size: 11px !important;
+  }
+
+  .parent-search-box {
+    height: 34px !important;
+  }
+
+  .parent-search-box input {
+    font-size: 8px !important;
+  }
+
+  .parent-refresh-button {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+
+  .parent-card {
+    padding: 12px !important;
+  }
+
+  .parent-avatar {
+    width: 36px !important;
+    height: 36px !important;
+
+    min-width: 36px !important;
+  }
+
+  .parent-card-name h4 {
+    font-size: 10px !important;
+  }
+
+  .parent-card-name span {
+    font-size: 7px !important;
+  }
+
+  .parent-card-detail span {
+    font-size: 7px !important;
+  }
+
+}
