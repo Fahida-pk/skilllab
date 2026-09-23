@@ -14840,3 +14840,414 @@ body,
   }
 
 }
+/* =========================================================
+   FINAL MOBILE OVERRIDE
+   Parent List Header + Search + Refresh + Table Labels
+========================================================= */
+
+@media (max-width: 650px) {
+
+  /* -----------------------------------------
+     PARENTS LIST HEADER
+  ----------------------------------------- */
+
+  .parent-admin-dashboard .parent-list-header {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    align-items: stretch !important;
+
+    padding: 9px 8px 0 !important;
+
+    gap: 7px !important;
+
+    overflow: visible !important;
+  }
+
+
+  /* Parents List */
+
+  .parent-admin-dashboard .parent-list-title {
+    width: 100% !important;
+
+    height: 25px !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 6px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-list-title h3 {
+    display: block !important;
+
+    visibility: visible !important;
+
+    opacity: 1 !important;
+
+    margin: 0 !important;
+
+    color: #2b2435 !important;
+
+    font-size: 11px !important;
+
+    font-weight: 800 !important;
+  }
+
+
+  /* -----------------------------------------
+     SEARCH + REFRESH
+  ----------------------------------------- */
+
+  .parent-admin-dashboard .parent-list-actions {
+    width: 100% !important;
+
+    height: 31px !important;
+
+    display: flex !important;
+    flex-direction: row !important;
+
+    align-items: center !important;
+
+    gap: 5px !important;
+
+    overflow: visible !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  .parent-admin-dashboard .parent-search {
+    width: auto !important;
+
+    min-width: 0 !important;
+
+    flex: 1 1 auto !important;
+
+    height: 31px !important;
+
+    padding: 0 7px !important;
+
+    box-sizing: border-box !important;
+
+    overflow: hidden !important;
+  }
+
+
+  .parent-admin-dashboard .parent-search svg {
+    display: block !important;
+
+    flex-shrink: 0 !important;
+
+    font-size: 7px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-search input {
+    display: block !important;
+
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    height: 100% !important;
+
+    font-size: 8px !important;
+  }
+
+
+  /* REFRESH */
+
+  .parent-admin-dashboard .parent-refresh-button {
+    display: flex !important;
+
+    visibility: visible !important;
+
+    opacity: 1 !important;
+
+    width: 31px !important;
+
+    min-width: 31px !important;
+
+    max-width: 31px !important;
+
+    height: 31px !important;
+
+    flex: 0 0 31px !important;
+
+    padding: 0 !important;
+
+    margin: 0 !important;
+
+    border: 1px solid #ddd7e6 !important;
+
+    border-radius: 7px !important;
+
+    background: #ffffff !important;
+
+    color: #6d28d9 !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    box-sizing: border-box !important;
+
+    overflow: visible !important;
+  }
+
+
+  .parent-admin-dashboard .parent-refresh-button svg {
+    display: block !important;
+
+    visibility: visible !important;
+
+    opacity: 1 !important;
+
+    width: 9px !important;
+
+    height: 9px !important;
+
+    font-size: 9px !important;
+  }
+
+
+  /* -----------------------------------------
+     TABLE
+  ----------------------------------------- */
+
+  .parent-admin-dashboard .parent-table-wrapper {
+    width: 100% !important;
+
+    overflow: visible !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    max-width: 100% !important;
+
+    table-layout: fixed !important;
+
+    border-collapse: collapse !important;
+  }
+
+
+  /* SHOW HEADER */
+
+  .parent-admin-dashboard .parent-table thead {
+    display: table-header-group !important;
+
+    visibility: visible !important;
+
+    opacity: 1 !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table thead tr {
+    display: table-row !important;
+
+    visibility: visible !important;
+  }
+
+
+  /* TABLE HEADER LABELS */
+
+  .parent-admin-dashboard .parent-table thead th {
+    display: table-cell !important;
+
+    visibility: visible !important;
+
+    opacity: 1 !important;
+
+    height: 28px !important;
+
+    padding: 0 4px !important;
+
+    background: #faf9fc !important;
+
+    color: #625a6d !important;
+
+    border-bottom: 1px solid #e8e4ed !important;
+
+    text-align: left !important;
+
+    vertical-align: middle !important;
+
+    font-size: 6.5px !important;
+
+    font-weight: 800 !important;
+
+    line-height: 1 !important;
+
+    white-space: nowrap !important;
+
+    overflow: visible !important;
+  }
+
+
+  /* Explicit column widths */
+
+  .parent-admin-dashboard .parent-table th:nth-child(1),
+  .parent-admin-dashboard .parent-table td:nth-child(1) {
+    width: 31% !important;
+  }
+
+  .parent-admin-dashboard .parent-table th:nth-child(2),
+  .parent-admin-dashboard .parent-table td:nth-child(2) {
+    width: 22% !important;
+  }
+
+  .parent-admin-dashboard .parent-table th:nth-child(3),
+  .parent-admin-dashboard .parent-table td:nth-child(3) {
+    width: 20% !important;
+  }
+
+  .parent-admin-dashboard .parent-table th:nth-child(4),
+  .parent-admin-dashboard .parent-table td:nth-child(4) {
+    width: 27% !important;
+  }
+
+
+  /* BODY */
+
+  .parent-admin-dashboard .parent-table tbody {
+    display: table-row-group !important;
+  }
+
+  .parent-admin-dashboard .parent-table tbody tr {
+    display: table-row !important;
+  }
+
+  .parent-admin-dashboard .parent-table tbody td {
+    display: table-cell !important;
+
+    height: 47px !important;
+
+    padding: 0 4px !important;
+
+    vertical-align: middle !important;
+
+    border-bottom: 1px solid #eeeaf3 !important;
+  }
+
+
+  /* -----------------------------------------
+     NAME
+  ----------------------------------------- */
+
+  .parent-admin-dashboard .parent-name-cell {
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 4px !important;
+
+    width: 100% !important;
+
+    overflow: hidden !important;
+  }
+
+
+  .parent-admin-dashboard .parent-avatar {
+    width: 23px !important;
+
+    min-width: 23px !important;
+
+    height: 23px !important;
+
+    border-radius: 6px !important;
+
+    font-size: 7px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-name-cell strong {
+    display: block !important;
+
+    font-size: 7px !important;
+
+    color: #292232 !important;
+
+    white-space: nowrap !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+  }
+
+
+  /* USERNAME */
+
+  .parent-admin-dashboard .parent-username {
+    display: inline !important;
+
+    padding: 0 !important;
+
+    background: transparent !important;
+
+    color: #6d28d9 !important;
+
+    font-size: 6.5px !important;
+  }
+
+
+  /* PASSWORD */
+
+  .parent-admin-dashboard .parent-password {
+    display: inline !important;
+
+    color: #403849 !important;
+
+    font-size: 6.5px !important;
+
+    letter-spacing: 1px !important;
+  }
+
+
+  /* ACTIONS */
+
+  .parent-admin-dashboard .parent-actions {
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: flex-start !important;
+
+    gap: 3px !important;
+
+    width: 100% !important;
+  }
+
+
+  .parent-admin-dashboard .parent-view-button,
+  .parent-admin-dashboard .parent-edit-button,
+  .parent-admin-dashboard .parent-delete-button {
+    width: 22px !important;
+
+    min-width: 22px !important;
+
+    height: 22px !important;
+
+    padding: 0 !important;
+
+    border-radius: 5px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+  }
+
+}
