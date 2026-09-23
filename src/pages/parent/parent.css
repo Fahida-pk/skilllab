@@ -1449,7 +1449,6 @@
   }
 
   .parent-add-button {
-    width: 100%;
     height: 40px;
     font-size: 12px;
   }
@@ -2239,16 +2238,7 @@
      ADD PARENT
   ------------------------------------------------ */
 
-  .parent-add-button {
-    width: 100% !important;
-
-    height: 44px !important;
-
-    justify-content: center !important;
-
-    font-size: 13px !important;
-  }
-
+  
 
   /* -----------------------------------------------
      LIST CARD
@@ -3581,7 +3571,7 @@
   }
 
   .parent-add-button {
-    width: auto !important;
+    width: 50px !important;
 
     height: 30px !important;
 
