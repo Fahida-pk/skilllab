@@ -1152,63 +1152,188 @@ export default function Parents() {
 
           <div className="parent-list-card">
 
-            <div className="parent-list-header">
+        {/* LIST */}
+<div className="parent-list-card">
 
-              <div>
+  <div className="parent-list-header">
 
-                <h3>
-                  Parents List
-                </h3>
+    {/* PARENTS LIST TITLE */}
+    <div className="parent-list-title">
+      <div className="parent-title-icon-small">
+        <FaUserTie />
+      </div>
 
-                <span>
-                  {filteredParents.length}
-                  {" "}
-                  parent(s)
+      <h3>Parents List</h3>
+    </div>
+
+    {/* SEARCH + REFRESH */}
+    <div className="parent-list-actions">
+
+      <div className="parent-search">
+        <FaSearch />
+
+        <input
+          type="text"
+          placeholder="Search parent..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      <button
+        type="button"
+        className="parent-refresh-button"
+        onClick={loadParents}
+        disabled={loading}
+        title="Refresh"
+      >
+        <FaSyncAlt
+          className={loading ? "spin" : ""}
+        />
+      </button>
+
+    </div>
+
+  </div>
+
+
+  {loading ? (
+
+    <div className="parent-empty-state">
+
+      <FaSyncAlt
+        className="spin empty-icon"
+      />
+
+      <p>Loading parents...</p>
+
+    </div>
+
+  ) : filteredParents.length === 0 ? (
+
+    <div className="parent-empty-state">
+
+      <FaUserTie className="empty-icon" />
+
+      <h3>No parents found</h3>
+
+      <p>
+        Click "Add Parent" to create a parent account.
+      </p>
+
+    </div>
+
+  ) : (
+
+    <div className="parent-table-wrapper">
+
+      <table className="parent-table">
+
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {filteredParents.map((parent) => (
+
+            <tr key={parent.id}>
+
+              <td>
+                <div className="parent-name-cell">
+
+                  <div className="parent-avatar">
+                    {parent.name
+                      ?.trim()
+                      ?.charAt(0)
+                      ?.toUpperCase() || "P"}
+                  </div>
+
+                  <strong>
+                    {parent.name}
+                  </strong>
+
+                </div>
+              </td>
+
+
+              <td>
+                <span className="parent-username">
+                  @{parent.username}
                 </span>
+              </td>
 
-              </div>
+
+              <td>
+                <span className="parent-password">
+                  ••••••••
+                </span>
+              </td>
 
 
-              <div className="parent-list-actions">
+              <td>
 
-                <div className="parent-search">
+                <div className="parent-actions">
 
-                  <FaSearch />
-
-                  <input
-                    type="text"
-                    placeholder="Search parent..."
-                    value={search}
-                    onChange={(e) =>
-                      setSearch(
-                        e.target.value
-                      )
+                  <button
+                    type="button"
+                    className="parent-view-button"
+                    onClick={(e) =>
+                      openStudentsView(parent, e)
                     }
-                  />
+                    title="View students"
+                  >
+                    <FaEye />
+                  </button>
+
+
+                  <button
+                    type="button"
+                    className="parent-edit-button"
+                    onClick={(e) =>
+                      openEdit(parent, e)
+                    }
+                    title="Edit"
+                  >
+                    <FaPen />
+                  </button>
+
+
+                  <button
+                    type="button"
+                    className="parent-delete-button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      deleteParent(parent.id);
+                    }}
+                    title="Delete"
+                  >
+                    <FaTrash />
+                  </button>
 
                 </div>
 
+              </td>
 
-                <button
-                  className="parent-refresh-button"
-                  onClick={loadParents}
-                  disabled={loading}
-                  title="Refresh"
-                >
+            </tr>
 
-                  <FaSyncAlt
-                    className={
-                      loading
-                        ? "spin"
-                        : ""
-                    }
-                  />
+          ))}
 
-                </button>
+        </tbody>
 
-              </div>
+      </table>
 
-            </div>
+    </div>
+
+  )}
+
+</div>
 
 
             {loading ? (

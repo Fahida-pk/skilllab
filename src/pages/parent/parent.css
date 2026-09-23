@@ -5594,3 +5594,664 @@ body,
 .parent-delete-button:hover {
   background: #fff2f3;
 }
+/* =========================================================
+   PARENTS LIST - FINAL DESKTOP + MOBILE DESIGN
+========================================================= */
+
+/* Main card */
+.parent-list-card {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #ece8f3;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(43, 31, 70, 0.06);
+}
+
+
+/* =========================================================
+   LIST HEADER
+========================================================= */
+
+.parent-list-header {
+  width: 100%;
+  min-height: 82px;
+  padding: 18px 20px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  background: #ffffff;
+  border-bottom: 1px solid #eeeaf4;
+}
+
+
+/* Title */
+.parent-list-title {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
+/* Small purple icon */
+.parent-title-icon-small {
+  width: 48px;
+  height: 48px;
+
+  flex-shrink: 0;
+
+  border-radius: 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #eee8ff;
+  color: #6d28d9;
+
+  font-size: 19px;
+}
+
+
+/* Parents List text */
+.parent-list-title h3 {
+  margin: 0;
+
+  color: #241c35;
+
+  font-size: 22px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   SEARCH + REFRESH
+========================================================= */
+
+.parent-list-actions {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+/* Search */
+.parent-search {
+  flex: 1;
+  min-width: 0;
+
+  height: 48px;
+
+  box-sizing: border-box;
+
+  padding: 0 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  border: 1px solid #dcd5e8;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #8e879c;
+}
+
+
+/* Search focus */
+.parent-search:focus-within {
+  border-color: #7c3aed;
+
+  box-shadow:
+    0 0 0 3px rgba(124, 58, 237, 0.07);
+}
+
+
+/* Search icon */
+.parent-search svg {
+  flex-shrink: 0;
+
+  color: #8e879c;
+
+  font-size: 17px;
+}
+
+
+/* Search input */
+.parent-search input {
+  width: 100%;
+  min-width: 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #2c2634;
+
+  font-family: inherit;
+  font-size: 14px;
+}
+
+
+/* Refresh */
+.parent-refresh-button {
+  width: 48px;
+  height: 48px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #dcd5e8;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #6d28d9;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.parent-refresh-button:hover {
+  background: #f6f1ff;
+  border-color: #cdb9f5;
+}
+
+
+.parent-refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.parent-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+
+.parent-table {
+  width: 100%;
+
+  min-width: 700px;
+
+  border-collapse: collapse;
+}
+
+
+/* Table heading */
+.parent-table th {
+  height: 52px;
+
+  padding: 0 16px;
+
+  background: #faf9fc;
+
+  border-bottom: 1px solid #e8e4ed;
+
+  color: #625a6d;
+
+  text-align: left;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+/* Table cells */
+.parent-table td {
+  height: 72px;
+
+  padding: 0 16px;
+
+  border-bottom: 1px solid #eeeaf3;
+
+  color: #403849;
+
+  font-size: 13px;
+
+  vertical-align: middle;
+}
+
+
+.parent-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+
+.parent-table tbody tr:hover {
+  background: #fcfbff;
+}
+
+
+/* =========================================================
+   NAME
+========================================================= */
+
+.parent-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  white-space: nowrap;
+}
+
+
+.parent-avatar {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #eee7ff;
+
+  color: #7134d8;
+
+  font-size: 14px;
+  font-weight: 800;
+}
+
+
+.parent-name-cell strong {
+  color: #292232;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   USERNAME
+========================================================= */
+
+.parent-username {
+  padding: 0;
+
+  background: transparent;
+
+  color: #6d28d9;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   PASSWORD
+========================================================= */
+
+.parent-password {
+  color: #403849;
+
+  font-size: 13px;
+
+  letter-spacing: 2px;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.parent-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+.parent-view-button,
+.parent-edit-button,
+.parent-delete-button {
+  width: 36px;
+  height: 36px;
+
+  padding: 0;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  font-size: 13px;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.parent-view-button:hover,
+.parent-edit-button:hover,
+.parent-delete-button:hover {
+  transform: translateY(-1px);
+}
+
+
+.parent-view-button {
+  border: 1px solid #d9c9ff;
+  color: #7134d8;
+}
+
+
+.parent-edit-button {
+  border: 1px solid #d9c9ff;
+  color: #7134d8;
+}
+
+
+.parent-delete-button {
+  border: 1px solid #ffcbd1;
+  color: #e5394f;
+}
+
+
+.parent-view-button:hover,
+.parent-edit-button:hover {
+  background: #f6f1ff;
+}
+
+
+.parent-delete-button:hover {
+  background: #fff2f3;
+}
+
+
+/* =========================================================
+   DESKTOP
+========================================================= */
+
+@media (min-width: 901px) {
+
+  .parent-list-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .parent-list-title {
+    width: auto;
+  }
+
+  .parent-list-actions {
+    width: auto;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .parent-list-header {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .parent-list-title h3 {
+    font-size: 19px;
+  }
+
+  .parent-title-icon-small {
+    width: 42px;
+    height: 42px;
+    font-size: 17px;
+  }
+
+  .parent-search {
+    height: 44px;
+  }
+
+  .parent-refresh-button {
+    width: 44px;
+    height: 44px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .parent-list-card {
+    border-radius: 13px;
+  }
+
+
+  /* Title on first row */
+  .parent-list-header {
+    display: flex;
+    flex-direction: column;
+
+    align-items: stretch;
+
+    padding: 14px;
+
+    gap: 12px;
+  }
+
+
+  .parent-list-title {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+  }
+
+
+  .parent-list-title h3 {
+    font-size: 17px;
+  }
+
+
+  .parent-title-icon-small {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+  }
+
+
+  /* Search + refresh same row */
+  .parent-list-actions {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+  }
+
+
+  .parent-search {
+    width: auto;
+    flex: 1;
+
+    height: 42px;
+
+    padding: 0 11px;
+
+    border-radius: 8px;
+  }
+
+
+  .parent-search svg {
+    font-size: 14px;
+  }
+
+
+  .parent-search input {
+    font-size: 12px;
+  }
+
+
+  .parent-refresh-button {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+  }
+
+
+  /* Table */
+  .parent-table {
+    min-width: 620px;
+  }
+
+
+  .parent-table th {
+    height: 42px;
+
+    padding: 0 10px;
+
+    font-size: 9px;
+  }
+
+
+  .parent-table td {
+    height: 58px;
+
+    padding: 0 10px;
+
+    font-size: 10px;
+  }
+
+
+  .parent-avatar {
+    width: 28px;
+    height: 28px;
+
+    border-radius: 8px;
+
+    font-size: 11px;
+  }
+
+
+  .parent-name-cell {
+    gap: 7px;
+  }
+
+
+  .parent-name-cell strong {
+    font-size: 10px;
+  }
+
+
+  .parent-username {
+    font-size: 9px;
+  }
+
+
+  .parent-password {
+    font-size: 9px;
+
+    letter-spacing: 1px;
+  }
+
+
+  .parent-actions {
+    gap: 4px;
+  }
+
+
+  .parent-view-button,
+  .parent-edit-button,
+  .parent-delete-button {
+    width: 29px;
+    height: 29px;
+
+    border-radius: 7px;
+
+    font-size: 10px;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .parent-management-page {
+    padding: 10px;
+  }
+
+
+  .parent-list-header {
+    padding: 12px;
+  }
+
+
+  .parent-list-title h3 {
+    font-size: 16px;
+  }
+
+
+  .parent-title-icon-small {
+    width: 35px;
+    height: 35px;
+  }
+
+
+  .parent-search {
+    height: 40px;
+  }
+
+
+  .parent-refresh-button {
+    width: 40px;
+    height: 40px;
+  }
+
+}
