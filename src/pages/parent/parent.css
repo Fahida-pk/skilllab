@@ -14239,3 +14239,604 @@ body,
   }
 
 }
+/* =========================================================
+   PARENTS - MOBILE ONLY
+   Desktop is NOT touched
+========================================================= */
+
+@media (max-width: 650px) {
+
+  /* =========================================
+     MAIN CONTENT
+  ========================================= */
+
+  .parent-admin-dashboard .parent-admin-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    box-sizing: border-box !important;
+
+    padding: 12px 10px 30px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-management-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  /* =========================================
+     ADD PARENT
+  ========================================= */
+
+  .parent-admin-dashboard .parent-page-header {
+    width: 100% !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    align-items: stretch !important;
+
+    gap: 10px !important;
+
+    margin-bottom: 14px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-add-button {
+    width: 100% !important;
+
+    height: 38px !important;
+
+    margin: 0 !important;
+
+    justify-content: center !important;
+
+    font-size: 10px !important;
+
+    border-radius: 7px !important;
+  }
+
+
+  /* =========================================
+     PARENT LIST CARD
+  ========================================= */
+
+  .parent-admin-dashboard .parent-list-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    background: #ffffff !important;
+
+    border: 1px solid #ece8f3 !important;
+
+    border-radius: 11px !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  /* =========================================
+     1. PARENTS LIST
+  ========================================= */
+
+  .parent-admin-dashboard .parent-list-header {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    min-height: auto !important;
+
+    padding: 10px !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    align-items: stretch !important;
+
+    justify-content: flex-start !important;
+
+    gap: 8px !important;
+
+    border-bottom: 1px solid #eeeaf4 !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  .parent-admin-dashboard .parent-list-title {
+    width: 100% !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 7px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-title-icon-small {
+    width: 28px !important;
+    min-width: 28px !important;
+
+    height: 28px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 7px !important;
+
+    background: #eee8ff !important;
+
+    color: #7134d8 !important;
+
+    font-size: 10px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-list-title h3 {
+    margin: 0 !important;
+
+    color: #2b2435 !important;
+
+    font-size: 12px !important;
+
+    font-weight: 800 !important;
+
+    white-space: nowrap !important;
+  }
+
+
+  /* =========================================
+     2. SEARCH + REFRESH
+  ========================================= */
+
+  .parent-admin-dashboard .parent-list-actions {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    display: flex !important;
+
+    flex-direction: row !important;
+
+    align-items: center !important;
+
+    gap: 6px !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  .parent-admin-dashboard .parent-search {
+    width: auto !important;
+
+    min-width: 0 !important;
+
+    flex: 1 1 auto !important;
+
+    height: 32px !important;
+
+    padding: 0 7px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 5px !important;
+
+    border: 1px solid #ddd7e6 !important;
+
+    border-radius: 7px !important;
+
+    background: #fff !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  .parent-admin-dashboard .parent-search svg {
+    flex-shrink: 0 !important;
+
+    font-size: 8px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-search input {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    height: 100% !important;
+
+    padding: 0 !important;
+
+    border: 0 !important;
+
+    outline: 0 !important;
+
+    background: transparent !important;
+
+    font-size: 8px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-refresh-button {
+    width: 32px !important;
+
+    min-width: 32px !important;
+    max-width: 32px !important;
+
+    height: 32px !important;
+
+    flex: 0 0 32px !important;
+
+    padding: 0 !important;
+
+    border: 1px solid #ddd7e6 !important;
+
+    border-radius: 7px !important;
+
+    background: #fff !important;
+
+    color: #6d28d9 !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  /* =========================================
+     3. TABLE
+  ========================================= */
+
+  .parent-admin-dashboard .parent-table-wrapper {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    max-width: 100% !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    max-width: 100% !important;
+
+    table-layout: fixed !important;
+
+    border-collapse: collapse !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  /* VERY IMPORTANT:
+     Keep desktop table header visible on mobile */
+
+  .parent-admin-dashboard .parent-table thead {
+    display: table-header-group !important;
+
+    visibility: visible !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table tbody {
+    display: table-row-group !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table tr {
+    display: table-row !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table th,
+  .parent-admin-dashboard .parent-table td {
+    display: table-cell !important;
+
+    box-sizing: border-box !important;
+
+    overflow: hidden !important;
+  }
+
+
+  /* =========================================
+     TABLE HEADER
+  ========================================= */
+
+  .parent-admin-dashboard .parent-table th {
+    height: 32px !important;
+
+    padding: 0 4px !important;
+
+    background: #faf9fc !important;
+
+    border-bottom: 1px solid #e8e4ed !important;
+
+    color: #625a6d !important;
+
+    text-align: left !important;
+
+    font-size: 7px !important;
+
+    font-weight: 700 !important;
+
+    white-space: nowrap !important;
+  }
+
+
+  /* =========================================
+     TABLE BODY
+  ========================================= */
+
+  .parent-admin-dashboard .parent-table td {
+    height: 48px !important;
+
+    padding: 0 4px !important;
+
+    border-bottom: 1px solid #eeeaf3 !important;
+
+    color: #403849 !important;
+
+    font-size: 8px !important;
+
+    vertical-align: middle !important;
+
+    white-space: nowrap !important;
+  }
+
+
+  /* =========================================
+     COLUMN WIDTH
+  ========================================= */
+
+  .parent-admin-dashboard .parent-table th:nth-child(1),
+  .parent-admin-dashboard .parent-table td:nth-child(1) {
+    width: 31% !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table th:nth-child(2),
+  .parent-admin-dashboard .parent-table td:nth-child(2) {
+    width: 22% !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table th:nth-child(3),
+  .parent-admin-dashboard .parent-table td:nth-child(3) {
+    width: 20% !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table th:nth-child(4),
+  .parent-admin-dashboard .parent-table td:nth-child(4) {
+    width: 27% !important;
+  }
+
+
+  /* =========================================
+     NAME
+  ========================================= */
+
+  .parent-admin-dashboard .parent-name-cell {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 4px !important;
+
+    overflow: hidden !important;
+  }
+
+
+  .parent-admin-dashboard .parent-avatar {
+    width: 24px !important;
+
+    min-width: 24px !important;
+
+    height: 24px !important;
+
+    border-radius: 6px !important;
+
+    font-size: 8px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-name-cell strong {
+    min-width: 0 !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+
+    white-space: nowrap !important;
+
+    font-size: 8px !important;
+  }
+
+
+  /* =========================================
+     USERNAME
+  ========================================= */
+
+  .parent-admin-dashboard .parent-username {
+    display: block !important;
+
+    padding: 0 !important;
+
+    background: transparent !important;
+
+    color: #6d28d9 !important;
+
+    font-size: 7px !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+
+    white-space: nowrap !important;
+  }
+
+
+  /* =========================================
+     PASSWORD
+  ========================================= */
+
+  .parent-admin-dashboard .parent-password {
+    color: #403849 !important;
+
+    font-size: 7px !important;
+
+    letter-spacing: 1px !important;
+
+    white-space: nowrap !important;
+  }
+
+
+  /* =========================================
+     ACTIONS
+  ========================================= */
+
+  .parent-admin-dashboard .parent-actions {
+    width: 100% !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: flex-start !important;
+
+    gap: 3px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-view-button,
+  .parent-admin-dashboard .parent-edit-button,
+  .parent-admin-dashboard .parent-delete-button {
+    width: 23px !important;
+
+    min-width: 23px !important;
+
+    height: 23px !important;
+
+    padding: 0 !important;
+
+    border-radius: 6px !important;
+
+    font-size: 8px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .parent-admin-dashboard .parent-admin-content {
+    padding: 10px 8px 25px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-list-header {
+    padding: 8px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-list-title h3 {
+    font-size: 11px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-search {
+    height: 30px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-refresh-button {
+    width: 30px !important;
+
+    min-width: 30px !important;
+    max-width: 30px !important;
+
+    height: 30px !important;
+
+    flex-basis: 30px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table th {
+    font-size: 6px !important;
+
+    padding: 0 3px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-table td {
+    font-size: 7px !important;
+
+    padding: 0 3px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-avatar {
+    width: 22px !important;
+
+    min-width: 22px !important;
+
+    height: 22px !important;
+  }
+
+
+  .parent-admin-dashboard .parent-view-button,
+  .parent-admin-dashboard .parent-edit-button,
+  .parent-admin-dashboard .parent-delete-button {
+    width: 21px !important;
+
+    min-width: 21px !important;
+
+    height: 21px !important;
+
+    font-size: 7px !important;
+  }
+
+}
