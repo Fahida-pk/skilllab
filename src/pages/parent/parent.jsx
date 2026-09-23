@@ -1111,15 +1111,9 @@ export default function Parents() {
 
               <div className="parent-title-row">
 
-                <div className="parent-title-icon">
-                  <FaUserTie />
-                </div>
-
-                <div>
+               
 
               
-
-                </div>
 
               </div>
 
