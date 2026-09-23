@@ -1962,7 +1962,7 @@ export default function Parents() {
                       onClick={closeModal}
                       disabled={saving}
                     >
-                      Cancel
+                      Cance
                     </button>
 
 
