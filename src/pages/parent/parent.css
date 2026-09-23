@@ -15933,3 +15933,24 @@ body,
   }
 
 }
+@media (max-width: 650px) {
+
+  .parent-admin-dashboard .parent-username::before,
+  .parent-admin-dashboard .parent-username::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .parent-admin-dashboard .parent-username {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+
+    color: #6d28d9 !important;
+    font-size: 7px !important;
+    line-height: 1.2 !important;
+
+    background: transparent !important;
+  }
+
+}
