@@ -5658,3 +5658,527 @@ body,
   }
 
 }
+/* =========================================================
+   FINAL PARENTS RESPONSIVE
+   DESKTOP = TABLE
+   MOBILE = ALL STUDENTS STYLE CARD
+========================================================= */
+
+
+/* =========================================================
+   DESKTOP
+   Keep normal table
+========================================================= */
+
+@media (min-width: 801px) {
+
+  .parent-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+  }
+
+  .parent-table thead {
+    display: table-header-group !important;
+  }
+
+  .parent-table tbody {
+    display: table-row-group !important;
+  }
+
+  .parent-table tbody tr {
+    display: table-row !important;
+    background: #fff !important;
+  }
+
+  .parent-table tbody td {
+    display: table-cell !important;
+    padding: 17px 22px !important;
+    border-bottom: 1px solid #eeeaf3 !important;
+  }
+
+  .parent-table tbody td::before {
+    display: none !important;
+    content: none !important;
+  }
+
+  .parent-actions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 7px !important;
+  }
+
+  /* Desktop buttons */
+  .parent-view-button,
+  .parent-edit-button,
+  .parent-delete-button {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    border-radius: 8px !important;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   Same compact model as All Students
+========================================================= */
+
+@media (max-width: 800px) {
+
+  /* Page */
+  .parent-admin-dashboard {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .parent-admin-dashboard .admin-main {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .parent-admin-content,
+  .parent-admin-dashboard .admin-content {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 18px 12px 30px !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  .parent-management-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+
+  /* =====================================================
+     HEADER
+  ===================================================== */
+
+  .parent-page-header {
+    width: 100% !important;
+    min-height: 48px !important;
+
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .parent-title-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+  }
+
+  .parent-title-icon {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+
+    border-radius: 9px !important;
+    font-size: 14px !important;
+  }
+
+  .parent-title-row h2 {
+    margin: 0 !important;
+    font-size: 17px !important;
+    line-height: 1.2 !important;
+  }
+
+  .parent-title-row p {
+    display: none !important;
+  }
+
+  /* Add Parent */
+  .parent-add-button {
+    width: auto !important;
+    height: 32px !important;
+    min-width: 0 !important;
+
+    padding: 0 10px !important;
+
+    flex-shrink: 0 !important;
+
+    border-radius: 7px !important;
+    font-size: 9px !important;
+    gap: 4px !important;
+  }
+
+
+  /* =====================================================
+     LIST AREA
+  ===================================================== */
+
+  .parent-list-card {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .parent-list-header {
+    width: 100% !important;
+
+    min-height: 42px !important;
+
+    padding: 7px 0 !important;
+
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 7px !important;
+
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .parent-list-header h3 {
+    margin: 0 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+  }
+
+  .parent-list-header span {
+    display: none !important;
+  }
+
+  .parent-list-actions {
+    width: auto !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 5px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Search */
+  .parent-search {
+    width: 190px !important;
+    height: 32px !important;
+
+    padding: 0 8px !important;
+
+    border: 0 !important;
+    border-radius: 6px !important;
+
+    background: #fff !important;
+  }
+
+  .parent-search input {
+    min-width: 0 !important;
+    font-size: 8px !important;
+  }
+
+  .parent-search svg {
+    font-size: 9px !important;
+  }
+
+  /* Refresh */
+  .parent-refresh-button {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+
+    padding: 0 !important;
+
+    border-radius: 6px !important;
+    font-size: 10px !important;
+  }
+
+
+  /* =====================================================
+     TABLE → MOBILE CARDS
+     Same idea as All Students
+  ===================================================== */
+
+  .parent-table-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    padding: 0 !important;
+
+    overflow: visible !important;
+  }
+
+  .parent-table {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    table-layout: fixed !important;
+
+    border-collapse: separate !important;
+    border-spacing: 0 9px !important;
+  }
+
+  .parent-table thead {
+    display: none !important;
+  }
+
+  .parent-table tbody {
+    display: table-row-group !important;
+  }
+
+  .parent-table tbody tr {
+    display: table-row !important;
+
+    width: 100% !important;
+
+    background: #fff !important;
+
+    border-radius: 11px !important;
+
+    box-shadow:
+      0 3px 12px rgba(43, 31, 70, 0.05) !important;
+  }
+
+
+  /* Hide all cells first */
+  .parent-table tbody td {
+    display: none !important;
+
+    width: 100% !important;
+
+    padding: 0 !important;
+
+    border: 0 !important;
+    background: transparent !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  /* =====================================================
+     PARENT NAME
+  ===================================================== */
+
+  .parent-table tbody td:nth-child(1) {
+    display: table-cell !important;
+
+    padding: 11px 10px 7px !important;
+
+    border-radius: 11px 11px 0 0 !important;
+  }
+
+  .parent-name-cell {
+    width: 100% !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 8px !important;
+
+    min-width: 0 !important;
+  }
+
+  .parent-avatar {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+
+    border-radius: 9px !important;
+
+    background:
+      linear-gradient(
+        135deg,
+        #7424d8,
+        #9b32e9
+      ) !important;
+
+    color: #fff !important;
+
+    font-size: 11px !important;
+  }
+
+  .parent-name-cell strong {
+    min-width: 0 !important;
+
+    font-size: 9px !important;
+
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+
+  /* =====================================================
+     USERNAME
+  ===================================================== */
+
+  .parent-table tbody td:nth-child(2) {
+    display: table-cell !important;
+
+    padding: 5px 10px 8px !important;
+  }
+
+  .parent-table tbody td:nth-child(2)::before {
+    content: "USERNAME" !important;
+
+    display: block !important;
+
+    margin-bottom: 3px !important;
+
+    font-size: 6px !important;
+
+    color: #a098a9 !important;
+
+    font-weight: 600 !important;
+    letter-spacing: .2px !important;
+  }
+
+  .parent-username {
+    display: inline-flex !important;
+
+    padding: 0 !important;
+
+    background: transparent !important;
+
+    color: #6d28d9 !important;
+
+    font-size: 7px !important;
+
+    font-weight: 600 !important;
+  }
+
+
+  /* =====================================================
+     PASSWORD
+     Hidden in mobile
+  ===================================================== */
+
+  .parent-table tbody td:nth-child(3) {
+    display: none !important;
+  }
+
+
+  /* =====================================================
+     ACTIONS
+  ===================================================== */
+
+  .parent-table tbody td:nth-child(4) {
+    display: table-cell !important;
+
+    padding: 6px 10px 9px !important;
+
+    border-radius: 0 0 11px 11px !important;
+  }
+
+  .parent-actions {
+    width: 100% !important;
+
+    display: flex !important;
+
+    justify-content: flex-end !important;
+    align-items: center !important;
+
+    gap: 5px !important;
+
+    padding-top: 6px !important;
+
+    border-top: 1px solid #f1edf5 !important;
+  }
+
+
+  /* SMALL BUTTONS */
+  .parent-view-button,
+  .parent-edit-button,
+  .parent-delete-button {
+    width: 27px !important;
+    height: 27px !important;
+
+    min-width: 27px !important;
+
+    padding: 0 !important;
+
+    border-radius: 6px !important;
+
+    font-size: 9px !important;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL PHONE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .parent-admin-content,
+  .parent-admin-dashboard .admin-content {
+    padding: 14px 10px 25px !important;
+  }
+
+  .parent-page-header {
+    min-height: 46px !important;
+  }
+
+  .parent-title-icon {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+  }
+
+  .parent-title-row h2 {
+    font-size: 16px !important;
+  }
+
+  .parent-add-button {
+    height: 30px !important;
+    padding: 0 9px !important;
+    font-size: 8px !important;
+  }
+
+  .parent-search {
+    width: 180px !important;
+    height: 31px !important;
+  }
+
+  .parent-refresh-button {
+    width: 31px !important;
+    min-width: 31px !important;
+    height: 31px !important;
+  }
+
+  .parent-table tbody tr {
+    border-radius: 10px !important;
+  }
+
+  .parent-avatar {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+
+  .parent-view-button,
+  .parent-edit-button,
+  .parent-delete-button {
+    width: 25px !important;
+    height: 25px !important;
+    min-width: 25px !important;
+    font-size: 8px !important;
+  }
+}
