@@ -4069,7 +4069,7 @@
 
   /* ADD PARENT */
   .parent-add-button {
-    width: auto !important;
+    width: 75px !important;
 
     height: 30px !important;
 
@@ -4671,7 +4671,7 @@ body,
   }
 
   .parent-admin-content .parent-add-button {
-    width: 100% !important;
+    width:75% !important;
   }
 }
 
