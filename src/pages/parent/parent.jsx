@@ -1157,14 +1157,7 @@ export default function Parents() {
 
   <div className="parent-list-header">
 
-    {/* PARENTS LIST TITLE */}
-    <div className="parent-list-title">
-      <div className="parent-title-icon-small">
-        <FaUserTie />
-      </div>
-
-      <h3>Parents List</h3>
-    </div>
+    
 
     {/* SEARCH + REFRESH */}
     <div className="parent-list-actions">
