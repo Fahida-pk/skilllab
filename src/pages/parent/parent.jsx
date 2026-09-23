@@ -1152,44 +1152,63 @@ export default function Parents() {
 
           <div className="parent-list-card">
 
-     <div className="parent-list-header">
+            <div className="parent-list-header">
 
-  {/* TITLE */}
-  <div className="parent-list-title">
-    <h3>Parents List</h3>
-  </div>
+              <div>
 
-  {/* SEARCH + REFRESH */}
-  <div className="parent-list-actions">
+                <h3>
+                  Parents List
+                </h3>
 
-    <div className="parent-search">
-      <FaSearch />
+                <span>
+                  {filteredParents.length}
+                  {" "}
+                  parent(s)
+                </span>
 
-      <input
-        type="text"
-        placeholder="Search parent..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-    </div>
-
-    <button
-      type="button"
-      className="parent-refresh-button"
-      onClick={loadParents}
-      disabled={loading}
-      title="Refresh"
-    >
-      <FaSyncAlt
-        className={loading ? "spin" : ""}
-      />
-    </button>
-
-  </div>
-
-</div>
+              </div>
 
 
+              <div className="parent-list-actions">
+
+                <div className="parent-search">
+
+                  <FaSearch />
+
+                  <input
+                    type="text"
+                    placeholder="Search parent..."
+                    value={search}
+                    onChange={(e) =>
+                      setSearch(
+                        e.target.value
+                      )
+                    }
+                  />
+
+                </div>
+
+
+                <button
+                  className="parent-refresh-button"
+                  onClick={loadParents}
+                  disabled={loading}
+                  title="Refresh"
+                >
+
+                  <FaSyncAlt
+                    className={
+                      loading
+                        ? "spin"
+                        : ""
+                    }
+                  />
+
+                </button>
+
+              </div>
+
+            </div>
 
 
             {loading ? (
@@ -1943,7 +1962,7 @@ export default function Parents() {
                       onClick={closeModal}
                       disabled={saving}
                     >
-                      Cance
+                      Cancel
                     </button>
 
 
