@@ -55,30 +55,10 @@ export default function Parents() {
 
   const [studentLoading, setStudentLoading] = useState(false);
 
-  // Student assignments are stored only in this browser.
-  // Nothing is saved to the parents database table.
   const [showStudentsModal, setShowStudentsModal] = useState(false);
   const [viewingParent, setViewingParent] = useState(null);
   const [viewStudents, setViewStudents] = useState([]);
   const [viewStudentSearch, setViewStudentSearch] = useState("");
-
-  const getStoredStudents = (parentId) => {
-    try {
-      const saved = localStorage.getItem(
-        `skilllab_parent_students_${parentId}`
-      );
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  };
-
-  const storeStudents = (parentId, list) => {
-    localStorage.setItem(
-      `skilllab_parent_students_${parentId}`,
-      JSON.stringify(list)
-    );
-  };
 
   const emptyForm = {
     name: "",
@@ -423,10 +403,66 @@ export default function Parents() {
      EDIT
   ========================================= */
 
+  const loadParentStudents = async (parentId) => {
+
+    try {
+
+      const admin = getAdmin();
+
+      if (!admin?.email) {
+        return;
+      }
+
+      const response = await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            action: "get_parent_students",
+            admin_email: admin.email,
+            parent_id: Number(parentId),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.message ||
+          "Unable to load assigned students."
+        );
+      }
+
+      setSelectedStudents(
+        (Array.isArray(data.students)
+          ? data.students
+          : []
+        ).map((student) => Number(student.id))
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Load parent students error:",
+        error
+      );
+
+      setSelectedStudents([]);
+    }
+  };
+
+
   const openEdit = (
     parent,
     e
   ) => {
+
     e?.preventDefault();
     e?.stopPropagation();
 
@@ -451,17 +487,14 @@ export default function Parents() {
       password: "",
     });
 
-    setSelectedStudents(
-      getStoredStudents(parent.id).map((item) =>
-        Number(item.id ?? item)
-      )
-    );
+    setSelectedStudents([]);
 
     setStudentSearch("");
 
     setShowModal(true);
 
     loadStudents();
+    loadParentStudents(parent.id);
   };
 
 
@@ -535,49 +568,108 @@ export default function Parents() {
 
     e.preventDefault();
 
-
     if (!form.name.trim()) {
-
-      alert(
-        "Please enter parent name."
-      );
-
+      alert("Please enter parent name.");
       return;
     }
-
 
     if (!form.username.trim()) {
-
-      alert(
-        "Please enter username."
-      );
-
+      alert("Please enter username.");
       return;
     }
-
 
     if (
       !editingId &&
       !form.password.trim()
     ) {
-
-      alert(
-        "Please enter password."
-      );
-
+      alert("Please enter password.");
       return;
     }
 
-
     setSaving(true);
-
 
     try {
 
       const admin = getAdmin();
 
+      if (!admin?.email) {
+        throw new Error("Admin login required.");
+      }
 
-      const response =
+      /* =========================================
+         SAVE PARENT
+      ========================================= */
+
+      const response = await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            action:
+              editingId
+                ? "update"
+                : "create",
+
+            admin_email:
+              admin.email,
+
+            id: editingId,
+
+            name:
+              form.name.trim(),
+
+            address:
+              form.address.trim(),
+
+            phone:
+              form.phone.trim(),
+
+            email:
+              form.email.trim(),
+
+            username:
+              form.username.trim(),
+
+            password:
+              form.password,
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.message ||
+          "Unable to save parent."
+        );
+      }
+
+      /* =========================================
+         GET SAVED PARENT ID
+      ========================================= */
+
+      const savedParentId = Number(
+        editingId || data.id
+      );
+
+      if (!savedParentId) {
+        throw new Error(
+          "Parent ID was not returned."
+        );
+      }
+
+      /* =========================================
+         SAVE SELECTED STUDENTS
+      ========================================= */
+
+      const studentResponse =
         await fetch(
           API_URL,
           {
@@ -590,64 +682,29 @@ export default function Parents() {
 
             body: JSON.stringify({
               action:
-                editingId
-                  ? "update"
-                  : "create",
+                "save_parent_students",
 
               admin_email:
-                admin?.email || "",
+                admin.email,
 
-              id: editingId,
+              parent_id:
+                savedParentId,
 
-              name:
-                form.name.trim(),
-
-              address:
-                form.address.trim(),
-
-              phone:
-                form.phone.trim(),
-
-              email:
-                form.email.trim(),
-
-              username:
-                form.username.trim(),
-
-              password:
-                form.password,
-
-              /*
-                Selected students are
-                intentionally NOT saved.
-              */
+              student_ids:
+                selectedStudents,
             }),
           }
         );
 
+      const studentData =
+        await studentResponse.json();
 
-      const data =
-        await response.json();
-
-
-      if (!data.success) {
-
+      if (!studentData.success) {
         throw new Error(
-          data.message ||
-          "Unable to save parent."
+          studentData.message ||
+          "Unable to save assigned students."
         );
       }
-
-      // Student assignment is browser-only; it is not sent to PHP/database.
-      const savedParentId = Number(editingId || data.id);
-      const selectedStudentObjects = students.filter((student) =>
-        selectedStudents.includes(Number(student.id))
-      );
-
-      if (savedParentId > 0) {
-        storeStudents(savedParentId, selectedStudentObjects);
-      }
-
 
       alert(
         editingId
@@ -655,12 +712,7 @@ export default function Parents() {
           : "Parent added successfully."
       );
 
-
       closeModal();
-
-      localStorage.removeItem(
-        `skilllab_parent_students_${id}`
-      );
 
       await loadParents();
 
@@ -679,7 +731,6 @@ export default function Parents() {
     } finally {
 
       setSaving(false);
-
     }
   };
 
@@ -688,16 +739,79 @@ export default function Parents() {
      VIEW / MANAGE STUDENTS
   ========================================= */
 
-  const openStudentsView = (parent, e) => {
+  const openStudentsView = async (parent, e) => {
+
     e?.preventDefault();
     e?.stopPropagation();
 
     setViewingParent(parent);
-    setViewStudents(getStoredStudents(parent.id));
+    setViewStudents([]);
     setViewStudentSearch("");
     setShowStudentsModal(true);
-    loadStudents();
+
+    await loadStudents();
+
+    try {
+
+      const admin = getAdmin();
+
+      if (!admin?.email) {
+        return;
+      }
+
+      const response = await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            action:
+              "get_parent_students",
+
+            admin_email:
+              admin.email,
+
+            parent_id:
+              Number(parent.id),
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.message ||
+          "Unable to load assigned students."
+        );
+      }
+
+      setViewStudents(
+        Array.isArray(data.students)
+          ? data.students
+          : []
+      );
+
+    } catch (error) {
+
+      console.error(
+        "View students error:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "Unable to load assigned students."
+      );
+    }
   };
+
 
   const closeStudentsView = () => {
     setShowStudentsModal(false);
@@ -706,30 +820,145 @@ export default function Parents() {
     setViewStudentSearch("");
   };
 
-  const addStudentToParent = (student) => {
-    if (!viewingParent) return;
 
-    setViewStudents((prev) => {
-      if (prev.some((item) => Number(item.id) === Number(student.id))) {
-        return prev;
-      }
+  const saveStudentAssignments = async (
+    parentId,
+    studentList
+  ) => {
 
-      const next = [...prev, student];
-      storeStudents(viewingParent.id, next);
-      return next;
-    });
+    const admin = getAdmin();
+
+    if (!admin?.email) {
+      throw new Error(
+        "Admin login required."
+      );
+    }
+
+    const studentIds =
+      studentList.map(
+        (student) =>
+          Number(student.id)
+      );
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            action:
+              "save_parent_students",
+
+            admin_email:
+              admin.email,
+
+            parent_id:
+              Number(parentId),
+
+            student_ids:
+              studentIds,
+          }),
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.message ||
+        "Unable to save student assignments."
+      );
+    }
+
+    return data;
   };
 
-  const removeStudentFromParent = (studentId) => {
+
+  const addStudentToParent = async (
+    student
+  ) => {
+
     if (!viewingParent) return;
 
-    setViewStudents((prev) => {
-      const next = prev.filter(
-        (item) => Number(item.id) !== Number(studentId)
+    const exists =
+      viewStudents.some(
+        (item) =>
+          Number(item.id) ===
+          Number(student.id)
       );
-      storeStudents(viewingParent.id, next);
-      return next;
-    });
+
+    if (exists) return;
+
+    const nextStudents = [
+      ...viewStudents,
+      student,
+    ];
+
+    try {
+
+      await saveStudentAssignments(
+        viewingParent.id,
+        nextStudents
+      );
+
+      setViewStudents(nextStudents);
+
+    } catch (error) {
+
+      console.error(
+        "Add student error:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "Unable to add student."
+      );
+    }
+  };
+
+
+  const removeStudentFromParent = async (
+    studentId
+  ) => {
+
+    if (!viewingParent) return;
+
+    const nextStudents =
+      viewStudents.filter(
+        (item) =>
+          Number(item.id) !==
+          Number(studentId)
+      );
+
+    try {
+
+      await saveStudentAssignments(
+        viewingParent.id,
+        nextStudents
+      );
+
+      setViewStudents(nextStudents);
+
+    } catch (error) {
+
+      console.error(
+        "Remove student error:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "Unable to remove student."
+      );
+    }
   };
 
 
@@ -1548,8 +1777,8 @@ export default function Parents() {
                           <span>
                             Select students for
                             this parent.
-                            Selection is kept in this
-                            browser only.
+                            Selected students are saved
+                            to the database.
                           </span>
 
                         </div>
