@@ -5088,7 +5088,7 @@ body,
   ===================================== */
 
   .parent-add-button {
-    width: auto !important;
+    width: 18px !important;
     height: 18px !important;
 
     min-width: 0 !important;
