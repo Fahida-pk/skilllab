@@ -90,7 +90,7 @@ function AdminDashboard() {
         "/admin/students"
       )
     );
-
+const [parentsOpen, setParentsOpen] = useState(false);
   /* =========================================
      ADMIN
   ========================================= */
@@ -617,18 +617,24 @@ const openStudentDashboard = (student) => {
 
           {/* PARENTS */}
 
-        {/* PARENTS */}
+      {/* =================================================
+    PARENTS
+================================================= */}
 
 <div className="admin-nav-group">
 
   <button
+    type="button"
     className={`admin-nav-item ${
       location.pathname.startsWith("/admin/parents")
         ? "active"
         : ""
     }`}
-    onClick={goParents}
+    onClick={() => {
+      setParentsOpen((prev) => !prev);
+    }}
   >
+
     <FaUserTie />
 
     <span>
@@ -636,9 +642,37 @@ const openStudentDashboard = (student) => {
     </span>
 
     <FaChevronDown
-      className="admin-nav-arrow"
+      className={`admin-nav-arrow ${
+        parentsOpen ? "rotate" : ""
+      }`}
     />
+
   </button>
+
+
+  {parentsOpen && (
+    <div className="admin-submenu">
+
+      <button
+        type="button"
+        className={
+          location.pathname.startsWith("/admin/parents")
+            ? "submenu-active"
+            : ""
+        }
+        onClick={goParents}
+      >
+
+        <FaUserTie />
+
+        <span>
+          All Parents
+        </span>
+
+      </button>
+
+    </div>
+  )}
 
 </div>
 
