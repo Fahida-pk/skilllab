@@ -1135,16 +1135,20 @@ export default function Parents() {
           </div>
 
 
-          {/* LIST */}
-
-          <div className="parent-list-card">
-
         {/* LIST */}
+
 <div className="parent-list-card">
 
+  {/* LIST HEADER */}
   <div className="parent-list-header">
 
-    
+    <div className="parent-list-title">
+      <div className="parent-title-icon-small">
+        <FaUserTie />
+      </div>
+
+      <h3>Parents List</h3>
+    </div>
 
     {/* SEARCH + REFRESH */}
     <div className="parent-list-actions">
@@ -1177,13 +1181,13 @@ export default function Parents() {
   </div>
 
 
+  {/* CONTENT */}
+
   {loading ? (
 
     <div className="parent-empty-state">
 
-      <FaSyncAlt
-        className="spin empty-icon"
-      />
+      <FaSyncAlt className="spin empty-icon" />
 
       <p>Loading parents...</p>
 
@@ -1204,6 +1208,8 @@ export default function Parents() {
     </div>
 
   ) : (
+
+    /* TABLE */
 
     <div className="parent-table-wrapper">
 
@@ -1241,20 +1247,17 @@ export default function Parents() {
                 </div>
               </td>
 
-
               <td>
                 <span className="parent-username">
                   @{parent.username}
                 </span>
               </td>
 
-
               <td>
                 <span className="parent-password">
                   ••••••••
                 </span>
               </td>
-
 
               <td>
 
@@ -1271,7 +1274,6 @@ export default function Parents() {
                     <FaEye />
                   </button>
 
-
                   <button
                     type="button"
                     className="parent-edit-button"
@@ -1282,7 +1284,6 @@ export default function Parents() {
                   >
                     <FaPen />
                   </button>
-
 
                   <button
                     type="button"
@@ -1317,7 +1318,7 @@ export default function Parents() {
 
             
 
-          </div>
+         
 
 
           {/* VIEW ASSIGNED STUDENTS MODAL */}
