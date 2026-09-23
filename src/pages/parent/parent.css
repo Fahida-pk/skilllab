@@ -1899,14 +1899,6 @@
     margin-bottom: 8px;
   }
 
-  .parent-table tbody td:nth-child(2)::before {
-    content: "Username";
-    margin-right: 7px;
-    color: #8e8699;
-    font-size: 10px;
-    font-weight: 600;
-  }
-
   .parent-table tbody td:nth-child(3)::before {
     content: "Password";
     margin-right: 7px;
@@ -2430,7 +2422,7 @@
 
 
   .parent-table tbody td:nth-child(2)::before {
-    content: "Username";
+    
 
     margin-right: 8px;
 
@@ -3827,7 +3819,7 @@
   }
 
   .parent-table tbody td:nth-child(2)::before {
-    content: "Username";
+
 
     display: block !important;
 
@@ -4385,7 +4377,7 @@
 
 
   .parent-table tbody td:nth-child(2)::before {
-    content: "Username" !important;
+    
 
     display: block !important;
 
@@ -8614,7 +8606,7 @@ body,
   }
 
   .parent-table tbody td:nth-child(2)::before {
-    content: "Username";
+  
     margin-right: 7px;
     color: #8e8699;
     font-size: 10px;
@@ -9144,7 +9136,7 @@ body,
 
 
   .parent-table tbody td:nth-child(2)::before {
-    content: "Username";
+    
 
     margin-right: 8px;
 
@@ -10541,7 +10533,7 @@ body,
   }
 
   .parent-table tbody td:nth-child(2)::before {
-    content: "Username";
+    
 
     display: block !important;
 
@@ -11099,7 +11091,7 @@ body,
 
 
   .parent-table tbody td:nth-child(2)::before {
-    content: "Username" !important;
+    
 
     display: block !important;
 
@@ -15970,6 +15962,63 @@ body,
     font-weight: 800 !important;
     padding: 9px 6px !important;
     color: #4f475b !important;
+  }
+
+}
+/* =========================================================
+   FINAL FIX - HIDE MOBILE USERNAME LABEL
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .parent-admin-dashboard
+  .parent-admin-content
+  .parent-table
+  tbody
+  tr
+  td:nth-child(2)::before {
+
+    content: none !important;
+    display: none !important;
+    visibility: hidden !important;
+
+  }
+
+
+  .parent-admin-dashboard
+  .parent-admin-content
+  .parent-table
+  tbody
+  tr
+  td:nth-child(2) {
+
+    display: table-cell !important;
+    width: 100% !important;
+
+    padding: 5px 10px 8px !important;
+
+  }
+
+
+  .parent-admin-dashboard
+  .parent-admin-content
+  .parent-table
+  .parent-username {
+
+    display: inline-flex !important;
+
+    padding: 0 !important;
+
+    margin: 0 !important;
+
+    background: transparent !important;
+
+    color: #6d28d9 !important;
+
+    font-size: 9px !important;
+
+    font-weight: 600 !important;
+
   }
 
 }
