@@ -616,11 +616,13 @@ const openStudentDashboard = (student) => {
 
           {/* PARENTS */}
 
-      {/* =================================================
+     {/* =================================================
     PARENTS
 ================================================= */}
 
 <div className="admin-nav-group">
+
+  {/* PARENTS MAIN BUTTON */}
 
   <button
     type="button"
@@ -630,9 +632,10 @@ const openStudentDashboard = (student) => {
         : ""
     }`}
     onClick={() => {
-  setParentsOpen((prev) => !prev);
-  setStudentsOpen(false);
-}}
+      // Parents main button click ചെയ്യുമ്പോൾ
+      // submenu open ആകരുത്
+      setStudentsOpen(false);
+    }}
   >
 
     <FaUserTie />
@@ -641,41 +644,34 @@ const openStudentDashboard = (student) => {
       Parents
     </span>
 
-    <FaChevronDown
-      className={`admin-nav-arrow ${
-        parentsOpen ? "rotate" : ""
-      }`}
-    />
-
   </button>
 
 
-  {parentsOpen && (
-    <div className="admin-submenu">
+  {/* ALL PARENTS */}
 
-      <button
-        type="button"
-        className={
-          location.pathname.startsWith("/admin/parents")
-            ? "submenu-active"
-            : ""
-        }
-        onClick={goParents}
-      >
+  <div className="admin-submenu">
 
-        <FaUserTie />
+    <button
+      type="button"
+      className={
+        location.pathname.startsWith("/admin/parents")
+          ? "submenu-active"
+          : ""
+      }
+      onClick={goParents}
+    >
 
-        <span>
-          All Parents
-        </span>
+      <FaUserTie />
 
-      </button>
+      <span>
+        All Parents
+      </span>
 
-    </div>
-  )}
+    </button>
+
+  </div>
 
 </div>
-
           {/* PAYMENT */}
 
           <div className="admin-nav-group">
