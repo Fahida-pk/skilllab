@@ -175,121 +175,121 @@ export default function Sidebar() {
           </div>
 
 
-          {/* =================================================
-              STUDENTS
-          ================================================= */}
+       {/* =================================================
+    STUDENTS
+================================================= */}
 
-          <div className="admin-nav-group">
+<div className="admin-nav-group">
 
-            <button
-              type="button"
-              className={`admin-nav-item ${
-                isStudentsPage ? "active" : ""
-              }`}
-              onClick={() => {
-                setStudentsOpen((prev) => !prev);
-              }}
-            >
+  <button
+    type="button"
+    className={`admin-nav-item ${
+      isStudentsPage ? "active" : ""
+    }`}
+    onClick={() => {
+      setStudentsOpen((prev) => !prev);
+      setParentsOpen(false);
+    }}
+  >
 
-              <FaUsers />
+    <FaUsers />
 
-              <span>
-                Students
-              </span>
+    <span>
+      Students
+    </span>
 
+    <FaChevronDown
+      className={`admin-nav-arrow ${
+        studentsOpen ? "rotate" : ""
+      }`}
+    />
 
-              <FaChevronDown
-                className={`admin-nav-arrow ${
-                  studentsOpen ? "rotate" : ""
-                }`}
-              />
-
-            </button>
-
-
-            {studentsOpen && (
-              <div className="admin-submenu">
-
-                <button
-                  type="button"
-                  className={
-                    isStudentsPage
-                      ? "submenu-active"
-                      : ""
-                  }
-                  onClick={goStudents}
-                >
-
-                  <FaUserGraduate />
-
-                  <span>
-                    All Students
-                  </span>
-
-                </button>
-
-              </div>
-            )}
-
-          </div>
+  </button>
 
 
-          {/* =================================================
-              PARENTS
-          ================================================= */}
+  {studentsOpen && (
+    <div className="admin-submenu">
 
-          <div className="admin-nav-group">
-<button
-  type="button"
-  className={`admin-nav-item ${
-    isParentsPage ? "active" : ""
-  }`}
-  onClick={() => {
-    setParentsOpen((prev) => !prev);
-  }}
->
+      <button
+        type="button"
+        className={
+          isStudentsPage
+            ? "submenu-active"
+            : ""
+        }
+        onClick={goStudents}
+      >
 
-              <FaUserTie />
+        <FaUserGraduate />
 
-              <span>
-                Parents
-              </span>
+        <span>
+          All Students
+        </span>
+
+      </button>
+
+    </div>
+  )}
+
+</div>
+
+{/* =================================================
+    PARENTS
+================================================= */}
+
+<div className="admin-nav-group">
+
+  <button
+    type="button"
+    className={`admin-nav-item ${
+      isParentsPage ? "active" : ""
+    }`}
+    onClick={() => {
+      setParentsOpen((prev) => !prev);
+      setStudentsOpen(false);
+    }}
+  >
+
+    <FaUserTie />
+
+    <span>
+      Parents
+    </span>
+
+    <FaChevronDown
+      className={`admin-nav-arrow ${
+        parentsOpen ? "rotate" : ""
+      }`}
+    />
+
+  </button>
 
 
-              <FaChevronDown
-                className={`admin-nav-arrow ${
-                  parentsOpen ? "rotate" : ""
-                }`}
-              />
+  {parentsOpen && (
+    <div className="admin-submenu">
 
-            </button>
+      <button
+        type="button"
+        className={
+          isParentsPage
+            ? "submenu-active"
+            : ""
+        }
+        onClick={goParents}
+      >
 
+        <FaUserTie />
 
-            {parentsOpen && (
-              <div className="admin-submenu">
+        <span>
+          All Parents
+        </span>
 
-                <button
-                  type="button"
-                  className={
-                    isParentsPage
-                      ? "submenu-active"
-                      : ""
-                  }
-                  onClick={goParents}
-                >
+      </button>
 
-                  <FaUserTie />
+    </div>
+  )}
 
-                  <span>
-                    All Parents
-                  </span>
-
-                </button>
-
-              </div>
-            )}
-
-          </div>
+</div>
 
 
           {/* =================================================
