@@ -47,7 +47,17 @@
   color: #91899f;
   font-size: 13px;
 }
+.parent-page-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
 
+.parent-add-button {
+  margin-left: 0;
+}
 /* Add button */
 .parent-add-button {
   height: 42px;

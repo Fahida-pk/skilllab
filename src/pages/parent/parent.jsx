@@ -1117,14 +1117,7 @@ export default function Parents() {
 
                 <div>
 
-                  <h2>
-                    Parents
-                  </h2>
-
-                  <p>
-                    Manage parent accounts
-                    and contact details.
-                  </p>
+              
 
                 </div>
 
