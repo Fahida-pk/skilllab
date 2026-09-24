@@ -24,10 +24,31 @@ function Sidebar({
   const navigate = useNavigate();
   const location = useLocation();
 
-
   const user = JSON.parse(
     localStorage.getItem("user") || "null"
   );
+
+  /* =====================================================
+     VIEW DETECTION
+  ===================================================== */
+
+  const isAdminStudentView =
+    location.pathname.startsWith("/admin/students/");
+
+  const isParentStudentView =
+    location.pathname.startsWith("/parent/students/");
+
+  /*
+   * URL detection is given priority.
+   * This prevents parent student view from showing
+   * "Back to Admin Dashboard".
+   */
+
+  const currentAdminView =
+    isAdminStudentView || adminView;
+
+  const currentParentView =
+    isParentStudentView || parentView;
 
 
   /* =====================================================
@@ -35,19 +56,19 @@ function Sidebar({
   ===================================================== */
 
   const displayName =
-    adminView || parentView
+    currentAdminView || currentParentView
       ? studentName || "Student"
       : user?.name || "User";
 
 
   const displayEmail =
-    adminView || parentView
+    currentAdminView || currentParentView
       ? studentEmail || ""
       : user?.email || "";
 
 
   const displayPicture =
-    adminView || parentView
+    currentAdminView || currentParentView
       ? ""
       : user?.picture || "";
 
@@ -61,16 +82,18 @@ function Sidebar({
     setOpen(false);
 
 
-    /* ================= ADMIN STUDENT ================= */
+    /* ================= PARENT STUDENT ================= */
 
-    if (adminView && studentId) {
+    if (isParentStudentView && studentId) {
 
       navigate(
-        `/admin/students/${studentId}/dashboard`,
+        `/parent/students/${studentId}/dashboard`,
         {
           state: {
             studentEmail,
             studentName,
+            studentId,
+            fromParent: true,
           },
         }
       );
@@ -79,19 +102,44 @@ function Sidebar({
     }
 
 
-    /* ================= PARENT STUDENT ================= */
+    /* ================= ADMIN STUDENT ================= */
 
-    if (parentView && studentId) {
+    if (isAdminStudentView && studentId) {
 
       navigate(
-        `/parent/students/${studentId}/dashboard`,
+        `/admin/students/${studentId}/dashboard`,
         {
           state: {
             studentEmail,
             studentName,
+            studentId,
           },
         }
       );
+
+      return;
+    }
+
+
+    /* ================= PARENT VIEW ================= */
+
+    if (currentParentView) {
+
+      navigate("/parent/dashboard", {
+        replace: true,
+      });
+
+      return;
+    }
+
+
+    /* ================= ADMIN VIEW ================= */
+
+    if (currentAdminView) {
+
+      navigate("/AdminDashboard", {
+        replace: true,
+      });
 
       return;
     }
@@ -113,16 +161,18 @@ function Sidebar({
     setOpen(false);
 
 
-    /* ================= ADMIN STUDENT ================= */
+    /* ================= PARENT STUDENT ================= */
 
-    if (adminView && studentId) {
+    if (isParentStudentView && studentId) {
 
       navigate(
-        `/admin/students/${studentId}/tasks`,
+        `/parent/students/${studentId}/tasks`,
         {
           state: {
             studentEmail,
             studentName,
+            studentId,
+            fromParent: true,
           },
         }
       );
@@ -131,16 +181,17 @@ function Sidebar({
     }
 
 
-    /* ================= PARENT STUDENT ================= */
+    /* ================= ADMIN STUDENT ================= */
 
-    if (parentView && studentId) {
+    if (isAdminStudentView && studentId) {
 
       navigate(
-        `/parent/students/${studentId}/tasks`,
+        `/admin/students/${studentId}/tasks`,
         {
           state: {
             studentEmail,
             studentName,
+            studentId,
           },
         }
       );
@@ -160,34 +211,79 @@ function Sidebar({
      BACK / LOGOUT
   ===================================================== */
 
- const handleLogout = () => {
-  setOpen(false);
+  const handleLogout = () => {
 
-  // ADMIN viewing student
-  if (adminView) {
-    navigate("/AdminDashboard", {
+    setOpen(false);
+
+
+    /* =================================================
+       PARENT → STUDENT VIEW
+    ================================================= */
+
+    if (isParentStudentView) {
+
+      navigate("/parent/dashboard", {
+        replace: true,
+      });
+
+      return;
+    }
+
+
+    /* =================================================
+       ADMIN → STUDENT VIEW
+    ================================================= */
+
+    if (isAdminStudentView) {
+
+      navigate("/AdminDashboard", {
+        replace: true,
+      });
+
+      return;
+    }
+
+
+    /* =================================================
+       PARENT VIEW
+    ================================================= */
+
+    if (currentParentView) {
+
+      navigate("/parent/dashboard", {
+        replace: true,
+      });
+
+      return;
+    }
+
+
+    /* =================================================
+       ADMIN VIEW
+    ================================================= */
+
+    if (currentAdminView) {
+
+      navigate("/AdminDashboard", {
+        replace: true,
+      });
+
+      return;
+    }
+
+
+    /* =================================================
+       NORMAL STUDENT LOGOUT
+    ================================================= */
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+
+    navigate("/login", {
       replace: true,
     });
-    return;
-  }
 
-  // PARENT viewing student
-  if (parentView) {
-    navigate("/parent/dashboard", {
-      replace: true,
-    });
-    return;
-  }
-
-  // NORMAL STUDENT
-  localStorage.removeItem("user");
-  localStorage.removeItem("token");
-
-  navigate("/login", {
-    replace: true,
-  });
-};
- 
+  };
 
 
   /* =====================================================
@@ -195,29 +291,60 @@ function Sidebar({
   ===================================================== */
 
   const isDashboardActive =
-    adminView
-      ? location.pathname.includes(
-          `/admin/students/${studentId}/dashboard`
-        )
-      : parentView
+    isParentStudentView
       ? location.pathname.includes(
           `/parent/students/${studentId}/dashboard`
+        )
+      : isAdminStudentView
+      ? location.pathname.includes(
+          `/admin/students/${studentId}/dashboard`
         )
       : location.pathname === "/dashboard";
 
 
   const isTasksActive =
-    adminView
-      ? location.pathname.includes(
-          `/admin/students/${studentId}/tasks`
-        )
-      : parentView
+    isParentStudentView
       ? location.pathname.includes(
           `/parent/students/${studentId}/tasks`
+        )
+      : isAdminStudentView
+      ? location.pathname.includes(
+          `/admin/students/${studentId}/tasks`
         )
       : location.pathname === "/task" ||
         location.pathname === "/tasks";
 
+
+  /* =====================================================
+     BUTTON TEXT
+  ===================================================== */
+
+  const bottomButtonText =
+    isParentStudentView
+      ? "Back to Parent Dashboard"
+      : isAdminStudentView
+      ? "Back to Admin Dashboard"
+      : currentParentView
+      ? "Back to Parent Dashboard"
+      : currentAdminView
+      ? "Back to Admin Dashboard"
+      : "Logout";
+
+
+  /* =====================================================
+     BUTTON ICON
+  ===================================================== */
+
+  const showBackIcon =
+    isParentStudentView ||
+    isAdminStudentView ||
+    currentParentView ||
+    currentAdminView;
+
+
+  /* =====================================================
+     RETURN
+  ===================================================== */
 
   return (
     <>
@@ -265,8 +392,9 @@ function Sidebar({
         }`}
       >
 
-
-        {/* LOGO */}
+        {/* =================================================
+            LOGO
+        ================================================= */}
 
         <div className="sidebar-logo">
           SKILL LAB
@@ -280,7 +408,9 @@ function Sidebar({
         <nav className="sidebar-menu">
 
 
-          {/* ================= DASHBOARD ================= */}
+          {/* =================================================
+              DASHBOARD
+          ================================================= */}
 
           <button
             type="button"
@@ -303,7 +433,9 @@ function Sidebar({
           </button>
 
 
-          {/* ================= TASKS ================= */}
+          {/* =================================================
+              TASKS
+          ================================================= */}
 
           <button
             type="button"
@@ -335,7 +467,9 @@ function Sidebar({
         <div className="sidebar-profile">
 
 
-          {/* PROFILE IMAGE */}
+          {/* =================================================
+              PROFILE IMAGE
+          ================================================= */}
 
           {displayPicture ? (
 
@@ -354,14 +488,18 @@ function Sidebar({
           )}
 
 
-          {/* NAME */}
+          {/* =================================================
+              NAME
+          ================================================= */}
 
           <div className="sidebar-user-name">
             {displayName}
           </div>
 
 
-          {/* EMAIL */}
+          {/* =================================================
+              EMAIL
+          ================================================= */}
 
           <div className="sidebar-user-email">
             {displayEmail}
@@ -378,20 +516,17 @@ function Sidebar({
             onClick={handleLogout}
           >
 
-            {adminView || parentView ? (
+            {showBackIcon ? (
               <FaArrowLeft />
             ) : (
               <FaSignOutAlt />
             )}
 
 
-         <span>
-  {adminView
-    ? "Back to Admin Dashboard"
-    : parentView
-    ? "Back to Parent Dashboard"
-    : "Logout"}
-</span>
+            <span>
+              {bottomButtonText}
+            </span>
+
           </button>
 
         </div>
