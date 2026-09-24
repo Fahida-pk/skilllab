@@ -74,8 +74,6 @@ export default function Parents() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [visiblePasswords, setVisiblePasswords] = useState({});
-
 
   /* =========================================
      ADMIN
@@ -1275,33 +1273,9 @@ export default function Parents() {
               </td>
 
               <td>
-                <div className="parent-password-cell">
-
-                  <span className="parent-password">
-                    {visiblePasswords[parent.id]
-                      ? parent.password
-                      : "••••••••"}
-                  </span>
-
-                  <button
-                    type="button"
-                    className="parent-password-eye"
-                    onClick={() =>
-                      setVisiblePasswords((prev) => ({
-                        ...prev,
-                        [parent.id]: !prev[parent.id],
-                      }))
-                    }
-                    title={
-                      visiblePasswords[parent.id]
-                        ? "Hide password"
-                        : "Show password"
-                    }
-                  >
-                    <FaEye />
-                  </button>
-
-                </div>
+                <span className="parent-password">
+                  ••••••••
+                </span>
               </td>
 
               <td>
