@@ -10,8 +10,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 
 import Parent from "./pages/parent/parent.jsx";
 
-import ParentLogin from "./pages/parentdasboard/ParentLogin.jsx";
-import ParentDashboard from "./pages/parentdasboard/Parentdashboard.jsx"
+
 /* =====================================================
    ADMIN PROTECTED ROUTE
 ===================================================== */
@@ -85,28 +84,6 @@ function App() {
 
       </Route>
 
-     {/* =================================================
-          PARENT LOGIN
-      ================================================= */}
-
-      <Route
-        path="/parent/login"
-        element={<ParentLogin />}
-      />
-
-
-      {/* =================================================
-          PARENT DASHBOARD
-      ================================================= */}
-
-      <Route
-        path="/ParentDashboard"
-        element={
-          <ParentProtectedRoute>
-            <ParentDashboard />
-          </ParentProtectedRoute>
-        }
-      />
 
       {/* =================================================
           ADMIN LOGIN
