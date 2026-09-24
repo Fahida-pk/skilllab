@@ -16022,3 +16022,11 @@ body,
   }
 
 }
+@media (max-width: 768px) {
+  .parent-admin-dashboard .mobile-menu-button {
+    display: flex;
+    position: fixed;
+    top: 25px;
+    left: 32px;
+  }
+}
