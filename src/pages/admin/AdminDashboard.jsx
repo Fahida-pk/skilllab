@@ -309,22 +309,32 @@ const [parentsOpen, setParentsOpen] = useState(false);
 ========================================= */
 
 const goDashboard = () => {
-
   navigate("/AdminDashboard");
 
+  // Close all submenus
+  setStudentsOpen(false);
+  setParentsOpen(false);
+
   setMobileOpen(false);
 };
-
 
 const goStudents = () => {
-
   navigate("/admin/students");
+
+  // Open Students only
+  setStudentsOpen(true);
+  setParentsOpen(false);
 
   setMobileOpen(false);
 };
-const goParents = () => {
 
+const goParents = () => {
   navigate("/admin/parents");
+
+  // Close Students
+  // Parents has no expandable submenu
+  setStudentsOpen(false);
+  setParentsOpen(false);
 
   setMobileOpen(false);
 };
@@ -563,67 +573,58 @@ const openStudentDashboard = (student) => {
 
           <div className="admin-nav-group">
 
-            <button
-              className={`admin-nav-item ${
-                isStudentsPage
-                  ? "active"
-                  : ""
-              }`}
-           onClick={() => {
-  setStudentsOpen((prev) => !prev);
-  setParentsOpen(false);
-}}
-            >
-              <FaUsers />
+           <button
+  className={`admin-nav-item ${
+    isStudentsPage ? "active" : ""
+  }`}
+  onClick={() => {
+    setStudentsOpen((prev) => !prev);
+    setParentsOpen(false);
+  }}
+>
+  <FaUsers />
 
-              <span>
-                Students
-              </span>
+  <span>
+    Students
+  </span>
 
-              <FaChevronDown
-                className={`admin-nav-arrow ${
-                  studentsOpen
-                    ? "rotate"
-                    : ""
-                }`}
-              />
-            </button>
+  <FaChevronDown
+    className={`admin-nav-arrow ${
+      studentsOpen ? "rotate" : ""
+    }`}
+  />
+</button>
 
-            {studentsOpen && (
-              <div className="admin-submenu">
+{studentsOpen && (
+  <div className="admin-submenu">
+    <button
+      className={
+        isStudentsPage
+          ? "submenu-active"
+          : ""
+      }
+      onClick={goStudents}
+    >
+      <FaUserGraduate />
 
-                <button
-                  className={
-                    isStudentsPage
-                      ? "submenu-active"
-                      : ""
-                  }
-                  onClick={
-                    goStudents
-                  }
-                >
-                  <FaUserGraduate />
-
-                  <span>
-                    All Students
-                  </span>
-                </button>
-
-              </div>
-            )}
+      <span>
+        All Students
+      </span>
+    </button>
+  </div>
+)}
 
           </div>
 
           {/* PARENTS */}
 
-     {/* =================================================
+{/* =================================================
     PARENTS
 ================================================= */}
 
 <div className="admin-nav-group">
 
   {/* PARENTS MAIN BUTTON */}
-
   <button
     type="button"
     className={`admin-nav-item ${
@@ -632,23 +633,20 @@ const openStudentDashboard = (student) => {
         : ""
     }`}
     onClick={() => {
-      // Parents main button click ചെയ്യുമ്പോൾ
-      // submenu open ആകരുത്
+      // Parents click ചെയ്യുമ്പോൾ submenu open ആകരുത്
       setStudentsOpen(false);
+      setParentsOpen(false);
     }}
   >
-
     <FaUserTie />
 
     <span>
       Parents
     </span>
-
   </button>
 
 
   {/* ALL PARENTS */}
-
   <div className="admin-submenu">
 
     <button
@@ -660,13 +658,11 @@ const openStudentDashboard = (student) => {
       }
       onClick={goParents}
     >
-
       <FaUserTie />
 
       <span>
         All Parents
       </span>
-
     </button>
 
   </div>
