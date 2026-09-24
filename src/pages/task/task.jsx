@@ -2424,9 +2424,9 @@ const taskAccuracyPercentage =
 `}</style>
 
     <div className="dashboard">
- <Sidebar
+<Sidebar
   adminView={adminView}
-  parentView={isParentStudentView}
+  parentView={location.pathname.startsWith("/parent/students/")}
   studentName={adminStudentName}
   studentEmail={adminStudentEmail}
   studentId={adminStudentId}

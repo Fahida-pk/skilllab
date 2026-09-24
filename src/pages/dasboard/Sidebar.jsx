@@ -12,7 +12,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import "./sidebar.css";
 
-
 function Sidebar({
   adminView = false,
   parentView = false,
@@ -20,7 +19,6 @@ function Sidebar({
   studentEmail = "",
   studentId = null,
 }) {
-
   const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -162,68 +160,34 @@ function Sidebar({
      BACK / LOGOUT
   ===================================================== */
 
-  const handleLogout = () => {
+ const handleLogout = () => {
+  setOpen(false);
 
-    setOpen(false);
+  // ADMIN viewing student
+  if (adminView) {
+    navigate("/AdminDashboard", {
+      replace: true,
+    });
+    return;
+  }
 
+  // PARENT viewing student
+  if (parentView) {
+    navigate("/parent/dashboard", {
+      replace: true,
+    });
+    return;
+  }
 
-    /* =================================================
-       ADMIN STUDENT VIEW
-       
-       Don't logout admin.
-       Just go back to Admin Dashboard.
-    ================================================= */
+  // NORMAL STUDENT
+  localStorage.removeItem("user");
+  localStorage.removeItem("token");
 
-    if (adminView) {
-
-      navigate(
-        "/AdminDashboard",
-        {
-          replace: true,
-        }
-      );
-
-      return;
-    }
-
-
-    /* =================================================
-       PARENT STUDENT VIEW
-       
-       Don't logout parent.
-       Just go back to Parent Dashboard.
-    ================================================= */
-
-    if (parentView) {
-
-      navigate(
-        "/parent/dashboard",
-        {
-          replace: true,
-        }
-      );
-
-      return;
-    }
-
-
-    /* =================================================
-       NORMAL STUDENT
-       
-       Actual logout.
-    ================================================= */
-
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-
-    navigate(
-      "/login",
-      {
-        replace: true,
-      }
-    );
-
-  };
+  navigate("/login", {
+    replace: true,
+  });
+};
+ 
 
 
   /* =====================================================
@@ -421,16 +385,13 @@ function Sidebar({
             )}
 
 
-            <span>
-
-              {adminView
-                ? "Back to Admin Dashboard"
-                : parentView
-                ? "Back to Parent Dashboard"
-                : "Logout"}
-
-            </span>
-
+         <span>
+  {adminView
+    ? "Back to Admin Dashboard"
+    : parentView
+    ? "Back to Parent Dashboard"
+    : "Logout"}
+</span>
           </button>
 
         </div>
