@@ -5193,113 +5193,61 @@ body {
   color: #ef4444 !important;
 }
 /* =====================================================
-   SIDEBAR SCROLL + LOGOUT BOTTOM FIX
+   FORCE SIDEBAR SCROLLBAR
 ===================================================== */
 
 .admin-sidebar {
-  position: fixed !important;
-
-  top: 0 !important;
-  left: 0 !important;
-  bottom: 0 !important;
-
-  width: 265px !important;
   height: 100vh !important;
-
-  display: flex !important;
-  flex-direction: column !important;
-
-  overflow: hidden !important;
-
-  z-index: 10000 !important;
-}
-
-
-/* SIDEBAR MENU AREA */
-.admin-sidebar-content {
-  flex: 1 1 auto !important;
-
-  min-height: 0 !important;
-
-  overflow-y: auto !important;
+  overflow-y: scroll !important;
   overflow-x: hidden !important;
 
-  padding: 30px 17px 20px !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.65) rgba(255,255,255,0.12);
 }
 
+/* Force a little extra height so scrollbar appears */
+.admin-sidebar-content {
+  flex: none !important;
 
-/* SCROLLBAR */
-.admin-sidebar-content::-webkit-scrollbar {
-  width: 7px;
+  min-height: calc(100vh - 145px + 120px) !important;
+
+  overflow: visible !important;
 }
 
-.admin-sidebar-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.admin-sidebar-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.45);
-  border-radius: 10px;
-}
-
-.admin-sidebar-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.7);
-}
-
-
-/* LOGOUT ALWAYS AT BOTTOM */
+/* Logout remains part of sidebar */
 .admin-sidebar-bottom {
   flex-shrink: 0 !important;
-
-  margin-top: auto !important;
-
-  padding: 16px 17px 22px !important;
-
-  border-top: 1px solid
-    rgba(255, 255, 255, 0.16) !important;
 }
 
 
-/* LOGOUT BUTTON */
-.admin-logout {
-  width: 100% !important;
-  height: 53px !important;
+/* Chrome / Edge scrollbar */
+.admin-sidebar::-webkit-scrollbar {
+  width: 8px !important;
+}
 
-  display: flex !important;
-  align-items: center !important;
+.admin-sidebar::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.12) !important;
+}
 
-  padding: 0 17px !important;
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.65) !important;
+  border-radius: 10px !important;
+}
 
-  border-radius: 13px !important;
-
-  background: rgba(255, 255, 255, 0.15) !important;
-
-  color: #ffffff !important;
-
-  gap: 14px !important;
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.9) !important;
 }
 
 
 /* MOBILE */
 @media (max-width: 800px) {
-
   .admin-sidebar {
-    width: 275px !important;
-    height: 100vh !important;
-
-    overflow: hidden !important;
-  }
-
-  .admin-sidebar-content {
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-
-    overflow-y: auto !important;
+    overflow-y: scroll !important;
     overflow-x: hidden !important;
   }
 
-  .admin-sidebar-bottom {
-    flex-shrink: 0 !important;
-    margin-top: auto !important;
+  .admin-sidebar-content {
+    min-height: calc(100vh - 120px + 120px) !important;
+    overflow: visible !important;
   }
 }
