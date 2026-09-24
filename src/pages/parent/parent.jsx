@@ -476,25 +476,15 @@ export default function Parents() {
     setShowPassword(false);
     setShowConfirmPassword(false);
 
-    setForm({
-      name:
-        parent.name || "",
-
-      address:
-        parent.address || "",
-
-      phone:
-        parent.phone || "",
-
-      email:
-        parent.email || "",
-
-      username:
-        parent.username || "",
-
-      password: "",
-      confirmPassword: "",
-    });
+   setForm({
+  name: parent.name || "",
+  address: parent.address || "",
+  phone: parent.phone || "",
+  email: parent.email || "",
+  username: parent.username || "",
+  password: parent.password || "",
+  confirmPassword: parent.password || "",
+});
 
     setSelectedStudents([]);
 
