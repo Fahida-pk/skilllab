@@ -221,8 +221,8 @@ function App() {
 
 
       {/* =================================================
-          ADMIN → VIEW STUDENT DASHBOARD
-          Parent Dashboard UI
+          ADMIN → STUDENT DASHBOARD
+          Selected student dashboard
       ================================================= */}
 
       <Route
@@ -230,7 +230,7 @@ function App() {
         element={
           <AdminProtectedRoute>
 
-            <ParentDashboard
+            <Task
               adminView={true}
             />
 
@@ -240,7 +240,7 @@ function App() {
 
 
       {/* =================================================
-          ADMIN → VIEW STUDENT TASKS
+          ADMIN → STUDENT TASKS
           READ ONLY
       ================================================= */}
 
@@ -296,6 +296,42 @@ function App() {
           <ParentProtectedRoute>
 
             <ParentDashboard />
+
+          </ParentProtectedRoute>
+        }
+      />
+
+
+      {/* =================================================
+          PARENT → VIEW STUDENT DASHBOARD
+      ================================================= */}
+
+      <Route
+        path="/parent/students/:id/dashboard"
+        element={
+          <ParentProtectedRoute>
+
+            <Task
+              adminView={true}
+            />
+
+          </ParentProtectedRoute>
+        }
+      />
+
+
+      {/* =================================================
+          PARENT → VIEW STUDENT TASKS
+      ================================================= */}
+
+      <Route
+        path="/parent/students/:id/tasks"
+        element={
+          <ParentProtectedRoute>
+
+            <Task
+              adminView={true}
+            />
 
           </ParentProtectedRoute>
         }
