@@ -95,11 +95,14 @@ function AdminDashboard() {
     location.pathname.startsWith("/admin/parents")
   );
 
-  // Parents submenu stays open whenever the Parents page is active.
-  // This survives navigation/remounting of the sidebar.
+  const isParentsPage =
+    location.pathname === "/admin/parents" ||
+    location.pathname.startsWith("/admin/parents/");
+
+  // Keep Parents open whenever the Parents route is active.
+  // This prevents All Parents from closing after navigation.
   const parentsOpen =
-    parentsMenuOpen ||
-    location.pathname.startsWith("/admin/parents");
+    parentsMenuOpen || isParentsPage;
 
   // Keep the correct submenu open after route navigation/remount.
   useEffect(() => {
@@ -288,12 +291,7 @@ function AdminDashboard() {
       "/admin/students/"
     );
 
-  const isParentsPage =
-    location.pathname ===
-      "/admin/parents" ||
-    location.pathname.startsWith(
-      "/admin/parents/"
-    );
+
 
   /* =========================================
      SEARCH
