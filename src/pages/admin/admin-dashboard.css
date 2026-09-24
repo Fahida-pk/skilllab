@@ -178,7 +178,132 @@ body {
 /* =========================================================
    SIDEBAR ONLY SCROLL
    ========================================================= */
+/* =========================================================
+   FINAL SIDEBAR SCROLL FIX
+   Sidebar മാത്രം scroll ചെയ്യണം
+   Dashboard/Main content move ചെയ്യരുത്
+========================================================= */
 
+.admin-sidebar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  bottom: 0 !important;
+
+  width: 265px !important;
+  height: 100vh !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+
+  /* IMPORTANT */
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+
+  /* Sidebar scroll മാത്രം */
+  overscroll-behavior: contain !important;
+
+  /* scrollbar space reserve */
+  scrollbar-gutter: stable !important;
+}
+
+
+/* Sidebar ഉള്ളിലെ content scroll ചെയ്യരുത് */
+.admin-sidebar-content {
+  flex: none !important;
+
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+}
+
+
+/* Logout താഴെ തന്നെ വരട്ടെ */
+.admin-sidebar-bottom {
+  flex-shrink: 0 !important;
+}
+
+
+/* =========================
+   VISIBLE SCROLLBAR
+========================= */
+
+/* Chrome / Edge */
+.admin-sidebar::-webkit-scrollbar {
+  width: 7px !important;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.80) !important;
+}
+
+
+/* Firefox */
+.admin-sidebar {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255,255,255,0.55)
+                   rgba(255,255,255,0.08) !important;
+}
+
+
+/* =========================================================
+   MAIN PAGE — Sidebar scroll ചെയ്താലും move ആകരുത്
+========================================================= */
+
+.admin-main {
+  position: relative !important;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 800px) {
+
+  .admin-sidebar {
+    width: 275px !important;
+    height: 100vh !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .admin-sidebar-content {
+    overflow: visible !important;
+    flex: none !important;
+  }
+
+  .admin-sidebar-bottom {
+    flex-shrink: 0 !important;
+  }
+}
+
+
+/* Small mobile */
+@media (max-width: 480px) {
+
+  .admin-sidebar {
+    width: 270px !important;
+    height: 100vh !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+}
 .admin-sidebar {
   position: fixed !important;
   top: 0 !important;
