@@ -5197,7 +5197,7 @@ body {
 ===================================================== */
 
 .admin-sidebar {
-  height: 100vh !important;
+  height: 50vh !important;
   overflow-y: scroll !important;
   overflow-x: hidden !important;
 
