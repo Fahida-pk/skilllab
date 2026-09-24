@@ -187,7 +187,23 @@ body {
 
   padding: 24px 14px;
 }
+/* Vertical scrollbar */
+.admin-sidebar-content::-webkit-scrollbar {
+  width: 5px;
+}
 
+.admin-sidebar-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-sidebar-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+}
+
+.admin-sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
 .admin-sidebar-content::-webkit-scrollbar {
   width: 4px;
 }
