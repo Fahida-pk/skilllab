@@ -179,14 +179,13 @@ body {
 /* =====================================================
    SIDEBAR CONTENT
 ===================================================== */
+
 .admin-sidebar-content {
-  padding: 30px 17px 20px !important;
+  flex: 1;
 
-  /* Sidebar itself will handle scrolling */
-  overflow: visible !important;
+  overflow-y: auto;
 
-  /* Don't force content to fill remaining height */
-  flex: 0 0 auto !important;
+  padding: 24px 14px;
 }
 
 .admin-sidebar-content::-webkit-scrollbar {
@@ -1631,10 +1630,6 @@ body {
 ========================================================= */
 
 /* SIDEBAR */
-/* =========================================================
-   ADMIN SIDEBAR — STRONG & PROFESSIONAL FINAL STYLE
-========================================================= */
-
 .admin-sidebar {
   width: 265px !important;
 
@@ -1667,35 +1662,8 @@ body {
 
   box-shadow:
     8px 0 35px rgba(55, 18, 105, 0.20) !important;
-
-  /* ✅ FULL SIDEBAR SCROLL */
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-
-  scrollbar-width: thin;
-  scrollbar-color:
-    rgba(255, 255, 255, 0.35)
-    transparent;
 }
 
-
-/* Chrome / Edge / Safari */
-.admin-sidebar::-webkit-scrollbar {
-  width: 4px;
-}
-
-.admin-sidebar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.admin-sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.35);
-  border-radius: 20px;
-}
-
-.admin-sidebar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.55);
-}
 
 /* =========================================================
    BRAND
