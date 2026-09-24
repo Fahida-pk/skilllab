@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
   FaGaugeHigh,
   FaUserGraduate,
@@ -18,6 +17,7 @@ import {
   FaMagnifyingGlass,
   FaArrowRight,
   FaUser,
+  FaUserGroup,
   FaClipboardList,
   FaCircleExclamation,
   FaArrowTrendUp,
