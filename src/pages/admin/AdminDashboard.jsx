@@ -618,13 +618,14 @@ const openStudentDashboard = (student) => {
 
           {/* PARENTS */}
 
-{/* =================================================
+     {/* =================================================
     PARENTS
 ================================================= */}
 
 <div className="admin-nav-group">
 
   {/* PARENTS MAIN BUTTON */}
+
   <button
     type="button"
     className={`admin-nav-item ${
@@ -633,20 +634,23 @@ const openStudentDashboard = (student) => {
         : ""
     }`}
     onClick={() => {
-      // Parents click ചെയ്യുമ്പോൾ submenu open ആകരുത്
+      // Parents main button click ചെയ്യുമ്പോൾ
+      // submenu open ആകരുത്
       setStudentsOpen(false);
-      setParentsOpen(false);
     }}
   >
+
     <FaUserTie />
 
     <span>
       Parents
     </span>
+
   </button>
 
 
   {/* ALL PARENTS */}
+
   <div className="admin-submenu">
 
     <button
@@ -658,11 +662,13 @@ const openStudentDashboard = (student) => {
       }
       onClick={goParents}
     >
+
       <FaUserTie />
 
       <span>
         All Parents
       </span>
+
     </button>
 
   </div>
