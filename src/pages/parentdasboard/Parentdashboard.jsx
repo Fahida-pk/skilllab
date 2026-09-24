@@ -510,6 +510,96 @@ function ParentDashboard() {
   };
 
 
+
+  /* =========================================
+     STUDENT PERFORMANCE ANALYTICS
+     Uses only students assigned to this parent.
+  ========================================= */
+
+  const getStudentPerformance = (student) => {
+    const value =
+      student?.weekPerformance ??
+      student?.week_performance ??
+      student?.weeklyPerformance ??
+      student?.weekly_performance ??
+      student?.performance ??
+      student?.performance_percentage ??
+      student?.performancePercentage ??
+      0;
+
+    return Math.max(0, Math.min(100, Number(value) || 0));
+  };
+
+  const performanceData = useMemo(() => {
+    return students.map((student) => ({
+      ...student,
+      performance: getStudentPerformance(student),
+    }));
+  }, [students]);
+
+  const performanceGroups = useMemo(() => {
+    const strong = performanceData.filter(
+      (student) => student.performance >= 60
+    );
+
+    const average = performanceData.filter(
+      (student) =>
+        student.performance >= 40 &&
+        student.performance < 60
+    );
+
+    const weak = performanceData.filter(
+      (student) => student.performance < 40
+    );
+
+    return { strong, average, weak };
+  }, [performanceData]);
+
+  const totalPerformanceStudents =
+    performanceGroups.strong.length +
+    performanceGroups.average.length +
+    performanceGroups.weak.length;
+
+  const strongPercent =
+    totalPerformanceStudents > 0
+      ? (performanceGroups.strong.length /
+          totalPerformanceStudents) *
+        100
+      : 0;
+
+  const averagePercent =
+    totalPerformanceStudents > 0
+      ? (performanceGroups.average.length /
+          totalPerformanceStudents) *
+        100
+      : 0;
+
+  const weakPercent =
+    totalPerformanceStudents > 0
+      ? (performanceGroups.weak.length /
+          totalPerformanceStudents) *
+        100
+      : 0;
+
+  const performanceChart = [
+    {
+      label: "Today",
+      value: Number(dashboard.todayPerformance) || 0,
+      type: "green",
+    },
+    {
+      label: "Weekly",
+      value: Number(dashboard.weeklyPerformance) || 0,
+      type: "blue",
+    },
+    {
+      label: "Monthly",
+      value: Number(dashboard.monthlyPerformance) || 0,
+      type: "purple",
+    },
+  ];
+
+
   /* =========================================
      OPEN STUDENT DASHBOARD
   ========================================= */
@@ -680,29 +770,29 @@ function ParentDashboard() {
           </button>
 
 
-          {/* TASK PERFORMANCE */}
+          {/* PARENT PROFILE */}
 
           <button
             className={`parent-nav-item ${
-              activePage === "performance"
+              activePage === "profile"
                 ? "active"
                 : ""
             }`}
             onClick={() => {
 
-              setActivePage(
-                "performance"
-              );
+              setActivePage("profile");
+
+              setSearch("");
 
               setMobileOpen(false);
 
             }}
           >
 
-            <FaListCheck />
+            <FaUser />
 
             <span>
-              Task Performance
+              My Profile
             </span>
 
           </button>
@@ -767,8 +857,8 @@ function ParentDashboard() {
 
             {activePage === "students"
               ? "My Students"
-              : activePage === "performance"
-              ? "Task Performance"
+              : activePage === "profile"
+              ? "My Profile"
               : "Parent Dashboard"}
 
           </h1>
@@ -778,9 +868,9 @@ function ParentDashboard() {
 
             {activePage === "students"
               ? "View your assigned students."
-              : activePage === "performance"
-              ? "Monitor your child's task performance."
-              : "Monitor your child's learning performance and progress."}
+              : activePage === "profile"
+              ? "View your parent account details."
+              : "Monitor your assigned students' learning performance and progress."}
 
           </p>
 
@@ -1099,6 +1189,201 @@ function ParentDashboard() {
           type="purple"
         />
 
+
+      </section>
+
+
+      {/* ANALYTICS */}
+
+      <section className="parent-analytics-grid">
+
+        {/* PERFORMANCE GRAPH */}
+
+        <div className="parent-analysis-card">
+
+          <div className="parent-analysis-header">
+
+            <div>
+              <h2>Performance Overview</h2>
+              <p>Today, weekly and monthly performance</p>
+            </div>
+
+            <FaChartLine />
+
+          </div>
+
+          <div className="parent-bar-chart">
+
+            {performanceChart.map((item) => (
+              <div
+                className="parent-chart-column"
+                key={item.label}
+              >
+
+                <div className="parent-chart-value">
+                  {item.value}%
+                </div>
+
+                <div className="parent-chart-track">
+
+                  <div
+                    className={`parent-chart-bar ${item.type}`}
+                    style={{
+                      height: `${Math.min(
+                        100,
+                        Math.max(0, item.value)
+                      )}%`,
+                    }}
+                  />
+
+                </div>
+
+                <span>{item.label}</span>
+
+              </div>
+            ))}
+
+          </div>
+
+          <div className="parent-analysis-note">
+            <FaClock />
+            <span>
+              Performance values are calculated from the
+              parent dashboard data returned by the server.
+            </span>
+          </div>
+
+        </div>
+
+
+        {/* PERFORMANCE DISTRIBUTION */}
+
+        <div className="parent-analysis-card">
+
+          <div className="parent-analysis-header">
+
+            <div>
+              <h2>Student Performance</h2>
+              <p>Performance distribution of your students</p>
+            </div>
+
+            <FaTrophy />
+
+          </div>
+
+          <div className="parent-pie-layout">
+
+            <div
+              className="parent-performance-pie"
+              style={{
+                background:
+                  totalPerformanceStudents > 0
+                    ? `conic-gradient(
+                        #18a86b 0% ${strongPercent}%,
+                        #3185ed ${strongPercent}% ${
+                          strongPercent + averagePercent
+                        }%,
+                        #f19a2b ${
+                          strongPercent + averagePercent
+                        }% 100%
+                      )`
+                    : "#e9e5f2",
+              }}
+            >
+              <div className="parent-pie-inner">
+                <strong>{students.length}</strong>
+                <span>Students</span>
+              </div>
+            </div>
+
+            <div className="parent-analysis-legend">
+
+              <div>
+                <span className="parent-legend-dot strong" />
+                <div>
+                  <strong>Strong</strong>
+                  <small>
+                    {performanceGroups.strong.length} students
+                  </small>
+                </div>
+              </div>
+
+              <div>
+                <span className="parent-legend-dot average" />
+                <div>
+                  <strong>Average</strong>
+                  <small>
+                    {performanceGroups.average.length} students
+                  </small>
+                </div>
+              </div>
+
+              <div>
+                <span className="parent-legend-dot weak" />
+                <div>
+                  <strong>Needs Attention</strong>
+                  <small>
+                    {performanceGroups.weak.length} students
+                  </small>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* PERFORMANCE SUMMARY */}
+
+      <section className="parent-performance-summary">
+
+        <div className="parent-summary-box strong">
+
+          <div className="parent-summary-box-icon">
+            <FaCircleCheck />
+          </div>
+
+          <div>
+            <span>Strong Performance</span>
+            <strong>{performanceGroups.strong.length}</strong>
+            <small>60% and above</small>
+          </div>
+
+        </div>
+
+
+        <div className="parent-summary-box average">
+
+          <div className="parent-summary-box-icon">
+            <FaChartLine />
+          </div>
+
+          <div>
+            <span>Average Performance</span>
+            <strong>{performanceGroups.average.length}</strong>
+            <small>40% - 59%</small>
+          </div>
+
+        </div>
+
+
+        <div className="parent-summary-box weak">
+
+          <div className="parent-summary-box-icon">
+            <FaTriangleExclamation />
+          </div>
+
+          <div>
+            <span>Needs Attention</span>
+            <strong>{performanceGroups.weak.length}</strong>
+            <small>Below 40%</small>
+          </div>
+
+        </div>
 
       </section>
 
@@ -1553,50 +1838,185 @@ function ParentDashboard() {
 
 
   /* =========================================
-     TASK PERFORMANCE
+     PARENT PROFILE
   ========================================= */
 
-  const renderTaskPerformance = () => (
+  const renderParentProfile = () => {
 
-    <section className="parent-performance-page">
+    const profileName =
+      parent?.name ||
+      parent?.full_name ||
+      parent?.fullName ||
+      parent?.username ||
+      "Parent";
 
-      <div className="parent-page-heading">
+    const profileUsername =
+      parent?.username ||
+      "—";
 
-        <h2>
-          Task Performance
-        </h2>
+    const profileEmail =
+      parent?.email ||
+      parent?.mail ||
+      "—";
 
-        <p>
-          Monitor your assigned students'
-          task performance.
-        </p>
+    const profilePhone =
+      parent?.phone ||
+      parent?.mobile ||
+      parent?.contact ||
+      "—";
 
-      </div>
+    const profileAddress =
+      parent?.address ||
+      "—";
+
+    const profileId =
+      parent?.id ||
+      parent?.parent_id ||
+      "—";
+
+    return (
+      <section className="parent-profile-page">
+
+        <div className="parent-profile-heading">
+          <div>
+            <h2>My Profile</h2>
+            <p>
+              View the profile details of the parent account
+              currently logged in.
+            </p>
+          </div>
+        </div>
 
 
-      <div className="parent-performance-info-card">
+        <div className="parent-profile-card">
 
-        <FaListCheck />
+          <div className="parent-profile-cover" />
 
-        <div>
+          <div className="parent-profile-main">
 
-          <h3>
-            Task Performance
-          </h3>
+            <div className="parent-profile-large-avatar">
+              {getInitials(profileName)}
+            </div>
 
-          <p>
-            Detailed task performance
-            will be displayed here.
-          </p>
+            <div className="parent-profile-main-info">
+
+              <h2>{profileName}</h2>
+
+              <span>
+                <FaUser />
+                {profileUsername}
+              </span>
+
+              <small>
+                Parent ID: #{profileId}
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div className="parent-profile-details-grid">
+
+            <div className="parent-profile-detail">
+
+              <div className="parent-profile-detail-icon purple">
+                <FaUser />
+              </div>
+
+              <div>
+                <span>Full Name</span>
+                <strong>{profileName}</strong>
+              </div>
+
+            </div>
+
+
+            <div className="parent-profile-detail">
+
+              <div className="parent-profile-detail-icon blue">
+                <FaListCheck />
+              </div>
+
+              <div>
+                <span>Username</span>
+                <strong>{profileUsername}</strong>
+              </div>
+
+            </div>
+
+
+            <div className="parent-profile-detail">
+
+              <div className="parent-profile-detail-icon green">
+                <FaChartLine />
+              </div>
+
+              <div>
+                <span>Email</span>
+                <strong>{profileEmail}</strong>
+              </div>
+
+            </div>
+
+
+            <div className="parent-profile-detail">
+
+              <div className="parent-profile-detail-icon orange">
+                <FaClock />
+              </div>
+
+              <div>
+                <span>Phone</span>
+                <strong>{profilePhone}</strong>
+              </div>
+
+            </div>
+
+
+            <div className="parent-profile-detail parent-profile-detail-wide">
+
+              <div className="parent-profile-detail-icon pink">
+                <FaCalendarDays />
+              </div>
+
+              <div>
+                <span>Address</span>
+                <strong>{profileAddress}</strong>
+              </div>
+
+            </div>
+
+          </div>
 
         </div>
 
-      </div>
 
-    </section>
+        <div className="parent-profile-stats">
 
-  );
+          <div>
+            <FaUserGraduate />
+            <span>Assigned Students</span>
+            <strong>{students.length}</strong>
+          </div>
 
+          <div>
+            <FaListCheck />
+            <span>Total Tasks</span>
+            <strong>{dashboard.totalTasks ?? 0}</strong>
+          </div>
+
+          <div>
+            <FaCircleCheck />
+            <span>Completed Tasks</span>
+            <strong>{dashboard.completedTasks ?? 0}</strong>
+          </div>
+
+        </div>
+
+      </section>
+    );
+  };
 
   /* =========================================
      MAIN
@@ -1641,9 +2061,9 @@ function ParentDashboard() {
           )}
 
 
-          {activePage === "performance" && (
+          {activePage === "profile" && (
 
-            renderTaskPerformance()
+            renderParentProfile()
 
           )}
 

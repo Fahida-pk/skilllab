@@ -16,20 +16,29 @@
 
   background:
     radial-gradient(
-      circle at 15% 20%,
-      rgba(80,130,255,.55),
-      transparent 30%
+      circle at 8% 45%,
+      rgba(55, 125, 255, 0.95),
+      transparent 34%
     ),
+
     radial-gradient(
-      circle at 85% 25%,
-      rgba(180,70,255,.55),
-      transparent 30%
+      circle at 92% 48%,
+      rgba(255, 45, 172, 0.90),
+      transparent 35%
     ),
+
+    radial-gradient(
+      circle at 50% 110%,
+      rgba(126, 70, 255, 0.90),
+      transparent 42%
+    ),
+
     linear-gradient(
       135deg,
-      #506ff5 0%,
-      #7650e8 48%,
-      #d43bd1 100%
+      #4d8cff 0%,
+      #655cf3 38%,
+      #8d4ee8 65%,
+      #ef3ba7 100%
     );
 }
 
