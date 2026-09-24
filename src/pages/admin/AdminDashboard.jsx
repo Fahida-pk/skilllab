@@ -618,11 +618,9 @@ const openStudentDashboard = (student) => {
 
           </div>
 
-          {/* PARENTS */}
-
-     {/* =================================================
+    {/* =========================================
     PARENTS
-================================================= */}
+========================================= */}
 
 <div className="admin-nav-group">
 
@@ -635,10 +633,13 @@ const openStudentDashboard = (student) => {
         ? "active"
         : ""
     }`}
- onClick={() => {
-  setParentsOpen((prev) => !prev);
-  setStudentsOpen(false);
-}}
+    onClick={() => {
+      // Always open Parents
+      setParentsOpen(true);
+
+      // Close Students
+      setStudentsOpen(false);
+    }}
   >
 
     <FaUserTie />
@@ -647,31 +648,44 @@ const openStudentDashboard = (student) => {
       Parents
     </span>
 
+    <FaChevronDown
+      className={`admin-nav-arrow ${
+        parentsOpen ? "rotate" : ""
+      }`}
+    />
+
   </button>
-{parentsOpen && (
-  <div className="admin-submenu">
 
-    <button
-      type="button"
-      className={
-        location.pathname.startsWith("/admin/parents")
-          ? "submenu-active"
-          : ""
-      }
-      onClick={goParents}
-    >
-      <FaUserTie />
 
-      <span>
-        All Parents
-      </span>
-    </button>
+  {/* ALL PARENTS */}
 
-  </div>
-)}
+  {parentsOpen && (
+    <div className="admin-submenu">
 
+      <button
+        type="button"
+        className={
+          location.pathname.startsWith("/admin/parents")
+            ? "submenu-active"
+            : ""
+        }
+        onClick={goParents}
+      >
+
+        <FaUserTie />
+
+        <span>
+          All Parents
+        </span>
+
+      </button>
+
+    </div>
+  )}
 
 </div>
+
+
           {/* PAYMENT */}
 
           <div className="admin-nav-group">
