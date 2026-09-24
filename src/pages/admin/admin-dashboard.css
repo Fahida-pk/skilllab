@@ -183,7 +183,7 @@ body {
 .admin-sidebar-content {
   flex: 1;
 
-  overflow-y: auto;
+  overflow-y: visible;
 
   padding: 24px 14px;
 }
