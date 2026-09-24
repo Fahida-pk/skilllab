@@ -332,10 +332,11 @@ const goStudents = () => {
 const goParents = () => {
   navigate("/admin/parents");
 
-  // Close Students
-  // Parents has no expandable submenu
+  // Parents open
+  setParentsOpen(true);
+
+  // Students close
   setStudentsOpen(false);
-  setParentsOpen(false);
 
   setMobileOpen(false);
 };
@@ -634,9 +635,9 @@ const openStudentDashboard = (student) => {
         ? "active"
         : ""
     }`}
-  onClick={() => {
+ onClick={() => {
+  setParentsOpen((prev) => !prev);
   setStudentsOpen(false);
-  setParentsOpen(false);
 }}
   >
 
@@ -647,16 +648,16 @@ const openStudentDashboard = (student) => {
     </span>
 
   </button>
-
-
- {/* ALL PARENTS */}
-
-{location.pathname.startsWith("/admin/parents") && (
+{parentsOpen && (
   <div className="admin-submenu">
 
     <button
       type="button"
-      className="submenu-active"
+      className={
+        location.pathname.startsWith("/admin/parents")
+          ? "submenu-active"
+          : ""
+      }
       onClick={goParents}
     >
       <FaUserTie />
@@ -668,6 +669,7 @@ const openStudentDashboard = (student) => {
 
   </div>
 )}
+
 
 </div>
           {/* PAYMENT */}
