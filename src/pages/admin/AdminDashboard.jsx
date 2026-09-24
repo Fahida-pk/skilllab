@@ -288,6 +288,13 @@ function AdminDashboard() {
       "/admin/students/"
     );
 
+  const isParentsPage =
+    location.pathname ===
+      "/admin/parents" ||
+    location.pathname.startsWith(
+      "/admin/parents/"
+    );
+
   /* =========================================
      SEARCH
   ========================================= */
@@ -660,7 +667,10 @@ const openStudentDashboard = (student) => {
       isParentsPage ? "active" : ""
     }`}
     onClick={() => {
-      setParentsOpen((prev) => !prev);
+      // Keep Parents submenu open
+      setParentsMenuOpen(true);
+
+      // Close Students submenu
       setStudentsOpen(false);
     }}
   >
