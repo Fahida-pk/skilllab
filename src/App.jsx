@@ -11,7 +11,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import Parent from "./pages/parent/parent.jsx";
 
 import ParentLogin from "./pages/parentdasboard/ParentLogin.jsx";
-import ParentDashboard from "./pages/parentdasboard/ParentDashboard.jsx"
+import ParentDashboard from "./pages/parentdasboard/Parentdashboard.jsx"
 /* =====================================================
    ADMIN PROTECTED ROUTE
 ===================================================== */
