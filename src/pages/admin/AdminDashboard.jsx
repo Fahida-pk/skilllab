@@ -648,26 +648,19 @@ const openStudentDashboard = (student) => {
 
           </div>
 
-    {/* =========================================
+   {/* =================================================
     PARENTS
-========================================= */}
+================================================= */}
 
 <div className="admin-nav-group">
-
-  {/* PARENTS MAIN BUTTON */}
 
   <button
     type="button"
     className={`admin-nav-item ${
-      location.pathname.startsWith("/admin/parents")
-        ? "active"
-        : ""
+      isParentsPage ? "active" : ""
     }`}
     onClick={() => {
-      // Always open Parents
-      setParentsMenuOpen(true);
-
-      // Close Students
+      setParentsOpen((prev) => !prev);
       setStudentsOpen(false);
     }}
   >
@@ -687,15 +680,13 @@ const openStudentDashboard = (student) => {
   </button>
 
 
-  {/* ALL PARENTS */}
-
   {parentsOpen && (
     <div className="admin-submenu">
 
       <button
         type="button"
         className={
-          location.pathname.startsWith("/admin/parents")
+          isParentsPage
             ? "submenu-active"
             : ""
         }
@@ -714,6 +705,7 @@ const openStudentDashboard = (student) => {
   )}
 
 </div>
+
 
 
           {/* PAYMENT */}
