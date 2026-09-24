@@ -25,9 +25,7 @@ export default function Sidebar() {
     location.pathname.startsWith("/admin/students")
   );
 
-  const [parentsOpen, setParentsOpen] = useState(
-    location.pathname.startsWith("/admin/parents")
-  );
+const [parentsOpen, setParentsOpen] = useState(false);
 
   const isStudentsPage =
     location.pathname === "/admin/students" ||
@@ -47,22 +45,39 @@ export default function Sidebar() {
   ========================= */
 
   const goDashboard = () => {
-    navigate("/AdminDashboard");
-    setMobileOpen(false);
-  };
+  navigate("/AdminDashboard");
+
+  // Close Students and Parents
+  setStudentsOpen(false);
+  setParentsOpen(false);
+
+  setMobileOpen(false);
+};
+
+const goStudents = () => {
+  navigate("/admin/students");
+
+  // Students open
+  setStudentsOpen(true);
+
+  // Parents close
+  setParentsOpen(false);
+
+  setMobileOpen(false);
+};
 
 
-  const goStudents = () => {
-    navigate("/admin/students");
-    setMobileOpen(false);
-  };
+ const goParents = () => {
+  navigate("/admin/parents");
 
+  // Parents open
+  setParentsOpen(true);
 
-  const goParents = () => {
-    navigate("/admin/parents");
-    setMobileOpen(false);
-  };
+  // Students close
+  setStudentsOpen(false);
 
+  setMobileOpen(false);
+};
 
   /* =========================
      LOGOUT
