@@ -1,191 +1,175 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 import {
   FaGaugeHigh,
-  FaChartLine,
-  FaUsers,
-  FaLayerGroup,
-  FaMedal,
-  FaTrophy,
   FaUserGraduate,
-  FaUserTie,
-  FaCreditCard,
-  FaGear,
+  FaListCheck,
+  FaCircleCheck,
+  FaClock,
+  FaTrophy,
+  FaChartLine,
+  FaCalendarDays,
   FaArrowRightFromBracket,
-  FaChevronDown,
-  FaChevronRight,
   FaBars,
   FaXmark,
-  FaCircleCheck,
   FaTriangleExclamation,
-  FaCalendarDays,
-  FaClock,
-  FaArrowUp,
-  FaArrowDown,
-  FaArrowRight,
+  FaChevronRight,
   FaMagnifyingGlass,
+  FaArrowRight,
   FaUser,
 } from "react-icons/fa6";
 
-import "./admin-dashboard.css";
+import "./parent-dashboard.css";
 
-const API_URL =
-  "https://zyntaweb.com/skilllab/admin-dashboard.php";
 
-function AdminDashboard() {
+function ParentDashboard() {
+
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const [admin, setAdmin] = useState(null);
 
-  const [students, setStudents] = useState([]);
+  /* =========================================
+     STATES
+  ========================================= */
 
-  const [dashboardData, setDashboardData] =
-    useState({
-      totalStudents: 0,
-
-      todayPerformance: 0,
-      weekPerformance: 0,
-      monthPerformance: 0,
-
-      todayCompleted: 0,
-      todayTotal: 0,
-
-      weekCompleted: 0,
-      weekTotal: 0,
-
-      monthCompleted: 0,
-      monthTotal: 0,
-
-      strongStudents: 0,
-      weakStudents: 0,
-      startedStudents: 0,
-      notStartedStudents: 0,
-      totalTasks: 0,
-
-      weeklyStrongStudents: [],
-      weeklyGoodStudents: [],
-      weeklyWeakStudents: [],
-
-      monthlyStrongStudents: [],
-      monthlyGoodStudents: [],
-      monthlyWeakStudents: [],
-
-      todayStrongStudents: [],
-      todayGoodStudents: [],
-      todayWeakStudents: [],
-    });
+  const [parent, setParent] = useState(null);
 
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const [activePage, setActivePage] =
+    useState("dashboard");
 
   const [search, setSearch] = useState("");
 
-  const [mobileOpen, setMobileOpen] =
-    useState(false);
 
-  const [studentsOpen, setStudentsOpen] =
-    useState(
-      location.pathname.startsWith(
-        "/admin/students"
-      )
-    );
+  /* =========================================
+     DASHBOARD DATA
+  ========================================= */
 
-  const [parentsMenuOpen, setParentsMenuOpen] = useState(
-    location.pathname.startsWith("/admin/parents")
-  );
+  const [dashboard, setDashboard] = useState({
 
-  const isParentsPage =
-    location.pathname === "/admin/parents" ||
-    location.pathname.startsWith("/admin/parents/");
+    students: [],
 
-  // Keep Parents open whenever the Parents route is active.
-  // This prevents All Parents from closing after navigation.
-  const parentsOpen =
-    parentsMenuOpen || isParentsPage;
+    student: null,
 
-  // Keep the correct submenu open after route navigation/remount.
-  useEffect(() => {
-    if (location.pathname.startsWith("/admin/parents")) {
-      setParentsMenuOpen(true);
-      setStudentsOpen(false);
-      return;
-    }
+    totalStudents: 0,
 
-    if (location.pathname.startsWith("/admin/students")) {
-      setStudentsOpen(true);
-      setParentsMenuOpen(false);
-      return;
-    }
+    totalTasks: 0,
 
-    if (
-      location.pathname === "/AdminDashboard" ||
-      location.pathname === "/admin/dashboard"
-    ) {
-      setStudentsOpen(false);
-      setParentsMenuOpen(false);
-    }
-  }, [location.pathname]);  /* =========================================
-     ADMIN
+    completedTasks: 0,
+
+    pendingTasks: 0,
+
+    todayPerformance: 0,
+
+    weeklyPerformance: 0,
+
+    monthlyPerformance: 0,
+
+    todayCompleted: 0,
+
+    todayTotal: 0,
+
+    weekCompleted: 0,
+
+    weekTotal: 0,
+
+    monthCompleted: 0,
+
+    monthTotal: 0,
+
+  });
+
+
+  /* =========================================
+     CHECK LOGIN
   ========================================= */
 
   useEffect(() => {
+
+    const savedParent =
+      localStorage.getItem("parent");
+
+    const loggedIn =
+      localStorage.getItem("parentLoggedIn");
+
+
+    if (
+      loggedIn !== "true" ||
+      !savedParent
+    ) {
+
+      navigate("/parent/login", {
+        replace: true,
+      });
+
+      return;
+    }
+
+
     try {
-      const savedAdmin =
-        localStorage.getItem("admin");
 
-      if (!savedAdmin) {
-        navigate("/admin/login", {
-          replace: true,
-        });
-        return;
-      }
+      const parentData =
+        JSON.parse(savedParent);
 
-      setAdmin(JSON.parse(savedAdmin));
+      setParent(parentData);
+
     } catch (error) {
+
       console.error(
-        "Admin data error:",
+        "Parent data error:",
         error
       );
 
-      localStorage.removeItem("admin");
+
+      localStorage.removeItem("parent");
+
       localStorage.removeItem(
-        "adminLoggedIn"
+        "parentLoggedIn"
       );
 
-      navigate("/admin/login", {
+      localStorage.removeItem(
+        "parentStudents"
+      );
+
+
+      navigate("/parent/login", {
         replace: true,
       });
+
     }
+
   }, [navigate]);
 
+
   /* =========================================
-     FETCH ADMIN DATA
+     LOAD PARENT DASHBOARD
   ========================================= */
 
-  const fetchAdminData = async (silent = false) => {
+  useEffect(() => {
+
+    if (!parent?.id) return;
+
+    loadDashboard();
+
+  }, [parent]);
+
+
+  /* =========================================
+     LOAD DATA
+  ========================================= */
+
+  const loadDashboard = async () => {
+
     try {
-      // Manual Refresh shows the loading state.
-      // Automatic refresh runs silently so the dashboard does not flicker.
-      if (!silent) {
-        setRefreshing(true);
-      }
 
-      const savedAdmin =
-        localStorage.getItem("admin");
+      setLoading(true);
 
-      if (!savedAdmin) {
-        navigate("/admin/login", {
-          replace: true,
-        });
-        return;
-      }
-
-      const adminData =
-        JSON.parse(savedAdmin);
 
       const response = await fetch(
-        API_URL,
+        "https://zyntaweb.com/skilllab/parent-dashboard.php",
         {
           method: "POST",
 
@@ -195,281 +179,324 @@ function AdminDashboard() {
           },
 
           body: JSON.stringify({
-            action: "admin_overview",
-            admin_email:
-              adminData.email,
+
+            action:
+              "parent_overview",
+
+            parent_id:
+              parent.id,
+
           }),
         }
       );
 
+
       const data =
         await response.json();
 
+
       console.log(
-        "ADMIN DASHBOARD:",
+        "Parent Dashboard:",
         data
       );
 
-      if (!data.success) {
-        throw new Error(
-          data.message ||
-            "Unable to load admin data"
-        );
+
+      if (data.success) {
+
+        const overview =
+          data.overview || {};
+
+
+        setDashboard({
+
+          ...overview,
+
+          students:
+            Array.isArray(
+              overview.students
+            )
+              ? overview.students
+              : [],
+
+        });
+
       }
 
-      setDashboardData(
-        data.overview || {}
-      );
-
-      setStudents(
-        Array.isArray(data.students)
-          ? data.students
-          : []
-      );
     } catch (error) {
+
       console.error(
-        "Admin dashboard error:",
+        "Parent dashboard error:",
         error
       );
+
+
+      /*
+       * FALLBACK
+       * If API fails, use students
+       * saved during login.
+       */
+
+      try {
+
+        const savedStudents =
+          JSON.parse(
+            localStorage.getItem(
+              "parentStudents"
+            ) || "[]"
+          );
+
+
+        setDashboard((prev) => ({
+
+          ...prev,
+
+          students:
+            Array.isArray(
+              savedStudents
+            )
+              ? savedStudents
+              : [],
+
+          totalStudents:
+            Array.isArray(
+              savedStudents
+            )
+              ? savedStudents.length
+              : 0,
+
+        }));
+
+      } catch (storageError) {
+
+        console.error(
+          "Student storage error:",
+          storageError
+        );
+
+      }
+
     } finally {
+
       setLoading(false);
 
-      if (!silent) {
-        setRefreshing(false);
-      }
     }
+
   };
 
-  useEffect(() => {
-    if (!admin?.email) return;
-
-    // First load
-    fetchAdminData();
-
-    // Automatically update admin dashboard when student/task data changes.
-    // No browser refresh is required.
-    const refreshInterval = setInterval(() => {
-      fetchAdminData(true);
-    }, 5000);
-
-    // Refresh immediately when admin comes back to this browser tab.
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        fetchAdminData(true);
-      }
-    };
-
-    const handleWindowFocus = () => {
-      fetchAdminData(true);
-    };
-
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibilityChange
-    );
-
-    window.addEventListener("focus", handleWindowFocus);
-
-    return () => {
-      clearInterval(refreshInterval);
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange
-      );
-      window.removeEventListener("focus", handleWindowFocus);
-    };
-  }, [admin]);
-
-  /* =========================================
-     ROUTE
-  ========================================= */
-
-  const isStudentsPage =
-    location.pathname ===
-      "/admin/students" ||
-    location.pathname.startsWith(
-      "/admin/students/"
-    );
-
-
-
-  /* =========================================
-     SEARCH
-  ========================================= */
-
-  const filteredStudents = useMemo(() => {
-    const value =
-      search.trim().toLowerCase();
-
-    if (!value) {
-      return students;
-    }
-
-    return students.filter((student) => {
-      return (
-        String(student.name || "")
-          .toLowerCase()
-          .includes(value) ||
-
-        String(student.email || "")
-          .toLowerCase()
-          .includes(value) ||
-
-        String(student.phone || "")
-          .toLowerCase()
-          .includes(value)
-      );
-    });
-  }, [students, search]);
 
   /* =========================================
      LOGOUT
   ========================================= */
 
   const handleLogout = () => {
-    localStorage.removeItem("admin");
+
     localStorage.removeItem(
-      "adminLoggedIn"
+      "parent"
     );
 
-    navigate("/admin/login", {
+    localStorage.removeItem(
+      "parentLoggedIn"
+    );
+
+    localStorage.removeItem(
+      "parentStudents"
+    );
+
+
+    navigate("/parent/login", {
       replace: true,
     });
+
   };
 
+
   /* =========================================
-     NAVIGATION
+     GET STUDENTS
   ========================================= */
-/* =========================================
-   NAVIGATION
-========================================= */
 
-const goDashboard = () => {
-  navigate("/AdminDashboard");
+  const students = Array.isArray(
+    dashboard.students
+  )
+    ? dashboard.students
+    : [];
 
-  // Close all submenus
-  setStudentsOpen(false);
-  setParentsMenuOpen(false);
-
-  setMobileOpen(false);
-};
-
-const goStudents = () => {
-  navigate("/admin/students");
-
-  // Open Students only
-  setStudentsOpen(true);
-  setParentsMenuOpen(false);
-
-  setMobileOpen(false);
-};
-
-const goParents = () => {
-  navigate("/admin/parents");
-
-  // Parents open
-  setParentsMenuOpen(true);
-
-  // Students close
-  setStudentsOpen(false);
-
-  setMobileOpen(false);
-};
-/* =========================================
-   VIEW STUDENT DASHBOARD
-   Pass selected student details to Dashboard.
-========================================= */
-const openStudentDashboard = (student) => {
-  // Selected student details persist ചെയ്യുക
-  sessionStorage.setItem(
-    `adminViewingStudent_${student.id}`,
-    JSON.stringify({
-      id: student.id,
-      name: student.name,
-      email: student.email,
-    })
-  );
-
-  navigate(
-    `/admin/students/${student.id}/dashboard`,
-    {
-      state: {
-        studentId: student.id,
-        studentEmail: student.email,
-        studentName: student.name,
-      },
-    }
-  );
-};
- 
 
   /* =========================================
-     HELPERS
+     SEARCH STUDENTS
+  ========================================= */
+
+  const filteredStudents = useMemo(() => {
+
+    const value =
+      search
+        .trim()
+        .toLowerCase();
+
+
+    if (!value) {
+
+      return students;
+
+    }
+
+
+    return students.filter(
+      (student) => {
+
+        return (
+
+          String(
+            student.name || ""
+          )
+            .toLowerCase()
+            .includes(value)
+
+          ||
+
+          String(
+            student.email || ""
+          )
+            .toLowerCase()
+            .includes(value)
+
+          ||
+
+          String(
+            student.id || ""
+          )
+            .toLowerCase()
+            .includes(value)
+
+        );
+
+      }
+    );
+
+  }, [students, search]);
+
+
+  /* =========================================
+     INITIALS
   ========================================= */
 
   const getInitials = (name) => {
+
     if (!name) return "S";
 
+
     const parts =
-      name.trim().split(/\s+/);
+      name
+        .trim()
+        .split(/\s+/);
+
 
     if (parts.length === 1) {
+
       return parts[0]
         .substring(0, 2)
         .toUpperCase();
+
     }
 
+
     return (
+
       parts[0][0] +
-      parts[parts.length - 1][0]
+
+      parts[
+        parts.length - 1
+      ][0]
+
     ).toUpperCase();
+
   };
+
+
+  /* =========================================
+     PERFORMANCE CLASS
+  ========================================= */
 
   const getPerformanceClass = (
     percentage
   ) => {
+
     const value =
       Number(percentage) || 0;
 
+
     if (value >= 60) {
+
       return "strong";
+
     }
+
 
     if (value >= 40) {
+
       return "good";
+
     }
 
+
     return "weak";
+
   };
+
+
+  /* =========================================
+     PERFORMANCE LABEL
+  ========================================= */
 
   const getPerformanceLabel = (
     percentage
   ) => {
+
     const value =
       Number(percentage) || 0;
 
+
     if (value >= 60) {
+
       return "Strong";
+
     }
+
 
     if (value >= 40) {
+
       return "Average";
+
     }
 
+
     return "Needs Attention";
+
   };
 
+
+  /* =========================================
+     FORMAT DATE
+  ========================================= */
+
   const formatDate = (date) => {
+
     if (!date) return "—";
+
 
     const parsed =
       new Date(date);
 
-    if (Number.isNaN(
-      parsed.getTime()
-    )) {
+
+    if (
+      Number.isNaN(
+        parsed.getTime()
+      )
+    ) {
+
       return date;
+
     }
+
 
     return parsed.toLocaleDateString(
       "en-IN",
@@ -479,73 +506,66 @@ const openStudentDashboard = (student) => {
         year: "numeric",
       }
     );
+
   };
+
 
   /* =========================================
-     EXTRA PERFORMANCE ANALYSIS HELPERS
+     OPEN STUDENT DASHBOARD
   ========================================= */
 
-  const getPerformanceGroups = (period) => {
-    if (period === "today") {
-      return {
-        strong: dashboardData.todayStrongStudents || [],
-        good: dashboardData.todayGoodStudents || [],
-        weak: dashboardData.todayWeakStudents || [],
-      };
-    }
+  const openStudentDashboard = (
+    student
+  ) => {
 
-    if (period === "weekly") {
-      return {
-        strong: dashboardData.weeklyStrongStudents || [],
-        good: dashboardData.weeklyGoodStudents || [],
-        weak: dashboardData.weeklyWeakStudents || [],
-      };
-    }
+    sessionStorage.setItem(
+      `parentViewingStudent_${student.id}`,
+      JSON.stringify({
+        id: student.id,
+        name: student.name,
+        email: student.email,
+      })
+    );
 
-    return {
-      strong: dashboardData.monthlyStrongStudents || [],
-      good: dashboardData.monthlyGoodStudents || [],
-      weak: dashboardData.monthlyWeakStudents || [],
-    };
+
+    /*
+     * If you already have a parent
+     * student dashboard route, use it here.
+     *
+     * For now the card click only stores
+     * selected student.
+     */
+
+    console.log(
+      "Selected student:",
+      student
+    );
+
   };
 
-  const getPieBackground = (groups) => {
-    const strong = groups.strong.length;
-    const good = groups.good.length;
-    const weak = groups.weak.length;
-    const total = strong + good + weak;
-
-    if (total === 0) {
-      return "#eeeaf4";
-    }
-
-    const strongEnd = (strong / total) * 100;
-    const goodEnd = ((strong + good) / total) * 100;
-
-    return `conic-gradient(
-      #22c55e 0% ${strongEnd}%,
-      #f59e0b ${strongEnd}% ${goodEnd}%,
-      #ef4444 ${goodEnd}% 100%
-    )`;
-  };
 
   /* =========================================
      SIDEBAR
   ========================================= */
 
   const renderSidebar = () => (
+
     <>
+
       {mobileOpen && (
+
         <div
-          className="admin-sidebar-overlay"
+          className="parent-sidebar-overlay"
           onClick={() =>
             setMobileOpen(false)
           }
         />
+
       )}
 
+
       <aside
-        className={`admin-sidebar ${
+        className={`parent-sidebar ${
           mobileOpen
             ? "mobile-open"
             : ""
@@ -554,256 +574,234 @@ const openStudentDashboard = (student) => {
 
         {/* BRAND */}
 
-        <div className="admin-brand">
+        <div className="parent-sidebar-brand">
 
-      
+          <strong>
+            SKILL LAB
+          </strong>
 
-          <div className="admin-brand-text">
-
-            <strong>
-              SKILL LAB
-            </strong>
-
-           
-
-          </div>
 
           <button
-            className="mobile-sidebar-close"
+            className="parent-sidebar-close"
             onClick={() =>
               setMobileOpen(false)
             }
           >
+
             <FaXmark />
+
           </button>
 
         </div>
 
+
         {/* NAVIGATION */}
 
-        <div className="admin-sidebar-content">
+        <div className="parent-sidebar-content">
+
 
           {/* DASHBOARD */}
 
-          <div className="admin-nav-group">
+          <button
+            className={`parent-nav-item ${
+              activePage === "dashboard"
+                ? "active"
+                : ""
+            }`}
+            onClick={() => {
 
-            <button
-              className={`admin-nav-item ${
-                !isStudentsPage &&
-                (location.pathname === "/admin/dashboard" ||
-                  location.pathname === "/AdminDashboard")
-                  ? "active"
-                  : ""
-              }`}
-              onClick={goDashboard}
-            >
-              <FaGaugeHigh />
+              setActivePage(
+                "dashboard"
+              );
 
-              <span>
-                Dashboard
-              </span>
-            </button>
+              setSearch("");
 
-          </div>
+              setMobileOpen(false);
 
-          {/* STUDENTS */}
+            }}
+          >
 
-          <div className="admin-nav-group">
+            <FaGaugeHigh />
 
-           <button
-  className={`admin-nav-item ${
-    isStudentsPage ? "active" : ""
-  }`}
-  onClick={() => {
-    setStudentsOpen((prev) => !prev);
-    setParentsMenuOpen(false);
-  }}
->
-  <FaUsers />
+            <span>
+              Dashboard
+            </span>
 
-  <span>
-    Students
-  </span>
-
-  <FaChevronDown
-    className={`admin-nav-arrow ${
-      studentsOpen ? "rotate" : ""
-    }`}
-  />
-</button>
-
-{studentsOpen && (
-  <div className="admin-submenu">
-    <button
-      className={
-        isStudentsPage
-          ? "submenu-active"
-          : ""
-      }
-      onClick={goStudents}
-    >
-      <FaUserGraduate />
-
-      <span>
-        All Students
-      </span>
-    </button>
-  </div>
-)}
-
-          </div>
-
-   {/* =================================================
-    PARENTS
-================================================= */}
-
-<div className="admin-nav-group">
-
-  <button
-    type="button"
-    className={`admin-nav-item ${
-      isParentsPage ? "active" : ""
-    }`}
-    onClick={() => {
-      // Keep Parents submenu open
-      setParentsMenuOpen(true);
-
-      // Close Students submenu
-      setStudentsOpen(false);
-    }}
-  >
-
-    <FaUserTie />
-
-    <span>
-      Parents
-    </span>
-
-    <FaChevronDown
-      className={`admin-nav-arrow ${
-        parentsOpen ? "rotate" : ""
-      }`}
-    />
-
-  </button>
+          </button>
 
 
-  {parentsOpen && (
-    <div className="admin-submenu">
+          {/* MY STUDENTS */}
 
-      <button
-        type="button"
-        className={
-          isParentsPage
-            ? "submenu-active"
-            : ""
-        }
-        onClick={goParents}
-      >
+          <button
+            className={`parent-nav-item ${
+              activePage === "students"
+                ? "active"
+                : ""
+            }`}
+            onClick={() => {
 
-        <FaUserTie />
+              setActivePage(
+                "students"
+              );
 
-        <span>
-          All Parents
-        </span>
+              setSearch("");
 
-      </button>
+              setMobileOpen(false);
 
-    </div>
-  )}
+            }}
+          >
 
-</div>
+            <FaUserGraduate />
+
+            <span>
+              My Students
+            </span>
+
+          </button>
 
 
+          {/* TASK PERFORMANCE */}
 
-          {/* PAYMENT */}
+          <button
+            className={`parent-nav-item ${
+              activePage === "performance"
+                ? "active"
+                : ""
+            }`}
+            onClick={() => {
 
-          <div className="admin-nav-group">
+              setActivePage(
+                "performance"
+              );
 
-            <button
-              className="admin-nav-item"
-            >
-              <FaCreditCard />
+              setMobileOpen(false);
 
-              <span>
-                Payment Gateway
-              </span>
-            </button>
+            }}
+          >
 
-          </div>
+            <FaListCheck />
 
-          
+            <span>
+              Task Performance
+            </span>
+
+          </button>
+
 
         </div>
 
+
         {/* LOGOUT */}
 
-        <div className="admin-sidebar-bottom">
+        <div className="parent-sidebar-bottom">
 
           <button
-            className="admin-logout"
+            className="parent-logout"
             onClick={handleLogout}
           >
+
             <FaArrowRightFromBracket />
 
             <span>
               Logout
             </span>
+
           </button>
 
         </div>
 
+
       </aside>
+
     </>
+
   );
+
 
   /* =========================================
      TOPBAR
   ========================================= */
 
   const renderTopbar = () => (
-    <header className="admin-topbar">
 
-      <div className="admin-topbar-left">
+    <header className="parent-topbar">
+
+      <div className="parent-topbar-left">
+
 
         <button
-          className="mobile-menu-button"
+          className="parent-mobile-menu"
           onClick={() =>
             setMobileOpen(true)
           }
         >
+
           <FaBars />
+
         </button>
+
 
         <div>
 
           <h1>
-            {isStudentsPage
-              ? "All Students"
-              : "Admin Dashboard"}
+
+            {activePage === "students"
+              ? "My Students"
+              : activePage === "performance"
+              ? "Task Performance"
+              : "Parent Dashboard"}
+
           </h1>
 
+
           <p>
-            {isStudentsPage
-              ? "View and manage all  Students."
-              : "Monitor today, weekly, monthly and overall student performance."}
+
+            {activePage === "students"
+              ? "View your assigned students."
+              : activePage === "performance"
+              ? "Monitor your child's task performance."
+              : "Monitor your child's learning performance and progress."}
+
           </p>
 
         </div>
 
       </div>
 
-     <div className="admin-profile">
-  <div className="admin-profile-info">
-    <strong>
-      Welcome Admin
-    </strong>
-  </div>
 
- 
-</div>
+      {/* PROFILE */}
+
+      <div className="parent-profile">
+
+        <div className="parent-profile-avatar">
+
+          {getInitials(
+            parent?.name ||
+            parent?.username
+          )}
+
+        </div>
+
+
+        <div>
+
+          <strong>
+            Welcome Parent
+          </strong>
+
+          <span>
+            {parent?.username || ""}
+          </span>
+
+        </div>
+
+      </div>
+
+
     </header>
+
   );
+
 
   /* =========================================
      STAT CARD
@@ -816,15 +814,19 @@ const openStudentDashboard = (student) => {
     subtitle,
     type,
   }) => (
-    <div className="admin-stat-card">
+
+    <div className="parent-stat-card">
 
       <div
-        className={`admin-stat-icon ${type}`}
+        className={`parent-stat-icon ${type}`}
       >
+
         {icon}
+
       </div>
 
-      <div className="admin-stat-details">
+
+      <div className="parent-stat-details">
 
         <span>
           {title}
@@ -841,406 +843,385 @@ const openStudentDashboard = (student) => {
       </div>
 
     </div>
+
   );
+
+
+  /* =========================================
+     PERFORMANCE CARD
+  ========================================= */
+
+  const PerformanceCard = ({
+    title,
+    percentage,
+    completed,
+    total,
+    type,
+  }) => (
+
+    <div
+      className={`parent-performance-card ${type}`}
+    >
+
+      <div className="parent-performance-header">
+
+        <div className="parent-performance-title">
+
+          <div
+            className={`parent-performance-icon ${type}`}
+          >
+
+            <FaCalendarDays />
+
+          </div>
+
+
+          <div>
+
+            <h2>
+              {title}
+            </h2>
+
+            <p>
+              Overall student performance
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <strong>
+          {percentage}%
+        </strong>
+
+      </div>
+
+
+      <div className="parent-large-progress">
+
+        <div
+          className={`parent-large-progress-fill ${type}`}
+          style={{
+            width: `${Math.min(
+              100,
+              Number(
+                percentage
+              ) || 0
+            )}%`,
+          }}
+        />
+
+      </div>
+
+
+      <div className="parent-performance-footer">
+
+        <span>
+
+          <FaCircleCheck />
+
+          {completed} completed
+
+        </span>
+
+
+        <span>
+
+          {total} total tasks
+
+        </span>
+
+      </div>
+
+    </div>
+
+  );
+
 
   /* =========================================
      DASHBOARD HOME
   ========================================= */
 
   const renderDashboardHome = () => (
+
     <>
+
+      {/* CHILD SUMMARY */}
+
+      <section className="parent-child-banner">
+
+        <div className="parent-child-avatar">
+
+          <FaUserGraduate />
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Assigned Students
+          </span>
+
+          <h2>
+            {students.length} Students
+          </h2>
+
+          <p>
+            Track your assigned children's
+            daily learning activity.
+          </p>
+
+        </div>
+
+      </section>
+
 
       {/* STAT CARDS */}
 
-      <section className="admin-stat-grid">
+      <section className="parent-stat-grid">
+
 
         <StatCard
-          icon={<FaUsers />}
-          title="Total Students"
-          value={dashboardData.totalStudents ?? 0}
-          subtitle="All registered students"
+          icon={<FaUserGraduate />}
+          title="My Students"
+          value={
+            students.length
+          }
+          subtitle="Assigned students"
           type="purple"
         />
 
+
         <StatCard
-          icon={<FaLayerGroup />}
+          icon={<FaListCheck />}
           title="Total Tasks"
-          value={dashboardData.totalTasks ?? 0}
-          subtitle="Tasks this week"
+          value={
+            dashboard.totalTasks ?? 0
+          }
+          subtitle="Assigned tasks"
           type="blue"
         />
 
+
         <StatCard
-          icon={<FaMedal />}
-          title="Started Students"
-          value={dashboardData.startedStudents ?? 0}
-          subtitle="Students who started tasks"
+          icon={<FaCircleCheck />}
+          title="Completed"
+          value={
+            dashboard.completedTasks ?? 0
+          }
+          subtitle="Completed tasks"
           type="green"
         />
 
-        <StatCard
-          icon={<FaClock />}
-          title="Not Started"
-          value={dashboardData.notStartedStudents ?? 0}
-          subtitle="Students with no started task"
-          type="red"
-        />
 
         <StatCard
           icon={<FaTrophy />}
-          title="Strong Performance"
-          value={dashboardData.strongStudents ?? 0}
-          subtitle="Students at 60% or above"
+          title="Performance"
+          value={
+            `${dashboard.weeklyPerformance ?? 0}%`
+          }
+          subtitle="Weekly performance"
+          type="blue"
+        />
+
+
+      </section>
+
+
+      {/* PERFORMANCE */}
+
+      <section className="parent-performance-grid">
+
+
+        <PerformanceCard
+          title="Today Performance"
+          percentage={
+            dashboard.todayPerformance ?? 0
+          }
+          completed={
+            dashboard.todayCompleted ?? 0
+          }
+          total={
+            dashboard.todayTotal ?? 0
+          }
           type="green"
         />
 
-       
 
-        <StatCard
-          icon={<FaChartLine />}
-          title="Average Performance"
-          value={Math.max(
-            0,
-            (dashboardData.totalStudents ?? 0) -
-              (dashboardData.strongStudents ?? 0) -
-              (dashboardData.weakStudents ?? 0)
-          )}
-          subtitle="Students between 40% and 59%"
-          type="orange"
+        <PerformanceCard
+          title="Weekly Performance"
+          percentage={
+            dashboard.weeklyPerformance ?? 0
+          }
+          completed={
+            dashboard.weekCompleted ?? 0
+          }
+          total={
+            dashboard.weekTotal ?? 0
+          }
+          type="blue"
         />
- <StatCard
-          icon={<FaTriangleExclamation />}
-          title="Weak Performance"
-          value={dashboardData.weakStudents ?? 0}
-          subtitle="Students below 40% or not started"
-          type="red"
+
+
+        <PerformanceCard
+          title="Monthly Performance"
+          percentage={
+            dashboard.monthlyPerformance ?? 0
+          }
+          completed={
+            dashboard.monthCompleted ?? 0
+          }
+          total={
+            dashboard.monthTotal ?? 0
+          }
+          type="purple"
         />
-      </section>
 
-
-      {/* TODAY / WEEK / MONTH */}
-
-      <section className="admin-performance-grid">
-
-        {/* TODAY */}
-        <div className="admin-performance-card today-card">
-          <div className="performance-card-header">
-            <div className="performance-title">
-              <div className="performance-icon green">
-                <FaCalendarDays />
-              </div>
-              <div>
-                <h2>Today Performance</h2>
-                <p>Overall student performance</p>
-              </div>
-            </div>
-            <strong>{dashboardData.todayPerformance ?? 0}%</strong>
-          </div>
-
-          <div className="large-progress">
-            <div
-              className="large-progress-fill green"
-              style={{
-                width: `${Math.min(
-                  100,
-                  Number(dashboardData.todayPerformance || 0)
-                )}%`,
-              }}
-            />
-          </div>
-
-          <div className="performance-card-footer">
-            <span>
-              <FaCircleCheck />
-              {dashboardData.todayCompleted ?? 0} completed
-            </span>
-            <span>
-              {dashboardData.todayTotal ?? 0} total tasks
-            </span>
-          </div>
-        </div>
-
-        {/* WEEK */}
-        <div className="admin-performance-card">
-          <div className="performance-card-header">
-            <div className="performance-title">
-              <div className="performance-icon blue">
-                <FaCalendarDays />
-              </div>
-              <div>
-                <h2>Weekly Performance</h2>
-                <p>Overall student performance</p>
-              </div>
-            </div>
-            <strong>{dashboardData.weekPerformance ?? 0}%</strong>
-          </div>
-
-          <div className="large-progress">
-            <div
-              className="large-progress-fill blue"
-              style={{
-                width: `${Math.min(
-                  100,
-                  Number(dashboardData.weekPerformance || 0)
-                )}%`,
-              }}
-            />
-          </div>
-
-          <div className="performance-card-footer">
-            <span>
-              <FaCircleCheck />
-              {dashboardData.weekCompleted ?? 0} completed
-            </span>
-            <span>
-              {dashboardData.weekTotal ?? 0} total tasks
-            </span>
-          </div>
-        </div>
-
-        {/* MONTH */}
-        <div className="admin-performance-card">
-          <div className="performance-card-header">
-            <div className="performance-title">
-              <div className="performance-icon purple">
-                <FaCalendarDays />
-              </div>
-              <div>
-                <h2>Monthly Performance</h2>
-                <p>Overall student performance</p>
-              </div>
-            </div>
-            <strong>{dashboardData.monthPerformance ?? 0}%</strong>
-          </div>
-
-          <div className="large-progress">
-            <div
-              className="large-progress-fill purple"
-              style={{
-                width: `${Math.min(
-                  100,
-                  Number(dashboardData.monthPerformance || 0)
-                )}%`,
-              }}
-            />
-          </div>
-
-          <div className="performance-card-footer">
-            <span>
-              <FaCircleCheck />
-              {dashboardData.monthCompleted ?? 0} completed
-            </span>
-            <span>
-              {dashboardData.monthTotal ?? 0} total tasks
-            </span>
-          </div>
-        </div>
 
       </section>
 
 
-      {/* =========================================
-          EXTRA STUDENT PERFORMANCE ANALYSIS
-      ========================================= */}
+      {/* RECENT ACTIVITY */}
 
-      <section className="admin-performance-analysis">
+      <section className="parent-activity-card">
 
-        {/* TODAY */}
-        <PerformanceAnalysisCard
-          title="Today Student Performance"
-          subtitle="Strong, average and weak performing students"
-          period="Today"
-          groups={getPerformanceGroups("today")}
-          getPieBackground={getPieBackground}
-          getInitials={getInitials}
-          purple={false}
-        />
-
-        {/* WEEKLY */}
-        <PerformanceAnalysisCard
-          title="Weekly Student Performance"
-          subtitle="Strong, average and weak performing students"
-          period="This Week"
-          groups={getPerformanceGroups("weekly")}
-          getPieBackground={getPieBackground}
-          getInitials={getInitials}
-          purple={false}
-        />
-
-        {/* MONTHLY */}
-        <PerformanceAnalysisCard
-          title="Monthly Student Performance"
-          subtitle="Strong, average and weak performing students"
-          period="This Month"
-          groups={getPerformanceGroups("monthly")}
-          getPieBackground={getPieBackground}
-          getInitials={getInitials}
-          purple={true}
-        />
-
-      </section>
-
-
-      {/* PERFORMANCE LIST */}
-
-      <section className="admin-student-performance">
-
-        <div className="performance-section-header">
+        <div className="parent-section-header">
 
           <div>
+
             <h2>
-              Students Performance
+              My Students
             </h2>
 
             <p>
-              Weekly performance overview - all students
+              Students assigned to your account
             </p>
+
           </div>
 
+
           <button
-            onClick={goStudents}
+            className="parent-view-all-button"
+            onClick={() =>
+              setActivePage(
+                "students"
+              )
+            }
           >
-            View All Students
-            <FaChevronRight />
+
+            View Students
+
+            <FaArrowRight />
+
           </button>
 
         </div>
 
 
-        {loading ? (
+        {students.length === 0 ? (
 
-          <div className="admin-loading">
-            <span />
+          <div className="parent-empty">
+
+            <FaUserGraduate />
+
+            <h3>
+              No Students Assigned
+            </h3>
+
             <p>
-              Loading performance...
+              No students are currently
+              assigned to your account.
             </p>
-          </div>
 
-        ) : students.length === 0 ? (
-
-          <div className="admin-empty">
-            <FaUsers />
-            <p>
-              No students found.
-            </p>
           </div>
 
         ) : (
 
-          <div className="performance-list">
+          <div className="parent-mini-student-list">
 
             {students
-              .slice()
-              .sort(
-                (a, b) =>
-                  Number(
-                    b.weekPerformance || 0
-                  ) -
-                  Number(
-                    a.weekPerformance || 0
-                  )
-              )
-              .map((student) => {
+              .slice(0, 3)
+              .map((student) => (
 
-                const percentage =
-                  Number(
-                    student.weekPerformance ||
-                      0
-                  );
+                <div
+                  className="parent-mini-student"
+                  key={student.id}
+                >
 
-                return (
-                  <div
-                    className="performance-student-row"
-                    key={student.id}
-                  >
+                  <div className="parent-mini-avatar">
 
-                    <div className="performance-student-info">
-
-                      <div className="small-avatar">
-                        {getInitials(
-                          student.name
-                        )}
-                      </div>
-
-                      <div>
-
-                        <strong>
-                          {student.name}
-                        </strong>
-
-                        <span>
-                          {getPerformanceLabel(
-                            percentage
-                          )}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                    <div className="performance-student-bar">
-
-                      <div className="student-bar-track">
-
-                        <div
-                          className={`student-bar-fill ${getPerformanceClass(
-                            percentage
-                          )}`}
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              percentage
-                            )}%`,
-                          }}
-                        />
-
-                      </div>
-
-                      <strong>
-                        {percentage}%
-                      </strong>
-
-                    </div>
+                    {getInitials(
+                      student.name
+                    )}
 
                   </div>
-                );
-              })}
+
+
+                  <div>
+
+                    <strong>
+                      {student.name}
+                    </strong>
+
+                    <span>
+                      Student ID: #{student.id}
+                    </span>
+
+                  </div>
+
+                </div>
+
+              ))}
 
           </div>
+
         )}
 
       </section>
 
     </>
+
   );
 
+
   /* =========================================
-     ALL STUDENTS
+     MY STUDENTS PAGE
   ========================================= */
 
-  const renderAllStudents = () => (
-    <section className="all-students-page">
+  const renderMyStudents = () => (
 
-      <div className="all-students-header">
+    <section className="parent-all-students-page">
+
+
+      {/* HEADER */}
+
+      <div className="parent-all-students-header">
 
         <div>
 
           <h2>
-            All Students
+            My Students
           </h2>
 
-          
+          <p>
+            View and monitor your assigned students.
+          </p>
 
         </div>
 
+
         <button
-          className="refresh-button"
-          onClick={fetchAdminData}
-          disabled={refreshing}
+          className="parent-refresh-button"
+          onClick={loadDashboard}
+          disabled={loading}
         >
-          {refreshing
+
+          {loading
             ? "Refreshing..."
             : "Refresh"}
+
         </button>
 
       </div>
@@ -1248,27 +1229,29 @@ const openStudentDashboard = (student) => {
 
       {/* SEARCH */}
 
-      <div className="students-search-box">
+      <div className="parent-students-search-box">
 
         <FaMagnifyingGlass />
 
         <input
           type="text"
-          placeholder="Search student by name, email or phone..."
+          placeholder="Search student by name, email or ID..."
           value={search}
           onChange={(e) =>
-            setSearch(e.target.value)
+            setSearch(
+              e.target.value
+            )
           }
         />
 
       </div>
 
 
-      {/* CARDS */}
+      {/* STUDENTS */}
 
       {loading ? (
 
-        <div className="admin-loading students-page-loading">
+        <div className="parent-loading students-page-loading">
 
           <span />
 
@@ -1280,7 +1263,7 @@ const openStudentDashboard = (student) => {
 
       ) : filteredStudents.length === 0 ? (
 
-        <div className="admin-empty students-empty">
+        <div className="parent-empty students-empty">
 
           <div>
             <FaUser />
@@ -1291,14 +1274,16 @@ const openStudentDashboard = (student) => {
           </h3>
 
           <p>
-            Try another search.
+            No students are assigned
+            to your account.
           </p>
 
         </div>
 
       ) : (
 
-        <div className="student-cards-grid">
+        <div className="parent-student-cards-grid">
+
 
           {filteredStudents.map(
             (student) => {
@@ -1306,73 +1291,101 @@ const openStudentDashboard = (student) => {
               const performance =
                 Number(
                   student.weekPerformance ||
-                    0
+                  student.week_performance ||
+                  student.performance ||
+                  0
                 );
+
 
               const status =
                 student.status ||
                 "active";
 
+
               return (
 
                 <div
-                  className="student-card"
+                  className="parent-student-card"
                   key={student.id}
                   onClick={() =>
-                    openStudentDashboard(student)
+                    openStudentDashboard(
+                      student
+                    )
                   }
                 >
 
+
                   {/* TOP */}
 
-                  <div className="student-card-top">
+                  <div className="parent-student-card-top">
+
 
                     {student.photo ? (
 
                       <img
-                        src={student.photo}
-                        alt={student.name}
-                        className="student-card-photo"
+                        src={
+                          student.photo
+                        }
+                        alt={
+                          student.name
+                        }
+                        className="parent-student-card-photo"
                       />
 
                     ) : (
 
-                      <div className="student-card-avatar">
+                      <div className="parent-student-card-avatar">
+
                         {getInitials(
                           student.name
                         )}
+
                       </div>
 
                     )}
 
-                    <div className="student-card-name">
+
+                    <div className="parent-student-card-name">
 
                       <h3>
+
                         {student.name ||
                           "Unnamed Student"}
+
                       </h3>
 
+
                       <span>
+
                         Student ID: #
                         {student.id}
+
                       </span>
 
                     </div>
 
-                    <FaChevronRight className="student-card-arrow" />
+
+                    <FaChevronRight
+                      className="parent-student-card-arrow"
+                    />
 
                   </div>
 
 
                   {/* EMAIL */}
 
-                  <div className="student-card-contact">
+                  <div className="parent-student-card-contact">
 
-                    <FaEnvelopeIcon />
+                    <span className="parent-email-icon">
+                      @
+                    </span>
+
 
                     <span>
+
                       {student.email ||
                         "—"}
+
                     </span>
 
                   </div>
@@ -1380,7 +1393,8 @@ const openStudentDashboard = (student) => {
 
                   {/* DETAILS */}
 
-                  <div className="student-card-details">
+                  <div className="parent-student-card-details">
+
 
                     <div>
 
@@ -1389,13 +1403,18 @@ const openStudentDashboard = (student) => {
                       </small>
 
                       <strong>
+
                         <FaCalendarDays />
+
                         {formatDate(
-                          student.join_date
+                          student.join_date ||
+                          student.joinDate
                         )}
+
                       </strong>
 
                     </div>
+
 
                     <div>
 
@@ -1404,48 +1423,60 @@ const openStudentDashboard = (student) => {
                       </small>
 
                       <strong>
+
                         <FaCalendarDays />
+
                         {formatDate(
-                          student.expiry_date
+                          student.expiry_date ||
+                          student.expiryDate
                         )}
+
                       </strong>
 
                     </div>
+
 
                   </div>
 
 
                   {/* STATUS */}
 
-                  <div className="student-card-status-row">
+                  <div className="parent-student-card-status-row">
+
 
                     <span
-                      className={`student-status ${status}`}
+                      className={`parent-student-status ${status}`}
                     >
-                      <span className="status-dot" />
+
+                      <span className="parent-status-dot" />
+
                       {status === "expired"
                         ? "Expired"
-                        : status ===
-                          "expiring"
+                        : status === "expiring"
                         ? "Expiring Soon"
                         : "Active"}
+
                     </span>
 
-                    <span className="student-card-performance-text">
+
+                    <span className="parent-student-performance-text">
+
                       {performance}%
+
                     </span>
+
 
                   </div>
 
 
-                  {/* PERFORMANCE */}
+                  {/* PROGRESS */}
 
-                  <div className="student-card-progress">
+                  <div className="parent-student-card-progress">
 
-                    <div className="student-card-progress-track">
+                    <div className="parent-student-card-progress-track">
 
                       <div
-                        className={`student-card-progress-fill ${getPerformanceClass(
+                        className={`parent-student-card-progress-fill ${getPerformanceClass(
                           performance
                         )}`}
                         style={{
@@ -1463,219 +1494,151 @@ const openStudentDashboard = (student) => {
 
                   {/* BUTTON */}
 
-        <button
-  className="student-dashboard-button"
-  onClick={(e) => {
-    e.stopPropagation();
+                  <button
+                    className="parent-student-dashboard-button"
+                    onClick={(e) => {
 
-    openStudentDashboard(student);
-  }}
->
-  View Dashboard
-  <FaArrowRight />
-</button>
+                      e.stopPropagation();
+
+                      openStudentDashboard(
+                        student
+                      );
+
+                    }}
+                  >
+
+                    View Dashboard
+
+                    <FaArrowRight />
+
+                  </button>
+
 
                 </div>
 
               );
+
             }
           )}
+
 
         </div>
 
       )}
 
+
     </section>
+
   );
 
+
+  /* =========================================
+     TASK PERFORMANCE
+  ========================================= */
+
+  const renderTaskPerformance = () => (
+
+    <section className="parent-performance-page">
+
+      <div className="parent-page-heading">
+
+        <h2>
+          Task Performance
+        </h2>
+
+        <p>
+          Monitor your assigned students'
+          task performance.
+        </p>
+
+      </div>
+
+
+      <div className="parent-performance-info-card">
+
+        <FaListCheck />
+
+        <div>
+
+          <h3>
+            Task Performance
+          </h3>
+
+          <p>
+            Detailed task performance
+            will be displayed here.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  );
+
+
+  /* =========================================
+     MAIN
+  ========================================= */
+
   return (
-    <div className="admin-dashboard">
+
+    <div className="parent-dashboard">
+
+
+      {/* SIDEBAR */}
 
       {renderSidebar()}
 
-      <main className="admin-main">
+
+      {/* MAIN */}
+
+      <main className="parent-main">
+
+
+        {/* TOPBAR */}
 
         {renderTopbar()}
 
-        <div className="admin-content">
 
-          {isStudentsPage
-            ? renderAllStudents()
-            : renderDashboardHome()}
+        {/* CONTENT */}
+
+        <div className="parent-content">
+
+
+          {activePage === "dashboard" && (
+
+            renderDashboardHome()
+
+          )}
+
+
+          {activePage === "students" && (
+
+            renderMyStudents()
+
+          )}
+
+
+          {activePage === "performance" && (
+
+            renderTaskPerformance()
+
+          )}
+
 
         </div>
+
 
       </main>
 
-    </div>
-  );
-}
-
-
-/* =========================================
-   SMALL ICON HELPER
-========================================= */
-
-function FaEnvelopeIcon() {
-  return (
-    <span className="email-icon">
-      @
-    </span>
-  );
-}
-
-/* =========================================
-   EXTRA PERFORMANCE ANALYSIS CARD
-========================================= */
-
-function PerformanceAnalysisCard({
-  title,
-  subtitle,
-  period,
-  groups,
-  getPieBackground,
-  getInitials,
-  purple,
-}) {
-
-  const allStudents = [
-    ...groups.strong.map((student) => ({
-      ...student,
-      category: "Strong",
-    })),
-    ...groups.good.map((student) => ({
-      ...student,
-      category: "Average",
-    })),
-    ...groups.weak.map((student) => ({
-      ...student,
-      category: "Weak",
-    })),
-  ].sort(
-    (a, b) =>
-      Number(b.performance || 0) -
-      Number(a.performance || 0)
-  );
-
-  const total = allStudents.length;
-
-  return (
-    <div className="analysis-card">
-
-      <div className="analysis-card-header">
-
-        <div>
-          <h2>{title}</h2>
-          <p>{subtitle}</p>
-        </div>
-
-        <span
-          className={`analysis-period ${
-            purple ? "purple" : ""
-          }`}
-        >
-          {period}
-        </span>
-
-      </div>
-
-      <div className="analysis-content">
-
-        <div className="analysis-chart-area">
-
-          <div
-            className="student-performance-pie"
-            style={{
-              background: getPieBackground(groups),
-            }}
-          >
-            <div className="pie-inner">
-              <strong>{total}</strong>
-              <span>Students</span>
-            </div>
-          </div>
-
-          <div className="analysis-legend">
-
-            <div>
-              <span className="legend-dot strong" />
-              <span>Strong</span>
-              <strong>{groups.strong.length}</strong>
-            </div>
-
-            <div>
-              <span className="legend-dot good" />
-              <span>Average</span>
-              <strong>{groups.good.length}</strong>
-            </div>
-
-            <div>
-              <span className="legend-dot weak" />
-              <span>Weak</span>
-              <strong>{groups.weak.length}</strong>
-            </div>
-
-          </div>
-
-        </div>
-
-        <div className="analysis-students">
-
-          <div className="analysis-list-title">
-            {period === "Today"
-              ? "Today Students"
-              : period === "This Week"
-              ? "Weekly Students"
-              : "Monthly Students"}
-          </div>
-
-          {allStudents.map((student) => (
-
-            <div
-              className="analysis-student-row"
-              key={`${period}-${student.id}`}
-            >
-<div className="analysis-student-left">
-
-  <div>
-    <strong>{student.name}</strong>
-
-    <span
-      className={`analysis-category ${
-        student.category.toLowerCase()
-      }`}
-    >
-      {student.category}
-    </span>
-  </div>
-
-
-              </div>
-
-              <strong className="analysis-student-percentage">
-                {student.performance}%
-              </strong>
-
-            </div>
-
-          ))}
-
-          {total === 0 && (
-            <div className="analysis-no-data">
-              No {period === "Today"
-                ? "today"
-                : period === "This Week"
-                ? "weekly"
-                : "monthly"} task data available
-            </div>
-          )}
-
-        </div>
-
-      </div>
 
     </div>
+
   );
+
 }
 
-export default AdminDashboard;
+
+export default ParentDashboard;
