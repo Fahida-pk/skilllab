@@ -18,7 +18,6 @@ import {
   FaArrowRight,
   FaUser,
   FaUserGroup,
-  FaClipboardList,
   FaCircleExclamation,
   FaArrowTrendUp,
 } from "react-icons/fa6";
@@ -54,7 +53,11 @@ function ParentDashboard() {
     monthCompleted: 0,
     monthTotal: 0,
 
-    recentTasks: [],
+    periods: {
+      today: "",
+      week: "",
+      month: "",
+    },
   });
 
   useEffect(() => {
@@ -128,9 +131,11 @@ function ParentDashboard() {
         monthCompleted: Number(overview.monthCompleted) || 0,
         monthTotal: Number(overview.monthTotal) || 0,
 
-        recentTasks: Array.isArray(overview.recentTasks)
-          ? overview.recentTasks
-          : [],
+        periods: {
+          today: overview.periods?.today || "",
+          week: overview.periods?.week || "",
+          month: overview.periods?.month || "",
+        },
       });
     } catch (error) {
       console.error("Parent dashboard error:", error);
@@ -557,101 +562,218 @@ function ParentDashboard() {
 
   const renderDashboardHome = () => (
     <>
-      <section className="parent-child-banner">
+      {/* =====================================================
+          ASSIGNED STUDENT SCOPE
+      ===================================================== */}
+      <section className="parent-child-banner parent-scope-banner">
         <div className="parent-child-avatar">
           <FaUserGroup />
         </div>
 
-        <div>
-          <span>Assigned Students</span>
+        <div className="parent-scope-copy">
+          <span>Assigned Students Overview</span>
 
           <h2>
             {students.length}{" "}
-            {students.length === 1
-              ? "Student"
-              : "Students"}
+            {students.length === 1 ? "Student" : "Students"}
           </h2>
 
           <p>
-            Every task and performance figure below is
-            calculated from the students assigned to this
-            parent account.
+            All figures on this dashboard are calculated only from
+            the students assigned to this parent account.
           </p>
+        </div>
+
+        <div className="parent-scope-badge">
+          <FaCircleCheck />
+          <span>Assigned students only</span>
         </div>
       </section>
 
-      <section className="parent-stat-grid">
+      {/* =====================================================
+          PERIOD SNAPSHOT
+      ===================================================== */}
+      <section className="parent-stat-grid parent-period-stat-grid">
         <StatCard
           icon={<FaUserGraduate />}
-          title="My Students"
+          title="Assigned Students"
           value={students.length}
-          subtitle="Assigned students"
+          subtitle="Students linked to this parent"
           type="purple"
         />
 
         <StatCard
-          icon={<FaListCheck />}
-          title="Total Tasks"
-          value={dashboard.totalTasks}
-          subtitle="All assigned tasks"
-          type="blue"
-        />
-
-        <StatCard
-          icon={<FaCircleCheck />}
-          title="Completed"
-          value={dashboard.completedTasks}
-          subtitle="Completed tasks"
+          icon={<FaCalendarDays />}
+          title="Today"
+          value={`${dashboard.todayPerformance}%`}
+          subtitle={`${dashboard.todayCompleted}/${dashboard.todayTotal} tasks completed`}
           type="green"
         />
 
         <StatCard
-          icon={<FaClock />}
-          title="Pending"
-          value={dashboard.pendingTasks}
-          subtitle="Tasks remaining"
-          type="orange"
-        />
-      </section>
-
-      <section className="parent-performance-grid">
-        <PerformanceCard
-          title="Today Performance"
-          percentage={dashboard.todayPerformance}
-          completed={dashboard.todayCompleted}
-          total={dashboard.todayTotal}
-          type="green"
-        />
-
-        <PerformanceCard
-          title="Weekly Performance"
-          percentage={dashboard.weeklyPerformance}
-          completed={dashboard.weekCompleted}
-          total={dashboard.weekTotal}
+          icon={<FaChartLine />}
+          title="This Week"
+          value={`${dashboard.weeklyPerformance}%`}
+          subtitle={`${dashboard.weekCompleted}/${dashboard.weekTotal} tasks completed`}
           type="blue"
         />
 
-        <PerformanceCard
-          title="Monthly Performance"
-          percentage={dashboard.monthlyPerformance}
-          completed={dashboard.monthCompleted}
-          total={dashboard.monthTotal}
+        <StatCard
+          icon={<FaTrophy />}
+          title="This Month"
+          value={`${dashboard.monthlyPerformance}%`}
+          subtitle={`${dashboard.monthCompleted}/${dashboard.monthTotal} tasks completed`}
           type="purple"
         />
       </section>
 
-      <section className="parent-analytics-grid">
-        <div className="parent-analysis-card">
-          <div className="parent-analysis-header">
-            <div>
-              <h2>Performance Overview</h2>
-              <p>
-                Combined performance of all assigned
-                students
-              </p>
+      {/* =====================================================
+          LEARNING PERFORMANCE
+      ===================================================== */}
+      <section className="parent-period-insights">
+        <div className="parent-insights-heading">
+          <div>
+            <span className="parent-eyebrow">PERFORMANCE TRACKING</span>
+            <h2>Learning Performance</h2>
+            <p>
+              Clear period-based performance for your assigned students.
+            </p>
+          </div>
+
+          <div className="parent-data-scope">
+            <FaUserGroup />
+            <span>{students.length} assigned students</span>
+          </div>
+        </div>
+
+        <div className="parent-period-cards">
+          <div className="parent-period-card today">
+            <div className="parent-period-card-top">
+              <div className="parent-period-icon">
+                <FaCalendarDays />
+              </div>
+              <span className="parent-period-label">TODAY</span>
             </div>
 
-            <FaChartLine />
+            <div className="parent-period-value">
+              {dashboard.todayPerformance}%
+            </div>
+
+            <div className="parent-period-date">
+              {dashboard.periods.today || "Current date"}
+            </div>
+
+            <div className="parent-period-progress">
+              <span
+                style={{
+                  width: `${Math.min(
+                    100,
+                    Math.max(0, dashboard.todayPerformance)
+                  )}%`,
+                }}
+              />
+            </div>
+
+            <div className="parent-period-footer">
+              <strong>{dashboard.todayCompleted} completed</strong>
+              <span>{dashboard.todayTotal} total tasks</span>
+            </div>
+          </div>
+
+          <div className="parent-period-card week">
+            <div className="parent-period-card-top">
+              <div className="parent-period-icon">
+                <FaChartLine />
+              </div>
+              <span className="parent-period-label">THIS WEEK</span>
+            </div>
+
+            <div className="parent-period-value">
+              {dashboard.weeklyPerformance}%
+            </div>
+
+            <div className="parent-period-date">
+              {dashboard.periods.week || "Current week"}
+            </div>
+
+            <div className="parent-period-progress">
+              <span
+                style={{
+                  width: `${Math.min(
+                    100,
+                    Math.max(0, dashboard.weeklyPerformance)
+                  )}%`,
+                }}
+              />
+            </div>
+
+            <div className="parent-period-footer">
+              <strong>{dashboard.weekCompleted} completed</strong>
+              <span>{dashboard.weekTotal} total tasks</span>
+            </div>
+          </div>
+
+          <div className="parent-period-card month">
+            <div className="parent-period-card-top">
+              <div className="parent-period-icon">
+                <FaTrophy />
+              </div>
+              <span className="parent-period-label">THIS MONTH</span>
+            </div>
+
+            <div className="parent-period-value">
+              {dashboard.monthlyPerformance}%
+            </div>
+
+            <div className="parent-period-date">
+              {dashboard.periods.month || "Current month"}
+            </div>
+
+            <div className="parent-period-progress">
+              <span
+                style={{
+                  width: `${Math.min(
+                    100,
+                    Math.max(0, dashboard.monthlyPerformance)
+                  )}%`,
+                }}
+              />
+            </div>
+
+            <div className="parent-period-footer">
+              <strong>{dashboard.monthCompleted} completed</strong>
+              <span>{dashboard.monthTotal} total tasks</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="parent-accuracy-note">
+          <FaArrowTrendUp />
+          <div>
+            <strong>How performance is calculated</strong>
+            <span>
+              Completed tasks ÷ assigned tasks for the exact period shown above.
+              Future tasks are excluded from the period calculation.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          PERFORMANCE ANALYTICS
+      ===================================================== */}
+      <section className="parent-analytics-grid">
+        <div className="parent-analysis-card parent-performance-overview-card">
+          <div className="parent-analysis-header">
+            <div>
+              <span className="parent-card-kicker">PERIOD COMPARISON</span>
+              <h2>Performance Overview</h2>
+              <p>Combined completion performance of assigned students</p>
+            </div>
+
+            <div className="parent-analysis-icon">
+              <FaChartLine />
+            </div>
           </div>
 
           <div className="parent-bar-chart">
@@ -676,7 +798,13 @@ function ParentDashboard() {
                   />
                 </div>
 
-                <span>{item.label}</span>
+                <span>
+                  {item.label === "Today"
+                    ? "Today"
+                    : item.label === "Weekly"
+                    ? "This Week"
+                    : "This Month"}
+                </span>
               </div>
             ))}
           </div>
@@ -684,8 +812,7 @@ function ParentDashboard() {
           <div className="parent-analysis-note">
             <FaArrowTrendUp />
             <span>
-              Performance = completed tasks ÷ assigned
-              tasks for the selected period.
+              Scope: assigned students only • Periods: Today, This Week and This Month.
             </span>
           </div>
         </div>
@@ -693,13 +820,14 @@ function ParentDashboard() {
         <div className="parent-analysis-card">
           <div className="parent-analysis-header">
             <div>
-              <h2>Student Performance</h2>
-              <p>
-                Weekly performance distribution
-              </p>
+              <span className="parent-card-kicker">STUDENT OVERVIEW</span>
+              <h2>Assigned Student Performance</h2>
+              <p>Weekly performance distribution of assigned students</p>
             </div>
 
-            <FaTrophy />
+            <div className="parent-analysis-icon">
+              <FaTrophy />
+            </div>
           </div>
 
           <div className="parent-pie-layout">
@@ -722,7 +850,7 @@ function ParentDashboard() {
             >
               <div className="parent-pie-inner">
                 <strong>{students.length}</strong>
-                <span>Students</span>
+                <span>Assigned</span>
               </div>
             </div>
 
@@ -732,8 +860,7 @@ function ParentDashboard() {
                 <div>
                   <strong>Strong</strong>
                   <small>
-                    {performanceGroups.strong.length}{" "}
-                    students
+                    {performanceGroups.strong.length} students
                   </small>
                 </div>
               </div>
@@ -743,8 +870,7 @@ function ParentDashboard() {
                 <div>
                   <strong>Average</strong>
                   <small>
-                    {performanceGroups.average.length}{" "}
-                    students
+                    {performanceGroups.average.length} students
                   </small>
                 </div>
               </div>
@@ -754,8 +880,7 @@ function ParentDashboard() {
                 <div>
                   <strong>Needs Attention</strong>
                   <small>
-                    {performanceGroups.weak.length}{" "}
-                    students
+                    {performanceGroups.weak.length} students
                   </small>
                 </div>
               </div>
@@ -764,6 +889,9 @@ function ParentDashboard() {
         </div>
       </section>
 
+      {/* =====================================================
+          STUDENT PERFORMANCE SUMMARY
+      ===================================================== */}
       <section className="parent-performance-summary">
         <div className="parent-summary-box strong">
           <div className="parent-summary-box-icon">
@@ -771,10 +899,8 @@ function ParentDashboard() {
           </div>
           <div>
             <span>Strong Performance</span>
-            <strong>
-              {performanceGroups.strong.length}
-            </strong>
-            <small>60% and above</small>
+            <strong>{performanceGroups.strong.length}</strong>
+            <small>60% and above • Weekly</small>
           </div>
         </div>
 
@@ -784,10 +910,8 @@ function ParentDashboard() {
           </div>
           <div>
             <span>Average Performance</span>
-            <strong>
-              {performanceGroups.average.length}
-            </strong>
-            <small>40% - 59%</small>
+            <strong>{performanceGroups.average.length}</strong>
+            <small>40% - 59% • Weekly</small>
           </div>
         </div>
 
@@ -797,21 +921,22 @@ function ParentDashboard() {
           </div>
           <div>
             <span>Needs Attention</span>
-            <strong>
-              {performanceGroups.weak.length}
-            </strong>
-            <small>Below 40%</small>
+            <strong>{performanceGroups.weak.length}</strong>
+            <small>Below 40% • Weekly</small>
           </div>
         </div>
       </section>
 
+      {/* =====================================================
+          ASSIGNED STUDENTS PERFORMANCE DETAILS
+      ===================================================== */}
       <section className="parent-analysis-card parent-student-performance-table-card">
         <div className="parent-section-header">
           <div>
+            <span className="parent-card-kicker">ASSIGNED STUDENTS</span>
             <h2>Student Performance Details</h2>
             <p>
-              Task completion and performance for every
-              assigned student
+              Today, This Week and This Month performance for every assigned student.
             </p>
           </div>
 
@@ -832,38 +957,47 @@ function ParentDashboard() {
             <FaUserGraduate />
             <h3>No Students Assigned</h3>
             <p>
-              Students assigned by the admin will appear
-              here.
+              Students assigned by the admin will appear here.
             </p>
           </div>
         ) : (
           <div className="parent-performance-table-wrap">
-            <table className="parent-performance-table">
+            <table className="parent-performance-table parent-period-performance-table">
               <thead>
                 <tr>
                   <th>Student</th>
-                  <th>Total Tasks</th>
-                  <th>Completed</th>
-                  <th>Pending</th>
-                  <th>Weekly Performance</th>
+                  <th>Today</th>
+                  <th>This Week</th>
+                  <th>This Month</th>
                   <th>Action</th>
                 </tr>
               </thead>
 
               <tbody>
                 {students.map((student) => {
-                  const performance =
-                    getPerformance(student);
+                  const todayTotal =
+                    Number(student.todayTotal) || 0;
+                  const todayCompleted =
+                    Number(student.todayCompleted) || 0;
+                  const todayPerformance =
+                    Number(student.todayPerformance) || 0;
 
-                  const total =
-                    Number(student.totalTasks) || 0;
+                  const weekTotal =
+                    Number(student.weekTotal) || 0;
+                  const weekCompleted =
+                    Number(student.weekCompleted) || 0;
+                  const weekPerformance =
+                    Number(
+                      student.weekPerformance ??
+                      student.weeklyPerformance
+                    ) || 0;
 
-                  const completed =
-                    Number(student.completedTasks) || 0;
-
-                  const pending =
-                    Number(student.pendingTasks) ||
-                    Math.max(0, total - completed);
+                  const monthTotal =
+                    Number(student.monthTotal) || 0;
+                  const monthCompleted =
+                    Number(student.monthCompleted) || 0;
+                  const monthPerformance =
+                    Number(student.monthlyPerformance) || 0;
 
                   return (
                     <tr key={student.id}>
@@ -875,13 +1009,12 @@ function ParentDashboard() {
 
                           <div>
                             <strong>
-                              {student.name ||
-                                "Unnamed Student"}
+                              {student.name || "Unnamed Student"}
                             </strong>
                             <span>
-                              #{student.id}{" "}
+                              #{student.id}
                               {student.email
-                                ? `• ${student.email}`
+                                ? ` • ${student.email}`
                                 : ""}
                             </span>
                           </div>
@@ -889,43 +1022,29 @@ function ParentDashboard() {
                       </td>
 
                       <td>
-                        <strong>{total}</strong>
+                        <div className="parent-period-cell">
+                          <strong>{todayPerformance}%</strong>
+                          <span>
+                            {todayCompleted}/{todayTotal} completed
+                          </span>
+                        </div>
                       </td>
 
                       <td>
-                        <span className="parent-table-completed">
-                          <FaCircleCheck />
-                          {completed}
-                        </span>
+                        <div className="parent-period-cell">
+                          <strong>{weekPerformance}%</strong>
+                          <span>
+                            {weekCompleted}/{weekTotal} completed
+                          </span>
+                        </div>
                       </td>
 
-                      <td>{pending}</td>
-
                       <td>
-                        <div className="parent-table-performance">
-                          <div>
-                            <strong>
-                              {performance}%
-                            </strong>
-                            <span>
-                              {getPerformanceLabel(
-                                performance
-                              )}
-                            </span>
-                          </div>
-
-                          <div className="parent-table-progress">
-                            <span
-                              className={
-                                getPerformanceClass(
-                                  performance
-                                )
-                              }
-                              style={{
-                                width: `${performance}%`,
-                              }}
-                            />
-                          </div>
+                        <div className="parent-period-cell">
+                          <strong>{monthPerformance}%</strong>
+                          <span>
+                            {monthCompleted}/{monthTotal} completed
+                          </span>
                         </div>
                       </td>
 
@@ -945,88 +1064,6 @@ function ParentDashboard() {
                 })}
               </tbody>
             </table>
-          </div>
-        )}
-      </section>
-
-      <section className="parent-analysis-card parent-tasks-card">
-        <div className="parent-section-header">
-          <div>
-            <h2>Assigned Tasks</h2>
-            <p>
-              Recently assigned tasks from your students
-            </p>
-          </div>
-
-          <div className="parent-task-total-badge">
-            <FaClipboardList />
-            {dashboard.totalTasks} total
-          </div>
-        </div>
-
-        {dashboard.recentTasks.length === 0 ? (
-          <div className="parent-empty">
-            <FaClipboardList />
-            <h3>No Tasks Found</h3>
-            <p>
-              Assigned tasks will appear here once
-              students have tasks.
-            </p>
-          </div>
-        ) : (
-          <div className="parent-task-list">
-            {dashboard.recentTasks.map(
-              (task, index) => {
-                const completed =
-                  Boolean(task.completed) ||
-                  Number(task.status) === 1;
-
-                return (
-                  <div
-                    className="parent-task-row"
-                    key={
-                      task.id ||
-                      `${task.user_id}-${task.task_date}-${index}`
-                    }
-                  >
-                    <div className="parent-task-icon">
-                      {completed ? (
-                        <FaCircleCheck />
-                      ) : (
-                        <FaClock />
-                      )}
-                    </div>
-
-                    <div className="parent-task-main">
-                      <strong>
-                        {task.title ||
-                          task.task_title ||
-                          "Assigned Task"}
-                      </strong>
-
-                      <span>
-                        {task.student_name ||
-                          `Student #${task.user_id}`}
-                        {" • "}
-                        {formatTaskDate(task.task_date)}
-                      </span>
-                    </div>
-
-                    <span
-                      className={`parent-task-status ${
-                        completed
-                          ? "completed"
-                          : "pending"
-                      }`}
-                    >
-                      {completed
-                        ? "Completed"
-                        : "Pending"}
-                    </span>
-                  </div>
-                );
-              }
-            )}
           </div>
         )}
       </section>
@@ -1359,14 +1396,14 @@ function ParentDashboard() {
 
           <div>
             <FaListCheck />
-            <span>Total Tasks</span>
-            <strong>{dashboard.totalTasks}</strong>
+            <span>This Week Tasks</span>
+            <strong>{dashboard.weekTotal}</strong>
           </div>
 
           <div>
             <FaCircleCheck />
-            <span>Completed Tasks</span>
-            <strong>{dashboard.completedTasks}</strong>
+            <span>This Week Completed</span>
+            <strong>{dashboard.weekCompleted}</strong>
           </div>
         </div>
       </section>
