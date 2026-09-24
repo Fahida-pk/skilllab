@@ -12,14 +12,11 @@ import Parent from "./pages/parent/parent.jsx";
 
 import ParentLogin from "./pages/parentdashboard/ParentLogin.jsx";
 import ParentDashboard from "./pages/parentdashboard/Parentdashboard.jsx";
-
-
 /* =====================================================
    ADMIN PROTECTED ROUTE
 ===================================================== */
 
 function AdminProtectedRoute({ children }) {
-
   const adminLoggedIn =
     localStorage.getItem("adminLoggedIn");
 
@@ -43,47 +40,16 @@ function AdminProtectedRoute({ children }) {
 
 
 /* =====================================================
-   PARENT PROTECTED ROUTE
-===================================================== */
-
-function ParentProtectedRoute({ children }) {
-
-  const parentLoggedIn =
-    localStorage.getItem("parentLoggedIn");
-
-  const parent =
-    localStorage.getItem("parent");
-
-  if (
-    parentLoggedIn !== "true" ||
-    !parent
-  ) {
-    return (
-      <Navigate
-        to="/parent/login"
-        replace
-      />
-    );
-  }
-
-  return children;
-}
-
-
-/* =====================================================
    APP
 ===================================================== */
 
 function App() {
-
   return (
     <Routes>
-
 
       {/* =================================================
           DEFAULT
       ================================================= */}
-
       <Route
         path="/"
         element={
@@ -94,21 +60,17 @@ function App() {
         }
       />
 
-
       {/* =================================================
           STUDENT LOGIN
       ================================================= */}
-
       <Route
         path="/login"
         element={<Login />}
       />
 
-
       {/* =================================================
           NORMAL STUDENT ROUTES
       ================================================= */}
-
       <Route element={<ProtectedRoute />}>
 
         <Route
@@ -127,7 +89,6 @@ function App() {
       {/* =================================================
           ADMIN LOGIN
       ================================================= */}
-
       <Route
         path="/admin/login"
         element={<AdminLogin />}
@@ -137,7 +98,6 @@ function App() {
       {/* =================================================
           ADMIN MAIN DASHBOARD
       ================================================= */}
-
       <Route
         path="/AdminDashboard"
         element={
@@ -151,7 +111,6 @@ function App() {
       {/* =================================================
           ADMIN STUDENTS
       ================================================= */}
-
       <Route
         path="/admin/students"
         element={
@@ -165,7 +124,6 @@ function App() {
       {/* =================================================
           ADMIN → VIEW STUDENT DASHBOARD
       ================================================= */}
-
       <Route
         path="/admin/students/:id/dashboard"
         element={
@@ -180,7 +138,6 @@ function App() {
           ADMIN → VIEW STUDENT TASKS
           READ ONLY
       ================================================= */}
-
       <Route
         path="/admin/students/:id/tasks"
         element={
@@ -194,7 +151,6 @@ function App() {
       {/* =================================================
           ADMIN → PARENTS
       ================================================= */}
-
       <Route
         path="/admin/parents"
         element={
@@ -203,7 +159,6 @@ function App() {
           </AdminProtectedRoute>
         }
       />
-
 
       {/* =================================================
           PARENT LOGIN
@@ -232,7 +187,6 @@ function App() {
       {/* =================================================
           INVALID URL
       ================================================= */}
-
       <Route
         path="*"
         element={
