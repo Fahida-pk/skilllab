@@ -55,54 +55,74 @@ body {
    SAME STYLE AS STUDENT DASHBOARD
 ===================================================== */
 
+/* =========================================================
+   SIDEBAR VERTICAL SCROLLBAR
+========================================================= */
+
 .admin-sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  bottom: 0 !important;
 
-  width: 265px;
-  height: 100vh;
+  height: 100vh !important;
 
-  display: flex;
-  flex-direction: column;
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
 
-  background:
-    radial-gradient(
-      circle at 0% 20%,
-      rgba(82, 151, 255, 0.75),
-      transparent 48%
-    ),
-
-    radial-gradient(
-      circle at 55% 45%,
-      rgba(116, 20, 209, 0.70),
-      transparent 52%
-    ),
-
-    radial-gradient(
-      circle at 100% 80%,
-      rgba(241, 82, 199, 0.72),
-      transparent 50%
-    ),
-
-    linear-gradient(
-      135deg,
-      #8db8ff 0%,
-      #9f9dfb 30%,
-      #bd82f2 55%,
-      #dc72df 78%,
-      #f36bc9 100%
-    );
-
-  color: white;
-
-  z-index: 10000;
-
-  box-shadow:
-    10px 0 40px rgba(31, 8, 61, 0.12);
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.75)
+                   rgba(255, 255, 255, 0.15) !important;
 }
 
+
+/* Sidebar content itself should NOT scroll */
+.admin-sidebar-content {
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+
+  flex: none !important;
+}
+
+
+/* Chrome / Edge scrollbar */
+.admin-sidebar::-webkit-scrollbar {
+  width: 7px !important;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border-radius: 10px !important;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+
+/* Keep logout inside sidebar */
+.admin-sidebar-bottom {
+  flex-shrink: 0 !important;
+}
+
+
+/* Mobile */
+@media (max-width: 800px) {
+  .admin-sidebar {
+    height: 100vh !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+  }
+
+  .admin-sidebar-content {
+    overflow-y: visible !important;
+    flex: none !important;
+  }
+}
 /* =====================================================
    BRAND
 ===================================================== */
