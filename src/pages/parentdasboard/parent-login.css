@@ -551,3 +551,686 @@
   }
 
 }
+/* =========================================================
+   PARENT LOGIN PAGE
+   PREMIUM GLASSMORPHISM DESIGN
+========================================================= */
+
+.parent-login-page {
+  min-height: 100vh;
+  width: 100%;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  padding: 30px 20px;
+
+  box-sizing: border-box;
+
+  /* Clean professional background */
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(72, 112, 255, 0.35),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(198, 62, 221, 0.30),
+      transparent 40%
+    ),
+    linear-gradient(
+      135deg,
+      #315fdc 0%,
+      #514ed8 35%,
+      #7546d6 68%,
+      #b83cc8 100%
+    );
+}
+
+
+/* =========================================================
+   SUBTLE GRID
+========================================================= */
+
+.parent-grid {
+  position: absolute;
+
+  inset: 0;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px
+    );
+
+  background-size: 50px 50px;
+
+  pointer-events: none;
+
+  opacity: 0.65;
+}
+
+
+/* =========================================================
+   BACKGROUND GLOW
+========================================================= */
+
+.parent-glow {
+  position: absolute;
+
+  border-radius: 50%;
+
+  filter: blur(90px);
+
+  pointer-events: none;
+
+  opacity: 0.45;
+}
+
+
+/* LEFT GLOW */
+
+.parent-glow-one {
+  width: 420px;
+  height: 420px;
+
+  background: rgba(40, 110, 255, 0.35);
+
+  top: -180px;
+  left: -160px;
+}
+
+
+/* RIGHT GLOW */
+
+.parent-glow-two {
+  width: 430px;
+  height: 430px;
+
+  background: rgba(229, 42, 195, 0.30);
+
+  right: -180px;
+  bottom: -180px;
+}
+
+
+/* CENTER SOFT LIGHT */
+
+.parent-glow-three {
+  width: 260px;
+  height: 260px;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  left: 45%;
+  top: 15%;
+
+  filter: blur(100px);
+}
+
+
+/* =========================================================
+   REMOVE DECORATIVE CIRCLES
+========================================================= */
+
+.parent-orb,
+.parent-orb-one,
+.parent-orb-two,
+.parent-orb-three {
+  display: none !important;
+}
+
+
+/* =========================================================
+   LOGIN CARD
+========================================================= */
+
+.parent-login-card {
+  width: min(100%, 590px);
+
+  position: relative;
+
+  padding: 48px 52px;
+
+  border-radius: 30px;
+
+  box-sizing: border-box;
+
+  /* Stronger glass effect */
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.20),
+      rgba(255, 255, 255, 0.08)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.32);
+
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+
+  box-shadow:
+    0 35px 90px rgba(18, 12, 70, 0.30),
+    0 8px 30px rgba(255, 255, 255, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.38),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.06);
+
+  z-index: 10;
+}
+
+
+/* =========================================================
+   TOP GLASS HIGHLIGHT
+========================================================= */
+
+.parent-glass-highlight {
+  position: absolute;
+
+  top: 0;
+  left: 12%;
+
+  width: 76%;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.75),
+      transparent
+    );
+
+  opacity: 0.8;
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.parent-brand {
+  text-align: center;
+
+  margin-bottom: 30px;
+}
+
+
+.parent-brand h1 {
+  margin: 0;
+
+  font-size: 36px;
+
+  font-weight: 900;
+
+  letter-spacing: 6px;
+
+  color: #ffffff;
+
+  text-shadow:
+    0 4px 18px rgba(40, 20, 120, 0.30);
+}
+
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+.parent-heading {
+  text-align: center;
+
+  margin-bottom: 32px;
+}
+
+
+.parent-heading h1 {
+  margin: 0 0 9px;
+
+  font-size: 36px;
+
+  line-height: 1.2;
+
+  color: #ffffff;
+
+  font-weight: 800;
+
+  letter-spacing: -0.5px;
+}
+
+
+.parent-heading p {
+  margin: 0;
+
+  font-size: 15px;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-weight: 400;
+}
+
+
+/* =========================================================
+   FIELD
+========================================================= */
+
+.parent-field {
+  margin-bottom: 22px;
+}
+
+
+.parent-field label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  color: rgba(255, 255, 255, 0.95);
+
+  letter-spacing: 0.2px;
+}
+
+
+/* =========================================================
+   INPUT WRAPPER
+========================================================= */
+
+.parent-input-wrapper {
+  position: relative;
+
+  width: 100%;
+}
+
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+.parent-input-wrapper input {
+  width: 100%;
+
+  height: 62px;
+
+  padding: 0 55px 0 57px;
+
+  box-sizing: border-box;
+
+  border-radius: 15px;
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+
+  background:
+    rgba(255, 255, 255, 0.10);
+
+  color: #ffffff;
+
+  font-size: 15px;
+
+  outline: none;
+
+  transition:
+    background 0.25s ease,
+    border 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+
+.parent-input-wrapper input::placeholder {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+
+.parent-input-wrapper input:hover {
+  background: rgba(255, 255, 255, 0.13);
+
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+
+.parent-input-wrapper input:focus {
+  background: rgba(255, 255, 255, 0.16);
+
+  border-color: rgba(255, 255, 255, 0.62);
+
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.07),
+    0 8px 25px rgba(30, 20, 100, 0.10);
+}
+
+
+/* =========================================================
+   LEFT ICON
+========================================================= */
+
+.parent-input-icon {
+  position: absolute;
+
+  left: 20px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: rgba(255, 255, 255, 0.92);
+
+  font-size: 18px;
+
+  z-index: 2;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   SHOW PASSWORD
+========================================================= */
+
+.parent-show-password {
+  position: absolute;
+
+  right: 13px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.88);
+
+  font-size: 16px;
+
+  cursor: pointer;
+
+  padding: 0;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.parent-show-password:hover {
+  background: rgba(255, 255, 255, 0.10);
+
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.parent-error {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  margin: 4px 0 18px;
+
+  padding: 11px 13px;
+
+  border-radius: 12px;
+
+  background: rgba(255, 65, 65, 0.14);
+
+  border: 1px solid rgba(255, 150, 150, 0.28);
+
+  color: #ffffff;
+
+  font-size: 13px;
+}
+
+
+.parent-error-icon {
+  width: 21px;
+  height: 21px;
+
+  min-width: 21px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(255, 75, 75, 0.85);
+
+  font-size: 13px;
+
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   LOGIN BUTTON
+========================================================= */
+
+.parent-login-button {
+  width: 100%;
+
+  height: 62px;
+
+  border: none;
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      100deg,
+      #426cf5 0%,
+      #7650e8 50%,
+      #bd35d4 100%
+    );
+
+  color: #ffffff;
+
+  font-size: 16px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 11px;
+
+  box-shadow:
+    0 12px 28px rgba(47, 40, 170, 0.28),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+
+.parent-login-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  filter: brightness(1.05);
+
+  box-shadow:
+    0 17px 34px rgba(47, 40, 170, 0.36),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+
+.parent-login-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+
+.parent-login-button:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.70;
+}
+
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.parent-spinner {
+  width: 19px;
+  height: 19px;
+
+  border: 3px solid rgba(255, 255, 255, 0.30);
+
+  border-top-color: #ffffff;
+
+  border-radius: 50%;
+
+  animation:
+    parentSpin 0.8s linear infinite;
+}
+
+
+@keyframes parentSpin {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .parent-login-page {
+    padding: 20px 14px;
+  }
+
+
+  .parent-login-card {
+    width: 100%;
+
+    padding: 36px 24px;
+
+    border-radius: 25px;
+
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+  }
+
+
+  .parent-brand {
+    margin-bottom: 25px;
+  }
+
+
+  .parent-brand h1 {
+    font-size: 29px;
+
+    letter-spacing: 5px;
+  }
+
+
+  .parent-heading {
+    margin-bottom: 27px;
+  }
+
+
+  .parent-heading h1 {
+    font-size: 30px;
+  }
+
+
+  .parent-heading p {
+    font-size: 13px;
+  }
+
+
+  .parent-field {
+    margin-bottom: 19px;
+  }
+
+
+  .parent-input-wrapper input {
+    height: 58px;
+
+    border-radius: 14px;
+
+    font-size: 14px;
+  }
+
+
+  .parent-login-button {
+    height: 58px;
+
+    border-radius: 14px;
+
+    font-size: 15px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .parent-login-card {
+    padding: 30px 18px;
+  }
+
+
+  .parent-brand h1 {
+    font-size: 26px;
+  }
+
+
+  .parent-heading h1 {
+    font-size: 27px;
+  }
+
+
+  .parent-heading p {
+    font-size: 12px;
+  }
+
+
+  .parent-input-wrapper input {
+    height: 55px;
+  }
+
+
+  .parent-login-button {
+    height: 55px;
+  }
+
+}
