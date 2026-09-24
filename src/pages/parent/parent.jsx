@@ -1064,7 +1064,22 @@ export default function Parents() {
 
           <div className="admin-topbar-left">
 
-          
+            <button
+              type="button"
+              className="mobile-menu-button"
+              aria-label="Open menu"
+              onClick={() => {
+                const sidebarButton = document.querySelector(
+                  ".mobile-sidebar-menu"
+                );
+
+                if (sidebarButton) {
+                  sidebarButton.click();
+                }
+              }}
+            >
+              <FaBars />
+            </button>
 
             <div>
               <h1>Parents</h1>
