@@ -1,629 +1,113 @@
-.parent-login-page {
-  min-height: 100vh;
-  width: 100%;
+/* =========================================================
+   SKILL LAB - PARENT LOGIN
+   PREMIUM PROFESSIONAL GLASSMORPHISM
+========================================================= */
 
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+
+  width: 100%;
+  min-height: 100%;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+
+/* =========================================================
+   MAIN PAGE
+========================================================= */
+
+.parent-login-page {
   position: relative;
+
+  width: 100%;
+  min-height: 100vh;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
+  padding: 35px 20px;
+
   overflow: hidden;
 
-  padding: 30px 20px;
-
-  box-sizing: border-box;
+  isolation: isolate;
 
   background:
     radial-gradient(
-      circle at 8% 45%,
-      rgba(55, 125, 255, 0.95),
+      circle at 0% 50%,
+      rgba(51, 112, 255, 0.70),
       transparent 34%
     ),
 
     radial-gradient(
-      circle at 92% 48%,
-      rgba(255, 45, 172, 0.90),
-      transparent 35%
+      circle at 100% 50%,
+      rgba(226, 40, 183, 0.60),
+      transparent 34%
     ),
 
     radial-gradient(
       circle at 50% 110%,
-      rgba(126, 70, 255, 0.90),
-      transparent 42%
+      rgba(111, 65, 224, 0.70),
+      transparent 45%
     ),
 
-    linear-gradient(
-      135deg,
-      #4d8cff 0%,
-      #655cf3 38%,
-      #8d4ee8 65%,
-      #ef3ba7 100%
-    );
-}
-
-
-/* =========================================
-   GRID
-========================================= */
-
-.parent-grid {
-  position: absolute;
-  inset: 0;
-
-  background-image:
-    linear-gradient(
-      rgba(255,255,255,.04) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(255,255,255,.04) 1px,
-      transparent 1px
-    );
-
-  background-size: 45px 45px;
-
-  pointer-events: none;
-}
-
-
-/* =========================================
-   GLOW
-========================================= */
-
-.parent-glow {
-  position: absolute;
-
-  border-radius: 50%;
-
-  filter: blur(55px);
-
-  pointer-events: none;
-}
-
-.parent-glow-one {
-  width: 300px;
-  height: 300px;
-
-  background: rgba(70,120,255,.35);
-
-  top: -100px;
-  left: -80px;
-}
-
-.parent-glow-two {
-  width: 350px;
-  height: 350px;
-
-  background: rgba(220,50,220,.35);
-
-  right: -100px;
-  bottom: -120px;
-}
-
-.parent-glow-three {
-  width: 200px;
-  height: 200px;
-
-  background: rgba(255,255,255,.15);
-
-  left: 45%;
-  top: 10%;
-}
-
-
-/* =========================================
-   ORBS
-========================================= */
-
-.parent-orb {
-  position: absolute;
-
-  border-radius: 50%;
-
-  background: rgba(255,255,255,.12);
-
-  border: 1px solid rgba(255,255,255,.15);
-
-  backdrop-filter: blur(5px);
-
-  pointer-events: none;
-}
-
-.parent-orb-one {
-  width: 80px;
-  height: 80px;
-
-  left: 8%;
-  top: 25%;
-}
-
-.parent-orb-two {
-  width: 45px;
-  height: 45px;
-
-  right: 12%;
-  top: 20%;
-}
-
-.parent-orb-three {
-  width: 100px;
-  height: 100px;
-
-  right: 5%;
-  bottom: 10%;
-}
-
-
-/* =========================================
-   LOGIN CARD
-========================================= */
-
-.parent-login-card {
-  width: min(100%, 590px);
-
-  position: relative;
-
-  padding: 48px 52px;
-
-  border-radius: 38px;
-
-  background: rgba(255,255,255,.20);
-
-  border: 1px solid rgba(255,255,255,.48);
-
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-
-  box-shadow:
-    0 30px 70px rgba(37,20,100,.28),
-    inset 0 1px 1px rgba(255,255,255,.45);
-
-  z-index: 10;
-
-  box-sizing: border-box;
-}
-
-
-/* =========================================
-   HIGHLIGHT
-========================================= */
-
-.parent-glass-highlight {
-  position: absolute;
-
-  top: 0;
-  left: 15%;
-
-  width: 70%;
-  height: 1px;
-
-  background: rgba(255,255,255,.7);
-}
-
-
-/* =========================================
-   BRAND
-========================================= */
-
-.parent-brand {
-  text-align: center;
-
-  margin-bottom: 35px;
-}
-
-.parent-brand h1 {
-  margin: 0;
-
-  font-size: 38px;
-
-  font-weight: 900;
-
-  letter-spacing: 5px;
-
-  color: #5b2fc5;
-
-  text-shadow:
-    0 3px 10px rgba(70,30,160,.18);
-}
-
-
-/* =========================================
-   HEADING
-========================================= */
-
-.parent-heading {
-  text-align: center;
-
-  margin-bottom: 34px;
-}
-
-.parent-heading h1 {
-  margin: 0 0 10px;
-
-  font-size: 38px;
-
-  color: #fff;
-
-  font-weight: 800;
-}
-
-.parent-heading p {
-  margin: 0;
-
-  font-size: 16px;
-
-  color: rgba(255,255,255,.88);
-}
-
-
-/* =========================================
-   FIELD
-========================================= */
-
-.parent-field {
-  margin-bottom: 25px;
-}
-
-.parent-field label {
-  display: block;
-
-  margin-bottom: 10px;
-
-  font-size: 15px;
-
-  font-weight: 700;
-
-  color: #fff;
-}
-
-
-/* =========================================
-   INPUT WRAPPER
-========================================= */
-
-.parent-input-wrapper {
-  position: relative;
-
-  width: 100%;
-}
-
-
-/* =========================================
-   INPUT
-========================================= */
-
-.parent-input-wrapper input {
-  width: 100%;
-
-  height: 68px;
-
-  padding: 0 55px 0 60px;
-
-  border-radius: 17px;
-
-  border: 1px solid rgba(255,255,255,.38);
-
-  background: rgba(255,255,255,.12);
-
-  color: #fff;
-
-  font-size: 16px;
-
-  outline: none;
-
-  box-sizing: border-box;
-
-  transition: .25s ease;
-}
-
-.parent-input-wrapper input::placeholder {
-  color: rgba(255,255,255,.68);
-}
-
-.parent-input-wrapper input:focus {
-  border-color: rgba(255,255,255,.75);
-
-  background: rgba(255,255,255,.17);
-
-  box-shadow:
-    0 0 0 4px rgba(255,255,255,.08);
-}
-
-
-/* =========================================
-   LEFT ICON
-========================================= */
-
-.parent-input-icon {
-  position: absolute;
-
-  left: 21px;
-  top: 50%;
-
-  transform: translateY(-50%);
-
-  color: #fff;
-
-  font-size: 20px;
-
-  z-index: 2;
-}
-
-
-/* =========================================
-   SHOW PASSWORD
-========================================= */
-
-.parent-show-password {
-  position: absolute;
-
-  right: 15px;
-  top: 50%;
-
-  transform: translateY(-50%);
-
-  width: 38px;
-  height: 38px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: none;
-
-  background: transparent;
-
-  color: #fff;
-
-  font-size: 17px;
-
-  cursor: pointer;
-
-  padding: 0;
-}
-
-.parent-show-password:hover {
-  opacity: .75;
-}
-
-
-/* =========================================
-   ERROR
-========================================= */
-
-.parent-error {
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  margin: 4px 0 18px;
-
-  padding: 12px 14px;
-
-  border-radius: 12px;
-
-  background: rgba(255,70,70,.16);
-
-  border: 1px solid rgba(255,120,120,.35);
-
-  color: #fff;
-
-  font-size: 14px;
-}
-
-.parent-error-icon {
-  width: 22px;
-  height: 22px;
-
-  min-width: 22px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
-  background: #ff5757;
-
-  font-weight: 800;
-}
-
-
-/* =========================================
-   LOGIN BUTTON
-========================================= */
-
-.parent-login-button {
-  width: 100%;
-
-  height: 68px;
-
-  border: none;
-
-  border-radius: 17px;
-
-  background:
-    linear-gradient(
-      90deg,
-      #4d6cf6,
-      #b733d5
-    );
-
-  color: #fff;
-
-  font-size: 17px;
-
-  font-weight: 800;
-
-  cursor: pointer;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 12px;
-
-  box-shadow:
-    0 12px 28px rgba(73,45,190,.28);
-
-  transition: .2s ease;
-}
-
-.parent-login-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-
-  box-shadow:
-    0 16px 32px rgba(73,45,190,.35);
-}
-
-.parent-login-button:disabled {
-  cursor: not-allowed;
-
-  opacity: .75;
-}
-
-
-/* =========================================
-   SPINNER
-========================================= */
-
-.parent-spinner {
-  width: 20px;
-  height: 20px;
-
-  border: 3px solid rgba(255,255,255,.35);
-
-  border-top-color: #fff;
-
-  border-radius: 50%;
-
-  animation:
-    parentSpin .8s linear infinite;
-}
-
-@keyframes parentSpin {
-
-  to {
-    transform: rotate(360deg);
-  }
-
-}
-
-
-/* =========================================
-   MOBILE
-========================================= */
-
-@media (max-width: 600px) {
-
-  .parent-login-page {
-    padding: 20px 14px;
-  }
-
-  .parent-login-card {
-    padding: 35px 24px;
-
-    border-radius: 28px;
-  }
-
-  .parent-brand h1 {
-    font-size: 30px;
-  }
-
-  .parent-heading h1 {
-    font-size: 31px;
-  }
-
-  .parent-heading p {
-    font-size: 14px;
-  }
-
-  .parent-input-wrapper input {
-    height: 60px;
-  }
-
-  .parent-login-button {
-    height: 60px;
-  }
-
-}
-/* =========================================================
-   PARENT LOGIN PAGE
-   PREMIUM GLASSMORPHISM DESIGN
-========================================================= */
-
-.parent-login-page {
-  min-height: 100vh;
-  width: 100%;
-
-  position: relative;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  overflow: hidden;
-
-  padding: 30px 20px;
-
-  box-sizing: border-box;
-
-  /* Clean professional background */
-  background:
-    radial-gradient(
-      circle at 15% 20%,
-      rgba(72, 112, 255, 0.35),
-      transparent 38%
-    ),
-    radial-gradient(
-      circle at 85% 80%,
-      rgba(198, 62, 221, 0.30),
-      transparent 40%
-    ),
     linear-gradient(
       135deg,
       #315fdc 0%,
-      #514ed8 35%,
-      #7546d6 68%,
-      #b83cc8 100%
+      #4d55df 28%,
+      #7049d7 58%,
+      #9e42cf 80%,
+      #d638b8 100%
     );
 }
 
 
 /* =========================================================
-   SUBTLE GRID
+   BACKGROUND LIGHT
 ========================================================= */
 
-.parent-grid {
+.parent-login-page::before {
+  content: "";
+
   position: absolute;
 
   inset: 0;
 
-  background-image:
-    linear-gradient(
-      rgba(255, 255, 255, 0.035) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.035) 1px,
-      transparent 1px
-    );
-
-  background-size: 50px 50px;
-
   pointer-events: none;
 
-  opacity: 0.65;
+  background:
+    linear-gradient(
+      120deg,
+      rgba(255,255,255,0.09),
+      transparent 30%,
+      transparent 70%,
+      rgba(255,255,255,0.06)
+    );
+
+  z-index: -2;
 }
 
 
 /* =========================================================
-   BACKGROUND GLOW
+   SOFT BACKGROUND GLOW
 ========================================================= */
 
 .parent-glow {
@@ -631,57 +115,107 @@
 
   border-radius: 50%;
 
-  filter: blur(90px);
+  filter: blur(100px);
 
   pointer-events: none;
 
-  opacity: 0.45;
+  z-index: -1;
+
+  opacity: 0.55;
 }
 
 
-/* LEFT GLOW */
+/* LEFT */
 
 .parent-glow-one {
-  width: 420px;
-  height: 420px;
+  width: 480px;
+  height: 480px;
 
-  background: rgba(40, 110, 255, 0.35);
+  left: -260px;
+  top: -120px;
 
-  top: -180px;
-  left: -160px;
+  background:
+    rgba(43, 116, 255, 0.45);
 }
 
 
-/* RIGHT GLOW */
+/* RIGHT */
 
 .parent-glow-two {
-  width: 430px;
-  height: 430px;
+  width: 520px;
+  height: 520px;
 
-  background: rgba(229, 42, 195, 0.30);
+  right: -280px;
+  bottom: -240px;
 
-  right: -180px;
-  bottom: -180px;
+  background:
+    rgba(236, 42, 188, 0.38);
 }
 
 
-/* CENTER SOFT LIGHT */
+/* CENTER */
 
 .parent-glow-three {
-  width: 260px;
-  height: 260px;
+  width: 300px;
+  height: 300px;
 
-  background: rgba(255, 255, 255, 0.08);
+  left: 42%;
+  top: -180px;
 
-  left: 45%;
-  top: 15%;
+  background:
+    rgba(255, 255, 255, 0.12);
 
-  filter: blur(100px);
+  filter: blur(120px);
 }
 
 
 /* =========================================================
-   REMOVE DECORATIVE CIRCLES
+   PREMIUM GRID
+========================================================= */
+
+.parent-grid {
+  position: absolute;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  opacity: 0.055;
+
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,0.35) 1px,
+      transparent 1px
+    ),
+
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.35) 1px,
+      transparent 1px
+    );
+
+  background-size: 55px 55px;
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      black,
+      transparent 92%
+    );
+
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      black,
+      transparent 92%
+    );
+
+  z-index: -1;
+}
+
+
+/* =========================================================
+   REMOVE OLD CIRCLES / ORBS
 ========================================================= */
 
 .parent-orb,
@@ -697,61 +231,169 @@
 ========================================================= */
 
 .parent-login-card {
-  width: min(100%, 590px);
-
   position: relative;
 
-  padding: 48px 52px;
+  width: 100%;
+  max-width: 570px;
 
-  border-radius: 30px;
+  padding: 48px 50px 46px;
 
-  box-sizing: border-box;
+  border-radius: 32px;
 
-  /* Stronger glass effect */
+  overflow: hidden;
+
   background:
     linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.20),
-      rgba(255, 255, 255, 0.08)
+      rgba(255,255,255,0.25),
+      rgba(255,255,255,0.11)
     );
 
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  border:
+    1px solid
+    rgba(255,255,255,0.42);
 
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter:
+    blur(38px)
+    saturate(140%);
+
+  -webkit-backdrop-filter:
+    blur(38px)
+    saturate(140%);
 
   box-shadow:
-    0 35px 90px rgba(18, 12, 70, 0.30),
-    0 8px 30px rgba(255, 255, 255, 0.06),
-    inset 0 1px 1px rgba(255, 255, 255, 0.38),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.06);
+
+    0 45px 110px
+      rgba(28, 20, 100, 0.32),
+
+    0 15px 45px
+      rgba(255,255,255,0.08),
+
+    inset 0 1px 1px
+      rgba(255,255,255,0.48),
+
+    inset 0 -25px 60px
+      rgba(66,35,150,0.08);
 
   z-index: 10;
+
+  animation:
+    parentCardEnter
+    0.65s
+    cubic-bezier(.2,.8,.2,1);
 }
 
 
 /* =========================================================
-   TOP GLASS HIGHLIGHT
+   CARD INNER SHINE
 ========================================================= */
 
-.parent-glass-highlight {
+.parent-login-card::after {
+  content: "";
+
   position: absolute;
 
-  top: 0;
-  left: 12%;
+  inset: 0;
 
-  width: 76%;
+  border-radius: inherit;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,0.16),
+      transparent 28%,
+      transparent 70%,
+      rgba(255,255,255,0.05)
+    );
+
+  z-index: 0;
+}
+
+
+/* =========================================================
+   CARD TOP HIGHLIGHT
+========================================================= */
+
+.parent-login-card::before {
+  content: "";
+
+  position: absolute;
+
+  left: 8%;
+  right: 8%;
+
+  top: 0;
+
   height: 1px;
 
   background:
     linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.75),
+      rgba(255,255,255,0.95),
       transparent
     );
 
-  opacity: 0.8;
+  opacity: 0.9;
+
+  pointer-events: none;
+
+  z-index: 3;
+}
+
+
+/* =========================================================
+   CARD ANIMATION
+========================================================= */
+
+@keyframes parentCardEnter {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(28px)
+      scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+/* =========================================================
+   GLASS HIGHLIGHT
+========================================================= */
+
+.parent-glass-highlight {
+  position: absolute;
+
+  top: 0;
+  left: 15%;
+
+  width: 70%;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,0.8),
+      transparent
+    );
+
+  pointer-events: none;
+
+  z-index: 5;
 }
 
 
@@ -760,62 +402,144 @@
 ========================================================= */
 
 .parent-brand {
+  position: relative;
+
+  z-index: 5;
+
   text-align: center;
 
-  margin-bottom: 30px;
+  margin-bottom: 27px;
 }
 
 
+/* =========================================================
+   SKILL LAB
+========================================================= */
+
 .parent-brand h1 {
+  position: relative;
+
   margin: 0;
 
-  font-size: 36px;
+  font-size: 35px;
 
   font-weight: 900;
 
   letter-spacing: 6px;
 
-  color: #ffffff;
+  line-height: 1;
 
-  text-shadow:
-    0 4px 18px rgba(40, 20, 120, 0.30);
+  text-transform: uppercase;
+
+  text-align: center;
+
+  background:
+    linear-gradient(
+      90deg,
+      #4b55d9 0%,
+      #7140dc 45%,
+      #c52eae 100%
+    );
+
+  background-size: 250% auto;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  background-clip: text;
+
+  filter:
+    drop-shadow(
+      0 4px 7px
+      rgba(55,35,145,0.18)
+    );
+
+  animation:
+    parentSkillLabShine
+    8s ease-in-out infinite;
 }
 
 
 /* =========================================================
-   HEADING
+   SKILL LAB SHINE
+========================================================= */
+
+@keyframes parentSkillLabShine {
+
+  0% {
+    background-position: 0% center;
+  }
+
+  50% {
+    background-position: 100% center;
+  }
+
+  100% {
+    background-position: 0% center;
+  }
+
+}
+
+
+/* =========================================================
+   WELCOME HEADING
 ========================================================= */
 
 .parent-heading {
+  position: relative;
+
+  z-index: 5;
+
   text-align: center;
 
-  margin-bottom: 32px;
+  margin-bottom: 31px;
 }
 
 
 .parent-heading h1 {
-  margin: 0 0 9px;
-
-  font-size: 36px;
-
-  line-height: 1.2;
+  margin: 0;
 
   color: #ffffff;
 
-  font-weight: 800;
+  font-size: 34px;
 
-  letter-spacing: -0.5px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  letter-spacing: -0.6px;
+
+  text-shadow:
+    0 4px 18px
+    rgba(20,10,70,0.20);
 }
 
 
 .parent-heading p {
-  margin: 0;
+  margin:
+    10px 0 0;
 
-  font-size: 15px;
+  color:
+    rgba(255,255,255,0.78);
 
-  color: rgba(255, 255, 255, 0.78);
+  font-size: 14px;
+
+  line-height: 1.5;
 
   font-weight: 400;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.parent-login-form {
+  position: relative;
+
+  z-index: 5;
+
+  width: 100%;
 }
 
 
@@ -824,7 +548,7 @@
 ========================================================= */
 
 .parent-field {
-  margin-bottom: 22px;
+  margin-bottom: 21px;
 }
 
 
@@ -833,11 +557,12 @@
 
   margin-bottom: 9px;
 
-  font-size: 14px;
+  color:
+    rgba(255,255,255,0.94);
 
-  font-weight: 700;
+  font-size: 13px;
 
-  color: rgba(255, 255, 255, 0.95);
+  font-weight: 750;
 
   letter-spacing: 0.2px;
 }
@@ -861,94 +586,125 @@
 .parent-input-wrapper input {
   width: 100%;
 
-  height: 62px;
+  height: 60px;
 
-  padding: 0 55px 0 57px;
+  padding:
+    0 55px 0 52px;
 
-  box-sizing: border-box;
+  border:
+    1px solid
+    rgba(255,255,255,0.25);
 
   border-radius: 15px;
 
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  outline: none;
+
+  box-sizing: border-box;
 
   background:
-    rgba(255, 255, 255, 0.10);
+    rgba(255,255,255,0.105);
 
   color: #ffffff;
 
   font-size: 15px;
 
-  outline: none;
+  font-weight: 450;
+
+  box-shadow:
+    inset 0 1px 1px
+      rgba(255,255,255,0.08);
 
   transition:
-    background 0.25s ease,
     border 0.25s ease,
+    background 0.25s ease,
     box-shadow 0.25s ease,
     transform 0.25s ease;
 }
 
 
+/* PLACEHOLDER */
+
 .parent-input-wrapper input::placeholder {
-  color: rgba(255, 255, 255, 0.58);
+  color:
+    rgba(255,255,255,0.57);
 }
 
+
+/* HOVER */
 
 .parent-input-wrapper input:hover {
-  background: rgba(255, 255, 255, 0.13);
+  background:
+    rgba(255,255,255,0.135);
 
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color:
+    rgba(255,255,255,0.36);
 }
 
 
-.parent-input-wrapper input:focus {
-  background: rgba(255, 255, 255, 0.16);
+/* FOCUS */
 
-  border-color: rgba(255, 255, 255, 0.62);
+.parent-input-wrapper input:focus {
+  background:
+    rgba(255,255,255,0.16);
+
+  border-color:
+    rgba(255,255,255,0.70);
 
   box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.07),
-    0 8px 25px rgba(30, 20, 100, 0.10);
+
+    0 0 0 3px
+      rgba(255,255,255,0.07),
+
+    0 10px 28px
+      rgba(30,20,100,0.12),
+
+    inset 0 1px 1px
+      rgba(255,255,255,0.10);
 }
 
 
 /* =========================================================
-   LEFT ICON
+   LEFT INPUT ICON
 ========================================================= */
 
 .parent-input-icon {
   position: absolute;
 
-  left: 20px;
+  left: 18px;
   top: 50%;
 
-  transform: translateY(-50%);
+  transform:
+    translateY(-50%);
 
-  color: rgba(255, 255, 255, 0.92);
+  color:
+    rgba(255,255,255,0.92);
 
-  font-size: 18px;
-
-  z-index: 2;
+  font-size: 17px;
 
   pointer-events: none;
+
+  z-index: 3;
 }
 
 
 /* =========================================================
-   SHOW PASSWORD
+   PASSWORD BUTTON
 ========================================================= */
 
 .parent-show-password {
   position: absolute;
 
-  right: 13px;
+  right: 11px;
   top: 50%;
 
-  transform: translateY(-50%);
+  transform:
+    translateY(-50%);
 
   width: 38px;
   height: 38px;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -956,9 +712,11 @@
 
   border-radius: 10px;
 
-  background: transparent;
+  background:
+    transparent;
 
-  color: rgba(255, 255, 255, 0.88);
+  color:
+    rgba(255,255,255,0.85);
 
   font-size: 16px;
 
@@ -973,7 +731,8 @@
 
 
 .parent-show-password:hover {
-  background: rgba(255, 255, 255, 0.10);
+  background:
+    rgba(255,255,255,0.10);
 
   color: #ffffff;
 }
@@ -984,26 +743,43 @@
 ========================================================= */
 
 .parent-error {
+  position: relative;
+
+  z-index: 5;
+
   display: flex;
+
   align-items: center;
 
   gap: 10px;
 
-  margin: 4px 0 18px;
+  margin:
+    3px 0 17px;
 
-  padding: 11px 13px;
+  padding:
+    11px 13px;
 
   border-radius: 12px;
 
-  background: rgba(255, 65, 65, 0.14);
-
-  border: 1px solid rgba(255, 150, 150, 0.28);
-
   color: #ffffff;
 
+  background:
+    rgba(239,68,68,0.15);
+
+  border:
+    1px solid
+    rgba(255,130,130,0.32);
+
   font-size: 13px;
+
+  font-weight: 550;
+
+  backdrop-filter:
+    blur(10px);
 }
 
+
+/* ERROR ICON */
 
 .parent-error-icon {
   width: 21px;
@@ -1012,16 +788,20 @@
   min-width: 21px;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
   border-radius: 50%;
 
-  background: rgba(255, 75, 75, 0.85);
+  background:
+    #ef4444;
 
-  font-size: 13px;
+  color: #ffffff;
 
-  font-weight: 800;
+  font-size: 12px;
+
+  font-weight: 900;
 }
 
 
@@ -1030,29 +810,13 @@
 ========================================================= */
 
 .parent-login-button {
+  position: relative;
+
+  overflow: hidden;
+
   width: 100%;
 
-  height: 62px;
-
-  border: none;
-
-  border-radius: 15px;
-
-  background:
-    linear-gradient(
-      100deg,
-      #426cf5 0%,
-      #7650e8 50%,
-      #bd35d4 100%
-    );
-
-  color: #ffffff;
-
-  font-size: 16px;
-
-  font-weight: 800;
-
-  cursor: pointer;
+  height: 60px;
 
   display: flex;
 
@@ -1061,37 +825,109 @@
 
   gap: 11px;
 
+  border: none;
+
+  border-radius: 15px;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #536df5 0%,
+      #7047e8 48%,
+      #b13bd0 100%
+    );
+
   box-shadow:
-    0 12px 28px rgba(47, 40, 170, 0.28),
-    inset 0 1px 1px rgba(255, 255, 255, 0.22);
+
+    0 15px 35px
+      rgba(82,75,235,0.30),
+
+    inset 0 1px 1px
+      rgba(255,255,255,0.30);
+
+  font-size: 15px;
+
+  font-weight: 800;
+
+  cursor: pointer;
 
   transition:
     transform 0.2s ease,
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
 }
 
+
+/* BUTTON LIGHT */
+
+.parent-login-button::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -120%;
+
+  width: 80%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,0.20),
+      transparent
+    );
+
+  transform:
+    skewX(-20deg);
+
+  transition:
+    left 0.6s ease;
+}
+
+
+/* HOVER */
 
 .parent-login-button:hover:not(:disabled) {
-  transform: translateY(-2px);
 
-  filter: brightness(1.05);
+  transform:
+    translateY(-2px);
+
+  filter:
+    brightness(1.05);
 
   box-shadow:
-    0 17px 34px rgba(47, 40, 170, 0.36),
-    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+
+    0 20px 42px
+      rgba(82,75,235,0.40),
+
+    inset 0 1px 1px
+      rgba(255,255,255,0.38);
 }
 
+
+.parent-login-button:hover:not(:disabled)::before {
+  left: 130%;
+}
+
+
+/* ACTIVE */
 
 .parent-login-button:active:not(:disabled) {
-  transform: translateY(0);
+  transform:
+    translateY(0);
 }
 
 
-.parent-login-button:disabled {
-  cursor: not-allowed;
+/* DISABLED */
 
-  opacity: 0.70;
+.parent-login-button:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
 }
 
 
@@ -1103,21 +939,26 @@
   width: 19px;
   height: 19px;
 
-  border: 3px solid rgba(255, 255, 255, 0.30);
+  border:
+    3px solid
+    rgba(255,255,255,0.28);
 
-  border-top-color: #ffffff;
+  border-top-color:
+    #ffffff;
 
   border-radius: 50%;
 
   animation:
-    parentSpin 0.8s linear infinite;
+    parentSpin
+    0.8s linear infinite;
 }
 
 
 @keyframes parentSpin {
 
   to {
-    transform: rotate(360deg);
+    transform:
+      rotate(360deg);
   }
 
 }
@@ -1130,24 +971,31 @@
 @media (max-width: 600px) {
 
   .parent-login-page {
-    padding: 20px 14px;
+    padding:
+      20px 14px;
   }
 
 
   .parent-login-card {
     width: 100%;
 
-    padding: 36px 24px;
+    padding:
+      36px 24px 34px;
 
-    border-radius: 25px;
+    border-radius: 26px;
 
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
+    backdrop-filter:
+      blur(30px)
+      saturate(135%);
+
+    -webkit-backdrop-filter:
+      blur(30px)
+      saturate(135%);
   }
 
 
   .parent-brand {
-    margin-bottom: 25px;
+    margin-bottom: 24px;
   }
 
 
@@ -1164,12 +1012,15 @@
 
 
   .parent-heading h1 {
-    font-size: 30px;
+    font-size: 29px;
   }
 
 
   .parent-heading p {
     font-size: 13px;
+
+    padding:
+      0 8px;
   }
 
 
@@ -1178,8 +1029,13 @@
   }
 
 
+  .parent-field label {
+    font-size: 12px;
+  }
+
+
   .parent-input-wrapper input {
-    height: 58px;
+    height: 57px;
 
     border-radius: 14px;
 
@@ -1188,11 +1044,11 @@
 
 
   .parent-login-button {
-    height: 58px;
+    height: 57px;
 
     border-radius: 14px;
 
-    font-size: 15px;
+    font-size: 14px;
   }
 
 }
@@ -1204,18 +1060,29 @@
 
 @media (max-width: 380px) {
 
+  .parent-login-page {
+    padding:
+      14px 10px;
+  }
+
+
   .parent-login-card {
-    padding: 30px 18px;
+    padding:
+      30px 18px 28px;
+
+    border-radius: 23px;
   }
 
 
   .parent-brand h1 {
-    font-size: 26px;
+    font-size: 25px;
+
+    letter-spacing: 4px;
   }
 
 
   .parent-heading h1 {
-    font-size: 27px;
+    font-size: 26px;
   }
 
 
@@ -1225,12 +1092,24 @@
 
 
   .parent-input-wrapper input {
-    height: 55px;
+    height: 54px;
   }
 
 
   .parent-login-button {
-    height: 55px;
+    height: 54px;
+  }
+
+
+  .parent-input-icon {
+    left: 16px;
+
+    font-size: 16px;
+  }
+
+
+  .parent-input-wrapper input {
+    padding-left: 48px;
   }
 
 }
