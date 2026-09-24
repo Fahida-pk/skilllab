@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import {
@@ -21,69 +21,129 @@ export default function Sidebar() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const [studentsOpen, setStudentsOpen] = useState(
-    location.pathname.startsWith("/admin/students")
-  );
-
-const [parentsOpen, setParentsOpen] = useState(false);
+  /* =====================================================
+     PAGE CHECK
+  ===================================================== */
 
   const isStudentsPage =
     location.pathname === "/admin/students" ||
     location.pathname.startsWith("/admin/students/");
 
-  const isDashboardPage =
-    location.pathname === "/AdminDashboard" ||
-    location.pathname === "/admin/dashboard";
-
   const isParentsPage =
     location.pathname === "/admin/parents" ||
     location.pathname.startsWith("/admin/parents/");
 
+  const isDashboardPage =
+    location.pathname === "/AdminDashboard" ||
+    location.pathname === "/admin/dashboard";
 
-  /* =========================
-     NAVIGATION
-  ========================= */
+
+  /* =====================================================
+     MENU STATES
+  ===================================================== */
+
+  const [studentsOpen, setStudentsOpen] = useState(
+    isStudentsPage
+  );
+
+  const [parentsOpen, setParentsOpen] = useState(
+    isParentsPage
+  );
+
+
+  /* =====================================================
+     ROUTE CHANGE
+     
+     IMPORTANT:
+     Parents page -> Parents submenu stays OPEN
+     Students page -> Students submenu stays OPEN
+     Dashboard -> both CLOSED
+  ===================================================== */
+
+  useEffect(() => {
+
+    if (isParentsPage) {
+      setParentsOpen(true);
+      setStudentsOpen(false);
+      return;
+    }
+
+    if (isStudentsPage) {
+      setStudentsOpen(true);
+      setParentsOpen(false);
+      return;
+    }
+
+    if (isDashboardPage) {
+      setStudentsOpen(false);
+      setParentsOpen(false);
+    }
+
+  }, [
+    isParentsPage,
+    isStudentsPage,
+    isDashboardPage,
+  ]);
+
+
+  /* =====================================================
+     DASHBOARD
+  ===================================================== */
 
   const goDashboard = () => {
-  navigate("/AdminDashboard");
 
-  // Close Students and Parents
-  setStudentsOpen(false);
-  setParentsOpen(false);
+    navigate("/AdminDashboard");
 
-  setMobileOpen(false);
-};
+    // Both menus close
+    setStudentsOpen(false);
+    setParentsOpen(false);
 
-const goStudents = () => {
-  navigate("/admin/students");
-
-  // Students open
-  setStudentsOpen(true);
-
-  // Parents close
-  setParentsOpen(false);
-
-  setMobileOpen(false);
-};
+    setMobileOpen(false);
+  };
 
 
- const goParents = () => {
-  navigate("/admin/parents");
+  /* =====================================================
+     STUDENTS
+  ===================================================== */
 
-  // Parents open
-  setParentsOpen(true);
+  const goStudents = () => {
 
-  // Students close
-  setStudentsOpen(false);
+    navigate("/admin/students");
 
-  setMobileOpen(false);
-};
+    // Students OPEN
+    setStudentsOpen(true);
 
-  /* =========================
+    // Parents CLOSE
+    setParentsOpen(false);
+
+    setMobileOpen(false);
+  };
+
+
+  /* =====================================================
+     PARENTS
+  ===================================================== */
+
+  const goParents = () => {
+
+    navigate("/admin/parents");
+
+    // Parents MUST stay OPEN
+    setParentsOpen(true);
+
+    // Students CLOSE
+    setStudentsOpen(false);
+
+    setMobileOpen(false);
+  };
+
+
+  /* =====================================================
      LOGOUT
-  ========================= */
+  ===================================================== */
 
   const handleLogout = () => {
+
     localStorage.removeItem("admin");
     localStorage.removeItem("adminLoggedIn");
 
@@ -190,121 +250,148 @@ const goStudents = () => {
           </div>
 
 
-       {/* =================================================
-    STUDENTS
-================================================= */}
+          {/* =================================================
+              STUDENTS
+          ================================================= */}
 
-<div className="admin-nav-group">
+          <div className="admin-nav-group">
 
-  <button
-    type="button"
-    className={`admin-nav-item ${
-      isStudentsPage ? "active" : ""
-    }`}
-    onClick={() => {
-      setStudentsOpen((prev) => !prev);
-      setParentsOpen(false);
-    }}
-  >
+            <button
+              type="button"
+              className={`admin-nav-item ${
+                isStudentsPage ? "active" : ""
+              }`}
+              onClick={() => {
 
-    <FaUsers />
+                // Toggle Students
+                setStudentsOpen((prev) => !prev);
 
-    <span>
-      Students
-    </span>
+                // Parents always close
+                setParentsOpen(false);
+              }}
+            >
 
-    <FaChevronDown
-      className={`admin-nav-arrow ${
-        studentsOpen ? "rotate" : ""
-      }`}
-    />
+              <FaUsers />
 
-  </button>
+              <span>
+                Students
+              </span>
 
+              <FaChevronDown
+                className={`admin-nav-arrow ${
+                  studentsOpen ? "rotate" : ""
+                }`}
+              />
 
-  {studentsOpen && (
-    <div className="admin-submenu">
-
-      <button
-        type="button"
-        className={
-          isStudentsPage
-            ? "submenu-active"
-            : ""
-        }
-        onClick={goStudents}
-      >
-
-        <FaUserGraduate />
-
-        <span>
-          All Students
-        </span>
-
-      </button>
-
-    </div>
-  )}
-
-</div>
-
-{/* =================================================
-    PARENTS
-================================================= */}
-
-<div className="admin-nav-group">
-
-  <button
-    type="button"
-    className={`admin-nav-item ${
-      isParentsPage ? "active" : ""
-    }`}
-    onClick={() => {
-      setParentsOpen((prev) => !prev);
-      setStudentsOpen(false);
-    }}
-  >
-
-    <FaUserTie />
-
-    <span>
-      Parents
-    </span>
-
-    <FaChevronDown
-      className={`admin-nav-arrow ${
-        parentsOpen ? "rotate" : ""
-      }`}
-    />
-
-  </button>
+            </button>
 
 
-  {parentsOpen && (
-    <div className="admin-submenu">
+            {/* ALL STUDENTS */}
 
-      <button
-        type="button"
-        className={
-          isParentsPage
-            ? "submenu-active"
-            : ""
-        }
-        onClick={goParents}
-      >
+            {studentsOpen && (
+              <div className="admin-submenu">
 
-        <FaUserTie />
+                <button
+                  type="button"
+                  className={
+                    isStudentsPage
+                      ? "submenu-active"
+                      : ""
+                  }
+                  onClick={goStudents}
+                >
 
-        <span>
-          All Parents
-        </span>
+                  <FaUserGraduate />
 
-      </button>
+                  <span>
+                    All Students
+                  </span>
 
-    </div>
-  )}
+                </button>
 
-</div>
+              </div>
+            )}
+
+          </div>
+
+
+          {/* =================================================
+              PARENTS
+          ================================================= */}
+
+          <div className="admin-nav-group">
+
+            <button
+              type="button"
+              className={`admin-nav-item ${
+                isParentsPage ? "active" : ""
+              }`}
+              onClick={() => {
+
+                /*
+                  IMPORTANT:
+
+                  Parents click ചെയ്താൽ toggle ചെയ്യരുത്.
+
+                  Always OPEN.
+                */
+
+                setParentsOpen(true);
+
+                // Students close
+                setStudentsOpen(false);
+              }}
+            >
+
+              <FaUserTie />
+
+              <span>
+                Parents
+              </span>
+
+              <FaChevronDown
+                className={`admin-nav-arrow ${
+                  parentsOpen || isParentsPage
+                    ? "rotate"
+                    : ""
+                }`}
+              />
+
+            </button>
+
+
+            {/* =================================================
+                ALL PARENTS
+
+                isParentsPage true ആയാലും
+                parentsOpen true ആയാലും കാണിക്കും.
+            ================================================= */}
+
+            {(parentsOpen || isParentsPage) && (
+              <div className="admin-submenu">
+
+                <button
+                  type="button"
+                  className={
+                    isParentsPage
+                      ? "submenu-active"
+                      : ""
+                  }
+                  onClick={goParents}
+                >
+
+                  <FaUserTie />
+
+                  <span>
+                    All Parents
+                  </span>
+
+                </button>
+
+              </div>
+            )}
+
+          </div>
 
 
           {/* =================================================
