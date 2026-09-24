@@ -15,6 +15,7 @@ import "./sidebar.css";
 
 function Sidebar({
   adminView = false,
+  parentView = false,
   studentName = "",
   studentEmail = "",
   studentId = null,
@@ -35,27 +36,22 @@ function Sidebar({
      DISPLAY USER
   ===================================================== */
 
-  const displayName = adminView
-    ? studentName || "Student"
-    : user?.name || "User";
-
-  const displayEmail = adminView
-    ? studentEmail || ""
-    : user?.email || "";
-
-  const displayPicture = adminView
-    ? ""
-    : user?.picture || "";
+  const displayName =
+    adminView || parentView
+      ? studentName || "Student"
+      : user?.name || "User";
 
 
-  /* =====================================================
-     NAVIGATION
-  ===================================================== */
+  const displayEmail =
+    adminView || parentView
+      ? studentEmail || ""
+      : user?.email || "";
 
-  const goTo = (path) => {
-    setOpen(false);
-    navigate(path);
-  };
+
+  const displayPicture =
+    adminView || parentView
+      ? ""
+      : user?.picture || "";
 
 
   /* =====================================================
@@ -65,6 +61,9 @@ function Sidebar({
   const handleDashboard = () => {
 
     setOpen(false);
+
+
+    /* ================= ADMIN STUDENT ================= */
 
     if (adminView && studentId) {
 
@@ -78,11 +77,32 @@ function Sidebar({
         }
       );
 
-    } else {
-
-      navigate("/dashboard");
-
+      return;
     }
+
+
+    /* ================= PARENT STUDENT ================= */
+
+    if (parentView && studentId) {
+
+      navigate(
+        `/parent/students/${studentId}/dashboard`,
+        {
+          state: {
+            studentEmail,
+            studentName,
+          },
+        }
+      );
+
+      return;
+    }
+
+
+    /* ================= NORMAL STUDENT ================= */
+
+    navigate("/dashboard");
+
   };
 
 
@@ -93,6 +113,9 @@ function Sidebar({
   const handleTasks = () => {
 
     setOpen(false);
+
+
+    /* ================= ADMIN STUDENT ================= */
 
     if (adminView && studentId) {
 
@@ -106,16 +129,37 @@ function Sidebar({
         }
       );
 
-    } else {
-
-      navigate("/task");
-
+      return;
     }
+
+
+    /* ================= PARENT STUDENT ================= */
+
+    if (parentView && studentId) {
+
+      navigate(
+        `/parent/students/${studentId}/tasks`,
+        {
+          state: {
+            studentEmail,
+            studentName,
+          },
+        }
+      );
+
+      return;
+    }
+
+
+    /* ================= NORMAL STUDENT ================= */
+
+    navigate("/task");
+
   };
 
 
   /* =====================================================
-     LOGOUT / BACK TO ADMIN DASHBOARD
+     BACK / LOGOUT
   ===================================================== */
 
   const handleLogout = () => {
@@ -123,35 +167,62 @@ function Sidebar({
     setOpen(false);
 
 
-    /*
-     * ADMIN VIEW
-     *
-     * Admin is viewing a student's dashboard.
-     *
-     * Do NOT remove admin login.
-     * Go directly back to Admin Dashboard.
-     */
+    /* =================================================
+       ADMIN STUDENT VIEW
+       
+       Don't logout admin.
+       Just go back to Admin Dashboard.
+    ================================================= */
+
     if (adminView) {
 
-      navigate("/AdminDashboard", {
-        replace: true,
-      });
+      navigate(
+        "/AdminDashboard",
+        {
+          replace: true,
+        }
+      );
 
       return;
     }
 
 
-    /*
-     * NORMAL STUDENT
-     *
-     * Existing logout behavior.
-     */
+    /* =================================================
+       PARENT STUDENT VIEW
+       
+       Don't logout parent.
+       Just go back to Parent Dashboard.
+    ================================================= */
+
+    if (parentView) {
+
+      navigate(
+        "/parent/dashboard",
+        {
+          replace: true,
+        }
+      );
+
+      return;
+    }
+
+
+    /* =================================================
+       NORMAL STUDENT
+       
+       Actual logout.
+    ================================================= */
+
     localStorage.removeItem("user");
     localStorage.removeItem("token");
 
-    navigate("/login", {
-      replace: true,
-    });
+    navigate(
+      "/login",
+      {
+        replace: true,
+      }
+    );
+
   };
 
 
@@ -159,48 +230,70 @@ function Sidebar({
      ACTIVE STATES
   ===================================================== */
 
-  const isDashboardActive = adminView
-    ? location.pathname.includes(
-        `/admin/students/${studentId}/dashboard`
-      )
-    : location.pathname === "/dashboard";
+  const isDashboardActive =
+    adminView
+      ? location.pathname.includes(
+          `/admin/students/${studentId}/dashboard`
+        )
+      : parentView
+      ? location.pathname.includes(
+          `/parent/students/${studentId}/dashboard`
+        )
+      : location.pathname === "/dashboard";
 
 
-  const isTasksActive = adminView
-    ? location.pathname.includes(
-        `/admin/students/${studentId}/tasks`
-      )
-    : location.pathname === "/task" ||
-      location.pathname === "/tasks";
+  const isTasksActive =
+    adminView
+      ? location.pathname.includes(
+          `/admin/students/${studentId}/tasks`
+        )
+      : parentView
+      ? location.pathname.includes(
+          `/parent/students/${studentId}/tasks`
+        )
+      : location.pathname === "/task" ||
+        location.pathname === "/tasks";
 
 
   return (
     <>
-      {/* ================= MOBILE HEADER ================= */}
+      {/* =================================================
+          MOBILE HEADER
+      ================================================= */}
 
       <div className="mobile-navbar">
 
         <FaBars
           className="mobile-menu-icon"
-          onClick={() => setOpen(!open)}
+          onClick={() =>
+            setOpen(!open)
+          }
         />
 
-        <h2>SKILL LAB</h2>
+        <h2>
+          SKILL LAB
+        </h2>
 
       </div>
 
 
-      {/* ================= OVERLAY ================= */}
+      {/* =================================================
+          OVERLAY
+      ================================================= */}
 
       {open && (
         <div
           className="sidebar-overlay"
-          onClick={() => setOpen(false)}
+          onClick={() =>
+            setOpen(false)
+          }
         />
       )}
 
 
-      {/* ================= SIDEBAR ================= */}
+      {/* =================================================
+          SIDEBAR
+      ================================================= */}
 
       <aside
         className={`sidebar ${
@@ -216,7 +309,9 @@ function Sidebar({
         </div>
 
 
-        {/* MENU */}
+        {/* =================================================
+            MENU
+        ================================================= */}
 
         <nav className="sidebar-menu">
 
@@ -233,7 +328,9 @@ function Sidebar({
             onClick={handleDashboard}
           >
 
-            <FaThLarge className="sidebar-menu-icon" />
+            <FaThLarge
+              className="sidebar-menu-icon"
+            />
 
             <span>
               Dashboard
@@ -254,7 +351,9 @@ function Sidebar({
             onClick={handleTasks}
           >
 
-            <FaTasks className="sidebar-menu-icon" />
+            <FaTasks
+              className="sidebar-menu-icon"
+            />
 
             <span>
               Tasks
@@ -265,7 +364,9 @@ function Sidebar({
         </nav>
 
 
-        {/* PROFILE */}
+        {/* =================================================
+            PROFILE
+        ================================================= */}
 
         <div className="sidebar-profile">
 
@@ -289,21 +390,23 @@ function Sidebar({
           )}
 
 
-          {/* STUDENT NAME */}
+          {/* NAME */}
 
           <div className="sidebar-user-name">
             {displayName}
           </div>
 
 
-          {/* STUDENT EMAIL */}
+          {/* EMAIL */}
 
           <div className="sidebar-user-email">
             {displayEmail}
           </div>
 
 
-          {/* LOGOUT / BACK BUTTON */}
+          {/* =================================================
+              BACK / LOGOUT BUTTON
+          ================================================= */}
 
           <button
             type="button"
@@ -311,16 +414,21 @@ function Sidebar({
             onClick={handleLogout}
           >
 
-            {adminView ? (
+            {adminView || parentView ? (
               <FaArrowLeft />
             ) : (
               <FaSignOutAlt />
             )}
 
+
             <span>
+
               {adminView
                 ? "Back to Admin Dashboard"
+                : parentView
+                ? "Back to Parent Dashboard"
                 : "Logout"}
+
             </span>
 
           </button>

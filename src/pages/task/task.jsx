@@ -1,6 +1,9 @@
 import Sidebar from "../dasboard/Sidebar.jsx";
 import { useState, useEffect, useMemo, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import {
   FaMoon,
   FaChevronLeft,
@@ -38,6 +41,7 @@ const API_URL = "https://zyntaweb.com/skilllab/api/task.php";
 
 function Task({ adminView = false }) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [date, setDate] = useState(new Date());
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -71,14 +75,76 @@ function Task({ adminView = false }) {
     storedAdminStudent?.email ||
     "";
 
-  const adminStudentName =
-    location.state?.studentName ||
-    storedAdminStudent?.name ||
-    "";
+const adminStudentName =
+  location.state?.studentName ||
+  storedAdminStudent?.name ||
+  "";
 
-  const taskEmail = adminView
-    ? adminStudentEmail
-    : user?.email;
+
+/* =====================================================
+   STUDENT VIEW SOURCE
+   Admin → Student → Dashboard
+   Parent → Student → Dashboard
+===================================================== */
+
+const isAdminStudentView =
+  location.pathname.startsWith(
+    "/admin/students/"
+  );
+
+const isParentStudentView =
+  location.pathname.startsWith(
+    "/parent/students/"
+  );
+
+
+/* =====================================================
+   BACK TO CORRECT DASHBOARD
+===================================================== */
+
+const handleStudentViewBack = () => {
+
+  // Admin → Admin Dashboard
+  if (isAdminStudentView) {
+
+    navigate(
+      "/AdminDashboard",
+      {
+        replace: true,
+      }
+    );
+
+    return;
+  }
+
+
+  // Parent → Parent Dashboard
+  if (isParentStudentView) {
+
+    navigate(
+      "/parent/dashboard",
+      {
+        replace: true,
+      }
+    );
+
+    return;
+  }
+
+
+  // Normal student
+  navigate(
+    "/dashboard",
+    {
+      replace: true,
+    }
+  );
+};
+
+
+const taskEmail = adminView
+  ? adminStudentEmail
+  : user?.email;
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [fromTime, setFromTime] = useState("");
@@ -2358,13 +2424,13 @@ const taskAccuracyPercentage =
 `}</style>
 
     <div className="dashboard">
-      <Sidebar
-        adminView={adminView}
-        studentName={adminStudentName}
-        studentEmail={adminStudentEmail}
-        studentId={adminStudentId}
-      />
-
+ <Sidebar
+  adminView={adminView}
+  parentView={isParentStudentView}
+  studentName={adminStudentName}
+  studentEmail={adminStudentEmail}
+  studentId={adminStudentId}
+/>
       <div className="main">
         {/* DATE BAR */}
         <div className="date-bar">
