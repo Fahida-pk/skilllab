@@ -16036,3 +16036,97 @@ body,
     display: none !important;
   }
 }
+/* =====================================================
+   PARENTS MOBILE TOPBAR
+   SAME MODEL AS ALL STUDENTS
+===================================================== */
+
+@media (max-width: 800px) {
+
+  /* TOP BAR */
+  .parent-admin-dashboard .admin-topbar {
+    width: 100%;
+    min-height: 72px;
+    height: auto;
+    padding: 14px 16px;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #ffffff;
+  }
+
+  /* LEFT SIDE */
+  .parent-admin-dashboard .admin-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 0;
+  }
+
+  /* HAMBURGER */
+  .parent-admin-dashboard .mobile-menu-button {
+    display: flex !important;
+
+    width: 40px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 1px solid #e9e4ee;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #5d5069;
+
+    cursor: pointer;
+
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+
+    z-index: auto !important;
+  }
+
+  /* TITLE */
+  .parent-admin-dashboard .admin-topbar-left > div {
+    min-width: 0;
+  }
+
+  .parent-admin-dashboard .admin-topbar h1 {
+    margin: 0;
+
+    font-size: 19px;
+    line-height: 1.2;
+
+    color: #241c35;
+
+    white-space: nowrap;
+  }
+
+  /* HIDE DESCRIPTION ON MOBILE */
+  .parent-admin-dashboard .admin-topbar p {
+    display: none !important;
+  }
+
+  /* HIDE WELCOME ADMIN */
+  .parent-admin-dashboard .admin-profile {
+    display: none !important;
+  }
+
+  /* MAIN CONTENT */
+  .parent-admin-dashboard .admin-content {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 13px 35px;
+  }
+
+}
