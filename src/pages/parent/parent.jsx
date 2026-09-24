@@ -67,9 +67,12 @@ export default function Parents() {
     email: "",
     username: "",
     password: "",
+    confirmPassword: "",
   };
 
   const [form, setForm] = useState(emptyForm);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
   /* =========================================
@@ -390,6 +393,8 @@ export default function Parents() {
 
     setEditingId(null);
     setForm({ ...emptyForm });
+    setShowPassword(false);
+    setShowConfirmPassword(false);
     setSelectedStudents([]);
     setStudentSearch("");
     setShowModal(true);
@@ -468,6 +473,9 @@ export default function Parents() {
 
     setEditingId(parent.id);
 
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+
     setForm({
       name:
         parent.name || "",
@@ -485,6 +493,7 @@ export default function Parents() {
         parent.username || "",
 
       password: "",
+      confirmPassword: "",
     });
 
     setSelectedStudents([]);
@@ -511,6 +520,8 @@ export default function Parents() {
     setEditingId(null);
 
     setForm(emptyForm);
+    setShowPassword(false);
+    setShowConfirmPassword(false);
 
     setSelectedStudents([]);
 
@@ -584,6 +595,23 @@ export default function Parents() {
     ) {
       alert("Please enter password.");
       return;
+    }
+
+    if (form.password.trim() || form.confirmPassword.trim()) {
+      if (!form.password.trim()) {
+        alert("Please enter password.");
+        return;
+      }
+
+      if (!form.confirmPassword.trim()) {
+        alert("Please confirm password.");
+        return;
+      }
+
+      if (form.password !== form.confirmPassword) {
+        alert("Password and Confirm Password do not match.");
+        return;
+      }
     }
 
     setSaving(true);
@@ -1727,7 +1755,11 @@ export default function Parents() {
                         <FaLock />
 
                         <input
-                          type="password"
+                          type={
+                            showPassword
+                              ? "text"
+                              : "password"
+                          }
                           name="password"
                           value={form.password}
                           onChange={handleChange}
@@ -1740,6 +1772,69 @@ export default function Parents() {
                         />
 
                       </div>
+
+                      {/* CONFIRM PASSWORD */}
+
+                      <label style={{ marginTop: "16px" }}>
+                        Confirm Password
+                      </label>
+
+                      <div className="parent-input-wrap">
+
+                        <FaLock />
+
+                        <input
+                          type={
+                            showConfirmPassword
+                              ? "text"
+                              : "password"
+                          }
+                          name="confirmPassword"
+                          value={form.confirmPassword}
+                          onChange={handleChange}
+                          placeholder="Confirm password"
+                          autoComplete="new-password"
+                        />
+
+                      </div>
+
+                      {/* SHOW PASSWORD */}
+
+                      <label
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          marginTop: "9px",
+                          cursor: "pointer",
+                          fontSize: "13px",
+                          fontWeight: "500",
+                          color: "#6b6475",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={
+                            showPassword &&
+                            showConfirmPassword
+                          }
+                          onChange={(e) => {
+                            const checked =
+                              e.target.checked;
+
+                            setShowPassword(checked);
+                            setShowConfirmPassword(checked);
+                          }}
+                          style={{
+                            width: "15px",
+                            height: "15px",
+                            cursor: "pointer",
+                            accentColor: "#7c2be8",
+                          }}
+                        />
+
+                        Show Password
+                      </label>
 
                     </div>
 
