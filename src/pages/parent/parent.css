@@ -16030,3 +16030,9 @@ body,
     left: 32px;
   }
 }
+/* REMOVE MOBILE SIDEBAR 3-LINE BUTTON FROM PARENTS PAGE */
+@media (max-width: 800px) {
+  .mobile-sidebar-menu {
+    display: none !important;
+  }
+}
