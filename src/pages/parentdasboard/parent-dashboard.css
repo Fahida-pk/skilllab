@@ -2680,3 +2680,1041 @@
     justify-content: center;
   }
 }
+
+
+/* =====================================================
+   FINAL PARENT DASHBOARD POLISH
+   Task-aware dashboard + student performance
+===================================================== */
+
+.parent-main {
+  background:
+    linear-gradient(
+      135deg,
+      #f8f7ff 0%,
+      #f5f8ff 52%,
+      #fff8fd 100%
+    );
+}
+
+.parent-topbar {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 25px rgba(57, 42, 100, 0.05);
+}
+
+.parent-child-banner {
+  box-shadow:
+    0 14px 35px rgba(99, 66, 190, 0.07);
+}
+
+.parent-stat-card,
+.parent-performance-card,
+.parent-analysis-card,
+.parent-student-card,
+.parent-summary-box {
+  box-shadow:
+    0 12px 32px rgba(61, 43, 115, 0.06);
+}
+
+.parent-stat-card:hover,
+.parent-student-card:hover {
+  box-shadow:
+    0 18px 38px rgba(61, 43, 115, 0.11);
+}
+
+/* =====================================================
+   ANALYTICS
+===================================================== */
+
+.parent-analytics-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.15fr)
+    minmax(0, 0.85fr);
+  gap: 22px;
+  margin-bottom: 22px;
+}
+
+.parent-analysis-card {
+  min-width: 0;
+  padding: 28px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #e9e5f3;
+  box-shadow:
+    0 12px 32px rgba(61, 43, 115, 0.06);
+}
+
+.parent-analysis-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.parent-analysis-header h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #211b36;
+}
+
+.parent-analysis-header p {
+  margin: 0;
+  color: #958ca6;
+  font-size: 12px;
+}
+
+.parent-analysis-header > svg {
+  width: 21px;
+  height: 21px;
+  padding: 11px;
+  box-sizing: content-box;
+  border-radius: 14px;
+  color: #7136d2;
+  background: #f0e8ff;
+}
+
+.parent-bar-chart {
+  min-height: 270px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-evenly;
+  gap: 28px;
+  padding: 15px 18px 0;
+  border-bottom: 1px solid #eeeaf5;
+}
+
+.parent-chart-column {
+  flex: 1;
+  max-width: 120px;
+  min-width: 70px;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.parent-chart-value {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #342b4d;
+}
+
+.parent-chart-track {
+  width: 58px;
+  height: 190px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border-radius: 18px 18px 7px 7px;
+  background:
+    repeating-linear-gradient(
+      to top,
+      #f0edf6 0,
+      #f0edf6 1px,
+      transparent 1px,
+      transparent 38px
+    );
+}
+
+.parent-chart-bar {
+  width: 100%;
+  min-height: 3px;
+  border-radius: 16px 16px 5px 5px;
+  transition: height 0.7s ease;
+}
+
+.parent-chart-bar.green {
+  background:
+    linear-gradient(
+      180deg,
+      #63d89b,
+      #13a86a
+    );
+}
+
+.parent-chart-bar.blue {
+  background:
+    linear-gradient(
+      180deg,
+      #75b4ff,
+      #2d80e8
+    );
+}
+
+.parent-chart-bar.purple {
+  background:
+    linear-gradient(
+      180deg,
+      #b178ef,
+      #7136d2
+    );
+}
+
+.parent-chart-column > span {
+  margin-top: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #817890;
+}
+
+.parent-analysis-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 17px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: #f8f5ff;
+  color: #887e9d;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.parent-analysis-note svg {
+  flex-shrink: 0;
+  color: #6f35d2;
+}
+
+/* =====================================================
+   PIE / DONUT
+===================================================== */
+
+.parent-pie-layout {
+  min-height: 270px;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.parent-performance-pie {
+  width: 190px;
+  height: 190px;
+  min-width: 190px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  position: relative;
+}
+
+.parent-performance-pie::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.parent-pie-inner {
+  width: 135px;
+  height: 135px;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      #ffffff,
+      #f8f4ff
+    );
+  box-shadow:
+    inset 0 0 0 1px #eee8f7;
+}
+
+.parent-pie-inner strong {
+  font-size: 30px;
+  color: #261f3e;
+}
+
+.parent-pie-inner span {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #958ca4;
+}
+
+.parent-analysis-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.parent-analysis-legend > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.parent-analysis-legend > div > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.parent-analysis-legend strong {
+  font-size: 13px;
+  color: #3b334e;
+}
+
+.parent-analysis-legend small {
+  color: #9b92a7;
+  font-size: 11px;
+}
+
+.parent-legend-dot {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.parent-legend-dot.strong {
+  background: #18a86b;
+}
+
+.parent-legend-dot.average {
+  background: #3185ed;
+}
+
+.parent-legend-dot.weak {
+  background: #f19a2b;
+}
+
+/* =====================================================
+   PERFORMANCE SUMMARY
+===================================================== */
+
+.parent-performance-summary {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.parent-summary-box {
+  min-height: 118px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #ebe7f3;
+}
+
+.parent-summary-box-icon {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  font-size: 20px;
+}
+
+.parent-summary-box.strong
+.parent-summary-box-icon,
+.parent-summary-box.strong
+.parent-summary-box-icon {
+  background: #e0f8eb;
+  color: #10a567;
+}
+
+.parent-summary-box.average
+.parent-summary-box-icon {
+  background: #e6f1ff;
+  color: #3185ed;
+}
+
+.parent-summary-box.weak
+.parent-summary-box-icon {
+  background: #fff1df;
+  color: #ef941f;
+}
+
+.parent-summary-box > div:last-child {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.parent-summary-box span {
+  color: #786f88;
+  font-size: 12px;
+}
+
+.parent-summary-box strong {
+  color: #211a35;
+  font-size: 26px;
+}
+
+.parent-summary-box small {
+  color: #9d95a8;
+  font-size: 10px;
+}
+
+/* =====================================================
+   SECTION HEADER
+===================================================== */
+
+.parent-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.parent-section-header h2 {
+  margin: 0 0 5px;
+  color: #211b36;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.parent-section-header p {
+  margin: 0;
+  color: #958ca4;
+  font-size: 12px;
+}
+
+.parent-view-all-button {
+  height: 40px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #e6daf6;
+  border-radius: 11px;
+  background: #faf7ff;
+  color: #6d2ed0;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.parent-view-all-button:hover {
+  transform: translateY(-1px);
+  background: #f2eaff;
+}
+
+/* =====================================================
+   STUDENT PERFORMANCE TABLE
+===================================================== */
+
+.parent-student-performance-table-card {
+  margin-bottom: 22px;
+}
+
+.parent-performance-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.parent-performance-table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: separate;
+  border-spacing: 0 9px;
+}
+
+.parent-performance-table th {
+  padding: 0 14px 7px;
+  text-align: left;
+  color: #958ca4;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.parent-performance-table td {
+  padding: 15px 14px;
+  background: #faf9fd;
+  border-top: 1px solid #eeeaf4;
+  border-bottom: 1px solid #eeeaf4;
+  color: #51495e;
+  font-size: 12px;
+}
+
+.parent-performance-table td:first-child {
+  border-left: 1px solid #eeeaf4;
+  border-radius: 13px 0 0 13px;
+}
+
+.parent-performance-table td:last-child {
+  border-right: 1px solid #eeeaf4;
+  border-radius: 0 13px 13px 0;
+}
+
+.parent-table-student {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 230px;
+}
+
+.parent-table-avatar {
+  width: 39px;
+  height: 39px;
+  min-width: 39px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background:
+    linear-gradient(
+      135deg,
+      #7137d6,
+      #aa42d5
+    );
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.parent-table-student > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.parent-table-student strong {
+  color: #2c253e;
+  font-size: 12px;
+}
+
+.parent-table-student span {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #9a91a6;
+  font-size: 10px;
+}
+
+.parent-table-completed {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #10a467;
+  font-weight: 700;
+}
+
+.parent-table-performance {
+  min-width: 155px;
+}
+
+.parent-table-performance > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.parent-table-performance strong {
+  color: #312744;
+  font-size: 12px;
+}
+
+.parent-table-performance span {
+  color: #978da5;
+  font-size: 9px;
+}
+
+.parent-table-progress {
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #e9e5f0;
+}
+
+.parent-table-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.parent-table-progress > span.strong {
+  background: #1aae70;
+}
+
+.parent-table-progress > span.good {
+  background: #eea329;
+}
+
+.parent-table-progress > span.weak {
+  background: #8a4ad9;
+}
+
+.parent-table-view-button {
+  height: 34px;
+  padding: 0 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #e4d8f3;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #6931ca;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.parent-table-view-button:hover {
+  background: #f5efff;
+}
+
+/* =====================================================
+   TASK LIST
+===================================================== */
+
+.parent-tasks-card {
+  margin-bottom: 22px;
+}
+
+.parent-task-total-badge {
+  height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 10px;
+  background: #f3edff;
+  color: #6b2dd0;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.parent-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.parent-task-row {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 12px 14px;
+  border: 1px solid #eeeaf4;
+  border-radius: 15px;
+  background: #fcfbfe;
+}
+
+.parent-task-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #eee8ff;
+  color: #7135d2;
+}
+
+.parent-task-row:has(.parent-task-status.completed)
+.parent-task-icon {
+  background: #e0f8eb;
+  color: #10a567;
+}
+
+.parent-task-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.parent-task-main strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #2d263d;
+  font-size: 13px;
+}
+
+.parent-task-main span {
+  color: #9990a5;
+  font-size: 10px;
+}
+
+.parent-task-status {
+  min-width: 76px;
+  padding: 6px 9px;
+  text-align: center;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.parent-task-status.completed {
+  background: #e1f8ec;
+  color: #0d9c5b;
+}
+
+.parent-task-status.pending {
+  background: #fff1df;
+  color: #d8810e;
+}
+
+/* =====================================================
+   MY STUDENTS - NEW CARD CONTENT
+===================================================== */
+
+.parent-student-card {
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.parent-student-card-contact {
+  margin-top: 18px;
+}
+
+.parent-student-task-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.parent-student-task-stats > div {
+  padding: 11px 8px;
+  border-radius: 12px;
+  background: #f8f6fb;
+  text-align: center;
+}
+
+.parent-student-task-stats small {
+  display: block;
+  margin-bottom: 4px;
+  color: #9991a5;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.parent-student-task-stats strong {
+  color: #2c243d;
+  font-size: 17px;
+}
+
+.parent-student-task-stats strong.completed {
+  color: #10a568;
+}
+
+.parent-student-task-stats strong.pending {
+  color: #e58a14;
+}
+
+.parent-student-performance-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.parent-student-performance-head > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.parent-student-performance-head small {
+  color: #938a9f;
+  font-size: 10px;
+}
+
+.parent-student-performance-head strong {
+  color: #2b243d;
+  font-size: 21px;
+}
+
+.parent-performance-pill {
+  padding: 6px 9px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.parent-performance-pill.strong {
+  color: #0d9b59;
+  background: #e2f8ec;
+}
+
+.parent-performance-pill.good {
+  color: #d47b0b;
+  background: #fff2dd;
+}
+
+.parent-performance-pill.weak {
+  color: #7a38cb;
+  background: #f0e7ff;
+}
+
+.parent-student-periods {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.parent-student-periods > div {
+  padding: 9px 7px;
+  border-radius: 10px;
+  background: #faf9fd;
+  border: 1px solid #eeeaf4;
+  text-align: center;
+}
+
+.parent-student-periods span {
+  display: block;
+  margin-bottom: 3px;
+  color: #9b92a8;
+  font-size: 9px;
+}
+
+.parent-student-periods strong {
+  color: #3a304d;
+  font-size: 12px;
+}
+
+.parent-student-dashboard-button {
+  border-radius: 12px;
+}
+
+/* =====================================================
+   LOADING / EMPTY
+===================================================== */
+
+.students-page-loading {
+  min-height: 300px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid #ece7f4;
+}
+
+.students-empty {
+  min-height: 300px;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid #ece7f4;
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 1100px) {
+  .parent-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-performance-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-student-cards-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .parent-content {
+    padding: 20px 16px 35px;
+  }
+
+  .parent-topbar {
+    min-height: 82px;
+    padding: 14px 16px;
+  }
+
+  .parent-topbar h1 {
+    font-size: 22px;
+  }
+
+  .parent-topbar p {
+    display: none;
+  }
+
+  .parent-profile {
+    display: none;
+  }
+
+  .parent-child-banner {
+    padding: 18px;
+  }
+
+  .parent-child-avatar {
+    width: 58px;
+    height: 58px;
+    min-width: 58px;
+  }
+
+  .parent-child-banner h2 {
+    font-size: 20px;
+  }
+
+  .parent-stat-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .parent-stat-card {
+    min-height: 125px;
+    padding: 17px;
+    gap: 11px;
+  }
+
+  .parent-stat-icon {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 14px;
+    font-size: 20px;
+  }
+
+  .parent-stat-details strong {
+    font-size: 23px;
+  }
+
+  .parent-performance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-analysis-card {
+    padding: 19px;
+  }
+
+  .parent-bar-chart {
+    min-height: 225px;
+    gap: 12px;
+    padding: 10px 5px 0;
+  }
+
+  .parent-chart-column {
+    min-height: 205px;
+  }
+
+  .parent-chart-track {
+    width: 45px;
+    height: 155px;
+  }
+
+  .parent-pie-layout {
+    min-height: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 22px;
+  }
+
+  .parent-performance-pie {
+    width: 165px;
+    height: 165px;
+    min-width: 165px;
+  }
+
+  .parent-pie-inner {
+    width: 117px;
+    height: 117px;
+  }
+
+  .parent-performance-summary {
+    gap: 12px;
+  }
+
+  .parent-summary-box {
+    min-height: 100px;
+    padding: 17px;
+  }
+
+  .parent-section-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .parent-view-all-button,
+  .parent-task-total-badge {
+    align-self: flex-start;
+  }
+
+  .parent-student-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-student-card {
+    padding: 18px;
+  }
+
+  .parent-task-row {
+    align-items: flex-start;
+  }
+
+  .parent-task-status {
+    min-width: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .parent-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-topbar-left {
+    gap: 9px;
+  }
+
+  .parent-topbar h1 {
+    font-size: 19px;
+  }
+
+  .parent-child-banner {
+    align-items: flex-start;
+  }
+
+  .parent-child-banner p {
+    line-height: 1.5;
+  }
+
+  .parent-performance-header {
+    align-items: flex-start;
+  }
+
+  .parent-performance-header > strong {
+    font-size: 24px;
+  }
+
+  .parent-performance-title h2 {
+    font-size: 15px;
+  }
+
+  .parent-task-status {
+    display: none;
+  }
+
+  .parent-student-card-details {
+    gap: 10px;
+  }
+}

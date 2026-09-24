@@ -18,505 +18,187 @@ import {
   FaMagnifyingGlass,
   FaArrowRight,
   FaUser,
+  FaClipboardList,
+  FaCircleExclamation,
+  FaArrowTrendUp,
 } from "react-icons/fa6";
 
 import "./parent-dashboard.css";
 
+const API_URL = "https://zyntaweb.com/skilllab/parent-dashboard.php";
 
 function ParentDashboard() {
-
   const navigate = useNavigate();
 
-
-  /* =========================================
-     STATES
-  ========================================= */
-
   const [parent, setParent] = useState(null);
-
   const [loading, setLoading] = useState(true);
-
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const [activePage, setActivePage] =
-    useState("dashboard");
-
+  const [activePage, setActivePage] = useState("dashboard");
   const [search, setSearch] = useState("");
 
-
-  /* =========================================
-     DASHBOARD DATA
-  ========================================= */
-
   const [dashboard, setDashboard] = useState({
-
     students: [],
-
-    student: null,
-
     totalStudents: 0,
-
     totalTasks: 0,
-
     completedTasks: 0,
-
     pendingTasks: 0,
 
     todayPerformance: 0,
-
     weeklyPerformance: 0,
-
     monthlyPerformance: 0,
 
     todayCompleted: 0,
-
     todayTotal: 0,
-
     weekCompleted: 0,
-
     weekTotal: 0,
-
     monthCompleted: 0,
-
     monthTotal: 0,
 
+    recentTasks: [],
   });
 
-
-  /* =========================================
-     CHECK LOGIN
-  ========================================= */
-
   useEffect(() => {
+    const savedParent = localStorage.getItem("parent");
+    const loggedIn = localStorage.getItem("parentLoggedIn");
 
-    const savedParent =
-      localStorage.getItem("parent");
-
-    const loggedIn =
-      localStorage.getItem("parentLoggedIn");
-
-
-    if (
-      loggedIn !== "true" ||
-      !savedParent
-    ) {
-
-      navigate("/parent/login", {
-        replace: true,
-      });
-
+    if (loggedIn !== "true" || !savedParent) {
+      navigate("/parent/login", { replace: true });
       return;
     }
 
-
     try {
-
-      const parentData =
-        JSON.parse(savedParent);
-
-      setParent(parentData);
-
+      setParent(JSON.parse(savedParent));
     } catch (error) {
-
-      console.error(
-        "Parent data error:",
-        error
-      );
-
+      console.error("Parent data error:", error);
 
       localStorage.removeItem("parent");
+      localStorage.removeItem("parentLoggedIn");
+      localStorage.removeItem("parentStudents");
 
-      localStorage.removeItem(
-        "parentLoggedIn"
-      );
-
-      localStorage.removeItem(
-        "parentStudents"
-      );
-
-
-      navigate("/parent/login", {
-        replace: true,
-      });
-
+      navigate("/parent/login", { replace: true });
     }
-
   }, [navigate]);
 
-
-  /* =========================================
-     LOAD PARENT DASHBOARD
-  ========================================= */
-
   useEffect(() => {
-
     if (!parent?.id) return;
-
     loadDashboard();
-
   }, [parent]);
 
-
-  /* =========================================
-     LOAD DATA
-  ========================================= */
-
   const loadDashboard = async () => {
-
     try {
-
       setLoading(true);
 
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "parent_overview",
+          parent_id: parent.id,
+        }),
+      });
 
-      const response = await fetch(
-        "https://zyntaweb.com/skilllab/parent-dashboard.php",
-        {
-          method: "POST",
+      const data = await response.json();
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
+      console.log("Parent Dashboard:", data);
 
-          body: JSON.stringify({
-
-            action:
-              "parent_overview",
-
-            parent_id:
-              parent.id,
-
-          }),
-        }
-      );
-
-
-      const data =
-        await response.json();
-
-
-      console.log(
-        "Parent Dashboard:",
-        data
-      );
-
-
-      if (data.success) {
-
-        const overview =
-          data.overview || {};
-
-
-        setDashboard({
-
-          ...overview,
-
-          students:
-            Array.isArray(
-              overview.students
-            )
-              ? overview.students
-              : [],
-
-        });
-
+      if (!data.success) {
+        throw new Error(data.message || "Unable to load dashboard");
       }
 
+      const overview = data.overview || {};
+
+      setDashboard({
+        students: Array.isArray(overview.students) ? overview.students : [],
+        totalStudents: Number(overview.totalStudents) || 0,
+
+        totalTasks: Number(overview.totalTasks) || 0,
+        completedTasks: Number(overview.completedTasks) || 0,
+        pendingTasks: Number(overview.pendingTasks) || 0,
+
+        todayPerformance: Number(overview.todayPerformance) || 0,
+        weeklyPerformance: Number(overview.weeklyPerformance) || 0,
+        monthlyPerformance: Number(overview.monthlyPerformance) || 0,
+
+        todayCompleted: Number(overview.todayCompleted) || 0,
+        todayTotal: Number(overview.todayTotal) || 0,
+        weekCompleted: Number(overview.weekCompleted) || 0,
+        weekTotal: Number(overview.weekTotal) || 0,
+        monthCompleted: Number(overview.monthCompleted) || 0,
+        monthTotal: Number(overview.monthTotal) || 0,
+
+        recentTasks: Array.isArray(overview.recentTasks)
+          ? overview.recentTasks
+          : [],
+      });
     } catch (error) {
+      console.error("Parent dashboard error:", error);
 
-      console.error(
-        "Parent dashboard error:",
-        error
-      );
-
-
-      /*
-       * FALLBACK
-       * If API fails, use students
-       * saved during login.
-       */
-
+      // Login-time students are kept only as a fallback.
       try {
-
-        const savedStudents =
-          JSON.parse(
-            localStorage.getItem(
-              "parentStudents"
-            ) || "[]"
-          );
-
-
-        setDashboard((prev) => ({
-
-          ...prev,
-
-          students:
-            Array.isArray(
-              savedStudents
-            )
-              ? savedStudents
-              : [],
-
-          totalStudents:
-            Array.isArray(
-              savedStudents
-            )
-              ? savedStudents.length
-              : 0,
-
-        }));
-
-      } catch (storageError) {
-
-        console.error(
-          "Student storage error:",
-          storageError
+        const savedStudents = JSON.parse(
+          localStorage.getItem("parentStudents") || "[]"
         );
 
+        if (Array.isArray(savedStudents)) {
+          setDashboard((prev) => ({
+            ...prev,
+            students: savedStudents,
+            totalStudents: savedStudents.length,
+          }));
+        }
+      } catch (storageError) {
+        console.error("Student storage error:", storageError);
       }
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
-
-
-  /* =========================================
-     LOGOUT
-  ========================================= */
 
   const handleLogout = () => {
+    localStorage.removeItem("parent");
+    localStorage.removeItem("parentLoggedIn");
+    localStorage.removeItem("parentStudents");
 
-    localStorage.removeItem(
-      "parent"
-    );
-
-    localStorage.removeItem(
-      "parentLoggedIn"
-    );
-
-    localStorage.removeItem(
-      "parentStudents"
-    );
-
-
-    navigate("/parent/login", {
-      replace: true,
-    });
-
+    navigate("/parent/login", { replace: true });
   };
 
-
-  /* =========================================
-     GET STUDENTS
-  ========================================= */
-
-  const students = Array.isArray(
-    dashboard.students
-  )
+  const students = Array.isArray(dashboard.students)
     ? dashboard.students
     : [];
 
-
-  /* =========================================
-     SEARCH STUDENTS
-  ========================================= */
-
   const filteredStudents = useMemo(() => {
+    const value = search.trim().toLowerCase();
 
-    const value =
-      search
-        .trim()
-        .toLowerCase();
+    if (!value) return students;
 
-
-    if (!value) {
-
-      return students;
-
-    }
-
-
-    return students.filter(
-      (student) => {
-
-        return (
-
-          String(
-            student.name || ""
-          )
-            .toLowerCase()
-            .includes(value)
-
-          ||
-
-          String(
-            student.email || ""
-          )
-            .toLowerCase()
-            .includes(value)
-
-          ||
-
-          String(
-            student.id || ""
-          )
-            .toLowerCase()
-            .includes(value)
-
-        );
-
-      }
+    return students.filter((student) =>
+      [
+        student.name,
+        student.email,
+        student.id,
+      ].some((item) =>
+        String(item || "").toLowerCase().includes(value)
+      )
     );
-
   }, [students, search]);
 
-
-  /* =========================================
-     INITIALS
-  ========================================= */
-
   const getInitials = (name) => {
-
     if (!name) return "S";
 
-
-    const parts =
-      name
-        .trim()
-        .split(/\s+/);
-
+    const parts = String(name).trim().split(/\s+/);
 
     if (parts.length === 1) {
-
-      return parts[0]
-        .substring(0, 2)
-        .toUpperCase();
-
+      return parts[0].substring(0, 2).toUpperCase();
     }
 
-
-    return (
-
-      parts[0][0] +
-
-      parts[
-        parts.length - 1
-      ][0]
-
-    ).toUpperCase();
-
+    return `${parts[0][0]}${
+      parts[parts.length - 1][0]
+    }`.toUpperCase();
   };
 
-
-  /* =========================================
-     PERFORMANCE CLASS
-  ========================================= */
-
-  const getPerformanceClass = (
-    percentage
-  ) => {
-
-    const value =
-      Number(percentage) || 0;
-
-
-    if (value >= 60) {
-
-      return "strong";
-
-    }
-
-
-    if (value >= 40) {
-
-      return "good";
-
-    }
-
-
-    return "weak";
-
-  };
-
-
-  /* =========================================
-     PERFORMANCE LABEL
-  ========================================= */
-
-  const getPerformanceLabel = (
-    percentage
-  ) => {
-
-    const value =
-      Number(percentage) || 0;
-
-
-    if (value >= 60) {
-
-      return "Strong";
-
-    }
-
-
-    if (value >= 40) {
-
-      return "Average";
-
-    }
-
-
-    return "Needs Attention";
-
-  };
-
-
-  /* =========================================
-     FORMAT DATE
-  ========================================= */
-
-  const formatDate = (date) => {
-
-    if (!date) return "—";
-
-
-    const parsed =
-      new Date(date);
-
-
-    if (
-      Number.isNaN(
-        parsed.getTime()
-      )
-    ) {
-
-      return date;
-
-    }
-
-
-    return parsed.toLocaleDateString(
-      "en-IN",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }
-    );
-
-  };
-
-
-
-  /* =========================================
-     STUDENT PERFORMANCE ANALYTICS
-     Uses only students assigned to this parent.
-  ========================================= */
-
-  const getStudentPerformance = (student) => {
+  const getPerformance = (student) => {
     const value =
       student?.weekPerformance ??
       student?.week_performance ??
@@ -524,18 +206,64 @@ function ParentDashboard() {
       student?.weekly_performance ??
       student?.performance ??
       student?.performance_percentage ??
-      student?.performancePercentage ??
       0;
 
     return Math.max(0, Math.min(100, Number(value) || 0));
   };
 
-  const performanceData = useMemo(() => {
-    return students.map((student) => ({
-      ...student,
-      performance: getStudentPerformance(student),
-    }));
-  }, [students]);
+  const getPerformanceClass = (percentage) => {
+    const value = Number(percentage) || 0;
+
+    if (value >= 60) return "strong";
+    if (value >= 40) return "good";
+    return "weak";
+  };
+
+  const getPerformanceLabel = (percentage) => {
+    const value = Number(percentage) || 0;
+
+    if (value >= 60) return "Strong";
+    if (value >= 40) return "Average";
+    return "Needs Attention";
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "—";
+
+    const parsed = new Date(date);
+
+    if (Number.isNaN(parsed.getTime())) return date;
+
+    return parsed.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatTaskDate = (date) => {
+    if (!date) return "No date";
+
+    const parsed = new Date(date);
+
+    if (Number.isNaN(parsed.getTime())) {
+      return String(date).substring(0, 10);
+    }
+
+    return parsed.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+    });
+  };
+
+  const performanceData = useMemo(
+    () =>
+      students.map((student) => ({
+        ...student,
+        performance: getPerformance(student),
+      })),
+    [students]
+  );
 
   const performanceGroups = useMemo(() => {
     const strong = performanceData.filter(
@@ -556,9 +284,7 @@ function ParentDashboard() {
   }, [performanceData]);
 
   const totalPerformanceStudents =
-    performanceGroups.strong.length +
-    performanceGroups.average.length +
-    performanceGroups.weak.length;
+    performanceData.length;
 
   const strongPercent =
     totalPerformanceStudents > 0
@@ -570,13 +296,6 @@ function ParentDashboard() {
   const averagePercent =
     totalPerformanceStudents > 0
       ? (performanceGroups.average.length /
-          totalPerformanceStudents) *
-        100
-      : 0;
-
-  const weakPercent =
-    totalPerformanceStudents > 0
-      ? (performanceGroups.weak.length /
           totalPerformanceStudents) *
         100
       : 0;
@@ -599,27 +318,12 @@ function ParentDashboard() {
     },
   ];
 
-
-  /* =========================================
-     OPEN STUDENT DASHBOARD
-  ========================================= */
-
   const openStudentDashboard = (student) => {
-
     if (!student?.id) {
       console.error("Invalid student:", student);
       return;
     }
 
-    /*
-     * Save the selected student so the common
-     * student dashboard can read the student
-     * even after route navigation/remount.
-     *
-     * Keep both keys so Admin and Parent
-     * student-dashboard logic can use the
-     * same selected-student data.
-     */
     const studentData = {
       id: student.id,
       name: student.name || "",
@@ -636,10 +340,6 @@ function ParentDashboard() {
       JSON.stringify(studentData)
     );
 
-    /*
-     * Open the SAME student dashboard used
-     * from Admin -> All Students -> View Dashboard.
-     */
     navigate(
       `/parent/students/${student.id}/dashboard`,
       {
@@ -653,269 +353,133 @@ function ParentDashboard() {
     );
   };
 
-
-  /* =========================================
-     SIDEBAR
-  ========================================= */
-
   const renderSidebar = () => (
-
     <>
-
       {mobileOpen && (
-
         <div
           className="parent-sidebar-overlay"
-          onClick={() =>
-            setMobileOpen(false)
-          }
+          onClick={() => setMobileOpen(false)}
         />
-
       )}
-
 
       <aside
         className={`parent-sidebar ${
-          mobileOpen
-            ? "mobile-open"
-            : ""
+          mobileOpen ? "mobile-open" : ""
         }`}
       >
-
-        {/* BRAND */}
-
         <div className="parent-sidebar-brand">
-
-          <strong>
-            SKILL LAB
-          </strong>
-
+          <strong>SKILL LAB</strong>
 
           <button
             className="parent-sidebar-close"
-            onClick={() =>
-              setMobileOpen(false)
-            }
+            onClick={() => setMobileOpen(false)}
+            aria-label="Close menu"
           >
-
             <FaXmark />
-
           </button>
-
         </div>
-
-
-        {/* NAVIGATION */}
 
         <div className="parent-sidebar-content">
-
-
-          {/* DASHBOARD */}
-
           <button
             className={`parent-nav-item ${
-              activePage === "dashboard"
-                ? "active"
-                : ""
+              activePage === "dashboard" ? "active" : ""
             }`}
             onClick={() => {
-
-              setActivePage(
-                "dashboard"
-              );
-
+              setActivePage("dashboard");
               setSearch("");
-
               setMobileOpen(false);
-
             }}
           >
-
             <FaGaugeHigh />
-
-            <span>
-              Dashboard
-            </span>
-
+            <span>Dashboard</span>
           </button>
-
-
-          {/* MY STUDENTS */}
 
           <button
             className={`parent-nav-item ${
-              activePage === "students"
-                ? "active"
-                : ""
+              activePage === "students" ? "active" : ""
             }`}
             onClick={() => {
-
-              setActivePage(
-                "students"
-              );
-
+              setActivePage("students");
               setSearch("");
-
               setMobileOpen(false);
-
             }}
           >
-
             <FaUserGraduate />
-
-            <span>
-              My Students
-            </span>
-
+            <span>My Students</span>
           </button>
-
-
-          {/* PARENT PROFILE */}
 
           <button
             className={`parent-nav-item ${
-              activePage === "profile"
-                ? "active"
-                : ""
+              activePage === "profile" ? "active" : ""
             }`}
             onClick={() => {
-
               setActivePage("profile");
-
               setSearch("");
-
               setMobileOpen(false);
-
             }}
           >
-
             <FaUser />
-
-            <span>
-              My Profile
-            </span>
-
+            <span>My Profile</span>
           </button>
-
-
         </div>
 
-
-        {/* LOGOUT */}
-
         <div className="parent-sidebar-bottom">
-
           <button
             className="parent-logout"
             onClick={handleLogout}
           >
-
             <FaArrowRightFromBracket />
-
-            <span>
-              Logout
-            </span>
-
+            <span>Logout</span>
           </button>
-
         </div>
-
-
       </aside>
-
     </>
-
   );
 
-
-  /* =========================================
-     TOPBAR
-  ========================================= */
-
   const renderTopbar = () => (
-
     <header className="parent-topbar">
-
       <div className="parent-topbar-left">
-
-
         <button
           className="parent-mobile-menu"
-          onClick={() =>
-            setMobileOpen(true)
-          }
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open menu"
         >
-
           <FaBars />
-
         </button>
 
-
         <div>
-
           <h1>
-
             {activePage === "students"
               ? "My Students"
               : activePage === "profile"
               ? "My Profile"
               : "Parent Dashboard"}
-
           </h1>
 
-
           <p>
-
             {activePage === "students"
-              ? "View your assigned students."
+              ? "Monitor every assigned student and their learning progress."
               : activePage === "profile"
               ? "View your parent account details."
-              : "Monitor your assigned students' learning performance and progress."}
-
+              : "Track assigned students, tasks and learning performance in one place."}
           </p>
-
         </div>
-
       </div>
-
-
-      {/* PROFILE */}
 
       <div className="parent-profile">
-
         <div className="parent-profile-avatar">
-
           {getInitials(
-            parent?.name ||
-            parent?.username
+            parent?.name || parent?.username
           )}
-
         </div>
-
 
         <div>
-
-          <strong>
-            Welcome Parent
-          </strong>
-
-          <span>
-            {parent?.username || ""}
-          </span>
-
+          <strong>Welcome Parent</strong>
+          <span>{parent?.username || ""}</span>
         </div>
-
       </div>
-
-
     </header>
-
   );
-
-
-  /* =========================================
-     STAT CARD
-  ========================================= */
 
   const StatCard = ({
     icon,
@@ -924,42 +488,18 @@ function ParentDashboard() {
     subtitle,
     type,
   }) => (
-
     <div className="parent-stat-card">
-
-      <div
-        className={`parent-stat-icon ${type}`}
-      >
-
+      <div className={`parent-stat-icon ${type}`}>
         {icon}
-
       </div>
-
 
       <div className="parent-stat-details">
-
-        <span>
-          {title}
-        </span>
-
-        <strong>
-          {value}
-        </strong>
-
-        <small>
-          {subtitle}
-        </small>
-
+        <span>{title}</span>
+        <strong>{value}</strong>
+        <small>{subtitle}</small>
       </div>
-
     </div>
-
   );
-
-
-  /* =========================================
-     PERFORMANCE CARD
-  ========================================= */
 
   const PerformanceCard = ({
     title,
@@ -967,265 +507,164 @@ function ParentDashboard() {
     completed,
     total,
     type,
-  }) => (
+  }) => {
+    const safePercentage = Math.max(
+      0,
+      Math.min(100, Number(percentage) || 0)
+    );
 
-    <div
-      className={`parent-performance-card ${type}`}
-    >
+    return (
+      <div
+        className={`parent-performance-card ${type}`}
+      >
+        <div className="parent-performance-header">
+          <div className="parent-performance-title">
+            <div
+              className={`parent-performance-icon ${type}`}
+            >
+              <FaCalendarDays />
+            </div>
 
-      <div className="parent-performance-header">
+            <div>
+              <h2>{title}</h2>
+              <p>All assigned students</p>
+            </div>
+          </div>
 
-        <div className="parent-performance-title">
+          <strong>{safePercentage}%</strong>
+        </div>
 
+        <div className="parent-large-progress">
           <div
-            className={`parent-performance-icon ${type}`}
-          >
-
-            <FaCalendarDays />
-
-          </div>
-
-
-          <div>
-
-            <h2>
-              {title}
-            </h2>
-
-            <p>
-              Overall student performance
-            </p>
-
-          </div>
-
+            className={`parent-large-progress-fill ${type}`}
+            style={{
+              width: `${safePercentage}%`,
+            }}
+          />
         </div>
 
-
-        <strong>
-          {percentage}%
-        </strong>
-
-      </div>
-
-
-      <div className="parent-large-progress">
-
-        <div
-          className={`parent-large-progress-fill ${type}`}
-          style={{
-            width: `${Math.min(
-              100,
-              Number(
-                percentage
-              ) || 0
-            )}%`,
-          }}
-        />
-
-      </div>
-
-
-      <div className="parent-performance-footer">
-
-        <span>
-
-          <FaCircleCheck />
-
-          {completed} completed
-
-        </span>
-
-
-        <span>
-
-          {total} total tasks
-
-        </span>
-
-      </div>
-
-    </div>
-
-  );
-
-
-  /* =========================================
-     DASHBOARD HOME
-  ========================================= */
-
-  const renderDashboardHome = () => (
-
-    <>
-
-      {/* CHILD SUMMARY */}
-
-      <section className="parent-child-banner">
-
-        <div className="parent-child-avatar">
-
-          <FaUserGraduate />
-
-        </div>
-
-
-        <div>
-
+        <div className="parent-performance-footer">
           <span>
-            Assigned Students
+            <FaCircleCheck />
+            {completed} completed
           </span>
 
+          <span>{total} total tasks</span>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDashboardHome = () => (
+    <>
+      <section className="parent-child-banner">
+        <div className="parent-child-avatar">
+          <FaUserGroup />
+        </div>
+
+        <div>
+          <span>Assigned Students</span>
+
           <h2>
-            {students.length} Students
+            {students.length}{" "}
+            {students.length === 1
+              ? "Student"
+              : "Students"}
           </h2>
 
           <p>
-            Track your assigned children's
-            daily learning activity.
+            Every task and performance figure below is
+            calculated from the students assigned to this
+            parent account.
           </p>
-
         </div>
-
       </section>
 
-
-      {/* STAT CARDS */}
-
       <section className="parent-stat-grid">
-
-
         <StatCard
           icon={<FaUserGraduate />}
           title="My Students"
-          value={
-            students.length
-          }
+          value={students.length}
           subtitle="Assigned students"
           type="purple"
         />
 
-
         <StatCard
           icon={<FaListCheck />}
           title="Total Tasks"
-          value={
-            dashboard.totalTasks ?? 0
-          }
-          subtitle="Assigned tasks"
+          value={dashboard.totalTasks}
+          subtitle="All assigned tasks"
           type="blue"
         />
-
 
         <StatCard
           icon={<FaCircleCheck />}
           title="Completed"
-          value={
-            dashboard.completedTasks ?? 0
-          }
+          value={dashboard.completedTasks}
           subtitle="Completed tasks"
           type="green"
         />
 
-
         <StatCard
-          icon={<FaTrophy />}
-          title="Performance"
-          value={
-            `${dashboard.weeklyPerformance ?? 0}%`
-          }
-          subtitle="Weekly performance"
-          type="blue"
+          icon={<FaClock />}
+          title="Pending"
+          value={dashboard.pendingTasks}
+          subtitle="Tasks remaining"
+          type="orange"
         />
-
-
       </section>
 
-
-      {/* PERFORMANCE */}
-
       <section className="parent-performance-grid">
-
-
         <PerformanceCard
           title="Today Performance"
-          percentage={
-            dashboard.todayPerformance ?? 0
-          }
-          completed={
-            dashboard.todayCompleted ?? 0
-          }
-          total={
-            dashboard.todayTotal ?? 0
-          }
+          percentage={dashboard.todayPerformance}
+          completed={dashboard.todayCompleted}
+          total={dashboard.todayTotal}
           type="green"
         />
 
-
         <PerformanceCard
           title="Weekly Performance"
-          percentage={
-            dashboard.weeklyPerformance ?? 0
-          }
-          completed={
-            dashboard.weekCompleted ?? 0
-          }
-          total={
-            dashboard.weekTotal ?? 0
-          }
+          percentage={dashboard.weeklyPerformance}
+          completed={dashboard.weekCompleted}
+          total={dashboard.weekTotal}
           type="blue"
         />
 
-
         <PerformanceCard
           title="Monthly Performance"
-          percentage={
-            dashboard.monthlyPerformance ?? 0
-          }
-          completed={
-            dashboard.monthCompleted ?? 0
-          }
-          total={
-            dashboard.monthTotal ?? 0
-          }
+          percentage={dashboard.monthlyPerformance}
+          completed={dashboard.monthCompleted}
+          total={dashboard.monthTotal}
           type="purple"
         />
-
-
       </section>
 
-
-      {/* ANALYTICS */}
-
       <section className="parent-analytics-grid">
-
-        {/* PERFORMANCE GRAPH */}
-
         <div className="parent-analysis-card">
-
           <div className="parent-analysis-header">
-
             <div>
               <h2>Performance Overview</h2>
-              <p>Today, weekly and monthly performance</p>
+              <p>
+                Combined performance of all assigned
+                students
+              </p>
             </div>
 
             <FaChartLine />
-
           </div>
 
           <div className="parent-bar-chart">
-
             {performanceChart.map((item) => (
               <div
                 className="parent-chart-column"
                 key={item.label}
               >
-
                 <div className="parent-chart-value">
                   {item.value}%
                 </div>
 
                 <div className="parent-chart-track">
-
                   <div
                     className={`parent-chart-bar ${item.type}`}
                     style={{
@@ -1235,44 +674,35 @@ function ParentDashboard() {
                       )}%`,
                     }}
                   />
-
                 </div>
 
                 <span>{item.label}</span>
-
               </div>
             ))}
-
           </div>
 
           <div className="parent-analysis-note">
-            <FaClock />
+            <FaArrowTrendUp />
             <span>
-              Performance values are calculated from the
-              parent dashboard data returned by the server.
+              Performance = completed tasks ÷ assigned
+              tasks for the selected period.
             </span>
           </div>
-
         </div>
 
-
-        {/* PERFORMANCE DISTRIBUTION */}
-
         <div className="parent-analysis-card">
-
           <div className="parent-analysis-header">
-
             <div>
               <h2>Student Performance</h2>
-              <p>Performance distribution of your students</p>
+              <p>
+                Weekly performance distribution
+              </p>
             </div>
 
             <FaTrophy />
-
           </div>
 
           <div className="parent-pie-layout">
-
             <div
               className="parent-performance-pie"
               style={{
@@ -1297,13 +727,13 @@ function ParentDashboard() {
             </div>
 
             <div className="parent-analysis-legend">
-
               <div>
                 <span className="parent-legend-dot strong" />
                 <div>
                   <strong>Strong</strong>
                   <small>
-                    {performanceGroups.strong.length} students
+                    {performanceGroups.strong.length}{" "}
+                    students
                   </small>
                 </div>
               </div>
@@ -1313,7 +743,8 @@ function ParentDashboard() {
                 <div>
                   <strong>Average</strong>
                   <small>
-                    {performanceGroups.average.length} students
+                    {performanceGroups.average.length}{" "}
+                    students
                   </small>
                 </div>
               </div>
@@ -1323,526 +754,486 @@ function ParentDashboard() {
                 <div>
                   <strong>Needs Attention</strong>
                   <small>
-                    {performanceGroups.weak.length} students
+                    {performanceGroups.weak.length}{" "}
+                    students
                   </small>
                 </div>
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </section>
 
-
-      {/* PERFORMANCE SUMMARY */}
-
       <section className="parent-performance-summary">
-
         <div className="parent-summary-box strong">
-
           <div className="parent-summary-box-icon">
             <FaCircleCheck />
           </div>
-
           <div>
             <span>Strong Performance</span>
-            <strong>{performanceGroups.strong.length}</strong>
+            <strong>
+              {performanceGroups.strong.length}
+            </strong>
             <small>60% and above</small>
           </div>
-
         </div>
 
-
         <div className="parent-summary-box average">
-
           <div className="parent-summary-box-icon">
             <FaChartLine />
           </div>
-
           <div>
             <span>Average Performance</span>
-            <strong>{performanceGroups.average.length}</strong>
+            <strong>
+              {performanceGroups.average.length}
+            </strong>
             <small>40% - 59%</small>
           </div>
-
         </div>
 
-
         <div className="parent-summary-box weak">
-
           <div className="parent-summary-box-icon">
             <FaTriangleExclamation />
           </div>
-
           <div>
             <span>Needs Attention</span>
-            <strong>{performanceGroups.weak.length}</strong>
+            <strong>
+              {performanceGroups.weak.length}
+            </strong>
             <small>Below 40%</small>
           </div>
-
         </div>
-
       </section>
 
-
-      {/* RECENT ACTIVITY */}
-
-      <section className="parent-activity-card">
-
+      <section className="parent-analysis-card parent-student-performance-table-card">
         <div className="parent-section-header">
-
           <div>
-
-            <h2>
-              My Students
-            </h2>
-
+            <h2>Student Performance Details</h2>
             <p>
-              Students assigned to your account
+              Task completion and performance for every
+              assigned student
             </p>
-
           </div>
-
 
           <button
             className="parent-view-all-button"
-            onClick={() =>
-              setActivePage(
-                "students"
-              )
-            }
+            onClick={() => {
+              setActivePage("students");
+              setSearch("");
+            }}
           >
-
-            View Students
-
+            My Students
             <FaArrowRight />
-
           </button>
-
         </div>
-
 
         {students.length === 0 ? (
-
           <div className="parent-empty">
-
             <FaUserGraduate />
-
-            <h3>
-              No Students Assigned
-            </h3>
-
+            <h3>No Students Assigned</h3>
             <p>
-              No students are currently
-              assigned to your account.
+              Students assigned by the admin will appear
+              here.
             </p>
-
           </div>
-
         ) : (
+          <div className="parent-performance-table-wrap">
+            <table className="parent-performance-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Total Tasks</th>
+                  <th>Completed</th>
+                  <th>Pending</th>
+                  <th>Weekly Performance</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
 
-          <div className="parent-mini-student-list">
+              <tbody>
+                {students.map((student) => {
+                  const performance =
+                    getPerformance(student);
 
-            {students
-              .slice(0, 3)
-              .map((student) => (
+                  const total =
+                    Number(student.totalTasks) || 0;
 
-                <div
-                  className="parent-mini-student"
-                  key={student.id}
-                >
+                  const completed =
+                    Number(student.completedTasks) || 0;
 
-                  <div className="parent-mini-avatar">
+                  const pending =
+                    Number(student.pendingTasks) ||
+                    Math.max(0, total - completed);
 
-                    {getInitials(
-                      student.name
-                    )}
+                  return (
+                    <tr key={student.id}>
+                      <td>
+                        <div className="parent-table-student">
+                          <div className="parent-table-avatar">
+                            {getInitials(student.name)}
+                          </div>
 
-                  </div>
+                          <div>
+                            <strong>
+                              {student.name ||
+                                "Unnamed Student"}
+                            </strong>
+                            <span>
+                              #{student.id}{" "}
+                              {student.email
+                                ? `• ${student.email}`
+                                : ""}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
 
+                      <td>
+                        <strong>{total}</strong>
+                      </td>
 
-                  <div>
+                      <td>
+                        <span className="parent-table-completed">
+                          <FaCircleCheck />
+                          {completed}
+                        </span>
+                      </td>
 
-                    <strong>
-                      {student.name}
-                    </strong>
+                      <td>{pending}</td>
 
-                    <span>
-                      Student ID: #{student.id}
-                    </span>
+                      <td>
+                        <div className="parent-table-performance">
+                          <div>
+                            <strong>
+                              {performance}%
+                            </strong>
+                            <span>
+                              {getPerformanceLabel(
+                                performance
+                              )}
+                            </span>
+                          </div>
 
-                  </div>
+                          <div className="parent-table-progress">
+                            <span
+                              className={
+                                getPerformanceClass(
+                                  performance
+                                )
+                              }
+                              style={{
+                                width: `${performance}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </td>
 
-                </div>
-
-              ))}
-
+                      <td>
+                        <button
+                          className="parent-table-view-button"
+                          onClick={() =>
+                            openStudentDashboard(student)
+                          }
+                        >
+                          View
+                          <FaArrowRight />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-
         )}
-
       </section>
 
-    </>
+      <section className="parent-analysis-card parent-tasks-card">
+        <div className="parent-section-header">
+          <div>
+            <h2>Assigned Tasks</h2>
+            <p>
+              Recently assigned tasks from your students
+            </p>
+          </div>
 
-  );
-
-
-  /* =========================================
-     MY STUDENTS PAGE
-  ========================================= */
-
-  const renderMyStudents = () => (
-
-    <section className="parent-all-students-page">
-
-
-      {/* HEADER */}
-
-      <div className="parent-all-students-header">
-
-        <div>
-
-          <h2>
-            My Students
-          </h2>
-
-          <p>
-            View and monitor your assigned students.
-          </p>
-
+          <div className="parent-task-total-badge">
+            <FaClipboardList />
+            {dashboard.totalTasks} total
+          </div>
         </div>
 
+        {dashboard.recentTasks.length === 0 ? (
+          <div className="parent-empty">
+            <FaClipboardList />
+            <h3>No Tasks Found</h3>
+            <p>
+              Assigned tasks will appear here once
+              students have tasks.
+            </p>
+          </div>
+        ) : (
+          <div className="parent-task-list">
+            {dashboard.recentTasks.map(
+              (task, index) => {
+                const completed =
+                  Boolean(task.completed) ||
+                  Number(task.status) === 1;
+
+                return (
+                  <div
+                    className="parent-task-row"
+                    key={
+                      task.id ||
+                      `${task.user_id}-${task.task_date}-${index}`
+                    }
+                  >
+                    <div className="parent-task-icon">
+                      {completed ? (
+                        <FaCircleCheck />
+                      ) : (
+                        <FaClock />
+                      )}
+                    </div>
+
+                    <div className="parent-task-main">
+                      <strong>
+                        {task.title ||
+                          task.task_title ||
+                          "Assigned Task"}
+                      </strong>
+
+                      <span>
+                        {task.student_name ||
+                          `Student #${task.user_id}`}
+                        {" • "}
+                        {formatTaskDate(task.task_date)}
+                      </span>
+                    </div>
+
+                    <span
+                      className={`parent-task-status ${
+                        completed
+                          ? "completed"
+                          : "pending"
+                      }`}
+                    >
+                      {completed
+                        ? "Completed"
+                        : "Pending"}
+                    </span>
+                  </div>
+                );
+              }
+            )}
+          </div>
+        )}
+      </section>
+    </>
+  );
+
+  const renderMyStudents = () => (
+    <section className="parent-all-students-page">
+      <div className="parent-all-students-header">
+        <div>
+          <h2>My Students</h2>
+          <p>
+            View every assigned student with task
+            completion and performance.
+          </p>
+        </div>
 
         <button
           className="parent-refresh-button"
           onClick={loadDashboard}
           disabled={loading}
         >
-
-          {loading
-            ? "Refreshing..."
-            : "Refresh"}
-
+          {loading ? "Refreshing..." : "Refresh"}
         </button>
-
       </div>
 
-
-      {/* SEARCH */}
-
       <div className="parent-students-search-box">
-
         <FaMagnifyingGlass />
-
         <input
           type="text"
           placeholder="Search student by name, email or ID..."
           value={search}
-          onChange={(e) =>
-            setSearch(
-              e.target.value
-            )
-          }
+          onChange={(e) => setSearch(e.target.value)}
         />
-
       </div>
 
-
-      {/* STUDENTS */}
-
       {loading ? (
-
         <div className="parent-loading students-page-loading">
-
           <span />
-
-          <p>
-            Loading students...
-          </p>
-
+          <p>Loading students...</p>
         </div>
-
       ) : filteredStudents.length === 0 ? (
-
         <div className="parent-empty students-empty">
-
           <div>
             <FaUser />
           </div>
-
-          <h3>
-            No students found
-          </h3>
-
+          <h3>No students found</h3>
           <p>
-            No students are assigned
-            to your account.
+            No students are currently assigned to your
+            account.
           </p>
-
         </div>
-
       ) : (
-
         <div className="parent-student-cards-grid">
+          {filteredStudents.map((student) => {
+            const performance =
+              getPerformance(student);
 
+            const total =
+              Number(student.totalTasks) || 0;
 
-          {filteredStudents.map(
-            (student) => {
+            const completed =
+              Number(student.completedTasks) || 0;
 
-              const performance =
-                Number(
-                  student.weekPerformance ||
-                  student.week_performance ||
-                  student.performance ||
-                  0
-                );
+            const pending =
+              Number(student.pendingTasks) ||
+              Math.max(0, total - completed);
 
+            const todayPerformance =
+              Number(student.todayPerformance) || 0;
 
-              const status =
-                student.status ||
-                "active";
+            const monthPerformance =
+              Number(student.monthlyPerformance) || 0;
 
-
-              return (
-
-                <div
-                  className="parent-student-card"
-                  key={student.id}
-                  onClick={() =>
-                    openStudentDashboard(
-                      student
-                    )
-                  }
-                >
-
-
-                  {/* TOP */}
-
-                  <div className="parent-student-card-top">
-
-
-                    {student.photo ? (
-
-                      <img
-                        src={
-                          student.photo
-                        }
-                        alt={
-                          student.name
-                        }
-                        className="parent-student-card-photo"
-                      />
-
-                    ) : (
-
-                      <div className="parent-student-card-avatar">
-
-                        {getInitials(
-                          student.name
-                        )}
-
-                      </div>
-
-                    )}
-
-
-                    <div className="parent-student-card-name">
-
-                      <h3>
-
-                        {student.name ||
-                          "Unnamed Student"}
-
-                      </h3>
-
-
-                      <span>
-
-                        Student ID: #
-                        {student.id}
-
-                      </span>
-
-                    </div>
-
-
-                    <FaChevronRight
-                      className="parent-student-card-arrow"
+            return (
+              <div
+                className="parent-student-card"
+                key={student.id}
+                onClick={() =>
+                  openStudentDashboard(student)
+                }
+              >
+                <div className="parent-student-card-top">
+                  {student.photo ? (
+                    <img
+                      src={student.photo}
+                      alt={student.name}
+                      className="parent-student-card-photo"
                     />
+                  ) : (
+                    <div className="parent-student-card-avatar">
+                      {getInitials(student.name)}
+                    </div>
+                  )}
 
-                  </div>
-
-
-                  {/* EMAIL */}
-
-                  <div className="parent-student-card-contact">
-
-                    <span className="parent-email-icon">
-                      @
-                    </span>
-
+                  <div className="parent-student-card-name">
+                    <h3>
+                      {student.name ||
+                        "Unnamed Student"}
+                    </h3>
 
                     <span>
-
-                      {student.email ||
-                        "—"}
-
+                      Student ID: #{student.id}
                     </span>
-
                   </div>
 
-
-                  {/* DETAILS */}
-
-                  <div className="parent-student-card-details">
-
-
-                    <div>
-
-                      <small>
-                        Join Date
-                      </small>
-
-                      <strong>
-
-                        <FaCalendarDays />
-
-                        {formatDate(
-                          student.join_date ||
-                          student.joinDate
-                        )}
-
-                      </strong>
-
-                    </div>
-
-
-                    <div>
-
-                      <small>
-                        Expiry Date
-                      </small>
-
-                      <strong>
-
-                        <FaCalendarDays />
-
-                        {formatDate(
-                          student.expiry_date ||
-                          student.expiryDate
-                        )}
-
-                      </strong>
-
-                    </div>
-
-
-                  </div>
-
-
-                  {/* STATUS */}
-
-                  <div className="parent-student-card-status-row">
-
-
-                    <span
-                      className={`parent-student-status ${status}`}
-                    >
-
-                      <span className="parent-status-dot" />
-
-                      {status === "expired"
-                        ? "Expired"
-                        : status === "expiring"
-                        ? "Expiring Soon"
-                        : "Active"}
-
-                    </span>
-
-
-                    <span className="parent-student-performance-text">
-
-                      {performance}%
-
-                    </span>
-
-
-                  </div>
-
-
-                  {/* PROGRESS */}
-
-                  <div className="parent-student-card-progress">
-
-                    <div className="parent-student-card-progress-track">
-
-                      <div
-                        className={`parent-student-card-progress-fill ${getPerformanceClass(
-                          performance
-                        )}`}
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            performance
-                          )}%`,
-                        }}
-                      />
-
-                    </div>
-
-                  </div>
-
-
-                  {/* BUTTON */}
-
-                  <button
-                    className="parent-student-dashboard-button"
-                    onClick={(e) => {
-
-                      e.stopPropagation();
-
-                      openStudentDashboard(
-                        student
-                      );
-
-                    }}
-                  >
-
-                    View Dashboard
-
-                    <FaArrowRight />
-
-                  </button>
-
-
+                  <FaChevronRight className="parent-student-card-arrow" />
                 </div>
 
-              );
+                <div className="parent-student-card-contact">
+                  <span className="parent-email-icon">
+                    @
+                  </span>
+                  <span>
+                    {student.email || "No email"}
+                  </span>
+                </div>
 
-            }
-          )}
+                <div className="parent-student-task-stats">
+                  <div>
+                    <small>Total Tasks</small>
+                    <strong>{total}</strong>
+                  </div>
 
+                  <div>
+                    <small>Completed</small>
+                    <strong className="completed">
+                      {completed}
+                    </strong>
+                  </div>
 
+                  <div>
+                    <small>Pending</small>
+                    <strong className="pending">
+                      {pending}
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="parent-student-performance-head">
+                  <div>
+                    <small>Weekly Performance</small>
+                    <strong>{performance}%</strong>
+                  </div>
+
+                  <span
+                    className={`parent-performance-pill ${getPerformanceClass(
+                      performance
+                    )}`}
+                  >
+                    {getPerformanceLabel(performance)}
+                  </span>
+                </div>
+
+                <div className="parent-student-card-progress">
+                  <div className="parent-student-card-progress-track">
+                    <div
+                      className={`parent-student-card-progress-fill ${getPerformanceClass(
+                        performance
+                      )}`}
+                      style={{
+                        width: `${performance}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="parent-student-periods">
+                  <div>
+                    <span>Today</span>
+                    <strong>
+                      {todayPerformance}%
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>Weekly</span>
+                    <strong>{performance}%</strong>
+                  </div>
+
+                  <div>
+                    <span>Monthly</span>
+                    <strong>
+                      {monthPerformance}%
+                    </strong>
+                  </div>
+                </div>
+
+                <button
+                  className="parent-student-dashboard-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openStudentDashboard(student);
+                  }}
+                >
+                  View Student Dashboard
+                  <FaArrowRight />
+                </button>
+              </div>
+            );
+          })}
         </div>
-
       )}
-
-
     </section>
-
   );
 
-
-  /* =========================================
-     PARENT PROFILE
-  ========================================= */
-
   const renderParentProfile = () => {
-
     const profileName =
       parent?.name ||
       parent?.full_name ||
@@ -1851,8 +1242,7 @@ function ParentDashboard() {
       "Parent";
 
     const profileUsername =
-      parent?.username ||
-      "—";
+      parent?.username || "—";
 
     const profileEmail =
       parent?.email ||
@@ -1866,8 +1256,7 @@ function ParentDashboard() {
       "—";
 
     const profileAddress =
-      parent?.address ||
-      "—";
+      parent?.address || "—";
 
     const profileId =
       parent?.id ||
@@ -1876,30 +1265,25 @@ function ParentDashboard() {
 
     return (
       <section className="parent-profile-page">
-
         <div className="parent-profile-heading">
           <div>
             <h2>My Profile</h2>
             <p>
-              View the profile details of the parent account
-              currently logged in.
+              View the profile details of the parent
+              account currently logged in.
             </p>
           </div>
         </div>
 
-
         <div className="parent-profile-card">
-
           <div className="parent-profile-cover" />
 
           <div className="parent-profile-main">
-
             <div className="parent-profile-large-avatar">
               {getInitials(profileName)}
             </div>
 
             <div className="parent-profile-main-info">
-
               <h2>{profileName}</h2>
 
               <span>
@@ -1910,90 +1294,63 @@ function ParentDashboard() {
               <small>
                 Parent ID: #{profileId}
               </small>
-
             </div>
-
           </div>
 
-
           <div className="parent-profile-details-grid">
-
             <div className="parent-profile-detail">
-
               <div className="parent-profile-detail-icon purple">
                 <FaUser />
               </div>
-
               <div>
                 <span>Full Name</span>
                 <strong>{profileName}</strong>
               </div>
-
             </div>
 
-
             <div className="parent-profile-detail">
-
               <div className="parent-profile-detail-icon blue">
                 <FaListCheck />
               </div>
-
               <div>
                 <span>Username</span>
                 <strong>{profileUsername}</strong>
               </div>
-
             </div>
 
-
             <div className="parent-profile-detail">
-
               <div className="parent-profile-detail-icon green">
                 <FaChartLine />
               </div>
-
               <div>
                 <span>Email</span>
                 <strong>{profileEmail}</strong>
               </div>
-
             </div>
 
-
             <div className="parent-profile-detail">
-
               <div className="parent-profile-detail-icon orange">
                 <FaClock />
               </div>
-
               <div>
                 <span>Phone</span>
                 <strong>{profilePhone}</strong>
               </div>
-
             </div>
 
-
             <div className="parent-profile-detail parent-profile-detail-wide">
-
               <div className="parent-profile-detail-icon pink">
                 <FaCalendarDays />
               </div>
-
               <div>
                 <span>Address</span>
                 <strong>{profileAddress}</strong>
               </div>
-
             </div>
-
           </div>
-
         </div>
 
-
         <div className="parent-profile-stats">
-
           <div>
             <FaUserGraduate />
             <span>Assigned Students</span>
@@ -2003,82 +1360,39 @@ function ParentDashboard() {
           <div>
             <FaListCheck />
             <span>Total Tasks</span>
-            <strong>{dashboard.totalTasks ?? 0}</strong>
+            <strong>{dashboard.totalTasks}</strong>
           </div>
 
           <div>
             <FaCircleCheck />
             <span>Completed Tasks</span>
-            <strong>{dashboard.completedTasks ?? 0}</strong>
+            <strong>{dashboard.completedTasks}</strong>
           </div>
-
         </div>
-
       </section>
     );
   };
 
-  /* =========================================
-     MAIN
-  ========================================= */
-
   return (
-
     <div className="parent-dashboard">
-
-
-      {/* SIDEBAR */}
-
       {renderSidebar()}
 
-
-      {/* MAIN */}
-
       <main className="parent-main">
-
-
-        {/* TOPBAR */}
-
         {renderTopbar()}
 
-
-        {/* CONTENT */}
-
         <div className="parent-content">
+          {activePage === "dashboard" &&
+            renderDashboardHome()}
 
+          {activePage === "students" &&
+            renderMyStudents()}
 
-          {activePage === "dashboard" && (
-
-            renderDashboardHome()
-
-          )}
-
-
-          {activePage === "students" && (
-
-            renderMyStudents()
-
-          )}
-
-
-          {activePage === "profile" && (
-
-            renderParentProfile()
-
-          )}
-
-
+          {activePage === "profile" &&
+            renderParentProfile()}
         </div>
-
-
       </main>
-
-
     </div>
-
   );
-
 }
-
 
 export default ParentDashboard;
