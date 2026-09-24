@@ -90,8 +90,9 @@ function AdminDashboard() {
         "/admin/students"
       )
     );
-const [parentsOpen, setParentsOpen] = useState(false);
-  /* =========================================
+const [parentsOpen, setParentsOpen] = useState(
+  location.pathname.startsWith("/admin/parents")
+);  /* =========================================
      ADMIN
   ========================================= */
 
