@@ -119,8 +119,7 @@ function ParentLogin() {
           method: "POST",
 
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
 
           body: JSON.stringify({
@@ -136,6 +135,10 @@ function ParentLogin() {
       );
 
 
+      /* =========================================
+         RESPONSE
+      ========================================= */
+
       const data =
         await response.json();
 
@@ -147,13 +150,14 @@ function ParentLogin() {
 
 
       /* =========================================
-         SUCCESS
+         LOGIN SUCCESS
       ========================================= */
 
       if (data.success) {
 
-
-        /* SAVE PARENT */
+        /* ---------------------------------------
+           SAVE PARENT DATA
+        --------------------------------------- */
 
         localStorage.setItem(
           "parent",
@@ -163,7 +167,9 @@ function ParentLogin() {
         );
 
 
-        /* LOGIN STATUS */
+        /* ---------------------------------------
+           LOGIN STATUS
+        --------------------------------------- */
 
         localStorage.setItem(
           "parentLoggedIn",
@@ -171,7 +177,9 @@ function ParentLogin() {
         );
 
 
-        /* SAVE ASSIGNED STUDENTS */
+        /* ---------------------------------------
+           SAVE ASSIGNED STUDENTS
+        --------------------------------------- */
 
         localStorage.setItem(
           "parentStudents",
@@ -181,7 +189,9 @@ function ParentLogin() {
         );
 
 
-        /* CLEAR */
+        /* ---------------------------------------
+           CLEAR LOGIN FIELDS
+        --------------------------------------- */
 
         setUsername("");
 
@@ -189,11 +199,15 @@ function ParentLogin() {
 
         setError("");
 
+        setShowPassword(false);
 
-        /* DASHBOARD */
+
+        /* ---------------------------------------
+           GO TO PARENT DASHBOARD
+        --------------------------------------- */
 
         navigate(
-          "/ParentDashboard",
+          "/parent/dashboard",
           {
             replace: true,
           }
