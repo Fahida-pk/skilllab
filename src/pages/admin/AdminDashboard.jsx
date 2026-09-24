@@ -633,11 +633,10 @@ const openStudentDashboard = (student) => {
         ? "active"
         : ""
     }`}
-    onClick={() => {
-      // Parents main button click ചെയ്യുമ്പോൾ
-      // submenu open ആകരുത്
-      setStudentsOpen(false);
-    }}
+  onClick={() => {
+  setStudentsOpen(false);
+  setParentsOpen(false);
+}}
   >
 
     <FaUserTie />
@@ -649,29 +648,25 @@ const openStudentDashboard = (student) => {
   </button>
 
 
-  {/* ALL PARENTS */}
+ {/* ALL PARENTS */}
 
+{location.pathname.startsWith("/admin/parents") && (
   <div className="admin-submenu">
 
     <button
       type="button"
-      className={
-        location.pathname.startsWith("/admin/parents")
-          ? "submenu-active"
-          : ""
-      }
+      className="submenu-active"
       onClick={goParents}
     >
-
       <FaUserTie />
 
       <span>
         All Parents
       </span>
-
     </button>
 
   </div>
+)}
 
 </div>
           {/* PAYMENT */}
