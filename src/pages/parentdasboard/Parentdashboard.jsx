@@ -514,33 +514,53 @@ function ParentDashboard() {
      OPEN STUDENT DASHBOARD
   ========================================= */
 
-  const openStudentDashboard = (
-    student
-  ) => {
+  const openStudentDashboard = (student) => {
+
+    if (!student?.id) {
+      console.error("Invalid student:", student);
+      return;
+    }
+
+    /*
+     * Save the selected student so the common
+     * student dashboard can read the student
+     * even after route navigation/remount.
+     *
+     * Keep both keys so Admin and Parent
+     * student-dashboard logic can use the
+     * same selected-student data.
+     */
+    const studentData = {
+      id: student.id,
+      name: student.name || "",
+      email: student.email || "",
+    };
 
     sessionStorage.setItem(
       `parentViewingStudent_${student.id}`,
-      JSON.stringify({
-        id: student.id,
-        name: student.name,
-        email: student.email,
-      })
+      JSON.stringify(studentData)
     );
 
+    sessionStorage.setItem(
+      `adminViewingStudent_${student.id}`,
+      JSON.stringify(studentData)
+    );
 
     /*
-     * If you already have a parent
-     * student dashboard route, use it here.
-     *
-     * For now the card click only stores
-     * selected student.
+     * Open the SAME student dashboard used
+     * from Admin -> All Students -> View Dashboard.
      */
-
-    console.log(
-      "Selected student:",
-      student
+    navigate(
+      `/parent/students/${student.id}/dashboard`,
+      {
+        state: {
+          studentId: student.id,
+          studentEmail: student.email || "",
+          studentName: student.name || "",
+          fromParent: true,
+        },
+      }
     );
-
   };
 
 
