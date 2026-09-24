@@ -90,9 +90,14 @@ function AdminDashboard() {
         "/admin/students"
       )
     );
-const [parentsOpen, setParentsOpen] = useState(
-  location.pathname.startsWith("/admin/parents")
-);  /* =========================================
+
+  const [parentsMenuOpen, setParentsMenuOpen] = useState(false);
+
+  // Parents submenu stays open whenever the Parents page is active.
+  // This survives navigation/remounting of the sidebar.
+  const parentsOpen =
+    parentsMenuOpen ||
+    location.pathname.startsWith("/admin/parents");  /* =========================================
      ADMIN
   ========================================= */
 
@@ -314,7 +319,7 @@ const goDashboard = () => {
 
   // Close all submenus
   setStudentsOpen(false);
-  setParentsOpen(false);
+  setParentsMenuOpen(false);
 
   setMobileOpen(false);
 };
@@ -324,7 +329,7 @@ const goStudents = () => {
 
   // Open Students only
   setStudentsOpen(true);
-  setParentsOpen(false);
+  setParentsMenuOpen(false);
 
   setMobileOpen(false);
 };
@@ -333,7 +338,7 @@ const goParents = () => {
   navigate("/admin/parents");
 
   // Parents open
-  setParentsOpen(true);
+  setParentsMenuOpen(true);
 
   // Students close
   setStudentsOpen(false);
@@ -581,7 +586,7 @@ const openStudentDashboard = (student) => {
   }`}
   onClick={() => {
     setStudentsOpen((prev) => !prev);
-    setParentsOpen(false);
+    setParentsMenuOpen(false);
   }}
 >
   <FaUsers />
@@ -635,7 +640,7 @@ const openStudentDashboard = (student) => {
     }`}
     onClick={() => {
       // Always open Parents
-      setParentsOpen(true);
+      setParentsMenuOpen(true);
 
       // Close Students
       setStudentsOpen(false);
