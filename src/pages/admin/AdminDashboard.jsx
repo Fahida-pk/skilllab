@@ -91,13 +91,38 @@ function AdminDashboard() {
       )
     );
 
-  const [parentsMenuOpen, setParentsMenuOpen] = useState(false);
+  const [parentsMenuOpen, setParentsMenuOpen] = useState(
+    location.pathname.startsWith("/admin/parents")
+  );
 
   // Parents submenu stays open whenever the Parents page is active.
   // This survives navigation/remounting of the sidebar.
   const parentsOpen =
     parentsMenuOpen ||
-    location.pathname.startsWith("/admin/parents");  /* =========================================
+    location.pathname.startsWith("/admin/parents");
+
+  // Keep the correct submenu open after route navigation/remount.
+  useEffect(() => {
+    if (location.pathname.startsWith("/admin/parents")) {
+      setParentsMenuOpen(true);
+      setStudentsOpen(false);
+      return;
+    }
+
+    if (location.pathname.startsWith("/admin/students")) {
+      setStudentsOpen(true);
+      setParentsMenuOpen(false);
+      return;
+    }
+
+    if (
+      location.pathname === "/AdminDashboard" ||
+      location.pathname === "/admin/dashboard"
+    ) {
+      setStudentsOpen(false);
+      setParentsMenuOpen(false);
+    }
+  }, [location.pathname]);  /* =========================================
      ADMIN
   ========================================= */
 
