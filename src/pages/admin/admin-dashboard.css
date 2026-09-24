@@ -175,7 +175,46 @@ body {
 
   letter-spacing: 3px;
 }
+/* =========================================================
+   SIDEBAR ONLY SCROLL
+   ========================================================= */
 
+.admin-sidebar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  bottom: 0 !important;
+
+  height: 100vh !important;
+
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Remove scroll from inner content */
+.admin-sidebar-content {
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+  flex: none !important;
+}
+
+/* Sidebar scrollbar */
+.admin-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
 /* =====================================================
    SIDEBAR CONTENT
 ===================================================== */
