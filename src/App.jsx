@@ -1,27 +1,53 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
-import Login from "./pages/login/login.jsx";
-import Dashboard from "./pages/dasboard/Dashboard.jsx";
-import Task from "./pages/task/task.jsx";
-import ProtectedRoute from "./ProtectedRoute.jsx";
 
-import AdminLogin from "./pages/admin/AdminLogin.jsx";
-import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import Login
+  from "./pages/login/login.jsx";
 
-import Parent from "./pages/parent/parent.jsx";
+import Dashboard
+  from "./pages/dasboard/Dashboard.jsx";
 
-import ParentLogin from "./pages/parentdasboard/ParentLogin.jsx";
-import ParentDashboard from "./pages/parentdasboard/Parentdashboard.jsx";
+import Task
+  from "./pages/task/task.jsx";
+
+import ProtectedRoute
+  from "./ProtectedRoute.jsx";
+
+
+import AdminLogin
+  from "./pages/admin/AdminLogin.jsx";
+
+import AdminDashboard
+  from "./pages/admin/AdminDashboard.jsx";
+
+
+import Parent
+  from "./pages/parent/parent.jsx";
+
+
+import ParentLogin
+  from "./pages/parentdasboard/ParentLogin.jsx";
+
+import ParentDashboard
+  from "./pages/parentdasboard/Parentdashboard.jsx";
 
 
 /* =====================================================
    ADMIN PROTECTED ROUTE
 ===================================================== */
 
-function AdminProtectedRoute({ children }) {
+function AdminProtectedRoute({
+  children,
+}) {
 
   const adminLoggedIn =
-    localStorage.getItem("adminLoggedIn");
+    localStorage.getItem(
+      "adminLoggedIn"
+    );
 
   const admin =
     localStorage.getItem("admin");
@@ -51,10 +77,14 @@ function AdminProtectedRoute({ children }) {
    PARENT PROTECTED ROUTE
 ===================================================== */
 
-function ParentProtectedRoute({ children }) {
+function ParentProtectedRoute({
+  children,
+}) {
 
   const parentLoggedIn =
-    localStorage.getItem("parentLoggedIn");
+    localStorage.getItem(
+      "parentLoggedIn"
+    );
 
   const parent =
     localStorage.getItem("parent");
@@ -112,7 +142,9 @@ function App() {
 
       <Route
         path="/login"
-        element={<Login />}
+        element={
+          <Login />
+        }
       />
 
 
@@ -120,16 +152,25 @@ function App() {
           NORMAL STUDENT ROUTES
       ================================================= */}
 
-      <Route element={<ProtectedRoute />}>
+      <Route
+        element={
+          <ProtectedRoute />
+        }
+      >
 
         <Route
           path="/dashboard"
-          element={<Dashboard />}
+          element={
+            <Dashboard />
+          }
         />
+
 
         <Route
           path="/task"
-          element={<Task />}
+          element={
+            <Task />
+          }
         />
 
       </Route>
@@ -141,7 +182,9 @@ function App() {
 
       <Route
         path="/admin/login"
-        element={<AdminLogin />}
+        element={
+          <AdminLogin />
+        }
       />
 
 
@@ -179,6 +222,7 @@ function App() {
 
       {/* =================================================
           ADMIN → VIEW STUDENT DASHBOARD
+          Parent Dashboard UI
       ================================================= */}
 
       <Route
@@ -186,7 +230,7 @@ function App() {
         element={
           <AdminProtectedRoute>
 
-            <Dashboard
+            <ParentDashboard
               adminView={true}
             />
 
@@ -236,7 +280,9 @@ function App() {
 
       <Route
         path="/parent/login"
-        element={<ParentLogin />}
+        element={
+          <ParentLogin />
+        }
       />
 
 
@@ -269,7 +315,6 @@ function App() {
           />
         }
       />
-
 
     </Routes>
 
