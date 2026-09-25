@@ -213,20 +213,17 @@ function ParentDashboard() {
       {mobileOpen && <div className="parent-sidebar-overlay" onClick={() => setMobileOpen(false)} />}
       <aside className={`parent-sidebar ${mobileOpen ? "mobile-open" : ""}`}>
         <div className="parent-sidebar-brand">
-          <div className="brand-mark"><FaCircleNodes /></div>
-          <div><strong>SKILL LAB</strong><span>PARENT LEARNING CENTER</span></div>
+          <div><strong>SKILL LAB</strong></div>
           <button className="parent-sidebar-close" onClick={() => setMobileOpen(false)}><FaXmark /></button>
         </div>
 
         <div className="parent-sidebar-content">
-          <p className="sidebar-label">OVERVIEW</p>
           <button className={`parent-nav-item ${activePage === "dashboard" ? "active" : ""}`} onClick={() => { setActivePage("dashboard"); setSearch(""); setMobileOpen(false); }}>
             <FaGaugeHigh /><span>Dashboard</span>
           </button>
           <button className={`parent-nav-item ${activePage === "students" ? "active" : ""}`} onClick={() => { setActivePage("students"); setSearch(""); setMobileOpen(false); }}>
             <FaUserGraduate /><span>Students</span>
           </button>
-          <p className="sidebar-label sidebar-label-space">ACCOUNT</p>
           <button className={`parent-nav-item ${activePage === "profile" ? "active" : ""}`} onClick={() => { setActivePage("profile"); setSearch(""); setMobileOpen(false); }}>
             <FaUser /><span>My Profile</span>
           </button>
@@ -247,7 +244,7 @@ function ParentDashboard() {
       <div className="parent-topbar-left">
         <button className="parent-mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open menu"><FaBars /></button>
         <div>
-          <div className="topbar-breadcrumb"><span>PARENT LEARNING CENTER</span><b>/</b><span>{activePage === "students" ? "Students" : activePage === "profile" ? "Profile" : "Dashboard"}</span></div>
+          <div className="topbar-breadcrumb"><span>Parent Portal</span><b>/</b><span>{activePage === "students" ? "Students" : activePage === "profile" ? "Profile" : "Dashboard"}</span></div>
           <h1>{activePage === "students" ? "Students" : activePage === "profile" ? "My Profile" : "Dashboard Overview"}</h1>
           <p>{activePage === "students" ? "Review student activity and performance." : activePage === "profile" ? "Manage your parent account information." : "A clear view of your students' learning progress."}</p>
         </div>
