@@ -317,3 +317,226 @@ button, input { font: inherit; }
   .overview-chart-card,.overview-side-card{padding:17px;border-radius:18px}.overview-chart-legend{grid-template-columns:1fr}
   .overview-chart-card .performance-svg{height:220px}.overview-side-score{margin-top:20px}
 }
+
+
+/* ===== FINAL PARENT DASHBOARD POLISH ===== */
+
+/* Sidebar typography */
+.parent-sidebar,
+.parent-sidebar button {
+  font-family: "Inter", "Poppins", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.parent-sidebar-brand strong {
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: 2.6px;
+}
+
+.parent-nav-item {
+  min-height: 50px;
+  padding: 14px 16px;
+  gap: 13px;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 750;
+  letter-spacing: -.15px;
+  border-radius: 14px;
+}
+
+.parent-nav-item svg {
+  width: 18px;
+  height: 18px;
+  opacity: .94;
+}
+
+.parent-nav-item span {
+  transform: translateY(.2px);
+}
+
+.parent-nav-item:hover {
+  transform: translateX(3px);
+  background: rgba(255,255,255,.12);
+  color: #fff;
+}
+
+.parent-nav-item.active {
+  background: linear-gradient(90deg, rgba(255,255,255,.19), rgba(255,255,255,.075));
+  border-color: rgba(255,255,255,.28);
+  box-shadow:
+    inset 4px 0 0 #fff,
+    0 10px 24px rgba(43,31,119,.12);
+}
+
+.parent-logout {
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -.15px;
+}
+
+/* One clean graph: month is pink/violet, not orange */
+.overview-chart-card .overview-legend-item.legend-2 > span {
+  background: #c85ad9;
+}
+
+.overview-chart-card .chart-point.point-2 {
+  fill: #c85ad9;
+}
+
+.overview-chart-card .chart-point-ring.point-2 {
+  stroke: #c85ad9;
+}
+
+.overview-chart-card .chart-value.month-value {
+  fill: #c85ad9;
+}
+
+/* Remove the old orange month styling if any old period UI is still present */
+.period-pie-card.month {
+  --period-color: #c85ad9;
+}
+
+.period-pie-card.month .period-icon {
+  background: #f8eafd;
+}
+
+.period-pie-card.month .period-performance-track span {
+  background: #c85ad9;
+}
+
+/* Strong / Average / Weak cards */
+.performance-level-section {
+  margin-top: 27px;
+}
+
+.performance-level-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.performance-level-card {
+  min-height: 112px;
+  border: 1px solid #e7eaf2;
+  border-radius: 19px;
+  padding: 18px 19px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(48,58,91,.055);
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  position: relative;
+  overflow: hidden;
+}
+
+.performance-level-card::after {
+  content: "";
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  right: -35px;
+  top: -35px;
+  border-radius: 50%;
+  opacity: .55;
+}
+
+.performance-level-card .level-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 45px;
+  font-size: 18px;
+}
+
+.performance-level-card .level-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.performance-level-card .level-copy span,
+.performance-level-card .level-copy small {
+  display: block;
+}
+
+.performance-level-card .level-copy span {
+  font-size: 13px;
+  font-weight: 900;
+  color: #26344f;
+}
+
+.performance-level-card .level-copy small {
+  margin-top: 5px;
+  font-size: 9px;
+  color: #8f99ad;
+}
+
+.performance-level-card > strong {
+  font-size: 29px;
+  line-height: 1;
+  font-weight: 900;
+  color: #25334e;
+  margin-right: 3px;
+}
+
+/* Strong */
+.performance-level-card.strong {
+  background: linear-gradient(135deg, #fff, #f1fbf7);
+  border-color: #dcefe8;
+}
+.performance-level-card.strong .level-icon {
+  background: #def8ef;
+  color: #10a77f;
+}
+.performance-level-card.strong::after {
+  background: #bcefe0;
+}
+
+/* Average */
+.performance-level-card.average {
+  background: linear-gradient(135deg, #fff, #f3f7ff);
+  border-color: #dfe8f7;
+}
+.performance-level-card.average .level-icon {
+  background: #e6f0ff;
+  color: #438bf2;
+}
+.performance-level-card.average::after {
+  background: #c8dcff;
+}
+
+/* Weak / Needs Attention — red instead of orange */
+.performance-level-card.weak {
+  background: linear-gradient(135deg, #fff, #fff3f3);
+  border-color: #f2dede;
+}
+.performance-level-card.weak .level-icon {
+  background: #ffe2e2;
+  color: #e34b4b;
+}
+.performance-level-card.weak::after {
+  background: #ffcaca;
+}
+
+/* Keep Pending orange — only the Weak/Attention status is red */
+.overview-side-stats .side-dot.orange {
+  background: #efa13c;
+}
+
+@media (max-width: 900px) {
+  .performance-level-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .performance-level-card {
+    min-height: 96px;
+    padding: 15px;
+  }
+
+  .performance-level-card > strong {
+    font-size: 25px;
+  }
+}

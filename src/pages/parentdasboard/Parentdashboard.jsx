@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import {
   FaGaugeHigh,
@@ -383,7 +383,7 @@ function ParentDashboard() {
             <g key={point.label}>
               <circle cx={point.x} cy={point.y} r="8" className={`chart-point-ring point-${index}`} />
               <circle cx={point.x} cy={point.y} r="4" className={`chart-point point-${index}`} />
-              <text x={point.x} y={point.y - 18} textAnchor="middle" className="chart-value">
+              <text x={point.x} y={point.y - 18} textAnchor="middle" className={`chart-value ${index === 2 ? "month-value" : ""}`}>
                 {point.value}%
               </text>
               <text x={point.x} y={height - 25} textAnchor="middle" className="chart-label">
@@ -607,25 +607,45 @@ function ParentDashboard() {
         </aside>
       </section>
 
-      <section className="overview-period-section">
+      {/* Performance levels — simple parent-friendly view */}
+      <section className="performance-level-section">
         <div className="overview-section-head compact">
           <div>
-            <span className="section-kicker">PROGRESS BREAKDOWN</span>
-            <h2>Today, this week & this month</h2>
-            <p>Task completion for all assigned students.</p>
+            <span className="section-kicker">STUDENT PERFORMANCE</span>
+            <h2>Performance levels</h2>
+            <p>Students are grouped by their current weekly performance.</p>
           </div>
         </div>
 
-        <div className="period-pie-grid">
-          <PeriodCard label="TODAY" value={dashboard.todayPerformance} completed={dashboard.todayCompleted} total={dashboard.todayTotal} date={dashboard.periods.today} icon={<FaCalendarDays />} tone="today" />
-          <PeriodCard label="THIS WEEK" value={dashboard.weeklyPerformance} completed={dashboard.weekCompleted} total={dashboard.weekTotal} date={dashboard.periods.week} icon={<FaChartLine />} tone="week" />
-          <PeriodCard label="THIS MONTH" value={dashboard.monthlyPerformance} completed={dashboard.monthCompleted} total={dashboard.monthTotal} date={dashboard.periods.month} icon={<FaTrophy />} tone="month" />
+        <div className="performance-level-grid">
+          <article className="performance-level-card strong">
+            <div className="level-icon"><FaArrowTrendUp /></div>
+            <div className="level-copy">
+              <span>Strong</span>
+              <small>70% and above</small>
+            </div>
+            <strong>{analytics.excellent}</strong>
+          </article>
+
+          <article className="performance-level-card average">
+            <div className="level-icon"><FaChartLine /></div>
+            <div className="level-copy">
+              <span>Average</span>
+              <small>40% – 69%</small>
+            </div>
+            <strong>{analytics.onTrack}</strong>
+          </article>
+
+          <article className="performance-level-card weak">
+            <div className="level-icon"><FaCircleNodes /></div>
+            <div className="level-copy">
+              <span>Weak</span>
+              <small>Below 40%</small>
+            </div>
+            <strong>{analytics.attention}</strong>
+          </article>
         </div>
       </section>
-
-      <div className="student-health-section">
-        {renderStudentDistribution()}
-      </div>
 
       {renderStudentTable()}
     </div>
