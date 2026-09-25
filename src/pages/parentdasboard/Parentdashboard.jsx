@@ -466,7 +466,7 @@ function ParentDashboard() {
               ? "Monitor every assigned student and their learning progress."
               : activePage === "profile"
               ? "View your parent account details."
-              : "Track assigned students, tasks and learning performance in one place."}
+              : "Monitor your students, tasks, and learning progress in one place."}
           </p>
         </div>
       </div>
