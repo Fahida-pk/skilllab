@@ -387,7 +387,7 @@ body,
     linear-gradient(
       90deg,
       transparent,
-      rgba(255,255,255,0.8),
+      rgba(199, 197, 197, 0.8),
       transparent
     );
 
@@ -436,9 +436,11 @@ body,
   background:
     linear-gradient(
       90deg,
-      #4b55d9 0%,
-      #7140dc 45%,
-      #c52eae 100%
+     #315fdc 0%,
+      #4d55df 28%,
+      #7049d7 58%,
+      #9e42cf 80%,
+      #d638b8 100%
     );
 
   background-size: 250% auto;
