@@ -214,7 +214,7 @@ function ParentDashboard() {
       <aside className={`parent-sidebar ${mobileOpen ? "mobile-open" : ""}`}>
         <div className="parent-sidebar-brand">
           <div className="brand-mark"><FaCircleNodes /></div>
-          <div><strong>SKILL LAB</strong><span>Parent Portal</span></div>
+          <div><strong>SKILL LAB</strong><span>PARENT LEARNING CENTER</span></div>
           <button className="parent-sidebar-close" onClick={() => setMobileOpen(false)}><FaXmark /></button>
         </div>
 
@@ -247,7 +247,7 @@ function ParentDashboard() {
       <div className="parent-topbar-left">
         <button className="parent-mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open menu"><FaBars /></button>
         <div>
-          <div className="topbar-breadcrumb"><span>Parent Portal</span><b>/</b><span>{activePage === "students" ? "Students" : activePage === "profile" ? "Profile" : "Dashboard"}</span></div>
+          <div className="topbar-breadcrumb"><span>PARENT LEARNING CENTER</span><b>/</b><span>{activePage === "students" ? "Students" : activePage === "profile" ? "Profile" : "Dashboard"}</span></div>
           <h1>{activePage === "students" ? "Students" : activePage === "profile" ? "My Profile" : "Dashboard Overview"}</h1>
           <p>{activePage === "students" ? "Review student activity and performance." : activePage === "profile" ? "Manage your parent account information." : "A clear view of your students' learning progress."}</p>
         </div>
@@ -517,29 +517,31 @@ function ParentDashboard() {
 
   const renderDashboardHome = () => (
     <div className="dashboard-home">
-      <section className="welcome-panel">
-        <div className="welcome-copy">
-          <span className="welcome-kicker">PARENT LEARNING CENTER</span>
-          <h2>Good to see you, {parent?.name?.split(" ")[0] || "Parent"}.</h2>
-          <p>Track your students' daily activity and weekly learning progress in one place.</p>
-          <div className="welcome-meta"><span><FaUserGraduate /> {students.length} {students.length === 1 ? "Student" : "Students"}</span><span><FaCalendarDays /> {dashboard.periods.week || "Current week"}</span></div>
+      <section className="performance-hero-card">
+        <div className="performance-hero-main">
+          <div className="performance-hero-copy">
+            <span className="welcome-kicker">LEARNING PERFORMANCE</span>
+            <h2>Student Learning Snapshot</h2>
+            <p>Track your assigned students' task completion and performance across today, this week and this month.</p>
+          </div>
+          <div className="performance-hero-score">
+            <div className="hero-score-ring" style={{ background: `conic-gradient(#7653e8 0 ${clamp(dashboard.overallPerformance)}%, #e9e5fb ${clamp(dashboard.overallPerformance)}% 100%)` }}>
+              <div><strong>{clamp(dashboard.overallPerformance)}%</strong><span>Overall</span></div>
+            </div>
+          </div>
         </div>
-        <div className="welcome-visual">
-          <div className="welcome-ring"><FaUserGraduate /></div>
+        <div className="performance-hero-periods">
+          <div className="hero-period today"><span>Today</span><strong>{clamp(dashboard.todayPerformance)}%</strong><small>{dashboard.todayCompleted}/{dashboard.todayTotal} tasks</small><i><b style={{width:`${clamp(dashboard.todayPerformance)}%`}} /></i></div>
+          <div className="hero-period week"><span>This Week</span><strong>{clamp(dashboard.weeklyPerformance)}%</strong><small>{dashboard.weekCompleted}/{dashboard.weekTotal} tasks</small><i><b style={{width:`${clamp(dashboard.weeklyPerformance)}%`}} /></i></div>
+          <div className="hero-period month"><span>This Month</span><strong>{clamp(dashboard.monthlyPerformance)}%</strong><small>{dashboard.monthCompleted}/{dashboard.monthTotal} tasks</small><i><b style={{width:`${clamp(dashboard.monthlyPerformance)}%`}} /></i></div>
         </div>
       </section>
-
       <section className="metrics-grid">
         <MetricCard icon={<FaUserGraduate />} label="Students" value={students.length} helper="Linked to this parent account" tone="purple" />
         <MetricCard icon={<FaListCheck />} label="Weekly Tasks" value={dashboard.weekTotal} helper="Assigned during this week" tone="blue" />
         <MetricCard icon={<FaCircleCheck />} label="Completed This Week" value={dashboard.weekCompleted} helper="Successfully completed" tone="green" progress={dashboard.weekTotal ? (dashboard.weekCompleted / dashboard.weekTotal) * 100 : 0} />
         <MetricCard icon={<FaClock />} label="Pending This Week" value={Math.max(0, dashboard.weekTotal - dashboard.weekCompleted)} helper="Still remaining this week" tone="orange" />
         <MetricCard icon={<FaArrowTrendUp />} label="Weekly Performance" value={`${clamp(dashboard.weeklyPerformance)}%`} helper="Weekly completion rate" tone="indigo" progress={dashboard.weeklyPerformance} />
-      </section>
-
-      <section className="section-heading-row">
-        <div><span className="section-kicker">PERFORMANCE SNAPSHOT</span><h2>Today, This Week & This Month</h2><p>A clear view of task completion and learning performance across your assigned students.</p></div>
-        
       </section>
 
       <section className="performance-section">
