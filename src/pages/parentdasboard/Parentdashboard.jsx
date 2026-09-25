@@ -233,11 +233,10 @@ function ParentDashboard() {
         </div>
 
         <div className="parent-sidebar-bottom">
-          <div className="sidebar-help-card">
-            <FaChartLine />
-            <div><strong>Learning overview</strong><span>Track progress at a glance</span></div>
-          </div>
-          <button className="parent-logout" onClick={handleLogout}><FaArrowRightFromBracket /><span>Logout</span></button>
+          <button className="parent-logout" onClick={handleLogout}>
+            <FaArrowRightFromBracket />
+            <span>Logout</span>
+          </button>
         </div>
       </aside>
     </>
@@ -272,15 +271,62 @@ function ParentDashboard() {
     </article>
   );
 
-  const PeriodCard = ({ label, value, completed, total, date, icon, tone }) => (
-    <article className={`period-card ${tone}`}>
-      <div className="period-card-head"><div className="period-icon">{icon}</div><span>{label}</span></div>
-      <div className="period-value">{clamp(value)}<small>%</small></div>
-      <div className="period-date">{date}</div>
-      <div className="period-progress"><span style={{ width: `${clamp(value)}%` }} /></div>
-      <div className="period-footer"><strong>{completed}</strong><span>of {total} tasks completed</span></div>
-    </article>
-  );
+  const PeriodCard = ({ label, value, completed, total, date, icon, tone }) => {
+    const safeTotal = Number(total) || 0;
+    const safeCompleted = Number(completed) || 0;
+    const pending = Math.max(0, safeTotal - safeCompleted);
+    const percentage = clamp(value);
+
+    return (
+      <article className={`period-pie-card ${tone}`}>
+        <div className="period-pie-head">
+          <div>
+            <span className="section-kicker">{label}</span>
+            <h3>{label === "TODAY" ? "Today's Task Progress" : label === "THIS WEEK" ? "Weekly Task Progress" : "Monthly Task Progress"}</h3>
+            <p>{date || "Current learning period"}</p>
+          </div>
+          <div className="period-icon">{icon}</div>
+        </div>
+
+        <div className="period-pie-body">
+          <div
+            className="period-donut"
+            style={{
+              background: `conic-gradient(var(--period-color) 0 ${percentage}%, #edf0f6 ${percentage}% 100%)`,
+            }}
+          >
+            <div className="period-donut-inner">
+              <strong>{percentage}%</strong>
+              <span>Completed</span>
+            </div>
+          </div>
+
+          <div className="period-pie-stats">
+            <div className="period-stat">
+              <span><i className="period-dot completed" />Completed</span>
+              <strong>{safeCompleted}</strong>
+            </div>
+            <div className="period-stat">
+              <span><i className="period-dot pending" />Pending</span>
+              <strong>{pending}</strong>
+            </div>
+            <div className="period-stat total">
+              <span>Total tasks</span>
+              <strong>{safeTotal}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="period-performance-line">
+          <span>{label === "TODAY" ? "Today's Performance Progress" : label === "THIS WEEK" ? "Weekly Performance Progress" : "Monthly Performance Progress"}</span>
+          <strong>{percentage}%</strong>
+        </div>
+        <div className="period-performance-track">
+          <span style={{ width: `${percentage}%` }} />
+        </div>
+      </article>
+    );
+  };
 
   const renderPerformanceChart = () => {
     const width = 820;
@@ -478,7 +524,9 @@ function ParentDashboard() {
           <p>Track your students' daily activity and weekly learning progress in one place.</p>
           <div className="welcome-meta"><span><FaUserGraduate /> {students.length} {students.length === 1 ? "Student" : "Students"}</span><span><FaCalendarDays /> {dashboard.periods.week || "Current week"}</span></div>
         </div>
-        <div className="welcome-visual"><div className="welcome-ring"><FaUserGraduate /></div><div className="welcome-orbit orbit-one" /><div className="welcome-orbit orbit-two" /></div>
+        <div className="welcome-visual">
+          <div className="welcome-ring"><FaUserGraduate /></div>
+        </div>
       </section>
 
       <section className="metrics-grid">
@@ -490,17 +538,58 @@ function ParentDashboard() {
       </section>
 
       <section className="section-heading-row">
-        <div><span className="section-kicker">PERFORMANCE SNAPSHOT</span><h2>Today, This Week & This Month</h2><p>A clear view of completion performance across your assigned students.</p></div>
+        <div><span className="section-kicker">PERFORMANCE SNAPSHOT</span><h2>Today, This Week & This Month</h2><p>A clear view of task completion and learning performance across your assigned students.</p></div>
         
       </section>
 
-      <section className="period-grid">
-        <PeriodCard label="TODAY" value={dashboard.todayPerformance} completed={dashboard.todayCompleted} total={dashboard.todayTotal} date={dashboard.periods.today} icon={<FaCalendarDays />} tone="today" />
-        <PeriodCard label="THIS WEEK" value={dashboard.weeklyPerformance} completed={dashboard.weekCompleted} total={dashboard.weekTotal} date={dashboard.periods.week} icon={<FaChartLine />} tone="week" />
-        <PeriodCard label="THIS MONTH" value={dashboard.monthlyPerformance} completed={dashboard.monthCompleted} total={dashboard.monthTotal} date={dashboard.periods.month} icon={<FaTrophy />} tone="month" />
+      <section className="performance-section">
+        <div className="section-heading-row performance-section-heading">
+          <div>
+            <span className="section-kicker">PERFORMANCE ANALYTICS</span>
+            <h2>Task performance trend</h2>
+            <p>Compare completion performance across today, this week and this month.</p>
+          </div>
+        </div>
+
+        <div className="analytics-grid analytics-grid-single">
+          {renderPerformanceChartCard()}
+        </div>
+
+        <div className="period-pie-grid">
+          <PeriodCard
+            label="TODAY"
+            value={dashboard.todayPerformance}
+            completed={dashboard.todayCompleted}
+            total={dashboard.todayTotal}
+            date={dashboard.periods.today}
+            icon={<FaCalendarDays />}
+            tone="today"
+          />
+          <PeriodCard
+            label="THIS WEEK"
+            value={dashboard.weeklyPerformance}
+            completed={dashboard.weekCompleted}
+            total={dashboard.weekTotal}
+            date={dashboard.periods.week}
+            icon={<FaChartLine />}
+            tone="week"
+          />
+          <PeriodCard
+            label="THIS MONTH"
+            value={dashboard.monthlyPerformance}
+            completed={dashboard.monthCompleted}
+            total={dashboard.monthTotal}
+            date={dashboard.periods.month}
+            icon={<FaTrophy />}
+            tone="month"
+          />
+        </div>
+
+        <div className="student-health-section">
+          {renderStudentDistribution()}
+        </div>
       </section>
 
-      <section className="analytics-grid">{renderPerformanceChartCard()}{renderDonut()}{renderStudentDistribution()}</section>
       {renderStudentTable()}
     </div>
   );
