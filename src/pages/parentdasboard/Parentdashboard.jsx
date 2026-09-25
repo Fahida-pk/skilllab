@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -44,6 +43,12 @@ function ParentDashboard() {
     todayPerformance: 0,
     weeklyPerformance: 0,
     monthlyPerformance: 0,
+    todayTaskProgress: 0,
+    weeklyTaskProgress: 0,
+    monthlyTaskProgress: 0,
+    todayAccuracy: 0,
+    weeklyAccuracy: 0,
+    monthlyAccuracy: 0,
     todayCompleted: 0,
     todayTotal: 0,
     weekCompleted: 0,
@@ -100,6 +105,12 @@ function ParentDashboard() {
         todayPerformance: Number(overview.todayPerformance) || 0,
         weeklyPerformance: Number(overview.weeklyPerformance) || 0,
         monthlyPerformance: Number(overview.monthlyPerformance) || 0,
+        todayTaskProgress: Number(overview.todayTaskProgress) || 0,
+        weeklyTaskProgress: Number(overview.weeklyTaskProgress) || 0,
+        monthlyTaskProgress: Number(overview.monthlyTaskProgress) || 0,
+        todayAccuracy: Number(overview.todayAccuracy) || 0,
+        weeklyAccuracy: Number(overview.weeklyAccuracy) || 0,
+        monthlyAccuracy: Number(overview.monthlyAccuracy) || 0,
         todayCompleted: Number(overview.todayCompleted) || 0,
         todayTotal: Number(overview.todayTotal) || 0,
         weekCompleted: Number(overview.weekCompleted) || 0,
@@ -467,27 +478,66 @@ function ParentDashboard() {
      ========================================================= */
 
   const renderThreePeriodVisuals = () => {
-    const today = {
-      completed: Number(dashboard.todayCompleted) || 0,
-      total: Number(dashboard.todayTotal) || 0,
-      value: clamp(dashboard.todayPerformance),
-    };
+    const periods = [
+      {
+        key: "today",
+        label: "TODAY",
+        title: "Today's Learning Summary",
+        icon: <FaCalendarDays />,
+        tone: "today",
+        taskProgress: clamp(dashboard.todayTaskProgress),
+        performance: clamp(dashboard.todayPerformance),
+        accuracy: clamp(dashboard.todayAccuracy),
+        completed: Number(dashboard.todayCompleted) || 0,
+        total: Number(dashboard.todayTotal) || 0,
+        students: students.length,
+        date: dashboard.periods.today,
+      },
+      {
+        key: "week",
+        label: "THIS WEEK",
+        title: "Weekly Learning Summary",
+        icon: <FaChartLine />,
+        tone: "week",
+        taskProgress: clamp(dashboard.weeklyTaskProgress),
+        performance: clamp(dashboard.weeklyPerformance),
+        accuracy: clamp(dashboard.weeklyAccuracy),
+        completed: Number(dashboard.weekCompleted) || 0,
+        total: Number(dashboard.weekTotal) || 0,
+        students: students.length,
+        date: dashboard.periods.week,
+      },
+      {
+        key: "month",
+        label: "THIS MONTH",
+        title: "Monthly Learning Summary",
+        icon: <FaTrophy />,
+        tone: "month",
+        taskProgress: clamp(dashboard.monthlyTaskProgress),
+        performance: clamp(dashboard.monthlyPerformance),
+        accuracy: clamp(dashboard.monthlyAccuracy),
+        completed: Number(dashboard.monthCompleted) || 0,
+        total: Number(dashboard.monthTotal) || 0,
+        students: students.length,
+        date: dashboard.periods.month,
+      },
+    ];
 
-    const week = {
-      completed: Number(dashboard.weekCompleted) || 0,
-      total: Number(dashboard.weekTotal) || 0,
-      value: clamp(dashboard.weeklyPerformance),
-    };
-
-    const month = {
-      completed: Number(dashboard.monthCompleted) || 0,
-      total: Number(dashboard.monthTotal) || 0,
-      value: clamp(dashboard.monthlyPerformance),
-    };
-
-    const todayPending = Math.max(0, today.total - today.completed);
-    const weekPending = Math.max(0, week.total - week.completed);
-    const monthPending = Math.max(0, month.total - month.completed);
+    const Metric = ({ icon, label, value, description }) => (
+      <div className="period-metric-row">
+        <div className="period-metric-icon">{icon}</div>
+        <div className="period-metric-copy">
+          <div className="period-metric-heading">
+            <span>{label}</span>
+            <strong>{value}%</strong>
+          </div>
+          <div className="period-metric-track">
+            <span style={{ width: `${value}%` }} />
+          </div>
+          <small>{description}</small>
+        </div>
+      </div>
+    );
 
     return (
       <section className="three-period-visual-section">
@@ -495,132 +545,111 @@ function ParentDashboard() {
           <div>
             <span className="section-kicker">LEARNING ANALYTICS</span>
             <h2>Today, This Week & This Month</h2>
-            <p>Three different progress views calculated from all assigned students.</p>
+            <p>Task progress, performance and completion-time accuracy for all assigned students.</p>
+          </div>
+          <div className="period-student-summary">
+            <FaUserGraduate />
+            <strong>{students.length}</strong>
+            <span>{students.length === 1 ? "assigned student" : "assigned students"}</span>
           </div>
         </div>
 
         <div className="three-period-visual-grid">
+          {periods.map((period) => {
+            const pending = Math.max(0, period.total - period.completed);
 
-          {/* 1. TODAY — Progress graph */}
-          <article className="period-visual-card today-visual">
-            <div className="visual-card-top">
-              <div>
-                <span className="visual-kicker">TODAY</span>
-                <h3>Today's Performance Progress</h3>
-                <p>{today.completed} of {today.total} tasks completed</p>
-              </div>
-              <div className="visual-icon today-icon">
-                <FaChartLine />
-              </div>
+            return (
+              <article className={`period-visual-card ${period.tone}-visual`} key={period.key}>
+                <div className="visual-card-top">
+                  <div>
+                    <span className="visual-kicker">{period.label}</span>
+                    <h3>{period.title}</h3>
+                    <p>{period.date || "Current learning period"}</p>
+                  </div>
+                  <div className={`visual-icon ${period.tone}-icon`}>{period.icon}</div>
+                </div>
+
+                <div className="period-student-line">
+                  <span><FaUserGraduate /> {period.students} {period.students === 1 ? "student" : "students"}</span>
+                  <span>{period.completed}/{period.total} tasks</span>
+                </div>
+
+                <div className="period-main-pie-row">
+                  <div
+                    className="period-main-pie"
+                    style={{
+                      background: `conic-gradient(var(--period-accent) 0 ${period.taskProgress}%, #eceef5 ${period.taskProgress}% 100%)`,
+                    }}
+                  >
+                    <div>
+                      <strong>{period.taskProgress}%</strong>
+                      <span>Task Progress</span>
+                    </div>
+                  </div>
+
+                  <div className="period-task-counts">
+                    <div><span>Completed</span><strong>{period.completed}</strong></div>
+                    <div><span>Pending</span><strong>{pending}</strong></div>
+                    <div><span>Total Tasks</span><strong>{period.total}</strong></div>
+                  </div>
+                </div>
+
+                <div className="period-metrics-stack">
+                  <Metric
+                    icon={<FaChartLine />}
+                    label={period.key === "today" ? "Today's Performance Progress" : period.key === "week" ? "Weekly Performance Progress" : "Monthly Performance Progress"}
+                    value={period.performance}
+                    description="Based on saved task performance"
+                  />
+                  <Metric
+                    icon={<FaBullseye />}
+                    label={period.key === "today" ? "Today's Task Accuracy Percentage" : period.key === "week" ? "Weekly Task Accuracy Percentage" : "Monthly Task Accuracy Percentage"}
+                    value={period.accuracy}
+                    description="Based on completion time"
+                  />
+                </div>
+
+                <div className="period-calculation-note">
+                  <span>Calculation</span>
+                  <strong>{period.students} {period.students === 1 ? "student" : "students"} · {period.completed} completed / {period.total} total</strong>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        <div className="period-comparison-card">
+          <div className="period-comparison-head">
+            <div>
+              <span className="section-kicker">PERIOD COMPARISON</span>
+              <h3>Progress, Performance & Accuracy</h3>
+              <p>Same three measurements compared across all assigned students.</p>
             </div>
+            <div className="analytics-icon"><FaChartPie /></div>
+          </div>
 
-            <div className="today-progress-visual">
-              <div className="today-progress-value">
-                <strong>{today.value}%</strong>
-                <span>Completed task performance</span>
-              </div>
-
-              <div className="today-progress-track">
-                <span style={{ width: `${today.value}%` }} />
-              </div>
-
-              <div className="today-progress-foot">
-                <span><i className="visual-dot completed" /> {today.completed} completed</span>
-                <span><i className="visual-dot pending" /> {todayPending} pending</span>
-              </div>
-            </div>
-          </article>
-
-          {/* 2. WEEK — Radial gauge */}
-          <article className="period-visual-card week-visual">
-            <div className="visual-card-top">
-              <div>
-                <span className="visual-kicker">THIS WEEK</span>
-                <h3>Task Accuracy Percentage</h3>
-                <p>Weekly completion accuracy</p>
-              </div>
-              <div className="visual-icon week-icon">
-                <FaBullseye />
-              </div>
-            </div>
-
-            <div className="week-gauge-layout">
-              <div
-                className="week-gauge"
-                style={{
-                  background: `conic-gradient(#7653e8 0 ${week.value}%, #eceaf5 ${week.value}% 100%)`,
-                }}
-              >
-                <div className="week-gauge-inner">
-                  <strong>{week.value}%</strong>
+          <div className="period-comparison-grid">
+            {periods.map((period) => (
+              <div className="comparison-column" key={period.key}>
+                <strong>{period.label}</strong>
+                <div className="comparison-bar-row">
+                  <span>Task Progress</span>
+                  <div><i style={{ width: `${period.taskProgress}%` }} /></div>
+                  <b>{period.taskProgress}%</b>
+                </div>
+                <div className="comparison-bar-row">
+                  <span>Performance</span>
+                  <div><i style={{ width: `${period.performance}%` }} /></div>
+                  <b>{period.performance}%</b>
+                </div>
+                <div className="comparison-bar-row">
                   <span>Accuracy</span>
+                  <div><i style={{ width: `${period.accuracy}%` }} /></div>
+                  <b>{period.accuracy}%</b>
                 </div>
               </div>
-
-              <div className="week-gauge-stats">
-                <div>
-                  <span>Completed</span>
-                  <strong>{week.completed}</strong>
-                </div>
-                <div>
-                  <span>Pending</span>
-                  <strong>{weekPending}</strong>
-                </div>
-                <div>
-                  <span>Total Tasks</span>
-                  <strong>{week.total}</strong>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          {/* 3. MONTH — Donut graph */}
-          <article className="period-visual-card month-visual">
-            <div className="visual-card-top">
-              <div>
-                <span className="visual-kicker">THIS MONTH</span>
-                <h3>Monthly Task Progress</h3>
-                <p>Monthly completion distribution</p>
-              </div>
-              <div className="visual-icon month-icon">
-                <FaTrophy />
-              </div>
-            </div>
-
-            <div className="month-donut-layout">
-              <div
-                className="month-donut"
-                style={{
-                  background: `conic-gradient(#c454d9 0 ${month.value}%, #eeeaf5 ${month.value}% 100%)`,
-                }}
-              >
-                <div className="month-donut-inner">
-                  <strong>{month.value}%</strong>
-                  <span>Progress</span>
-                </div>
-              </div>
-
-              <div className="month-donut-info">
-                <div className="month-stat">
-                  <span><i className="visual-dot completed month-dot" /> Completed</span>
-                  <strong>{month.completed}</strong>
-                </div>
-                <div className="month-stat">
-                  <span><i className="visual-dot pending month-pending-dot" /> Pending</span>
-                  <strong>{monthPending}</strong>
-                </div>
-                <div className="month-total-line">
-                  <span>Total this month</span>
-                  <strong>{month.total}</strong>
-                </div>
-              </div>
-            </div>
-
-            <div className="month-mini-track">
-              <span style={{ width: `${month.value}%` }} />
-            </div>
-          </article>
-
+            ))}
+          </div>
         </div>
       </section>
     );
@@ -718,11 +747,11 @@ function ParentDashboard() {
 
       {/* Small light cards using the same colors as the sidebar */}
       <section className="overview-metrics">
-        <MetricCard icon={<FaUserGraduate />} label="Students" value={students.length} helper="Assigned to this account" tone="purple" />
-        <MetricCard icon={<FaListCheck />} label="Weekly Tasks" value={dashboard.weekTotal} helper="Tasks assigned this week" tone="blue" />
-        <MetricCard icon={<FaCircleCheck />} label="Completed" value={dashboard.weekCompleted} helper="Completed this week" tone="green" progress={dashboard.weekTotal ? (dashboard.weekCompleted / dashboard.weekTotal) * 100 : 0} />
-        <MetricCard icon={<FaClock />} label="Pending" value={Math.max(0, dashboard.weekTotal - dashboard.weekCompleted)} helper="Remaining this week" tone="orange" />
-        <MetricCard icon={<FaArrowTrendUp />} label="Performance" value={`${clamp(dashboard.weeklyPerformance)}%`} helper="Weekly completion rate" tone="indigo" progress={dashboard.weeklyPerformance} />
+        <MetricCard icon={<FaUserGraduate />} label="Assigned Students" value={students.length} helper="Students linked to this parent" tone="purple" />
+        <MetricCard icon={<FaListCheck />} label="Today's Tasks" value={`${dashboard.todayCompleted}/${dashboard.todayTotal}`} helper={`${clamp(dashboard.todayTaskProgress)}% task progress`} tone="blue" progress={dashboard.todayTaskProgress} />
+        <MetricCard icon={<FaChartLine />} label="Today's Performance" value={`${clamp(dashboard.todayPerformance)}%`} helper="Saved task performance" tone="green" progress={dashboard.todayPerformance} />
+        <MetricCard icon={<FaBullseye />} label="Today's Accuracy" value={`${clamp(dashboard.todayAccuracy)}%`} helper="Based on completion time" tone="orange" progress={dashboard.todayAccuracy} />
+        <MetricCard icon={<FaArrowTrendUp />} label="Weekly Performance" value={`${clamp(dashboard.weeklyPerformance)}%`} helper="All assigned students" tone="indigo" progress={dashboard.weeklyPerformance} />
       </section>
 
       {/* Performance trend — full width */}
