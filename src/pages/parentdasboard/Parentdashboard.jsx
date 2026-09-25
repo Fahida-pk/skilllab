@@ -214,12 +214,11 @@ function ParentDashboard() {
       <aside className={`parent-sidebar ${mobileOpen ? "mobile-open" : ""}`}>
         <div className="parent-sidebar-brand">
           <div className="brand-mark"><FaCircleNodes /></div>
-          <div><strong>SKILL LAB</strong><span>PARENT LEARNING CENTER</span></div>
+          <div><strong>SKILL LAB</strong></div>
           <button className="parent-sidebar-close" onClick={() => setMobileOpen(false)}><FaXmark /></button>
         </div>
 
         <div className="parent-sidebar-content">
-          <p className="sidebar-label">OVERVIEW</p>
           <button className={`parent-nav-item ${activePage === "dashboard" ? "active" : ""}`} onClick={() => { setActivePage("dashboard"); setSearch(""); setMobileOpen(false); }}>
             <FaGaugeHigh /><span>Dashboard</span>
           </button>
@@ -247,13 +246,11 @@ function ParentDashboard() {
       <div className="parent-topbar-left">
         <button className="parent-mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open menu"><FaBars /></button>
         <div>
-          <div className="topbar-breadcrumb"><span>PARENT LEARNING CENTER</span><b>/</b><span>{activePage === "students" ? "Students" : activePage === "profile" ? "Profile" : "Dashboard"}</span></div>
-          <h1>{activePage === "students" ? "Students" : activePage === "profile" ? "My Profile" : "Dashboard Overview"}</h1>
+          <h1>{activePage === "students" ? "Students" : activePage === "profile" ? "My Profile" : "Parent Dashboard "}</h1>
           <p>{activePage === "students" ? "Review student activity and performance." : activePage === "profile" ? "Manage your parent account information." : "A clear view of your students' learning progress."}</p>
         </div>
       </div>
       <div className="parent-profile">
-        <div className="parent-profile-avatar">{getInitials(parent?.name || parent?.username)}</div>
         <div><strong>{parent?.name || "Parent"}</strong><span>{parent?.username || "Parent account"}</span></div>
       </div>
     </header>
