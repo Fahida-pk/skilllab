@@ -553,7 +553,7 @@ function ParentDashboard() {
         <MetricCard icon={<FaArrowTrendUp />} label="Performance" value={`${clamp(dashboard.weeklyPerformance)}%`} helper="Weekly completion rate" tone="indigo" progress={dashboard.weeklyPerformance} />
       </section>
 
-      {/* Trend + weekly summary side by side */}
+      {/* Performance trend — full width */}
       <section className="overview-analytics">
         <div className="overview-chart-card">
           <div className="overview-card-head">
@@ -575,43 +575,14 @@ function ParentDashboard() {
             ))}
           </div>
         </div>
-
-        <aside className="overview-side-card">
-          <div className="overview-card-head">
-            <div>
-              <span className="section-kicker">WEEKLY OVERVIEW</span>
-              <h2>This week's progress</h2>
-              <p>All assigned students</p>
-            </div>
-            <div className="overview-head-icon mint"><FaTrophy /></div>
-          </div>
-
-          <div className="overview-side-score">
-            <strong>{clamp(dashboard.weeklyPerformance)}%</strong>
-            <span>weekly performance</span>
-          </div>
-          <div className="overview-side-track">
-            <span style={{ width: `${clamp(dashboard.weeklyPerformance)}%` }} />
-          </div>
-
-          <div className="overview-side-stats">
-            <div><span><i className="side-dot mint" />Completed</span><strong>{dashboard.weekCompleted}</strong></div>
-            <div><span><i className="side-dot blue" />Total tasks</span><strong>{dashboard.weekTotal}</strong></div>
-            <div><span><i className="side-dot orange" />Pending</span><strong>{Math.max(0, dashboard.weekTotal - dashboard.weekCompleted)}</strong></div>
-          </div>
-
-          <div className="overview-side-note">
-            <FaArrowTrendUp />
-            <span>Keep checking each student's progress to follow weekly learning activity.</span>
-          </div>
-        </aside>
       </section>
 
+      {/* Today / This Week / This Month — three progress cards */}
       <section className="overview-period-section">
         <div className="overview-section-head compact">
           <div>
-            <span className="section-kicker">PROGRESS BREAKDOWN</span>
-            <h2>Today, this week & this month</h2>
+            <span className="section-kicker">PROGRESS OVERVIEW</span>
+            <h2>Today, This Week & This Month</h2>
             <p>Task completion for all assigned students.</p>
           </div>
         </div>

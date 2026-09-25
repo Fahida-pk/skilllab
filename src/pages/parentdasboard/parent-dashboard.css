@@ -540,3 +540,392 @@ button, input { font: inherit; }
     font-size: 25px;
   }
 }
+
+
+/* =========================================================
+   SKILL LAB PARENT DASHBOARD — PREMIUM UI OVERRIDES
+   ========================================================= */
+
+/* Brand palette: Skill Lab blue → purple → pink */
+:root {
+  --skill-blue: #4f86f7;
+  --skill-purple: #7352ed;
+  --skill-purple-dark: #6247df;
+  --skill-pink: #c85ad9;
+  --skill-text: #16284a;
+}
+
+/* ---------- Sidebar ---------- */
+.parent-sidebar {
+  width: 300px;
+  background:
+    radial-gradient(circle at 10% 8%, rgba(255,255,255,.16), transparent 23%),
+    radial-gradient(circle at 100% 75%, rgba(255,255,255,.12), transparent 30%),
+    linear-gradient(155deg, #4d86f7 0%, #6650ed 43%, #8848df 72%, #c83dca 100%);
+  box-shadow: 20px 0 55px rgba(66, 57, 145, .18);
+}
+
+.parent-main {
+  margin-left: 300px;
+}
+
+.parent-sidebar-brand {
+  height: 122px;
+  padding: 27px 29px;
+  border-bottom: 1px solid rgba(255,255,255,.20);
+}
+
+.parent-sidebar-brand strong {
+  font-size: 27px;
+  letter-spacing: 3.2px;
+  font-weight: 950;
+}
+
+.parent-sidebar-brand span {
+  margin-top: 9px;
+  font-size: 10px;
+  letter-spacing: 1.7px;
+}
+
+.parent-sidebar-content {
+  padding: 38px 20px;
+}
+
+.parent-nav-item {
+  min-height: 58px;
+  padding: 16px 18px;
+  gap: 16px;
+  margin-bottom: 10px;
+  border-radius: 16px;
+  font-size: 17px;
+  font-weight: 850;
+  letter-spacing: -.2px;
+}
+
+.parent-nav-item svg {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+}
+
+.parent-nav-item.active {
+  background: linear-gradient(90deg, rgba(255,255,255,.23), rgba(255,255,255,.08));
+  border-color: rgba(255,255,255,.32);
+  box-shadow:
+    inset 5px 0 0 #fff,
+    0 13px 30px rgba(43,31,119,.16);
+}
+
+.parent-sidebar-bottom {
+  padding: 20px 22px 28px;
+}
+
+.parent-logout {
+  min-height: 54px;
+  padding: 15px 18px;
+  border-radius: 16px;
+  font-size: 15px;
+}
+
+/* ---------- Topbar ---------- */
+.parent-topbar {
+  min-height: 108px;
+  padding: 22px 44px;
+  background: rgba(255,255,255,.96);
+  border-bottom: 1px solid #e6e8f1;
+  box-shadow: 0 8px 28px rgba(54,62,98,.045);
+}
+
+.parent-topbar-left {
+  gap: 18px;
+}
+
+.parent-topbar h1 {
+  color: #17294b;
+  font-size: 31px;
+  font-weight: 950;
+  letter-spacing: -1px;
+}
+
+.parent-topbar p {
+  margin-top: 8px;
+  color: #7d8aa3;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.parent-profile {
+  padding: 9px 13px 9px 15px;
+  border: 1px solid #eceaf6;
+  border-radius: 16px;
+  background: #faf9ff;
+}
+
+.parent-profile strong {
+  color: #263654;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.parent-profile span {
+  color: #8d97ab;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* ---------- Full-width performance trend ---------- */
+.overview-analytics {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.overview-chart-card {
+  padding: 26px 28px 24px;
+  border: 1px solid #e5e7f0;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 14px 38px rgba(48,58,91,.065);
+}
+
+.overview-chart-card .performance-chart-wrap {
+  margin-top: 18px;
+}
+
+.overview-chart-card .performance-svg {
+  height: 285px;
+}
+
+.overview-chart-card .chart-line {
+  stroke: var(--skill-purple);
+  stroke-width: 4;
+}
+
+.overview-chart-card .chart-point.point-2 {
+  fill: var(--skill-pink);
+}
+
+.overview-chart-card .chart-point-ring.point-2 {
+  stroke: var(--skill-pink);
+}
+
+.overview-chart-card .chart-value {
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.overview-chart-card .chart-label {
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.overview-chart-legend {
+  margin-top: 8px;
+  gap: 12px;
+}
+
+.overview-legend-item {
+  min-height: 52px;
+  padding: 10px 13px;
+  border-radius: 13px;
+}
+
+.overview-legend-item strong {
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.overview-legend-item small {
+  font-size: 9px;
+}
+
+.overview-legend-item b {
+  font-size: 14px;
+  font-weight: 950;
+}
+
+/* Month uses Skill Lab pink — no orange */
+.overview-chart-card .overview-legend-item.legend-2 > span {
+  background: var(--skill-pink);
+}
+
+/* ---------- Three progress cards ---------- */
+.overview-period-section {
+  margin-top: 26px;
+}
+
+.overview-period-section .overview-section-head {
+  margin-bottom: 14px;
+}
+
+.overview-section-head.compact h2 {
+  font-size: 22px;
+  font-weight: 950;
+  color: #17294b;
+}
+
+.period-pie-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 17px;
+  margin-top: 0;
+}
+
+.period-pie-card {
+  min-height: 255px;
+  padding: 22px;
+  border-radius: 21px;
+  box-shadow: 0 12px 34px rgba(48,58,91,.06);
+}
+
+.period-pie-head h3 {
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.period-pie-body {
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.period-donut {
+  width: 112px;
+  height: 112px;
+  flex-basis: 112px;
+}
+
+.period-donut-inner {
+  width: 78px;
+  height: 78px;
+}
+
+.period-donut-inner strong {
+  font-size: 22px;
+}
+
+.period-pie-stats .period-stat {
+  padding: 8px 0;
+}
+
+.period-performance-line {
+  margin-top: 15px;
+}
+
+.period-pie-card.today {
+  --period-color: #7352ed;
+}
+
+.period-pie-card.week {
+  --period-color: #4a8df6;
+}
+
+.period-pie-card.month {
+  --period-color: #c85ad9;
+}
+
+.period-pie-card.month .period-icon {
+  background: #f8eafd;
+}
+
+/* Pending stays orange, attention/status stays red */
+.overview-side-stats .side-dot.orange {
+  background: #efa13c;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1250px) {
+  .parent-main {
+    margin-left: 300px;
+  }
+
+  .overview-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .period-pie-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1000px) {
+  .period-pie-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .period-pie-card {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .parent-sidebar {
+    width: min(300px, 88vw);
+  }
+
+  .parent-main {
+    margin-left: 0;
+  }
+
+  .parent-topbar {
+    min-height: 96px;
+    padding: 18px 20px;
+  }
+
+  .parent-topbar h1 {
+    font-size: 24px;
+  }
+
+  .parent-topbar p {
+    font-size: 11px;
+  }
+
+  .overview-chart-card {
+    padding: 21px 18px;
+  }
+
+  .overview-chart-card .performance-svg {
+    height: 245px;
+  }
+}
+
+@media (max-width: 620px) {
+  .parent-sidebar-brand {
+    height: 105px;
+    padding: 23px 22px;
+  }
+
+  .parent-sidebar-brand strong {
+    font-size: 23px;
+  }
+
+  .parent-nav-item {
+    min-height: 54px;
+    font-size: 16px;
+  }
+
+  .parent-topbar {
+    min-height: 84px;
+    padding: 15px 14px;
+  }
+
+  .parent-topbar h1 {
+    font-size: 20px;
+  }
+
+  .parent-profile {
+    padding: 8px 10px;
+  }
+
+  .overview-chart-card .performance-svg {
+    height: 215px;
+  }
+
+  .overview-chart-legend {
+    grid-template-columns: 1fr;
+  }
+
+  .period-pie-card {
+    padding: 19px;
+  }
+}
+
