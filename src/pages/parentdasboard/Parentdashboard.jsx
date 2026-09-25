@@ -399,190 +399,33 @@ function ParentDashboard() {
 
   const renderDashboardHome = () => (
     <div className="dashboard-home">
-
-      <section className="welcome-panel parent-assigned-welcome">
+      <section className="welcome-panel">
         <div className="welcome-copy">
           <span className="welcome-kicker">PARENT LEARNING CENTER</span>
           <h2>Good to see you, {parent?.name?.split(" ")[0] || "Parent"}.</h2>
-          <p>Monitor the learning progress of the students assigned to your parent account.</p>
-          <div className="welcome-meta">
-            <span><FaCalendarDays /> {dashboard.periods.today || "Today"}</span>
-            <span><FaCircleCheck /> Assigned students performance</span>
-          </div>
+          <p>Stay informed about your students’ tasks, consistency and learning progress.</p>
+          <div className="welcome-meta"><span><FaUserGraduate /> {students.length} {students.length === 1 ? "Student" : "Students"}</span><span><FaCalendarDays /> {dashboard.periods.today || "Today"}</span></div>
         </div>
-        <div className="welcome-visual">
-          <div className="welcome-ring"><FaUserGraduate /></div>
-          <div className="welcome-orbit orbit-one" />
-          <div className="welcome-orbit orbit-two" />
-        </div>
+        <div className="welcome-visual"><div className="welcome-ring"><FaUserGraduate /></div><div className="welcome-orbit orbit-one" /><div className="welcome-orbit orbit-two" /></div>
       </section>
 
-      <section className="section-heading-row assigned-heading">
-        <div>
-          <span className="section-kicker">ASSIGNED STUDENTS</span>
-          <h2>Student performance overview</h2>
-          <p>Today, weekly and monthly performance for students assigned to this parent.</p>
-        </div>
-        <div className="scope-chip"><FaCircleCheck /> Parent assigned students</div>
+      <section className="metrics-grid">
+        <MetricCard icon={<FaUserGraduate />} label="Students" value={students.length} helper="Linked to this parent account" tone="purple" />
+        <MetricCard icon={<FaListCheck />} label="Total Tasks" value={dashboard.totalTasks} helper="All-time assigned tasks" tone="blue" />
+        <MetricCard icon={<FaCircleCheck />} label="Completed" value={dashboard.completedTasks} helper="Tasks successfully completed" tone="green" progress={analytics.total ? (analytics.completed / analytics.total) * 100 : 0} />
+        <MetricCard icon={<FaClock />} label="Pending" value={dashboard.pendingTasks} helper="Tasks still remaining" tone="orange" />
+        <MetricCard icon={<FaArrowTrendUp />} label="Overall Performance" value={`${clamp(dashboard.overallPerformance)}%`} helper="All-time completion rate" tone="indigo" progress={dashboard.overallPerformance} />
       </section>
 
-      <section className="assigned-student-grid">
-        {students.length === 0 ? (
-          <div className="empty-state assigned-empty">
-            <div><FaUserGraduate /></div>
-            <h3>No students assigned</h3>
-            <p>Students assigned to this parent account will appear here.</p>
-          </div>
-        ) : (
-          students.map((student) => {
-            const today = clamp(student.todayPerformance);
-            const week = clamp(
-              student.weekPerformance ??
-              student.weeklyPerformance ??
-              student.performance
-            );
-            const month = clamp(student.monthlyPerformance);
-            const overall = clamp(student.overallPerformance ?? student.performance);
-
-            return (
-              <article
-                className="assigned-student-card"
-                key={student.id}
-                onClick={() => openStudentDashboard(student)}
-              >
-                <div className="assigned-student-top">
-                  <div className="assigned-student-avatar">
-                    {getInitials(student.name)}
-                  </div>
-
-                  <div className="assigned-student-info">
-                    <h3>{student.name || "Unnamed Student"}</h3>
-                    <span>Student ID #{student.id}</span>
-                  </div>
-
-                  <button
-                    className="assigned-student-arrow"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openStudentDashboard(student);
-                    }}
-                    aria-label={`Open ${student.name || "student"} dashboard`}
-                  >
-                    <FaArrowRight />
-                  </button>
-                </div>
-
-                <div className="assigned-performance-main">
-                  <div>
-                    <span>Overall performance</span>
-                    <strong>{overall}%</strong>
-                  </div>
-                  <em className={getPerformanceClass(overall)}>
-                    {getPerformanceLabel(overall)}
-                  </em>
-                </div>
-
-                <div className="assigned-performance-track">
-                  <span
-                    className={getPerformanceClass(overall)}
-                    style={{ width: `${overall}%` }}
-                  />
-                </div>
-
-                <div className="assigned-periods">
-                  <div className="assigned-period today">
-                    <div className="assigned-period-icon"><FaCalendarDays /></div>
-                    <span>Today</span>
-                    <strong>{today}%</strong>
-                    <small>
-                      {Number(student.todayCompleted) || 0}/
-                      {Number(student.todayTotal) || 0} completed
-                    </small>
-                  </div>
-
-                  <div className="assigned-period week">
-                    <div className="assigned-period-icon"><FaChartLine /></div>
-                    <span>This Week</span>
-                    <strong>{week}%</strong>
-                    <small>
-                      {Number(student.weekCompleted) || 0}/
-                      {Number(student.weekTotal) || 0} completed
-                    </small>
-                  </div>
-
-                  <div className="assigned-period month">
-                    <div className="assigned-period-icon"><FaTrophy /></div>
-                    <span>This Month</span>
-                    <strong>{month}%</strong>
-                    <small>
-                      {Number(student.monthCompleted) || 0}/
-                      {Number(student.monthTotal) || 0} completed
-                    </small>
-                  </div>
-                </div>
-
-                <button
-                  className="assigned-open-button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openStudentDashboard(student);
-                  }}
-                >
-                  View student dashboard <FaArrowRight />
-                </button>
-              </article>
-            );
-          })
-        )}
+      <section className="section-heading-row"><div><span className="section-kicker">PERFORMANCE SNAPSHOT</span><h2>Progress at a glance</h2><p>Period-based accuracy for all students connected to this parent.</p></div><div className="scope-chip"><FaCircleCheck /> Students only</div></section>
+      <section className="period-grid">
+        <PeriodCard label="TODAY" value={dashboard.todayPerformance} completed={dashboard.todayCompleted} total={dashboard.todayTotal} date={dashboard.periods.today} icon={<FaCalendarDays />} tone="today" />
+        <PeriodCard label="THIS WEEK" value={dashboard.weeklyPerformance} completed={dashboard.weekCompleted} total={dashboard.weekTotal} date={dashboard.periods.week} icon={<FaChartLine />} tone="week" />
+        <PeriodCard label="THIS MONTH" value={dashboard.monthlyPerformance} completed={dashboard.monthCompleted} total={dashboard.monthTotal} date={dashboard.periods.month} icon={<FaTrophy />} tone="month" />
       </section>
 
-      <section className="period-summary-section">
-        <div className="section-heading-row">
-          <div>
-            <span className="section-kicker">PARENT SUMMARY</span>
-            <h2>Performance at a glance</h2>
-            <p>Combined accuracy based only on the students assigned to this parent.</p>
-          </div>
-        </div>
-
-        <section className="period-grid">
-          <PeriodCard
-            label="TODAY"
-            value={dashboard.todayPerformance}
-            completed={dashboard.todayCompleted}
-            total={dashboard.todayTotal}
-            date={dashboard.periods.today}
-            icon={<FaCalendarDays />}
-            tone="today"
-          />
-
-          <PeriodCard
-            label="THIS WEEK"
-            value={dashboard.weeklyPerformance}
-            completed={dashboard.weekCompleted}
-            total={dashboard.weekTotal}
-            date={dashboard.periods.week}
-            icon={<FaChartLine />}
-            tone="week"
-          />
-
-          <PeriodCard
-            label="THIS MONTH"
-            value={dashboard.monthlyPerformance}
-            completed={dashboard.monthCompleted}
-            total={dashboard.monthTotal}
-            date={dashboard.periods.month}
-            icon={<FaTrophy />}
-            tone="month"
-          />
-        </section>
-      </section>
-
-      <section className="analytics-grid parent-performance-analytics">
-        {renderPerformanceBars()}
-        {renderStudentDistribution()}
-      </section>
-
+      <section className="analytics-grid">{renderPerformanceBars()}{renderDonut()}{renderStudentDistribution()}</section>
+      {renderStudentTable()}
     </div>
   );
 
@@ -590,7 +433,7 @@ function ParentDashboard() {
     <section className="students-page">
       <div className="page-heading-card"><div><span className="section-kicker">STUDENT DIRECTORY</span><h2>Students</h2><p>View each student’s learning activity and open their detailed dashboard.</p></div><button className="refresh-button" onClick={loadDashboard} disabled={loading}><FaRotate /> {loading ? "Refreshing" : "Refresh"}</button></div>
       <div className="student-toolbar"><div className="search-box"><FaMagnifyingGlass /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email or ID..." /></div><div className="result-count">{filteredStudents.length} {filteredStudents.length === 1 ? "student" : "students"}</div></div>
-      {loading ? <div className="loading-state"><span /><p>Loading students...</p></div> : filteredStudents.length === 0 ? <div className="empty-state large"><div><FaUserGraduate /></div><h3>No students found</h3><p>No students are currently available for this parent account.</p></div> : <div className="student-cards-grid">{filteredStudents.map((student) => { const p = getPerformance(student); return <article className="student-card" key={student.id} onClick={() => openStudentDashboard(student)}><div className="student-card-head"><div className="student-avatar">{getInitials(student.name)}</div><div className="student-card-name"><h3>{student.name || "Unnamed Student"}</h3><span>Student ID #{student.id}</span></div><FaArrowRight className="student-card-arrow" /></div><div className="student-email"><FaUser /> {student.email || "No email available"}</div><div className="student-card-performance"><div><span>Weekly performance</span><strong>{p}%</strong></div><em className={getPerformanceClass(p)}>{getPerformanceLabel(p)}</em></div><div className="student-progress"><span className={getPerformanceClass(p)} style={{ width: `${p}%` }} /></div><div className="student-period-row"><div><span>Today</span><strong>{clamp(student.todayPerformance)}%</strong></div><div><span>Week</span><strong>{p}%</strong></div><div><span>Month</span><strong>{clamp(student.monthlyPerformance)}%</strong></div></div><button className="student-open-button" onClick={(e) => { e.stopPropagation(); openStudentDashboard(student); }}>Open student dashboard <FaArrowRight /></button></article>; })}</div>}
+      {loading ? <div className="loading-state"><span /><p>Loading students...</p></div> : filteredStudents.length === 0 ? <div className="empty-state large"><div><FaUserGraduate /></div><h3>No students found</h3><p>No students are currently available for this parent account.</p></div> : <div className="student-cards-grid">{filteredStudents.map((student) => { const p = getPerformance(student); const total = Number(student.totalTasks) || 0; const completed = Number(student.completedTasks) || 0; const pending = Number(student.pendingTasks) || Math.max(0, total - completed); return <article className="student-card" key={student.id} onClick={() => openStudentDashboard(student)}><div className="student-card-head"><div className="student-avatar">{getInitials(student.name)}</div><div className="student-card-name"><h3>{student.name || "Unnamed Student"}</h3><span>Student ID #{student.id}</span></div><FaArrowRight className="student-card-arrow" /></div><div className="student-email"><FaUser /> {student.email || "No email available"}</div><div className="student-mini-stats"><div><span>Total</span><strong>{total}</strong></div><div><span>Completed</span><strong className="green-text">{completed}</strong></div><div><span>Pending</span><strong className="orange-text">{pending}</strong></div></div><div className="student-card-performance"><div><span>Weekly performance</span><strong>{p}%</strong></div><em className={getPerformanceClass(p)}>{getPerformanceLabel(p)}</em></div><div className="student-progress"><span className={getPerformanceClass(p)} style={{ width: `${p}%` }} /></div><div className="student-period-row"><div><span>Today</span><strong>{clamp(student.todayPerformance)}%</strong></div><div><span>Week</span><strong>{p}%</strong></div><div><span>Month</span><strong>{clamp(student.monthlyPerformance)}%</strong></div></div><button className="student-open-button" onClick={(e) => { e.stopPropagation(); openStudentDashboard(student); }}>Open student dashboard <FaArrowRight /></button></article>; })}</div>}
     </section>
   );
 
