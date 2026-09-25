@@ -820,6 +820,28 @@ body,
 /* =========================================================
    SHOW PASSWORD
 ========================================================= */
+.admin-glass-highlight {
+  position: absolute;
+
+  top: 0;
+  left: 15%;
+
+  width: 70%;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(199, 197, 197, 0.8),
+      transparent
+    );
+
+  pointer-events: none;
+
+  z-index: 5;
+}
 
 .show-password-btn {
 
