@@ -22,7 +22,7 @@ const API_URL =
 const TASK_API_URL =
   "https://zyntaweb.com/skilllab/api/task.php";
 
-function Dashboard({ adminView = false }) {
+function Dashboard({ adminView = false, parentView = false }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -31,33 +31,46 @@ function Dashboard({ adminView = false }) {
   );
 
   /* =====================================================
-     ADMIN VIEW
-     Admin can open a student's dashboard without
-     requiring the student's Google login.
+     ADMIN / PARENT STUDENT VIEW
+     Admin and Parent can open a student's dashboard
+     without requiring the student's login.
   ===================================================== */
+
   const adminStudentId = adminView
     ? location.pathname.split("/")[3] || null
     : null;
 
-  const getStoredAdminStudent = () => {
-    if (!adminStudentId) return null;
+  const parentStudentId = parentView
+    ? location.pathname.split("/")[3] || null
+    : null;
+
+  const getStoredStudent = (type, studentId) => {
+    if (!studentId) return null;
 
     try {
-      const stored = sessionStorage.getItem(
-        `adminViewingStudent_${adminStudentId}`
-      );
+      const key =
+        type === "parent"
+          ? `parentViewingStudent_${studentId}`
+          : `adminViewingStudent_${studentId}`;
+
+      const stored = sessionStorage.getItem(key);
 
       return stored ? JSON.parse(stored) : null;
     } catch (error) {
-      console.error(
-        "Admin student storage error:",
-        error
-      );
+      console.error(`${type} student storage error:`, error);
       return null;
     }
   };
 
-  const storedAdminStudent = getStoredAdminStudent();
+  const storedAdminStudent = getStoredStudent(
+    "admin",
+    adminStudentId
+  );
+
+  const storedParentStudent = getStoredStudent(
+    "parent",
+    parentStudentId
+  );
 
   const adminStudentEmail =
     location.state?.studentEmail ||
@@ -69,28 +82,161 @@ function Dashboard({ adminView = false }) {
     storedAdminStudent?.name ||
     "";
 
-  const dashboardEmail = adminView
+  const parentStudentEmail =
+    location.state?.studentEmail ||
+    storedParentStudent?.email ||
+    "";
+
+  const parentStudentName =
+    location.state?.studentName ||
+    storedParentStudent?.name ||
+    "";
+
+  const currentStudentId = adminView
+    ? adminStudentId
+    : parentView
+    ? parentStudentId
+    : null;
+
+  const currentStudentEmail = adminView
     ? adminStudentEmail
-    : user?.email;
+    : parentView
+    ? parentStudentEmail
+    : "";
+
+  const currentStudentName = adminView
+    ? adminStudentName
+    : parentView
+    ? parentStudentName
+    : "";
+
+  const dashboardEmail =
+    adminView || parentView
+      ? currentStudentEmail
+      : user?.email;
+
+  /* =====================================================
+     SAVE SELECTED STUDENT
+     Same method for Admin and Parent.
+  ===================================================== */
 
   useEffect(() => {
-    if (!adminView || !adminStudentId) return;
+    if (!currentStudentId || !currentStudentEmail) return;
 
-    if (adminStudentEmail) {
-      sessionStorage.setItem(
-        `adminViewingStudent_${adminStudentId}`,
-        JSON.stringify({
-          id: adminStudentId,
-          email: adminStudentEmail,
-          name: adminStudentName,
-        })
-      );
-    }
+    const storageKey = adminView
+      ? `adminViewingStudent_${currentStudentId}`
+      : `parentViewingStudent_${currentStudentId}`;
+
+    sessionStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        id: currentStudentId,
+        email: currentStudentEmail,
+        name: currentStudentName,
+      })
+    );
   }, [
     adminView,
-    adminStudentId,
-    adminStudentEmail,
-    adminStudentName,
+    parentView,
+    currentStudentId,
+    currentStudentEmail,
+    currentStudentName,
+  ]);
+
+  /* =====================================================
+     PARENT DIRECT-URL FALLBACK
+     If the parent opens /parent/students/:id/dashboard
+     directly, recover the student from parent_overview.
+  ===================================================== */
+
+  useEffect(() => {
+    if (
+      !parentView ||
+      !parentStudentId ||
+      parentStudentEmail
+    ) {
+      return;
+    }
+
+    const loadParentStudent = async () => {
+      try {
+        const savedParent = JSON.parse(
+          localStorage.getItem("parent") || "null"
+        );
+
+        if (!savedParent?.id) return;
+
+        const response = await fetch(
+          "https://zyntaweb.com/skilllab/parent-dashboard.php",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "parent_overview",
+              parent_id: savedParent.id,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        const students =
+          data?.overview?.students || [];
+
+        const student = students.find(
+          (item) =>
+            String(item.id) ===
+            String(parentStudentId)
+        );
+
+        if (!student?.email) return;
+
+        const studentData = {
+          id: student.id,
+          name: student.name || "",
+          email: student.email || "",
+        };
+
+        sessionStorage.setItem(
+          `parentViewingStudent_${parentStudentId}`,
+          JSON.stringify(studentData)
+        );
+
+        /*
+         * State is updated by changing the current URL state.
+         * A reload will then read the sessionStorage value.
+         */
+        window.history.replaceState(
+          {
+            ...(window.history.state || {}),
+            usr: {
+              ...(location.state || {}),
+              studentId: student.id,
+              studentEmail: student.email,
+              studentName: student.name || "",
+              fromParent: true,
+            },
+          },
+          "",
+          window.location.href
+        );
+
+        window.location.reload();
+      } catch (error) {
+        console.error(
+          "Parent student fallback error:",
+          error
+        );
+      }
+    };
+
+    loadParentStudent();
+  }, [
+    parentView,
+    parentStudentId,
+    parentStudentEmail,
   ]);
 
   /* =====================================================
@@ -2977,9 +3123,10 @@ const dashboardPerformanceStyles = `
       {/* SIDEBAR */}
       <Sidebar
         adminView={adminView}
-        studentName={adminStudentName}
-        studentEmail={adminStudentEmail}
-        studentId={adminStudentId}
+        parentView={parentView}
+        studentName={currentStudentName}
+        studentEmail={currentStudentEmail}
+        studentId={currentStudentId}
       />
 
       {/* MAIN */}
