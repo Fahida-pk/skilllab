@@ -1388,23 +1388,46 @@ customTasks.forEach((task) => {
      LOAD DASHBOARD
   ===================================================== */
 
-  const loadDashboard = async (
-    date = selectedDate
-  ) => {
-    if (!adminView && !user?.email) {
-      navigate("/login");
-      return;
-    }
+ const loadDashboard = async (
+  date = selectedDate
+) => {
 
-    if (adminView && !dashboardEmail) {
-      console.error(
-        "Admin view: student email not found"
-      );
-      return;
-    }
+  // Normal student
+  if (
+    !adminView &&
+    !parentView &&
+    !user?.email
+  ) {
+    navigate("/login");
+    return;
+  }
 
-    try {
-      setLoading(true);
+  // Admin viewing student
+  if (
+    adminView &&
+    !dashboardEmail
+  ) {
+    console.error(
+      "Admin view: student email not found"
+    );
+    return;
+  }
+
+  // Parent viewing student
+  if (
+    parentView &&
+    !dashboardEmail
+  ) {
+    console.error(
+      "Parent view: student email not found"
+    );
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    // existing fetch code...
 
       const response =
         await fetch(
