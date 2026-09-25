@@ -516,81 +516,121 @@ function ParentDashboard() {
   );
 
   const renderDashboardHome = () => (
-    <div className="dashboard-home">
-      <section className="performance-hero-card">
-        <div className="performance-hero-main">
-          <div className="performance-hero-copy">
-            <span className="welcome-kicker">LEARNING PERFORMANCE</span>
-            <h2>Student Learning Snapshot</h2>
-            <p>Track your assigned students' task completion and performance across today, this week and this month.</p>
+    <div className="dashboard-home overview-home">
+      {/* Compact welcome overview — no large circular score */}
+      <section className="overview-welcome">
+        <div className="overview-welcome-copy">
+          <span className="overview-eyebrow">PARENT LEARNING CENTER</span>
+          <h2>Good to see you, {parent?.name || "Parent"}.</h2>
+          <p>Monitor the learning progress of the students assigned to your parent account.</p>
+          <div className="overview-meta">
+            <span><FaCalendarDays /> {new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</span>
+            <span><FaCircleCheck /> Assigned students performance</span>
           </div>
-          <div className="performance-hero-score">
-            <div className="hero-score-ring" style={{ background: `conic-gradient(#7653e8 0 ${clamp(dashboard.overallPerformance)}%, #e9e5fb ${clamp(dashboard.overallPerformance)}% 100%)` }}>
-              <div><strong>{clamp(dashboard.overallPerformance)}%</strong><span>Overall</span></div>
+        </div>
+        <div className="overview-welcome-art" aria-hidden="true">
+          <span className="overview-orbit orbit-one" />
+          <span className="overview-orbit orbit-two" />
+          <span className="overview-orbit orbit-three" />
+          <div className="overview-art-icon"><FaUserGraduate /></div>
+        </div>
+      </section>
+
+      <section className="overview-section-head">
+        <div>
+          <span className="section-kicker">ASSIGNED STUDENTS</span>
+          <h2>Student performance overview</h2>
+          <p>Quickly understand task activity and learning progress.</p>
+        </div>
+        <button className="overview-student-count" onClick={() => { setActivePage("students"); setSearch(""); }}>
+          <FaUserGraduate />
+          <span><strong>{students.length}</strong> assigned students</span>
+          <FaArrowRight />
+        </button>
+      </section>
+
+      {/* Small light cards using the same colors as the sidebar */}
+      <section className="overview-metrics">
+        <MetricCard icon={<FaUserGraduate />} label="Students" value={students.length} helper="Assigned to this account" tone="purple" />
+        <MetricCard icon={<FaListCheck />} label="Weekly Tasks" value={dashboard.weekTotal} helper="Tasks assigned this week" tone="blue" />
+        <MetricCard icon={<FaCircleCheck />} label="Completed" value={dashboard.weekCompleted} helper="Completed this week" tone="green" progress={dashboard.weekTotal ? (dashboard.weekCompleted / dashboard.weekTotal) * 100 : 0} />
+        <MetricCard icon={<FaClock />} label="Pending" value={Math.max(0, dashboard.weekTotal - dashboard.weekCompleted)} helper="Remaining this week" tone="orange" />
+        <MetricCard icon={<FaArrowTrendUp />} label="Performance" value={`${clamp(dashboard.weeklyPerformance)}%`} helper="Weekly completion rate" tone="indigo" progress={dashboard.weeklyPerformance} />
+      </section>
+
+      {/* Trend + weekly summary side by side */}
+      <section className="overview-analytics">
+        <div className="overview-chart-card">
+          <div className="overview-card-head">
+            <div>
+              <span className="section-kicker">PERFORMANCE TREND</span>
+              <h2>Task performance trend</h2>
+              <p>Completion rate across today, this week and this month.</p>
             </div>
+            <div className="overview-head-icon purple"><FaChartLine /></div>
+          </div>
+          {renderPerformanceChart()}
+          <div className="overview-chart-legend">
+            {chartData.map((item, index) => (
+              <div key={item.label} className={`overview-legend-item legend-${index}`}>
+                <span />
+                <div><strong>{item.label}</strong><small>{item.completed}/{item.total} tasks</small></div>
+                <b>{item.value}%</b>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="performance-hero-periods">
-          <div className="hero-period today"><span>Today</span><strong>{clamp(dashboard.todayPerformance)}%</strong><small>{dashboard.todayCompleted}/{dashboard.todayTotal} tasks</small><i><b style={{width:`${clamp(dashboard.todayPerformance)}%`}} /></i></div>
-          <div className="hero-period week"><span>This Week</span><strong>{clamp(dashboard.weeklyPerformance)}%</strong><small>{dashboard.weekCompleted}/{dashboard.weekTotal} tasks</small><i><b style={{width:`${clamp(dashboard.weeklyPerformance)}%`}} /></i></div>
-          <div className="hero-period month"><span>This Month</span><strong>{clamp(dashboard.monthlyPerformance)}%</strong><small>{dashboard.monthCompleted}/{dashboard.monthTotal} tasks</small><i><b style={{width:`${clamp(dashboard.monthlyPerformance)}%`}} /></i></div>
-        </div>
-      </section>
-      <section className="metrics-grid">
-        <MetricCard icon={<FaUserGraduate />} label="Students" value={students.length} helper="Linked to this parent account" tone="purple" />
-        <MetricCard icon={<FaListCheck />} label="Weekly Tasks" value={dashboard.weekTotal} helper="Assigned during this week" tone="blue" />
-        <MetricCard icon={<FaCircleCheck />} label="Completed This Week" value={dashboard.weekCompleted} helper="Successfully completed" tone="green" progress={dashboard.weekTotal ? (dashboard.weekCompleted / dashboard.weekTotal) * 100 : 0} />
-        <MetricCard icon={<FaClock />} label="Pending This Week" value={Math.max(0, dashboard.weekTotal - dashboard.weekCompleted)} helper="Still remaining this week" tone="orange" />
-        <MetricCard icon={<FaArrowTrendUp />} label="Weekly Performance" value={`${clamp(dashboard.weeklyPerformance)}%`} helper="Weekly completion rate" tone="indigo" progress={dashboard.weeklyPerformance} />
+
+        <aside className="overview-side-card">
+          <div className="overview-card-head">
+            <div>
+              <span className="section-kicker">WEEKLY OVERVIEW</span>
+              <h2>This week's progress</h2>
+              <p>All assigned students</p>
+            </div>
+            <div className="overview-head-icon mint"><FaTrophy /></div>
+          </div>
+
+          <div className="overview-side-score">
+            <strong>{clamp(dashboard.weeklyPerformance)}%</strong>
+            <span>weekly performance</span>
+          </div>
+          <div className="overview-side-track">
+            <span style={{ width: `${clamp(dashboard.weeklyPerformance)}%` }} />
+          </div>
+
+          <div className="overview-side-stats">
+            <div><span><i className="side-dot mint" />Completed</span><strong>{dashboard.weekCompleted}</strong></div>
+            <div><span><i className="side-dot blue" />Total tasks</span><strong>{dashboard.weekTotal}</strong></div>
+            <div><span><i className="side-dot orange" />Pending</span><strong>{Math.max(0, dashboard.weekTotal - dashboard.weekCompleted)}</strong></div>
+          </div>
+
+          <div className="overview-side-note">
+            <FaArrowTrendUp />
+            <span>Keep checking each student's progress to follow weekly learning activity.</span>
+          </div>
+        </aside>
       </section>
 
-      <section className="performance-section">
-        <div className="section-heading-row performance-section-heading">
+      <section className="overview-period-section">
+        <div className="overview-section-head compact">
           <div>
-            <span className="section-kicker">PERFORMANCE ANALYTICS</span>
-            <h2>Task performance trend</h2>
-            <p>Compare completion performance across today, this week and this month.</p>
+            <span className="section-kicker">PROGRESS BREAKDOWN</span>
+            <h2>Today, this week & this month</h2>
+            <p>Task completion for all assigned students.</p>
           </div>
-        </div>
-
-        <div className="analytics-grid analytics-grid-single">
-          {renderPerformanceChartCard()}
         </div>
 
         <div className="period-pie-grid">
-          <PeriodCard
-            label="TODAY"
-            value={dashboard.todayPerformance}
-            completed={dashboard.todayCompleted}
-            total={dashboard.todayTotal}
-            date={dashboard.periods.today}
-            icon={<FaCalendarDays />}
-            tone="today"
-          />
-          <PeriodCard
-            label="THIS WEEK"
-            value={dashboard.weeklyPerformance}
-            completed={dashboard.weekCompleted}
-            total={dashboard.weekTotal}
-            date={dashboard.periods.week}
-            icon={<FaChartLine />}
-            tone="week"
-          />
-          <PeriodCard
-            label="THIS MONTH"
-            value={dashboard.monthlyPerformance}
-            completed={dashboard.monthCompleted}
-            total={dashboard.monthTotal}
-            date={dashboard.periods.month}
-            icon={<FaTrophy />}
-            tone="month"
-          />
-        </div>
-
-        <div className="student-health-section">
-          {renderStudentDistribution()}
+          <PeriodCard label="TODAY" value={dashboard.todayPerformance} completed={dashboard.todayCompleted} total={dashboard.todayTotal} date={dashboard.periods.today} icon={<FaCalendarDays />} tone="today" />
+          <PeriodCard label="THIS WEEK" value={dashboard.weeklyPerformance} completed={dashboard.weekCompleted} total={dashboard.weekTotal} date={dashboard.periods.week} icon={<FaChartLine />} tone="week" />
+          <PeriodCard label="THIS MONTH" value={dashboard.monthlyPerformance} completed={dashboard.monthCompleted} total={dashboard.monthTotal} date={dashboard.periods.month} icon={<FaTrophy />} tone="month" />
         </div>
       </section>
+
+      <div className="student-health-section">
+        {renderStudentDistribution()}
+      </div>
 
       {renderStudentTable()}
     </div>
