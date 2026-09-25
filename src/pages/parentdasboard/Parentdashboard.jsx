@@ -213,7 +213,6 @@ function ParentDashboard() {
       {mobileOpen && <div className="parent-sidebar-overlay" onClick={() => setMobileOpen(false)} />}
       <aside className={`parent-sidebar ${mobileOpen ? "mobile-open" : ""}`}>
         <div className="parent-sidebar-brand">
-          <div className="brand-mark"><FaCircleNodes /></div>
           <div><strong>SKILL LAB</strong></div>
           <button className="parent-sidebar-close" onClick={() => setMobileOpen(false)}><FaXmark /></button>
         </div>
@@ -225,7 +224,6 @@ function ParentDashboard() {
           <button className={`parent-nav-item ${activePage === "students" ? "active" : ""}`} onClick={() => { setActivePage("students"); setSearch(""); setMobileOpen(false); }}>
             <FaUserGraduate /><span>Students</span>
           </button>
-          <p className="sidebar-label sidebar-label-space">ACCOUNT</p>
           <button className={`parent-nav-item ${activePage === "profile" ? "active" : ""}`} onClick={() => { setActivePage("profile"); setSearch(""); setMobileOpen(false); }}>
             <FaUser /><span>My Profile</span>
           </button>
