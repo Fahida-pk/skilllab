@@ -39,7 +39,7 @@ import "./task.css";
 
 const API_URL = "https://zyntaweb.com/skilllab/api/task.php";
 
-function Task({ adminView = false }) {
+function Task({ adminView = false, parentView = false }) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -54,6 +54,35 @@ function Task({ adminView = false }) {
   const adminStudentId = adminView
     ? location.pathname.split("/")[3] || null
     : null;
+
+  const parentStudentId = parentView
+    ? location.pathname.split("/")[3] || null
+    : null;
+
+  const storedParentStudent = (() => {
+    if (!parentStudentId) return null;
+
+    try {
+      const saved = sessionStorage.getItem(
+        `parentViewingStudent_${parentStudentId}`
+      );
+
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      console.error("Parent student storage error:", error);
+      return null;
+    }
+  })();
+
+  const parentStudentEmail =
+    location.state?.studentEmail ||
+    storedParentStudent?.email ||
+    "";
+
+  const parentStudentName =
+    location.state?.studentName ||
+    storedParentStudent?.name ||
+    "";
 
   const storedAdminStudent = (() => {
     if (!adminStudentId) return null;
@@ -144,6 +173,8 @@ const handleStudentViewBack = () => {
 
 const taskEmail = adminView
   ? adminStudentEmail
+  : parentView
+  ? parentStudentEmail
   : user?.email;
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
@@ -785,7 +816,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     try {
       // Admin view is strictly read-only.
       // Do not create/sync default tasks while viewing a student.
-      if (!adminView) {
+      if (!adminView && !parentView) {
         await ensureDefaultTasksInDatabase();
       }
 
@@ -915,7 +946,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
     fetchTasks();
-  }, [currentKey, taskEmail, adminView]);
+  }, [currentKey, taskEmail, adminView, parentView]);
 
   const isNextDay = (from, to) => {
     if (!from || !to) return false;
@@ -1034,7 +1065,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const deleteTask = async (task) => {
 
-    if (adminView) return;
+    if (adminView || parentView) return;
 
     if (isPreviousDay) {
       alert("Previous day tasks cannot be deleted.");
@@ -1116,7 +1147,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const toggleTask = async (task) => {
 
-    if (adminView) return;
+    if (adminView || parentView) return;
 
     if (!isToday) {
       alert(
@@ -1367,7 +1398,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
 
   const handlePercentageChange = (task, value) => {
-    if (adminView) return;
+    if (adminView || parentView) return;
 
     const percentage = Math.max(0, Math.min(100, Number(value)));
 
@@ -1379,7 +1410,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
   const saveTaskPercentage = async (task, value) => {
-    if (adminView) return;
+    if (adminView || parentView) return;
 
     const percentage = Math.max(0, Math.min(100, Number(value)));
 
@@ -1413,7 +1444,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const handleEdit = (task) => {
 
-    if (adminView) return;
+    if (adminView || parentView) return;
 
     if (isPreviousDay) {
       alert("Previous day tasks cannot be edited.");
@@ -1511,7 +1542,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const handleAddTask = async () => {
 
-    if (adminView) return;
+    if (adminView || parentView) return;
 
     // Ignore repeated clicks while the current save is still running.
     if (saveInProgressRef.current) return;
@@ -2426,10 +2457,28 @@ const taskAccuracyPercentage =
     <div className="dashboard">
 <Sidebar
   adminView={adminView}
-  parentView={location.pathname.startsWith("/parent/students/")}
-  studentName={adminStudentName}
-  studentEmail={adminStudentEmail}
-  studentId={adminStudentId}
+  parentView={parentView || location.pathname.startsWith("/parent/students/")}
+  studentName={
+    adminView
+      ? adminStudentName
+      : parentView
+      ? parentStudentName
+      : ""
+  }
+  studentEmail={
+    adminView
+      ? adminStudentEmail
+      : parentView
+      ? parentStudentEmail
+      : ""
+  }
+  studentId={
+    adminView
+      ? adminStudentId
+      : parentView
+      ? parentStudentId
+      : null
+  }
 />
       <div className="main">
         {/* DATE BAR */}
@@ -2513,7 +2562,7 @@ const taskAccuracyPercentage =
       Previous day: hidden
       Today/Future: available
   */}
-  {!adminView && !isPreviousDay && (
+  {!adminView && !parentView && !isPreviousDay && (
     <button
       className="progress-add-btn"
       onClick={() => {
@@ -2702,11 +2751,12 @@ const taskAccuracyPercentage =
                         checked={task.completed === true}
                         disabled={
                           adminView ||
+                          parentView ||
                           !isToday ||
                           (!task.completed && !isTaskStartReached(task))
                         }
                         onChange={() => {
-                          if (adminView) return;
+                          if (adminView || parentView) return;
                           if (!isToday) return;
 
                           // Do not allow ticking before the task start time.
@@ -2721,6 +2771,7 @@ const taskAccuracyPercentage =
                       <span
                         className={`custom-check ${
                           adminView ||
+                          parentView ||
                           !isToday ||
                           (!task.completed && !isTaskStartReached(task))
                             ? "check-disabled"
@@ -2735,7 +2786,7 @@ const taskAccuracyPercentage =
                   {/* SECOND ROW:
                       EDIT + DELETE + PROGRESS BAR + PERCENTAGE */}
                   <div className="task-bottom-row">
-                    {!adminView && !isPreviousDay && (
+                    {!adminView && !parentView && !isPreviousDay && (
                       <div className="actions action-box task-actions">
                         <button
                           onClick={() => handleEdit(task)}
@@ -2771,22 +2822,22 @@ const taskAccuracyPercentage =
                           0,
                           Math.min(100, Number(task.percentage ?? 0))
                         )}
-                        disabled={adminView || isPreviousDay}
+                        disabled={adminView || parentView || isPreviousDay}
                         onChange={(e) => {
-                          if (adminView) return;
+                          if (adminView || parentView) return;
                           if (isPreviousDay) return;
                           handlePercentageChange(task, e.target.value);
                         }}
                         onMouseUp={(e) => {
-                          if (adminView) return;
+                          if (adminView || parentView) return;
                           saveTaskPercentage(task, e.currentTarget.value);
                         }}
                         onTouchEnd={(e) => {
-                          if (adminView) return;
+                          if (adminView || parentView) return;
                           saveTaskPercentage(task, e.currentTarget.value);
                         }}
                         onBlur={(e) => {
-                          if (adminView) return;
+                          if (adminView || parentView) return;
                           saveTaskPercentage(task, e.currentTarget.value);
                         }}
                         aria-label={`Progress percentage for ${task.title}`}
@@ -2812,7 +2863,7 @@ const taskAccuracyPercentage =
       </div>
 
       {/* ADD / EDIT MODAL */}
-      {!adminView && showModal && (
+      {!adminView && !parentView && showModal && (
         <div className="modal" onClick={resetModal}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <h2>{editTask ? "Edit Task" : "Add New Task"}</h2>
@@ -2916,7 +2967,7 @@ const taskAccuracyPercentage =
           </div>
         </div>
       )}
-      {!adminView && deleteConfirm && (
+      {!adminView && !parentView && deleteConfirm && (
   <div
     className="delete-confirm-overlay"
     onClick={() => setDeleteConfirm(null)}
