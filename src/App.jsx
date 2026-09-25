@@ -176,7 +176,7 @@ function App() {
         path="/admin/students/:id/dashboard"
         element={
           <AdminProtectedRoute>
-            <Task adminView={true} />
+            <Dashboard adminView={true} />
           </AdminProtectedRoute>
         }
       />
@@ -242,7 +242,7 @@ function App() {
         path="/parent/students/:id/dashboard"
         element={
           <ParentProtectedRoute>
-            <Task parentView={true} />
+            <Dashboard parentView={true} />
           </ParentProtectedRoute>
         }
       />
