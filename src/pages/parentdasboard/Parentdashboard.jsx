@@ -235,7 +235,7 @@ function ParentDashboard() {
         <div className="parent-sidebar-bottom">
           <div className="sidebar-help-card">
             <FaChartLine />
-            <div><strong>Weekly overview</strong><span>Track this week's progress</span></div>
+            <div><strong>Learning overview</strong><span>Track progress at a glance</span></div>
           </div>
           <button className="parent-logout" onClick={handleLogout}><FaArrowRightFromBracket /><span>Logout</span></button>
         </div>
@@ -283,38 +283,71 @@ function ParentDashboard() {
   );
 
   const renderPerformanceChart = () => {
-    const width = 760;
-    const height = 260;
-    const padX = 64;
+    const width = 820;
+    const height = 300;
+    const padX = 70;
     const padTop = 28;
-    const padBottom = 58;
+    const padBottom = 54;
     const innerW = width - padX * 2;
     const innerH = height - padTop - padBottom;
+
     const points = chartData.map((item, index) => ({
       ...item,
       x: padX + (index * innerW) / (chartData.length - 1),
       y: padTop + innerH - (item.value / 100) * innerH,
     }));
-    const path = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+
+    const path = points
+      .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
+      .join(" ");
+
     const area = `${path} L ${points[points.length - 1].x} ${padTop + innerH} L ${points[0].x} ${padTop + innerH} Z`;
 
     return (
       <div className="performance-chart-wrap">
-        <div className="chart-y-labels"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div>
-        <svg className="performance-svg" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Task performance for today, this week and this month">
+        <div className="chart-y-labels" aria-hidden="true">
+          <span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span>
+        </div>
+        <svg
+          className="performance-svg"
+          viewBox={`0 0 ${width} ${height}`}
+          role="img"
+          aria-label="Task completion performance for today, this week and this month"
+        >
+          <defs>
+            <linearGradient id="performanceArea" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" className="chart-area-stop-start" />
+              <stop offset="100%" className="chart-area-stop-end" />
+            </linearGradient>
+          </defs>
+
           {[0, 25, 50, 75, 100].map((tick) => {
             const y = padTop + innerH - (tick / 100) * innerH;
-            return <line key={tick} x1={padX} x2={width - padX} y1={y} y2={y} className="chart-grid-line" />;
+            return (
+              <line
+                key={tick}
+                x1={padX}
+                x2={width - padX}
+                y1={y}
+                y2={y}
+                className="chart-grid-line"
+              />
+            );
           })}
+
           <path d={area} className="chart-area" />
           <path d={path} className="chart-line" />
-          {points.map((p) => (
-            <g key={p.label}>
-              <circle cx={p.x} cy={p.y} r="7" className="chart-point-ring" />
-              <circle cx={p.x} cy={p.y} r="4" className="chart-point" />
-              <text x={p.x} y={p.y - 18} textAnchor="middle" className="chart-value">{p.value}%</text>
-              <text x={p.x} y={height - 24} textAnchor="middle" className="chart-label">{p.label}</text>
-              <text x={p.x} y={height - 8} textAnchor="middle" className="chart-subvalue">{p.completed}/{p.total} tasks</text>
+
+          {points.map((point, index) => (
+            <g key={point.label}>
+              <circle cx={point.x} cy={point.y} r="8" className={`chart-point-ring point-${index}`} />
+              <circle cx={point.x} cy={point.y} r="4" className={`chart-point point-${index}`} />
+              <text x={point.x} y={point.y - 18} textAnchor="middle" className="chart-value">
+                {point.value}%
+              </text>
+              <text x={point.x} y={height - 25} textAnchor="middle" className="chart-label">
+                {point.label}
+              </text>
             </g>
           ))}
         </svg>
@@ -327,17 +360,19 @@ function ParentDashboard() {
       <div className="analytics-header">
         <div>
           <span className="section-kicker">PERFORMANCE TREND</span>
-          <h2>Task performance by period</h2>
-          <p>Clear comparison of completed tasks for today, this week and this month.</p>
+          <h2>Completion rate by period</h2>
+          <p>Compare task completion across today, this week and this month.</p>
         </div>
-        <div className="analytics-icon"><FaChartLine /></div>
+        <div className="analytics-icon chart-icon"><FaChartLine /></div>
       </div>
+
       {renderPerformanceChart()}
+
       <div className="chart-period-legend">
         {chartData.map((item, index) => (
           <div key={item.label} className={`chart-period-item period-${index}`}>
             <span className="legend-dot" />
-            <div><strong>{item.label}</strong><small>{item.completed} completed / {item.total} total</small></div>
+            <strong>{item.label}</strong>
             <b>{item.value}%</b>
           </div>
         ))}
@@ -346,19 +381,33 @@ function ParentDashboard() {
   );
 
   const renderDonut = () => (
-    <div className="analytics-card">
+    <div className="analytics-card donut-card">
       <div className="analytics-header">
-        <div><span className="section-kicker">THIS WEEK</span><h2>Weekly task status</h2><p>Total tasks are calculated only for the current week.</p></div>
-        <div className="analytics-icon"><FaChartPie /></div>
-      </div>
-      <div className="donut-layout">
-        <div className="donut" style={{ background: `conic-gradient(#7653e8 0 ${analytics.completionPercent}%, #e9edf6 ${analytics.completionPercent}% 100%)` }}>
-          <div className="donut-inner"><strong>{analytics.completionPercent}%</strong><span>Completed this week</span></div>
+        <div>
+          <span className="section-kicker">THIS WEEK</span>
+          <h2>Task completion</h2>
+          <p>Current week progress for all assigned students.</p>
         </div>
+        <div className="analytics-icon donut-icon"><FaChartPie /></div>
+      </div>
+
+      <div className="donut-layout">
+        <div
+          className="donut"
+          style={{
+            background: `conic-gradient(#7653e8 0 ${analytics.completionPercent}%, #e8edf6 ${analytics.completionPercent}% 100%)`,
+          }}
+        >
+          <div className="donut-inner">
+            <strong>{analytics.completionPercent}%</strong>
+            <span>Completed</span>
+          </div>
+        </div>
+
         <div className="donut-legend">
           <div><i className="dot purple" /><span>Completed</span><strong>{analytics.completed}</strong></div>
           <div><i className="dot gray" /><span>Pending</span><strong>{analytics.pending}</strong></div>
-          <div className="donut-total"><span>Weekly total</span><strong>{analytics.total}</strong></div>
+          <div className="donut-total"><span>Tasks this week</span><strong>{analytics.total}</strong></div>
         </div>
       </div>
     </div>
@@ -441,8 +490,8 @@ function ParentDashboard() {
       </section>
 
       <section className="section-heading-row">
-        <div><span className="section-kicker">PERFORMANCE SNAPSHOT</span><h2>Today, This Week & This Month</h2><p>Each period is clearly separated so you can see exactly what the percentage represents.</p></div>
-        <div className="scope-chip"><FaCircleCheck /> Weekly task totals</div>
+        <div><span className="section-kicker">PERFORMANCE SNAPSHOT</span><h2>Today, This Week & This Month</h2><p>A clear view of completion performance across your assigned students.</p></div>
+        
       </section>
 
       <section className="period-grid">
