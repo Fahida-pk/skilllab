@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import {
   FaGaugeHigh,
@@ -17,11 +17,8 @@ import {
   FaUser,
   FaArrowTrendUp,
   FaChartPie,
-  FaCircleNodes,
   FaRotate,
-  FaBolt,
   FaBullseye,
-  FaMedal,
 } from "react-icons/fa6";
 import "./parent-dashboard.css";
 
@@ -457,6 +454,177 @@ function ParentDashboard() {
     </div>
   );
 
+
+  /* =========================================================
+     THREE DISTINCT PERIOD VISUALS
+     These are intentionally different graph styles:
+       1) Today  -> progress bar / completion signal
+       2) Week   -> radial accuracy gauge
+       3) Month  -> donut task distribution
+     All values are aggregated for every student assigned
+     to this parent account.
+     ========================================================= */
+
+  const renderThreePeriodVisuals = () => {
+    const today = {
+      completed: Number(dashboard.todayCompleted) || 0,
+      total: Number(dashboard.todayTotal) || 0,
+      value: clamp(dashboard.todayPerformance),
+    };
+
+    const week = {
+      completed: Number(dashboard.weekCompleted) || 0,
+      total: Number(dashboard.weekTotal) || 0,
+      value: clamp(dashboard.weeklyPerformance),
+    };
+
+    const month = {
+      completed: Number(dashboard.monthCompleted) || 0,
+      total: Number(dashboard.monthTotal) || 0,
+      value: clamp(dashboard.monthlyPerformance),
+    };
+
+    const todayPending = Math.max(0, today.total - today.completed);
+    const weekPending = Math.max(0, week.total - week.completed);
+    const monthPending = Math.max(0, month.total - month.completed);
+
+    return (
+      <section className="three-period-visual-section">
+        <div className="overview-section-head compact">
+          <div>
+            <span className="section-kicker">LEARNING ANALYTICS</span>
+            <h2>Today, This Week & This Month</h2>
+            <p>Three different progress views calculated from all assigned students.</p>
+          </div>
+        </div>
+
+        <div className="three-period-visual-grid">
+
+          {/* 1. TODAY — Progress graph */}
+          <article className="period-visual-card today-visual">
+            <div className="visual-card-top">
+              <div>
+                <span className="visual-kicker">TODAY</span>
+                <h3>Today's Performance Progress</h3>
+                <p>{today.completed} of {today.total} tasks completed</p>
+              </div>
+              <div className="visual-icon today-icon">
+                <FaChartLine />
+              </div>
+            </div>
+
+            <div className="today-progress-visual">
+              <div className="today-progress-value">
+                <strong>{today.value}%</strong>
+                <span>Completed task performance</span>
+              </div>
+
+              <div className="today-progress-track">
+                <span style={{ width: `${today.value}%` }} />
+              </div>
+
+              <div className="today-progress-foot">
+                <span><i className="visual-dot completed" /> {today.completed} completed</span>
+                <span><i className="visual-dot pending" /> {todayPending} pending</span>
+              </div>
+            </div>
+          </article>
+
+          {/* 2. WEEK — Radial gauge */}
+          <article className="period-visual-card week-visual">
+            <div className="visual-card-top">
+              <div>
+                <span className="visual-kicker">THIS WEEK</span>
+                <h3>Task Accuracy Percentage</h3>
+                <p>Weekly completion accuracy</p>
+              </div>
+              <div className="visual-icon week-icon">
+                <FaBullseye />
+              </div>
+            </div>
+
+            <div className="week-gauge-layout">
+              <div
+                className="week-gauge"
+                style={{
+                  background: `conic-gradient(#7653e8 0 ${week.value}%, #eceaf5 ${week.value}% 100%)`,
+                }}
+              >
+                <div className="week-gauge-inner">
+                  <strong>{week.value}%</strong>
+                  <span>Accuracy</span>
+                </div>
+              </div>
+
+              <div className="week-gauge-stats">
+                <div>
+                  <span>Completed</span>
+                  <strong>{week.completed}</strong>
+                </div>
+                <div>
+                  <span>Pending</span>
+                  <strong>{weekPending}</strong>
+                </div>
+                <div>
+                  <span>Total Tasks</span>
+                  <strong>{week.total}</strong>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          {/* 3. MONTH — Donut graph */}
+          <article className="period-visual-card month-visual">
+            <div className="visual-card-top">
+              <div>
+                <span className="visual-kicker">THIS MONTH</span>
+                <h3>Monthly Task Progress</h3>
+                <p>Monthly completion distribution</p>
+              </div>
+              <div className="visual-icon month-icon">
+                <FaTrophy />
+              </div>
+            </div>
+
+            <div className="month-donut-layout">
+              <div
+                className="month-donut"
+                style={{
+                  background: `conic-gradient(#c454d9 0 ${month.value}%, #eeeaf5 ${month.value}% 100%)`,
+                }}
+              >
+                <div className="month-donut-inner">
+                  <strong>{month.value}%</strong>
+                  <span>Progress</span>
+                </div>
+              </div>
+
+              <div className="month-donut-info">
+                <div className="month-stat">
+                  <span><i className="visual-dot completed month-dot" /> Completed</span>
+                  <strong>{month.completed}</strong>
+                </div>
+                <div className="month-stat">
+                  <span><i className="visual-dot pending month-pending-dot" /> Pending</span>
+                  <strong>{monthPending}</strong>
+                </div>
+                <div className="month-total-line">
+                  <span>Total this month</span>
+                  <strong>{month.total}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="month-mini-track">
+              <span style={{ width: `${month.value}%` }} />
+            </div>
+          </article>
+
+        </div>
+      </section>
+    );
+  };
+
   const renderStudentDistribution = () => (
     <div className="analytics-card distribution-card">
       <div className="analytics-header">
@@ -580,93 +748,7 @@ function ParentDashboard() {
         </div>
       </section>
 
-      {/* Today / This Week / This Month — three progress cards */}
-      <section className="overview-period-section">
-        <div className="overview-section-head compact">
-          <div>
-            <span className="section-kicker">PROGRESS OVERVIEW</span>
-            <h2>Today, This Week & This Month</h2>
-            <p>Task completion for all assigned students.</p>
-          </div>
-        </div>
-
-        <div className="period-pie-grid">
-          <PeriodCard label="TODAY" value={dashboard.todayPerformance} completed={dashboard.todayCompleted} total={dashboard.todayTotal} date={dashboard.periods.today} icon={<FaCalendarDays />} tone="today" />
-          <PeriodCard label="THIS WEEK" value={dashboard.weeklyPerformance} completed={dashboard.weekCompleted} total={dashboard.weekTotal} date={dashboard.periods.week} icon={<FaChartLine />} tone="week" />
-          <PeriodCard label="THIS MONTH" value={dashboard.monthlyPerformance} completed={dashboard.monthCompleted} total={dashboard.monthTotal} date={dashboard.periods.month} icon={<FaTrophy />} tone="month" />
-        </div>
-      </section>
-
-      {/* Learning pulse — visual dashboard section, intentionally not a card grid */}
-      <section className="learning-pulse">
-        <div className="learning-pulse-main">
-          <div className="learning-pulse-copy">
-            <span className="section-kicker">LEARNING PULSE</span>
-            <h2>Today's learning snapshot</h2>
-            <p>See the key progress signals at a glance without another set of heavy cards.</p>
-          </div>
-
-          <div className="pulse-score">
-            <div
-              className="pulse-ring"
-              style={{
-                background: `conic-gradient(#7653e8 0 ${clamp(dashboard.todayPerformance)}%, #eceaf5 ${clamp(dashboard.todayPerformance)}% 100%)`,
-              }}
-            >
-              <div className="pulse-ring-inner">
-                <strong>{clamp(dashboard.todayPerformance)}%</strong>
-                <span>Today</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="learning-pulse-track">
-          <div className="pulse-line">
-            <span style={{ width: `${clamp(dashboard.todayPerformance)}%` }} />
-          </div>
-
-          <div className="pulse-milestones">
-            <div className="pulse-milestone active">
-              <span><FaBullseye /></span>
-              <div>
-                <strong>Today</strong>
-                <small>{dashboard.todayCompleted}/{dashboard.todayTotal} completed</small>
-              </div>
-            </div>
-
-            <div className="pulse-milestone">
-              <span><FaBolt /></span>
-              <div>
-                <strong>This Week</strong>
-                <small>{dashboard.weekCompleted}/{dashboard.weekTotal} completed</small>
-              </div>
-            </div>
-
-            <div className="pulse-milestone">
-              <span><FaMedal /></span>
-              <div>
-                <strong>This Month</strong>
-                <small>{dashboard.monthCompleted}/{dashboard.monthTotal} completed</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="pulse-message">
-          <span className="pulse-message-icon"><FaArrowTrendUp /></span>
-          <div>
-            <strong>
-              {clamp(dashboard.todayPerformance) >= 70
-                ? "Great momentum today"
-                : clamp(dashboard.todayPerformance) >= 40
-                  ? "Good progress — keep the momentum going"
-                  : "A little more focus can improve today's progress"}
-            </strong>
-            <span>Small completed tasks build stronger weekly performance.</span>
-          </div>
-        </div>
-      </section>
+      {renderThreePeriodVisuals()}
 
       <div className="student-health-section">
         {renderStudentDistribution()}

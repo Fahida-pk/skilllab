@@ -1731,3 +1731,453 @@ button, input { font: inherit; }
     margin: 0 20px 20px;
   }
 }
+
+
+/* =========================================================
+   THREE DISTINCT PERIOD GRAPH CARDS
+   ========================================================= */
+
+.three-period-visual-section {
+  margin-top: 28px;
+}
+
+.three-period-visual-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.period-visual-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 292px;
+  padding: 23px;
+  border: 1px solid #e5e3ef;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 16px 38px rgba(45, 54, 88, .065);
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.period-visual-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #4e86f6, #7653e8, #c454d9);
+}
+
+.period-visual-card:hover {
+  transform: translateY(-4px);
+  border-color: #d8d2ef;
+  box-shadow: 0 24px 48px rgba(67, 57, 119, .11);
+}
+
+.visual-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.visual-card-top > div:first-child {
+  min-width: 0;
+}
+
+.visual-kicker {
+  display: block;
+  color: #7653e8;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.45px;
+}
+
+.visual-card-top h3 {
+  margin: 7px 0 5px;
+  color: #17294b;
+  font-size: 17px;
+  line-height: 1.22;
+  font-weight: 950;
+  letter-spacing: -.25px;
+}
+
+.visual-card-top p {
+  margin: 0;
+  color: #8b96aa;
+  font-size: 10px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.visual-icon {
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  font-size: 17px;
+}
+
+.today-icon {
+  color: #7352ed;
+  background: #f0ebff;
+}
+
+.week-icon {
+  color: #4e83f1;
+  background: #eaf3ff;
+}
+
+.month-icon {
+  color: #c04fd3;
+  background: #f9eafd;
+}
+
+/* ---------------- TODAY: progress graph ---------------- */
+
+.today-progress-visual {
+  margin-top: 28px;
+}
+
+.today-progress-value {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.today-progress-value strong {
+  color: #6d4ee4;
+  font-size: 43px;
+  line-height: .95;
+  font-weight: 950;
+  letter-spacing: -1.7px;
+}
+
+.today-progress-value span {
+  max-width: 130px;
+  color: #8a95a9;
+  font-size: 9px;
+  line-height: 1.45;
+  font-weight: 700;
+  text-align: right;
+}
+
+.today-progress-track {
+  height: 12px;
+  margin-top: 22px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e9eaf2;
+}
+
+.today-progress-track span {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7653e8 0%, #a14ce5 100%);
+  box-shadow: 0 4px 12px rgba(117, 82, 232, .22);
+  transition: width .35s ease;
+}
+
+.today-progress-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+  color: #7f8ba1;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.visual-dot {
+  width: 7px;
+  height: 7px;
+  display: inline-block;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #13b184;
+}
+
+.visual-dot.pending {
+  background: #f0a03b;
+}
+
+/* ---------------- WEEK: radial gauge ---------------- */
+
+.week-gauge-layout {
+  display: flex;
+  align-items: center;
+  gap: 23px;
+  margin-top: 25px;
+}
+
+.week-gauge {
+  width: 142px;
+  height: 142px;
+  flex: 0 0 142px;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border-radius: 50%;
+  box-shadow: 0 14px 30px rgba(91, 73, 201, .10);
+}
+
+.week-gauge-inner {
+  width: 118px;
+  height: 118px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.week-gauge-inner strong {
+  color: #7653e8;
+  font-size: 29px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.week-gauge-inner span {
+  margin-top: 7px;
+  color: #929bae;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.week-gauge-stats {
+  flex: 1;
+  min-width: 0;
+}
+
+.week-gauge-stats div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.week-gauge-stats div:last-child {
+  border-bottom: 0;
+}
+
+.week-gauge-stats span {
+  color: #8a95a9;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.week-gauge-stats strong {
+  color: #1b2b4b;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+/* ---------------- MONTH: donut graph ---------------- */
+
+.month-donut-layout {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.month-donut {
+  width: 126px;
+  height: 126px;
+  flex: 0 0 126px;
+  display: grid;
+  place-items: center;
+  padding: 9px;
+  border-radius: 50%;
+  box-shadow: 0 13px 28px rgba(188, 74, 207, .10);
+}
+
+.month-donut-inner {
+  width: 108px;
+  height: 108px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.month-donut-inner strong {
+  color: #bd4fd1;
+  font-size: 27px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.month-donut-inner span {
+  margin-top: 6px;
+  color: #929bad;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.month-donut-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.month-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.month-stat span {
+  color: #818da4;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.month-stat strong {
+  color: #1b2b4b;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.month-dot {
+  background: #c454d9;
+}
+
+.month-pending-dot {
+  background: #f0a03b;
+}
+
+.month-total-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.month-total-line span {
+  color: #9aa3b5;
+  font-size: 8px;
+  font-weight: 750;
+}
+
+.month-total-line strong {
+  color: #2a3854;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.month-mini-track {
+  height: 7px;
+  margin-top: 18px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #eeeaf5;
+}
+
+.month-mini-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #b94dcc, #d467df);
+  transition: width .35s ease;
+}
+
+/* Responsive */
+@media (max-width: 1180px) {
+  .three-period-visual-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .period-visual-card {
+    min-height: auto;
+  }
+
+  .week-gauge-layout,
+  .month-donut-layout {
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 650px) {
+  .three-period-visual-section {
+    margin-top: 20px;
+  }
+
+  .three-period-visual-grid {
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .period-visual-card {
+    padding: 19px;
+    border-radius: 20px;
+  }
+
+  .visual-card-top h3 {
+    font-size: 16px;
+  }
+
+  .today-progress-value strong {
+    font-size: 37px;
+  }
+
+  .week-gauge-layout,
+  .month-donut-layout {
+    gap: 16px;
+  }
+
+  .week-gauge {
+    width: 125px;
+    height: 125px;
+    flex-basis: 125px;
+  }
+
+  .week-gauge-inner {
+    width: 103px;
+    height: 103px;
+  }
+
+  .month-donut {
+    width: 112px;
+    height: 112px;
+    flex-basis: 112px;
+  }
+
+  .month-donut-inner {
+    width: 96px;
+    height: 96px;
+  }
+}
+
+@media (max-width: 390px) {
+  .week-gauge-layout,
+  .month-donut-layout {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .week-gauge,
+  .month-donut {
+    margin: 0 auto;
+  }
+
+  .week-gauge-stats,
+  .month-donut-info {
+    width: 100%;
+  }
+}
+
