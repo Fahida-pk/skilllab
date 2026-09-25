@@ -512,86 +512,43 @@ function ParentDashboard() {
     </section>
   );
 
-  const renderDashboardHome = () => (
-    <div className="dashboard-home">
-      <section className="performance-hero-card">
-        <div className="performance-hero-main">
-          <div className="performance-hero-copy">
-            <span className="welcome-kicker">LEARNING PERFORMANCE</span>
-            <h2>Student Learning Snapshot</h2>
-            <p>Track your assigned students' task completion and performance across today, this week and this month.</p>
-          </div>
-          <div className="performance-hero-score">
-            <div className="hero-score-ring" style={{ background: `conic-gradient(#7653e8 0 ${clamp(dashboard.overallPerformance)}%, #e9e5fb ${clamp(dashboard.overallPerformance)}% 100%)` }}>
-              <div><strong>{clamp(dashboard.overallPerformance)}%</strong><span>Overall</span></div>
-            </div>
-          </div>
-        </div>
-        <div className="performance-hero-periods">
-          <div className="hero-period today"><span>Today</span><strong>{clamp(dashboard.todayPerformance)}%</strong><small>{dashboard.todayCompleted}/{dashboard.todayTotal} tasks</small><i><b style={{width:`${clamp(dashboard.todayPerformance)}%`}} /></i></div>
-          <div className="hero-period week"><span>This Week</span><strong>{clamp(dashboard.weeklyPerformance)}%</strong><small>{dashboard.weekCompleted}/{dashboard.weekTotal} tasks</small><i><b style={{width:`${clamp(dashboard.weeklyPerformance)}%`}} /></i></div>
-          <div className="hero-period month"><span>This Month</span><strong>{clamp(dashboard.monthlyPerformance)}%</strong><small>{dashboard.monthCompleted}/{dashboard.monthTotal} tasks</small><i><b style={{width:`${clamp(dashboard.monthlyPerformance)}%`}} /></i></div>
-        </div>
-      </section>
-      <section className="metrics-grid">
-        <MetricCard icon={<FaUserGraduate />} label="Students" value={students.length} helper="Linked to this parent account" tone="purple" />
-        <MetricCard icon={<FaListCheck />} label="Weekly Tasks" value={dashboard.weekTotal} helper="Assigned during this week" tone="blue" />
-        <MetricCard icon={<FaCircleCheck />} label="Completed This Week" value={dashboard.weekCompleted} helper="Successfully completed" tone="green" progress={dashboard.weekTotal ? (dashboard.weekCompleted / dashboard.weekTotal) * 100 : 0} />
-        <MetricCard icon={<FaClock />} label="Pending This Week" value={Math.max(0, dashboard.weekTotal - dashboard.weekCompleted)} helper="Still remaining this week" tone="orange" />
-        <MetricCard icon={<FaArrowTrendUp />} label="Weekly Performance" value={`${clamp(dashboard.weeklyPerformance)}%`} helper="Weekly completion rate" tone="indigo" progress={dashboard.weeklyPerformance} />
-      </section>
+  const renderDashboardHome = () => {
+    const periods = [
+      { title: "Today", date: dashboard.periods.today, value: dashboard.todayPerformance, done: dashboard.todayCompleted, total: dashboard.todayTotal, tone: "violet", icon: <FaCalendarDays /> },
+      { title: "This Week", date: dashboard.periods.week, value: dashboard.weeklyPerformance, done: dashboard.weekCompleted, total: dashboard.weekTotal, tone: "sky", icon: <FaChartLine /> },
+      { title: "This Month", date: dashboard.periods.month, value: dashboard.monthlyPerformance, done: dashboard.monthCompleted, total: dashboard.monthTotal, tone: "pink", icon: <FaTrophy /> },
+    ];
+    const weekPending = Math.max(0, dashboard.weekTotal - dashboard.weekCompleted);
+    return (
+      <div className="premium-home">
+        <section className="premium-welcome">
+          <div><span className="premium-eyebrow">SKILL LAB · LEARNING OVERVIEW</span><h2>Learning at a glance<span className="premium-spark">✦</span></h2><p>Your students' progress, all in one place.</p></div>
+          <div className="premium-welcome-score"><span>Overall progress</span><strong>{clamp(dashboard.overallPerformance)}%</strong><div className="premium-progress-track"><i style={{width:`${clamp(dashboard.overallPerformance)}%`}} /></div></div>
+        </section>
 
-      <section className="performance-section">
-        <div className="section-heading-row performance-section-heading">
-          <div>
-            <span className="section-kicker">PERFORMANCE ANALYTICS</span>
-            <h2>Task performance trend</h2>
-            <p>Compare completion performance across today, this week and this month.</p>
-          </div>
-        </div>
+        <section className="premium-metrics">
+          {[
+            {label:"My Students",value:students.length,sub:"Assigned to you",icon:<FaUserGraduate />,tone:"violet"},
+            {label:"Weekly Tasks",value:dashboard.weekTotal,sub:"Tasks this week",icon:<FaListCheck />,tone:"sky"},
+            {label:"Completed",value:dashboard.weekCompleted,sub:"Finished this week",icon:<FaCircleCheck />,tone:"mint"},
+            {label:"Pending",value:weekPending,sub:"Still to complete",icon:<FaClock />,tone:"peach"},
+          ].map(card=><article key={card.label} className={`premium-metric ${card.tone}`}><div className="premium-metric-top"><span>{card.label}</span><div className="premium-metric-icon">{card.icon}</div></div><strong>{card.value}</strong><small>{card.sub}</small></article>)}
+        </section>
 
-        <div className="analytics-grid analytics-grid-single">
-          {renderPerformanceChartCard()}
-        </div>
+        <section className="premium-analytics-row">
+          <article className="premium-panel premium-trend"><div className="premium-panel-head"><div><span className="premium-eyebrow">PERFORMANCE ANALYTICS</span><h3>Learning performance</h3><p>Completion rates across each period</p></div><div className="premium-head-icon"><FaChartLine /></div></div>
+            <div className="premium-chart"><div className="premium-chart-y"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div><div className="premium-chart-columns">{periods.map(p=><div className="premium-chart-column" key={p.title}><div className="premium-bar-space"><span className={`premium-bar ${p.tone}`} style={{height:`${clamp(p.value)}%`}}><b>{clamp(p.value)}%</b></span></div><strong>{p.title}</strong></div>)}</div></div>
+          </article>
+          <article className="premium-panel premium-week"><div className="premium-panel-head"><div><span className="premium-eyebrow">THIS WEEK</span><h3>Task overview</h3><p>Progress across assigned students</p></div><div className="premium-head-icon mint"><FaListCheck /></div></div><div className="premium-week-score"><strong>{clamp(dashboard.weeklyPerformance)}%</strong><span>Weekly completion</span></div><div className="premium-week-track"><span style={{width:`${clamp(dashboard.weeklyPerformance)}%`}} /></div><div className="premium-week-stats"><div><i className="premium-dot mint"/><span>Completed</span><strong>{dashboard.weekCompleted}</strong></div><div><i className="premium-dot peach"/><span>Pending</span><strong>{weekPending}</strong></div><div><i className="premium-dot violet"/><span>Total tasks</span><strong>{dashboard.weekTotal}</strong></div></div></article>
+        </section>
 
-        <div className="period-pie-grid">
-          <PeriodCard
-            label="TODAY"
-            value={dashboard.todayPerformance}
-            completed={dashboard.todayCompleted}
-            total={dashboard.todayTotal}
-            date={dashboard.periods.today}
-            icon={<FaCalendarDays />}
-            tone="today"
-          />
-          <PeriodCard
-            label="THIS WEEK"
-            value={dashboard.weeklyPerformance}
-            completed={dashboard.weekCompleted}
-            total={dashboard.weekTotal}
-            date={dashboard.periods.week}
-            icon={<FaChartLine />}
-            tone="week"
-          />
-          <PeriodCard
-            label="THIS MONTH"
-            value={dashboard.monthlyPerformance}
-            completed={dashboard.monthCompleted}
-            total={dashboard.monthTotal}
-            date={dashboard.periods.month}
-            icon={<FaTrophy />}
-            tone="month"
-          />
-        </div>
+        <section className="premium-period-grid">{periods.map(p=><article key={p.title} className={`premium-period ${p.tone}`}><div className="premium-period-heading"><div className="premium-period-icon">{p.icon}</div><div><h3>{p.title}</h3><span>{p.date}</span></div></div><div className="premium-period-number"><strong>{clamp(p.value)}%</strong><span>Performance</span></div><div className="premium-period-track"><span style={{width:`${clamp(p.value)}%`}} /></div><div className="premium-period-footer"><div><span>Completed</span><strong>{p.done}</strong></div><div><span>Pending</span><strong>{Math.max(0,p.total-p.done)}</strong></div><div><span>Total</span><strong>{p.total}</strong></div></div></article>)}</section>
 
-        <div className="student-health-section">
-          {renderStudentDistribution()}
-        </div>
-      </section>
-
-      {renderStudentTable()}
-    </div>
-  );
+        <section className="premium-lower"><div className="premium-panel premium-distribution"><div className="premium-panel-head"><div><span className="premium-eyebrow">STUDENT INSIGHTS</span><h3>Weekly performance groups</h3></div></div><div className="premium-distribution-track"><span style={{width:`${students.length?analytics.excellent/students.length*100:0}%`,background:'#18bf9b'}}/><span style={{width:`${students.length?analytics.onTrack/students.length*100:0}%`,background:'#4e91ff'}}/><span style={{width:`${students.length?analytics.attention/students.length*100:0}%`,background:'#ffae64'}}/></div><div className="premium-distribution-items"><div><i className="premium-dot mint"/>70–100% <strong>{analytics.excellent}</strong></div><div><i className="premium-dot sky"/>40–69% <strong>{analytics.onTrack}</strong></div><div><i className="premium-dot peach"/>Below 40% <strong>{analytics.attention}</strong></div></div></div></section>
+        {renderStudentTable()}
+      </div>
+    );
+  };
 
   const renderMyStudents = () => (
     <section className="students-page">
