@@ -317,3 +317,161 @@ button, input { font: inherit; }
   .overview-chart-card,.overview-side-card{padding:17px;border-radius:18px}.overview-chart-legend{grid-template-columns:1fr}
   .overview-chart-card .performance-svg{height:220px}.overview-side-score{margin-top:20px}
 }
+
+
+/* ===== FINAL PARENT DASHBOARD POLISH ===== */
+
+/* Standard professional typography */
+.parent-dashboard,
+.parent-dashboard button,
+.parent-dashboard input {
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+.parent-dashboard h1,
+.parent-dashboard h2,
+.parent-dashboard h3,
+.parent-dashboard strong {
+  font-weight: 800;
+}
+
+/* SKILL LAB only — no logo icon and no subtitle */
+.parent-sidebar-brand {
+  height: 112px;
+  padding: 0 27px;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255,255,255,.14);
+}
+.brand-wordmark {
+  position: relative;
+  font-size: 25px;
+  line-height: 1;
+  letter-spacing: 3.5px;
+  font-weight: 900;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(90deg,#fff 0%,#e8e3ff 35%,#fff 52%,#f3ddff 78%,#fff 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: skillLabShimmer 5s ease-in-out infinite;
+}
+.brand-wordmark::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -10px;
+  height: 2px;
+  background: linear-gradient(90deg,transparent,#fff,transparent);
+  opacity: .42;
+  animation: skillLabLine 3.5s ease-in-out infinite;
+}
+@keyframes skillLabShimmer {
+  0%,100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes skillLabLine {
+  0%,100% { transform:scaleX(.55); opacity:.2; }
+  50% { transform:scaleX(1); opacity:.55; }
+}
+
+/* Sidebar buttons: clean, not rounded pills */
+.parent-nav-item {
+  border-radius: 0;
+  border-left: 3px solid transparent;
+  padding-left: 15px;
+}
+.parent-nav-item.active {
+  border-radius: 0;
+  border-color: transparent;
+  border-left-color: #fff;
+  box-shadow: none;
+  background: rgba(255,255,255,.10);
+}
+.parent-nav-item:focus,
+.parent-nav-item:focus-visible {
+  border-radius: 0;
+  box-shadow: inset 3px 0 0 rgba(255,255,255,.96);
+}
+.parent-sidebar-bottom .parent-logout {
+  border-radius: 0;
+}
+
+/* Topbar: no breadcrumb and no account/profile */
+.parent-topbar {
+  min-height: 106px;
+  padding: 24px 42px;
+}
+.parent-topbar h1 {
+  font-size: 29px;
+  letter-spacing: -.7px;
+  font-weight: 800;
+}
+.parent-topbar p {
+  margin-top: 6px;
+  font-size: 12px;
+}
+.parent-profile,
+.topbar-breadcrumb {
+  display:none !important;
+}
+
+/* Only the graph remains in the analytics row */
+.overview-analytics {
+  display: block;
+  margin-top: 22px;
+}
+.overview-chart-card {
+  width: 100%;
+}
+.overview-chart-card .performance-svg {
+  height: 285px;
+}
+.overview-chart-legend {
+  margin-top: 8px;
+}
+
+/* Replace orange with a professional teal accent */
+.metric-icon.orange {
+  color: #10a79a;
+  background: #e4f8f5;
+}
+.hero-period.month strong { color: #10a79a; }
+.hero-period.month i b { background: #10a79a; }
+.period-pie-card.month { --period-color:#10a79a; }
+.period-pie-card.month .period-icon { background:#e4f8f5; }
+.overview-legend-item.legend-2 > span { background:#10a79a; }
+.chart-point.point-2 { fill:#10a79a; }
+.chart-point-ring.point-2 { stroke:#10a79a; }
+.premium-period.pink { --period:#10a79a; --soft:#e4f8f5; }
+
+/* Performance distribution: Strong / Average / Focus */
+.distribution-bar .excellent { background:#18b884; }
+.distribution-bar .ontrack { background:#4a8df6; }
+.distribution-bar .attention { background:#7653e8; }
+.dot.green { background:#18b884; }
+.dot.blue { background:#4a8df6; }
+.dot.orange { background:#7653e8; }
+.table-progress-track span.attention { background:#7653e8; }
+.student-card-performance em.attention {
+  background:#eeeaff;
+  color:#6848dc;
+}
+.distribution-legend > div:nth-child(1) { background:#f2fbf8; }
+.distribution-legend > div:nth-child(2) { background:#f2f7ff; }
+.distribution-legend > div:nth-child(3) { background:#f5f1ff; }
+
+@media (max-width:620px) {
+  .parent-sidebar-brand { height:92px; }
+  .brand-wordmark { font-size:21px; letter-spacing:3px; }
+  .parent-topbar { min-height:82px; padding:18px 16px; }
+  .parent-topbar h1 { font-size:21px; }
+  .overview-chart-card .performance-svg { height:230px; }
+}
+
+/* No orange anywhere in the parent dashboard */
+.orange-text { color:#10a79a !important; }
+.table-progress-track span.attention { background:#7653e8 !important; }
+.student-card-performance em.attention { background:#eeeaff !important; color:#6848dc !important; }
+.side-dot.orange { background:#10a79a; }
