@@ -19,6 +19,9 @@ import {
   FaChartPie,
   FaCircleNodes,
   FaRotate,
+  FaBolt,
+  FaBullseye,
+  FaMedal,
 } from "react-icons/fa6";
 import "./parent-dashboard.css";
 
@@ -591,6 +594,77 @@ function ParentDashboard() {
           <PeriodCard label="TODAY" value={dashboard.todayPerformance} completed={dashboard.todayCompleted} total={dashboard.todayTotal} date={dashboard.periods.today} icon={<FaCalendarDays />} tone="today" />
           <PeriodCard label="THIS WEEK" value={dashboard.weeklyPerformance} completed={dashboard.weekCompleted} total={dashboard.weekTotal} date={dashboard.periods.week} icon={<FaChartLine />} tone="week" />
           <PeriodCard label="THIS MONTH" value={dashboard.monthlyPerformance} completed={dashboard.monthCompleted} total={dashboard.monthTotal} date={dashboard.periods.month} icon={<FaTrophy />} tone="month" />
+        </div>
+      </section>
+
+      {/* Learning pulse — visual dashboard section, intentionally not a card grid */}
+      <section className="learning-pulse">
+        <div className="learning-pulse-main">
+          <div className="learning-pulse-copy">
+            <span className="section-kicker">LEARNING PULSE</span>
+            <h2>Today's learning snapshot</h2>
+            <p>See the key progress signals at a glance without another set of heavy cards.</p>
+          </div>
+
+          <div className="pulse-score">
+            <div
+              className="pulse-ring"
+              style={{
+                background: `conic-gradient(#7653e8 0 ${clamp(dashboard.todayPerformance)}%, #eceaf5 ${clamp(dashboard.todayPerformance)}% 100%)`,
+              }}
+            >
+              <div className="pulse-ring-inner">
+                <strong>{clamp(dashboard.todayPerformance)}%</strong>
+                <span>Today</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="learning-pulse-track">
+          <div className="pulse-line">
+            <span style={{ width: `${clamp(dashboard.todayPerformance)}%` }} />
+          </div>
+
+          <div className="pulse-milestones">
+            <div className="pulse-milestone active">
+              <span><FaBullseye /></span>
+              <div>
+                <strong>Today</strong>
+                <small>{dashboard.todayCompleted}/{dashboard.todayTotal} completed</small>
+              </div>
+            </div>
+
+            <div className="pulse-milestone">
+              <span><FaBolt /></span>
+              <div>
+                <strong>This Week</strong>
+                <small>{dashboard.weekCompleted}/{dashboard.weekTotal} completed</small>
+              </div>
+            </div>
+
+            <div className="pulse-milestone">
+              <span><FaMedal /></span>
+              <div>
+                <strong>This Month</strong>
+                <small>{dashboard.monthCompleted}/{dashboard.monthTotal} completed</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="pulse-message">
+          <span className="pulse-message-icon"><FaArrowTrendUp /></span>
+          <div>
+            <strong>
+              {clamp(dashboard.todayPerformance) >= 70
+                ? "Great momentum today"
+                : clamp(dashboard.todayPerformance) >= 40
+                  ? "Good progress — keep the momentum going"
+                  : "A little more focus can improve today's progress"}
+            </strong>
+            <span>Small completed tasks build stronger weekly performance.</span>
+          </div>
         </div>
       </section>
 
