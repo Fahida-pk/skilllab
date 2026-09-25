@@ -422,45 +422,41 @@ body,
   margin: 0;
 
   font-size: 35px;
-
   font-weight: 900;
 
   letter-spacing: 6px;
-
   line-height: 1;
 
   text-transform: uppercase;
-
   text-align: center;
 
+  /* Premium non-white Skill Lab color */
   background:
     linear-gradient(
       90deg,
-     #315fdc 0%,
-      #4d55df 28%,
-      #7049d7 58%,
-      #9e42cf 80%,
-      #d638b8 100%
+      #243b8f 0%,
+      #304fc4 25%,
+      #4b3fb8 50%,
+      #6636ad 75%,
+      #7a2f9e 100%
     );
 
   background-size: 250% auto;
 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-
   background-clip: text;
 
   filter:
     drop-shadow(
-      0 4px 7px
-      rgba(55,35,145,0.18)
+      0 4px 8px
+      rgba(25, 35, 100, 0.28)
     );
 
   animation:
     parentSkillLabShine
     8s ease-in-out infinite;
 }
-
 
 /* =========================================================
    SKILL LAB SHINE
