@@ -340,11 +340,6 @@ function ParentDashboard() {
       JSON.stringify(studentData)
     );
 
-    sessionStorage.setItem(
-      `adminViewingStudent_${student.id}`,
-      JSON.stringify(studentData)
-    );
-
     navigate(
       `/parent/students/${student.id}/dashboard`,
       {
