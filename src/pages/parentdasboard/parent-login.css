@@ -417,48 +417,42 @@ body,
 ========================================================= */
 
 .parent-brand h1 {
-  position: relative;
+  width: 58px;
+  height: 58px;
 
-  margin: 0;
+  display: flex;
 
-  font-size: 35px;
+  align-items: center;
+  justify-content: center;
 
-  font-weight: 900;
+  border-radius: 18px;
 
-  letter-spacing: 6px;
+  color: #ffffff;
 
-  line-height: 1;
-
-  text-transform: uppercase;
-
-  text-align: center;
+  font-size: 25px;
 
   background:
     linear-gradient(
-      90deg,
-     #315fdc 0%,
-      #4d55df 28%,
-      #7049d7 58%,
-      #9e42cf 80%,
-      #d638b8 100%
+      135deg,
+      #4e82ff 0%,
+      #714ce8 52%,
+      #d83da9 100%
     );
 
-  background-size: 250% auto;
+  border:
+    1px solid
+    rgba(255,255,255,0.45);
 
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  box-shadow:
 
-  background-clip: text;
+    0 14px 35px
+      rgba(90,65,220,0.38),
 
-  filter:
-    drop-shadow(
-      0 4px 7px
-      rgba(55,35,145,0.18)
-    );
+    inset 0 2px 5px
+      rgba(255,255,255,0.35);
 
-  animation:
-    parentSkillLabShine
-    8s ease-in-out infinite;
+  transition:
+    transform 0.3s ease;
 }
 
 
