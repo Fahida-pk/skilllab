@@ -17,6 +17,7 @@ import {
   FaUser,
   FaArrowTrendUp,
   FaChartPie,
+  FaCircleNodes,
   FaRotate,
 } from "react-icons/fa6";
 import "./parent-dashboard.css";
@@ -212,7 +213,8 @@ function ParentDashboard() {
       {mobileOpen && <div className="parent-sidebar-overlay" onClick={() => setMobileOpen(false)} />}
       <aside className={`parent-sidebar ${mobileOpen ? "mobile-open" : ""}`}>
         <div className="parent-sidebar-brand">
-          <div className="brand-wordmark">SKILL LAB</div>
+          <div className="brand-mark"><FaCircleNodes /></div>
+          <div><strong>SKILL LAB</strong><span>PARENT LEARNING CENTER</span></div>
           <button className="parent-sidebar-close" onClick={() => setMobileOpen(false)}><FaXmark /></button>
         </div>
 
@@ -223,6 +225,10 @@ function ParentDashboard() {
           </button>
           <button className={`parent-nav-item ${activePage === "students" ? "active" : ""}`} onClick={() => { setActivePage("students"); setSearch(""); setMobileOpen(false); }}>
             <FaUserGraduate /><span>Students</span>
+          </button>
+          <p className="sidebar-label sidebar-label-space">ACCOUNT</p>
+          <button className={`parent-nav-item ${activePage === "profile" ? "active" : ""}`} onClick={() => { setActivePage("profile"); setSearch(""); setMobileOpen(false); }}>
+            <FaUser /><span>My Profile</span>
           </button>
         </div>
 
@@ -241,9 +247,14 @@ function ParentDashboard() {
       <div className="parent-topbar-left">
         <button className="parent-mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open menu"><FaBars /></button>
         <div>
-          <h1>Parent Dashboard</h1>
-          <p>Monitor your students' learning progress.</p>
+          <div className="topbar-breadcrumb"><span>PARENT LEARNING CENTER</span><b>/</b><span>{activePage === "students" ? "Students" : activePage === "profile" ? "Profile" : "Dashboard"}</span></div>
+          <h1>{activePage === "students" ? "Students" : activePage === "profile" ? "My Profile" : "Dashboard Overview"}</h1>
+          <p>{activePage === "students" ? "Review student activity and performance." : activePage === "profile" ? "Manage your parent account information." : "A clear view of your students' learning progress."}</p>
         </div>
+      </div>
+      <div className="parent-profile">
+        <div className="parent-profile-avatar">{getInitials(parent?.name || parent?.username)}</div>
+        <div><strong>{parent?.name || "Parent"}</strong><span>{parent?.username || "Parent account"}</span></div>
       </div>
     </header>
   );
@@ -461,9 +472,9 @@ function ParentDashboard() {
           <span className="attention" style={{ width: `${students.length ? (analytics.attention / students.length) * 100 : 0}%` }} />
         </div>
         <div className="distribution-legend">
-          <div><i className="dot green" /><span>Strong Performance</span><strong>{analytics.excellent}</strong></div>
-          <div><i className="dot blue" /><span>Average Performance</span><strong>{analytics.onTrack}</strong></div>
-          <div><i className="dot orange" /><span>Needs Focus</span><strong>{analytics.attention}</strong></div>
+          <div><i className="dot green" /><span>Excellent</span><strong>{analytics.excellent}</strong></div>
+          <div><i className="dot blue" /><span>On Track</span><strong>{analytics.onTrack}</strong></div>
+          <div><i className="dot orange" /><span>Needs Attention</span><strong>{analytics.attention}</strong></div>
         </div>
       </div>
     </div>
@@ -570,7 +581,35 @@ function ParentDashboard() {
           </div>
         </div>
 
+        <aside className="overview-side-card">
+          <div className="overview-card-head">
+            <div>
+              <span className="section-kicker">WEEKLY OVERVIEW</span>
+              <h2>This week's progress</h2>
+              <p>All assigned students</p>
+            </div>
+            <div className="overview-head-icon mint"><FaTrophy /></div>
+          </div>
 
+          <div className="overview-side-score">
+            <strong>{clamp(dashboard.weeklyPerformance)}%</strong>
+            <span>weekly performance</span>
+          </div>
+          <div className="overview-side-track">
+            <span style={{ width: `${clamp(dashboard.weeklyPerformance)}%` }} />
+          </div>
+
+          <div className="overview-side-stats">
+            <div><span><i className="side-dot mint" />Completed</span><strong>{dashboard.weekCompleted}</strong></div>
+            <div><span><i className="side-dot blue" />Total tasks</span><strong>{dashboard.weekTotal}</strong></div>
+            <div><span><i className="side-dot orange" />Pending</span><strong>{Math.max(0, dashboard.weekTotal - dashboard.weekCompleted)}</strong></div>
+          </div>
+
+          <div className="overview-side-note">
+            <FaArrowTrendUp />
+            <span>Keep checking each student's progress to follow weekly learning activity.</span>
+          </div>
+        </aside>
       </section>
 
       <section className="overview-period-section">
@@ -605,9 +644,18 @@ function ParentDashboard() {
     </section>
   );
 
+  const renderParentProfile = () => {
+    const profileName = parent?.name || parent?.full_name || parent?.fullName || parent?.username || "Parent";
+    const profileUsername = parent?.username || "—";
+    const profileEmail = parent?.email || parent?.mail || "—";
+    const profilePhone = parent?.phone || parent?.mobile || parent?.contact || "—";
+    const profileAddress = parent?.address || "—";
+    const profileId = parent?.id || parent?.parent_id || "—";
 
+    return <section className="profile-page"><div className="page-heading-card"><div><span className="section-kicker">ACCOUNT</span><h2>My Profile</h2><p>View the information connected to your parent account.</p></div></div><div className="profile-hero"><div className="profile-avatar-large">{getInitials(profileName)}</div><div><span>Parent account</span><h2>{profileName}</h2><p><FaUser /> {profileUsername} · ID #{profileId}</p></div></div><div className="profile-grid"><div className="profile-detail"><FaUser /><span>Full Name</span><strong>{profileName}</strong></div><div className="profile-detail"><FaListCheck /><span>Username</span><strong>{profileUsername}</strong></div><div className="profile-detail"><FaChartLine /><span>Email</span><strong>{profileEmail}</strong></div><div className="profile-detail"><FaClock /><span>Phone</span><strong>{profilePhone}</strong></div><div className="profile-detail wide"><FaCalendarDays /><span>Address</span><strong>{profileAddress}</strong></div></div><div className="profile-summary"><div><FaUserGraduate /><span>Students</span><strong>{students.length}</strong></div><div><FaListCheck /><span>Weekly Tasks</span><strong>{dashboard.weekTotal}</strong></div><div><FaCircleCheck /><span>Weekly Completed</span><strong>{dashboard.weekCompleted}</strong></div><div><FaArrowTrendUp /><span>Weekly Performance</span><strong>{clamp(dashboard.weeklyPerformance)}%</strong></div></div></section>;
+  };
 
-  return <div className="parent-dashboard">{renderSidebar()}<main className="parent-main">{renderTopbar()}<div className="parent-content">{activePage === "dashboard" && renderDashboardHome()}{activePage === "students" && renderMyStudents()}</div></main></div>;
+  return <div className="parent-dashboard">{renderSidebar()}<main className="parent-main">{renderTopbar()}<div className="parent-content">{activePage === "dashboard" && renderDashboardHome()}{activePage === "students" && renderMyStudents()}{activePage === "profile" && renderParentProfile()}</div></main></div>;
 }
 
 export default ParentDashboard;
