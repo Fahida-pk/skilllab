@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -80,51 +79,15 @@ function ParentDashboard() {
   }, [navigate]);
 
   useEffect(() => {
-    if (!parent?.id) return;
-
-    // First load immediately. After that, keep the parent portal synced
-    // with student task changes without requiring a browser refresh.
-    loadDashboard({ silent: false });
-
-    const refreshSilently = () => loadDashboard({ silent: true });
-
-    // If the student task page dispatches this event, the update is picked
-    // up immediately. The polling below also covers changes from another
-    // tab/device.
-    window.addEventListener("skilllab-task-updated", refreshSilently);
-
-    const handleStorage = (event) => {
-      if (event.key === "skilllab-task-updated") refreshSilently();
-    };
-    window.addEventListener("storage", handleStorage);
-
-    const intervalId = window.setInterval(() => {
-      if (!document.hidden) refreshSilently();
-    }, 3000);
-
-    const handleVisibility = () => {
-      if (!document.hidden) refreshSilently();
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-
-    return () => {
-      window.clearInterval(intervalId);
-      window.removeEventListener("skilllab-task-updated", refreshSilently);
-      window.removeEventListener("storage", handleStorage);
-      document.removeEventListener("visibilitychange", handleVisibility);
-    };
+    if (parent?.id) loadDashboard();
   }, [parent]);
 
-  const loadDashboard = async ({ silent = false } = {}) => {
+  const loadDashboard = async () => {
     try {
-      if (!silent) setLoading(true);
-      const response = await fetch(`${API_URL}?t=${Date.now()}`, {
+      setLoading(true);
+      const response = await fetch(API_URL, {
         method: "POST",
-        cache: "no-store",
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "parent_overview", parent_id: parent.id }),
       });
 
@@ -171,7 +134,7 @@ function ParentDashboard() {
         console.error("Student storage error:", storageError);
       }
     } finally {
-      if (!silent) setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -841,67 +804,7 @@ function ParentDashboard() {
     const profileAddress = parent?.address || "—";
     const profileId = parent?.id || parent?.parent_id || "—";
 
-    return (
-      <section className="profile-page premium-profile-page">
-        <div className="profile-heading-row">
-          <div>
-            <span className="section-kicker">ACCOUNT CENTER</span>
-            <h2>My Profile</h2>
-            <p>Manage and view your parent account details.</p>
-          </div>
-          <div className="profile-live-badge"><span /> Account active</div>
-        </div>
-
-        <div className="profile-premium-hero">
-          <div className="profile-hero-orb orb-one" />
-          <div className="profile-hero-orb orb-two" />
-          <div className="profile-avatar-shell">
-            <div className="profile-avatar-large">{getInitials(profileName)}</div>
-            <span className="profile-verified-dot"><FaCircleCheck /></span>
-          </div>
-          <div className="profile-hero-copy">
-            <span className="profile-role">PARENT ACCOUNT</span>
-            <h2>{profileName}</h2>
-            <p><FaUser /> {profileUsername} <b>·</b> Account ID #{profileId}</p>
-          </div>
-          <div className="profile-hero-stat">
-            <span>Weekly performance</span>
-            <strong>{clamp(dashboard.weeklyPerformance)}%</strong>
-            <i><b style={{ width: `${clamp(dashboard.weeklyPerformance)}%` }} /></i>
-          </div>
-        </div>
-
-        <div className="profile-section-title">
-          <div>
-            <span className="section-kicker">PERSONAL INFORMATION</span>
-            <h3>Account details</h3>
-          </div>
-          <span className="profile-secure"><FaCircleCheck /> Secure profile</span>
-        </div>
-
-        <div className="profile-grid premium-profile-grid">
-          <div className="profile-detail premium-detail"><div className="profile-detail-icon purple"><FaUser /></div><div><span>Full Name</span><strong>{profileName}</strong></div></div>
-          <div className="profile-detail premium-detail"><div className="profile-detail-icon blue"><FaListCheck /></div><div><span>Username</span><strong>{profileUsername}</strong></div></div>
-          <div className="profile-detail premium-detail"><div className="profile-detail-icon green"><FaChartLine /></div><div><span>Email Address</span><strong>{profileEmail}</strong></div></div>
-          <div className="profile-detail premium-detail"><div className="profile-detail-icon orange"><FaClock /></div><div><span>Phone Number</span><strong>{profilePhone}</strong></div></div>
-          <div className="profile-detail premium-detail wide"><div className="profile-detail-icon pink"><FaCalendarDays /></div><div><span>Address</span><strong>{profileAddress}</strong></div></div>
-        </div>
-
-        <div className="profile-section-title profile-summary-title">
-          <div>
-            <span className="section-kicker">ACCOUNT OVERVIEW</span>
-            <h3>Learning snapshot</h3>
-          </div>
-        </div>
-
-        <div className="profile-summary premium-profile-summary">
-          <div className="profile-summary-card purple"><div className="profile-summary-icon"><FaUserGraduate /></div><span>Assigned Students</span><strong>{students.length}</strong><small>Students linked to you</small></div>
-          <div className="profile-summary-card blue"><div className="profile-summary-icon"><FaListCheck /></div><span>Weekly Tasks</span><strong>{dashboard.weekTotal}</strong><small>Total tasks this week</small></div>
-          <div className="profile-summary-card green"><div className="profile-summary-icon"><FaCircleCheck /></div><span>Completed</span><strong>{dashboard.weekCompleted}</strong><small>Tasks completed this week</small></div>
-          <div className="profile-summary-card orange"><div className="profile-summary-icon"><FaArrowTrendUp /></div><span>Performance</span><strong>{clamp(dashboard.weeklyPerformance)}%</strong><small>Current weekly progress</small></div>
-        </div>
-      </section>
-    );
+    return <section className="profile-page"><div className="page-heading-card"><div><span className="section-kicker">ACCOUNT</span><h2>My Profile</h2><p>View the information connected to your parent account.</p></div></div><div className="profile-hero"><div className="profile-avatar-large">{getInitials(profileName)}</div><div><span>Parent account</span><h2>{profileName}</h2><p><FaUser /> {profileUsername} · ID #{profileId}</p></div></div><div className="profile-grid"><div className="profile-detail"><FaUser /><span>Full Name</span><strong>{profileName}</strong></div><div className="profile-detail"><FaListCheck /><span>Username</span><strong>{profileUsername}</strong></div><div className="profile-detail"><FaChartLine /><span>Email</span><strong>{profileEmail}</strong></div><div className="profile-detail"><FaClock /><span>Phone</span><strong>{profilePhone}</strong></div><div className="profile-detail wide"><FaCalendarDays /><span>Address</span><strong>{profileAddress}</strong></div></div><div className="profile-summary"><div><FaUserGraduate /><span>Students</span><strong>{students.length}</strong></div><div><FaListCheck /><span>Weekly Tasks</span><strong>{dashboard.weekTotal}</strong></div><div><FaCircleCheck /><span>Weekly Completed</span><strong>{dashboard.weekCompleted}</strong></div><div><FaArrowTrendUp /><span>Weekly Performance</span><strong>{clamp(dashboard.weeklyPerformance)}%</strong></div></div></section>;
   };
 
   return <div className="parent-dashboard">{renderSidebar()}<main className="parent-main">{renderTopbar()}<div className="parent-content">{activePage === "dashboard" && renderDashboardHome()}{activePage === "students" && renderMyStudents()}{activePage === "profile" && renderParentProfile()}</div></main></div>;
