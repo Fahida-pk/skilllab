@@ -1113,3 +1113,385 @@ body,
   }
 
 }
+
+
+/* =========================================================
+   FINAL PREMIUM PARENT LOGIN OVERRIDES
+   Cleaner • More Premium • Better Autofill • Responsive
+========================================================= */
+
+.parent-login-page {
+  min-height: 100svh;
+  padding: 32px 20px;
+  background:
+    radial-gradient(circle at 8% 18%, rgba(76, 139, 255, 0.92), transparent 31%),
+    radial-gradient(circle at 94% 78%, rgba(238, 54, 194, 0.78), transparent 34%),
+    radial-gradient(circle at 50% 108%, rgba(115, 73, 238, 0.82), transparent 43%),
+    linear-gradient(135deg, #376fe8 0%, #5557df 36%, #7649d8 64%, #d83db9 100%);
+}
+
+.parent-login-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255,255,255,0.10), transparent 32%),
+    linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.05) 50%, transparent 80%);
+}
+
+/* softer ambient light */
+.parent-glow-one {
+  width: 430px;
+  height: 430px;
+  left: -220px;
+  top: -100px;
+  background: rgba(74, 145, 255, 0.46);
+  filter: blur(90px);
+}
+
+.parent-glow-two {
+  width: 470px;
+  height: 470px;
+  right: -220px;
+  bottom: -210px;
+  background: rgba(246, 58, 193, 0.40);
+  filter: blur(95px);
+}
+
+.parent-glow-three {
+  width: 280px;
+  height: 280px;
+  left: 50%;
+  top: -170px;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.14);
+  filter: blur(105px);
+}
+
+/* premium glass card */
+.parent-login-card {
+  max-width: 520px;
+  padding: 44px 46px 40px;
+  border-radius: 30px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.27) 0%,
+      rgba(255,255,255,0.15) 45%,
+      rgba(255,255,255,0.09) 100%
+    );
+  border: 1px solid rgba(255,255,255,0.48);
+  backdrop-filter: blur(34px) saturate(145%);
+  -webkit-backdrop-filter: blur(34px) saturate(145%);
+  box-shadow:
+    0 38px 90px rgba(27, 18, 105, 0.32),
+    0 10px 35px rgba(255,255,255,0.09),
+    inset 0 1px 1px rgba(255,255,255,0.48),
+    inset 0 -25px 55px rgba(60,35,145,0.08);
+}
+
+/* subtle glass reflection */
+.parent-login-card::after {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,0.18),
+      transparent 30%,
+      transparent 68%,
+      rgba(255,255,255,0.055)
+    );
+}
+
+/* stronger Skill Lab branding */
+.parent-brand {
+  margin-bottom: 24px;
+}
+
+.parent-brand h1 {
+  font-size: 34px;
+  letter-spacing: 7px;
+  color: #fff;
+  background:
+    linear-gradient(
+      90deg,
+      #ffffff 0%,
+      #f0ebff 35%,
+      #ffd9f4 70%,
+      #ffffff 100%
+    );
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 4px 10px rgba(44,25,125,0.22));
+}
+
+/* welcome section */
+.parent-heading {
+  margin-bottom: 28px;
+}
+
+.parent-heading h1 {
+  font-size: 32px;
+  font-weight: 850;
+  letter-spacing: -0.8px;
+}
+
+.parent-heading p {
+  margin-top: 8px;
+  color: rgba(255,255,255,0.80);
+}
+
+/* fields */
+.parent-field {
+  margin-bottom: 18px;
+}
+
+.parent-field label {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.35px;
+}
+
+.parent-input-wrapper input {
+  height: 58px;
+  padding: 0 55px 0 50px;
+  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,0.26);
+  background: rgba(255,255,255,0.115);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  caret-color: #fff;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.10),
+    0 5px 18px rgba(25,15,90,0.05);
+}
+
+.parent-input-wrapper input::placeholder {
+  color: rgba(255,255,255,0.56);
+}
+
+.parent-input-wrapper input:hover {
+  background: rgba(255,255,255,0.145);
+  border-color: rgba(255,255,255,0.40);
+}
+
+.parent-input-wrapper input:focus {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.78);
+  box-shadow:
+    0 0 0 4px rgba(255,255,255,0.08),
+    0 12px 30px rgba(30,20,100,0.13),
+    inset 0 1px 1px rgba(255,255,255,0.12);
+}
+
+/* Chrome autofill fix - prevents white input boxes */
+.parent-input-wrapper input:-webkit-autofill,
+.parent-input-wrapper input:-webkit-autofill:hover,
+.parent-input-wrapper input:-webkit-autofill:focus,
+.parent-input-wrapper input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
+  -webkit-box-shadow: 0 0 0 1000px rgba(93, 82, 218, 0.42) inset !important;
+  box-shadow: 0 0 0 1000px rgba(93, 82, 218, 0.42) inset !important;
+  border: 1px solid rgba(255,255,255,0.40);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* icons */
+.parent-input-icon {
+  left: 17px;
+  color: rgba(255,255,255,0.94);
+  font-size: 17px;
+}
+
+.parent-show-password {
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  color: rgba(255,255,255,0.86);
+}
+
+.parent-show-password:hover {
+  background: rgba(255,255,255,0.11);
+  color: #fff;
+}
+
+/* error */
+.parent-error {
+  margin: 2px 0 16px;
+  border-radius: 12px;
+  background: rgba(239,68,68,0.14);
+  border-color: rgba(255,145,145,0.34);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);
+}
+
+/* login button */
+.parent-login-button {
+  height: 58px;
+  margin-top: 4px;
+  border-radius: 15px;
+  background:
+    linear-gradient(
+      135deg,
+      #5575f4 0%,
+      #7049e9 48%,
+      #b83bcf 100%
+    );
+  box-shadow:
+    0 15px 34px rgba(82,75,235,0.31),
+    inset 0 1px 1px rgba(255,255,255,0.32);
+  letter-spacing: 0.1px;
+}
+
+.parent-login-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow:
+    0 20px 42px rgba(82,75,235,0.40),
+    inset 0 1px 1px rgba(255,255,255,0.40);
+}
+
+.parent-login-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* accessibility */
+.parent-login-button:focus-visible,
+.parent-show-password:focus-visible,
+.parent-input-wrapper input:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.80);
+  outline-offset: 3px;
+}
+
+/* desktop breathing space */
+@media (min-width: 900px) {
+  .parent-login-card {
+    transform: translateY(-2px);
+  }
+}
+
+/* tablet */
+@media (max-width: 700px) {
+  .parent-login-page {
+    padding: 24px 16px;
+  }
+
+  .parent-login-card {
+    max-width: 500px;
+    padding: 38px 32px 34px;
+    border-radius: 27px;
+  }
+
+  .parent-brand h1 {
+    font-size: 31px;
+    letter-spacing: 6px;
+  }
+
+  .parent-heading h1 {
+    font-size: 30px;
+  }
+}
+
+/* mobile */
+@media (max-width: 600px) {
+  .parent-login-page {
+    min-height: 100svh;
+    padding: 18px 14px;
+  }
+
+  .parent-login-card {
+    width: 100%;
+    padding: 32px 22px 30px;
+    border-radius: 24px;
+  }
+
+  .parent-brand {
+    margin-bottom: 22px;
+  }
+
+  .parent-brand h1 {
+    font-size: 27px;
+    letter-spacing: 5px;
+  }
+
+  .parent-heading {
+    margin-bottom: 25px;
+  }
+
+  .parent-heading h1 {
+    font-size: 28px;
+  }
+
+  .parent-heading p {
+    font-size: 13px;
+    padding: 0 4px;
+  }
+
+  .parent-field {
+    margin-bottom: 17px;
+  }
+
+  .parent-input-wrapper input {
+    height: 56px;
+    border-radius: 14px;
+    font-size: 14px;
+  }
+
+  .parent-login-button {
+    height: 56px;
+    border-radius: 14px;
+    font-size: 14px;
+  }
+}
+
+/* small mobile */
+@media (max-width: 380px) {
+  .parent-login-page {
+    padding: 12px 10px;
+  }
+
+  .parent-login-card {
+    padding: 28px 17px 26px;
+    border-radius: 22px;
+  }
+
+  .parent-brand h1 {
+    font-size: 24px;
+    letter-spacing: 4px;
+  }
+
+  .parent-heading h1 {
+    font-size: 25px;
+  }
+
+  .parent-heading p {
+    font-size: 12px;
+  }
+
+  .parent-input-wrapper input {
+    height: 53px;
+    padding-left: 47px;
+  }
+
+  .parent-login-button {
+    height: 53px;
+  }
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .parent-login-card,
+  .parent-brand h1,
+  .parent-login-button,
+  .parent-show-password,
+  .parent-input-wrapper input {
+    animation: none !important;
+    transition: none !important;
+  }
+}
