@@ -12,23 +12,17 @@ import {
   FaArrowRightFromBracket,
   FaBars,
   FaXmark,
-  FaTriangleExclamation,
   FaMagnifyingGlass,
   FaArrowRight,
   FaUser,
-  FaCircleExclamation,
   FaArrowTrendUp,
-  FaClipboardCheck,
   FaChartPie,
-  FaLayerGroup,
   FaCircleNodes,
   FaRotate,
 } from "react-icons/fa6";
-
 import "./parent-dashboard.css";
 
 const API_URL = "https://zyntaweb.com/skilllab/parent-dashboard.php";
-
 const clamp = (value) => Math.max(0, Math.min(100, Number(value) || 0));
 
 function ParentDashboard() {
@@ -112,9 +106,9 @@ function ParentDashboard() {
         monthCompleted: Number(overview.monthCompleted) || 0,
         monthTotal: Number(overview.monthTotal) || 0,
         periods: {
-          today: overview.periods?.today || "Current date",
-          week: overview.periods?.week || "Current week",
-          month: overview.periods?.month || "Current month",
+          today: overview.periods?.today || "Today",
+          week: overview.periods?.week || "This week",
+          month: overview.periods?.month || "This month",
         },
       });
     } catch (error) {
@@ -159,14 +153,7 @@ function ParentDashboard() {
   };
 
   const getPerformance = (student) =>
-    clamp(
-      student?.weekPerformance ??
-        student?.weeklyPerformance ??
-        student?.week_performance ??
-        student?.performance ??
-        student?.performance_percentage ??
-        0
-    );
+    clamp(student?.weekPerformance ?? student?.weeklyPerformance ?? student?.performance ?? 0);
 
   const getPerformanceClass = (value) => {
     const percentage = clamp(value);
@@ -212,21 +199,13 @@ function ParentDashboard() {
     const total = completed + pending;
     const completionPercent = total ? Math.round((completed / total) * 100) : 0;
 
-    return {
-      excellent,
-      onTrack,
-      attention,
-      completionPercent,
-      completed,
-      pending,
-      total,
-    };
+    return { excellent, onTrack, attention, completionPercent, completed, pending, total };
   }, [students, dashboard.completedTasks, dashboard.pendingTasks]);
 
   const chartData = [
-    { label: "Today", value: clamp(dashboard.todayPerformance), color: "green" },
-    { label: "Week", value: clamp(dashboard.weeklyPerformance), color: "blue" },
-    { label: "Month", value: clamp(dashboard.monthlyPerformance), color: "purple" },
+    { label: "Today", value: clamp(dashboard.todayPerformance), completed: dashboard.todayCompleted, total: dashboard.todayTotal },
+    { label: "This Week", value: clamp(dashboard.weeklyPerformance), completed: dashboard.weekCompleted, total: dashboard.weekTotal },
+    { label: "This Month", value: clamp(dashboard.monthlyPerformance), completed: dashboard.monthCompleted, total: dashboard.monthTotal },
   ];
 
   const renderSidebar = () => (
@@ -256,7 +235,7 @@ function ParentDashboard() {
         <div className="parent-sidebar-bottom">
           <div className="sidebar-help-card">
             <FaChartLine />
-            <div><strong>Learning overview</strong><span>Track progress at a glance</span></div>
+            <div><strong>Weekly overview</strong><span>Track this week's progress</span></div>
           </div>
           <button className="parent-logout" onClick={handleLogout}><FaArrowRightFromBracket /><span>Logout</span></button>
         </div>
@@ -271,7 +250,7 @@ function ParentDashboard() {
         <div>
           <div className="topbar-breadcrumb"><span>Parent Portal</span><b>/</b><span>{activePage === "students" ? "Students" : activePage === "profile" ? "Profile" : "Dashboard"}</span></div>
           <h1>{activePage === "students" ? "Students" : activePage === "profile" ? "My Profile" : "Dashboard Overview"}</h1>
-          <p>{activePage === "students" ? "Review student activity and performance." : activePage === "profile" ? "Manage your parent account information." : "A clear view of your students’ learning progress."}</p>
+          <p>{activePage === "students" ? "Review student activity and performance." : activePage === "profile" ? "Manage your parent account information." : "A clear view of your students' learning progress."}</p>
         </div>
       </div>
       <div className="parent-profile">
@@ -303,39 +282,83 @@ function ParentDashboard() {
     </article>
   );
 
-  const renderPerformanceBars = () => (
-    <div className="analytics-card">
+  const renderPerformanceChart = () => {
+    const width = 760;
+    const height = 260;
+    const padX = 64;
+    const padTop = 28;
+    const padBottom = 58;
+    const innerW = width - padX * 2;
+    const innerH = height - padTop - padBottom;
+    const points = chartData.map((item, index) => ({
+      ...item,
+      x: padX + (index * innerW) / (chartData.length - 1),
+      y: padTop + innerH - (item.value / 100) * innerH,
+    }));
+    const path = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+    const area = `${path} L ${points[points.length - 1].x} ${padTop + innerH} L ${points[0].x} ${padTop + innerH} Z`;
+
+    return (
+      <div className="performance-chart-wrap">
+        <div className="chart-y-labels"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div>
+        <svg className="performance-svg" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Task performance for today, this week and this month">
+          {[0, 25, 50, 75, 100].map((tick) => {
+            const y = padTop + innerH - (tick / 100) * innerH;
+            return <line key={tick} x1={padX} x2={width - padX} y1={y} y2={y} className="chart-grid-line" />;
+          })}
+          <path d={area} className="chart-area" />
+          <path d={path} className="chart-line" />
+          {points.map((p) => (
+            <g key={p.label}>
+              <circle cx={p.x} cy={p.y} r="7" className="chart-point-ring" />
+              <circle cx={p.x} cy={p.y} r="4" className="chart-point" />
+              <text x={p.x} y={p.y - 18} textAnchor="middle" className="chart-value">{p.value}%</text>
+              <text x={p.x} y={height - 24} textAnchor="middle" className="chart-label">{p.label}</text>
+              <text x={p.x} y={height - 8} textAnchor="middle" className="chart-subvalue">{p.completed}/{p.total} tasks</text>
+            </g>
+          ))}
+        </svg>
+      </div>
+    );
+  };
+
+  const renderPerformanceChartCard = () => (
+    <div className="analytics-card chart-card">
       <div className="analytics-header">
-        <div><span className="section-kicker">PERFORMANCE TREND</span><h2>Period comparison</h2><p>Completion performance across your students.</p></div>
+        <div>
+          <span className="section-kicker">PERFORMANCE TREND</span>
+          <h2>Task performance by period</h2>
+          <p>Clear comparison of completed tasks for today, this week and this month.</p>
+        </div>
         <div className="analytics-icon"><FaChartLine /></div>
       </div>
-      <div className="bar-chart">
-        {chartData.map((item) => (
-          <div className="bar-column" key={item.label}>
-            <div className="bar-value">{item.value}%</div>
-            <div className="bar-track"><div className={`bar-fill ${item.color}`} style={{ height: `${item.value}%` }} /></div>
-            <strong>{item.label}</strong>
+      {renderPerformanceChart()}
+      <div className="chart-period-legend">
+        {chartData.map((item, index) => (
+          <div key={item.label} className={`chart-period-item period-${index}`}>
+            <span className="legend-dot" />
+            <div><strong>{item.label}</strong><small>{item.completed} completed / {item.total} total</small></div>
+            <b>{item.value}%</b>
           </div>
         ))}
       </div>
-      <div className="chart-axis-note"><FaArrowTrendUp /> Period metrics use completed tasks divided by tasks in that period.</div>
     </div>
   );
 
   const renderDonut = () => (
     <div className="analytics-card">
       <div className="analytics-header">
-        <div><span className="section-kicker">TASK COMPLETION</span><h2>Overall task status</h2><p>All-time tasks for your students.</p></div>
+        <div><span className="section-kicker">THIS WEEK</span><h2>Weekly task status</h2><p>Total tasks are calculated only for the current week.</p></div>
         <div className="analytics-icon"><FaChartPie /></div>
       </div>
       <div className="donut-layout">
-        <div className="donut" style={{ background: `conic-gradient(#7355e8 0 ${analytics.completionPercent}%, #edf0f7 ${analytics.completionPercent}% 100%)` }}>
-          <div className="donut-inner"><strong>{analytics.completionPercent}%</strong><span>Completed</span></div>
+        <div className="donut" style={{ background: `conic-gradient(#7653e8 0 ${analytics.completionPercent}%, #e9edf6 ${analytics.completionPercent}% 100%)` }}>
+          <div className="donut-inner"><strong>{analytics.completionPercent}%</strong><span>Completed this week</span></div>
         </div>
         <div className="donut-legend">
           <div><i className="dot purple" /><span>Completed</span><strong>{analytics.completed}</strong></div>
           <div><i className="dot gray" /><span>Pending</span><strong>{analytics.pending}</strong></div>
-          <div className="donut-total"><span>Total tasks</span><strong>{analytics.total}</strong></div>
+          <div className="donut-total"><span>Weekly total</span><strong>{analytics.total}</strong></div>
         </div>
       </div>
     </div>
@@ -344,7 +367,7 @@ function ParentDashboard() {
   const renderStudentDistribution = () => (
     <div className="analytics-card distribution-card">
       <div className="analytics-header">
-        <div><span className="section-kicker">STUDENT HEALTH</span><h2>Performance distribution</h2><p>Weekly performance of the students shown below.</p></div>
+        <div><span className="section-kicker">STUDENT HEALTH</span><h2>Weekly performance distribution</h2><p>Students are grouped using their current weekly performance.</p></div>
         <div className="analytics-icon"><FaTrophy /></div>
       </div>
       <div className="distribution-visual">
@@ -365,7 +388,7 @@ function ParentDashboard() {
   const renderStudentTable = () => (
     <section className="student-table-card">
       <div className="section-header">
-        <div><span className="section-kicker">STUDENT INSIGHTS</span><h2>Student performance</h2><p>Compare today, weekly and monthly progress without leaving the dashboard.</p></div>
+        <div><span className="section-kicker">STUDENT INSIGHTS</span><h2>Student performance</h2><p>Compare Today, This Week and This Month for every student.</p></div>
         <button className="outline-button" onClick={() => { setActivePage("students"); setSearch(""); }}>View students <FaArrowRight /></button>
       </div>
       {students.length === 0 ? (
@@ -373,7 +396,7 @@ function ParentDashboard() {
       ) : (
         <div className="table-wrap">
           <table className="performance-table">
-            <thead><tr><th>Student</th><th>Today</th><th>This Week</th><th>This Month</th><th>Weekly Progress</th><th /></tr></thead>
+            <thead><tr><th>Student</th><th>Today</th><th>This Week</th><th>This Month</th><th>Weekly Status</th><th /></tr></thead>
             <tbody>
               {students.map((student) => {
                 const week = clamp(student.weekPerformance ?? student.weeklyPerformance);
@@ -382,9 +405,9 @@ function ParentDashboard() {
                 return (
                   <tr key={student.id}>
                     <td><div className="table-student"><div className="table-avatar">{getInitials(student.name)}</div><div><strong>{student.name || "Unnamed Student"}</strong><span>#{student.id}{student.email ? ` · ${student.email}` : ""}</span></div></div></td>
-                    <td><strong className="table-percent green-text">{today}%</strong><small>{Number(student.todayCompleted) || 0}/{Number(student.todayTotal) || 0}</small></td>
+                    <td><strong className="table-percent purple-text">{today}%</strong><small>{Number(student.todayCompleted) || 0}/{Number(student.todayTotal) || 0}</small></td>
                     <td><strong className="table-percent blue-text">{week}%</strong><small>{Number(student.weekCompleted) || 0}/{Number(student.weekTotal) || 0}</small></td>
-                    <td><strong className="table-percent purple-text">{month}%</strong><small>{Number(student.monthCompleted) || 0}/{Number(student.monthTotal) || 0}</small></td>
+                    <td><strong className="table-percent indigo-text">{month}%</strong><small>{Number(student.monthCompleted) || 0}/{Number(student.monthTotal) || 0}</small></td>
                     <td><div className="table-progress"><div className="table-progress-top"><span>{getPerformanceLabel(week)}</span><strong>{week}%</strong></div><div className="table-progress-track"><span className={getPerformanceClass(week)} style={{ width: `${week}%` }} /></div></div></td>
                     <td><button className="icon-view-button" onClick={() => openStudentDashboard(student)} aria-label={`View ${student.name || "student"}`}><FaArrowRight /></button></td>
                   </tr>
@@ -403,37 +426,41 @@ function ParentDashboard() {
         <div className="welcome-copy">
           <span className="welcome-kicker">PARENT LEARNING CENTER</span>
           <h2>Good to see you, {parent?.name?.split(" ")[0] || "Parent"}.</h2>
-          <p>Stay informed about your students’ tasks, consistency and learning progress.</p>
-          <div className="welcome-meta"><span><FaUserGraduate /> {students.length} {students.length === 1 ? "Student" : "Students"}</span><span><FaCalendarDays /> {dashboard.periods.today || "Today"}</span></div>
+          <p>Track your students' daily activity and weekly learning progress in one place.</p>
+          <div className="welcome-meta"><span><FaUserGraduate /> {students.length} {students.length === 1 ? "Student" : "Students"}</span><span><FaCalendarDays /> {dashboard.periods.week || "Current week"}</span></div>
         </div>
         <div className="welcome-visual"><div className="welcome-ring"><FaUserGraduate /></div><div className="welcome-orbit orbit-one" /><div className="welcome-orbit orbit-two" /></div>
       </section>
 
       <section className="metrics-grid">
         <MetricCard icon={<FaUserGraduate />} label="Students" value={students.length} helper="Linked to this parent account" tone="purple" />
-        <MetricCard icon={<FaListCheck />} label="Total Tasks" value={dashboard.totalTasks} helper="All-time assigned tasks" tone="blue" />
-        <MetricCard icon={<FaCircleCheck />} label="Completed" value={dashboard.completedTasks} helper="Tasks successfully completed" tone="green" progress={analytics.total ? (analytics.completed / analytics.total) * 100 : 0} />
-        <MetricCard icon={<FaClock />} label="Pending" value={dashboard.pendingTasks} helper="Tasks still remaining" tone="orange" />
-        <MetricCard icon={<FaArrowTrendUp />} label="Overall Performance" value={`${clamp(dashboard.overallPerformance)}%`} helper="All-time completion rate" tone="indigo" progress={dashboard.overallPerformance} />
+        <MetricCard icon={<FaListCheck />} label="Weekly Tasks" value={dashboard.weekTotal} helper="Assigned during this week" tone="blue" />
+        <MetricCard icon={<FaCircleCheck />} label="Completed This Week" value={dashboard.weekCompleted} helper="Successfully completed" tone="green" progress={dashboard.weekTotal ? (dashboard.weekCompleted / dashboard.weekTotal) * 100 : 0} />
+        <MetricCard icon={<FaClock />} label="Pending This Week" value={Math.max(0, dashboard.weekTotal - dashboard.weekCompleted)} helper="Still remaining this week" tone="orange" />
+        <MetricCard icon={<FaArrowTrendUp />} label="Weekly Performance" value={`${clamp(dashboard.weeklyPerformance)}%`} helper="Weekly completion rate" tone="indigo" progress={dashboard.weeklyPerformance} />
       </section>
 
-      <section className="section-heading-row"><div><span className="section-kicker">PERFORMANCE SNAPSHOT</span><h2>Progress at a glance</h2><p>Period-based accuracy for all students connected to this parent.</p></div><div className="scope-chip"><FaCircleCheck /> Students only</div></section>
+      <section className="section-heading-row">
+        <div><span className="section-kicker">PERFORMANCE SNAPSHOT</span><h2>Today, This Week & This Month</h2><p>Each period is clearly separated so you can see exactly what the percentage represents.</p></div>
+        <div className="scope-chip"><FaCircleCheck /> Weekly task totals</div>
+      </section>
+
       <section className="period-grid">
         <PeriodCard label="TODAY" value={dashboard.todayPerformance} completed={dashboard.todayCompleted} total={dashboard.todayTotal} date={dashboard.periods.today} icon={<FaCalendarDays />} tone="today" />
         <PeriodCard label="THIS WEEK" value={dashboard.weeklyPerformance} completed={dashboard.weekCompleted} total={dashboard.weekTotal} date={dashboard.periods.week} icon={<FaChartLine />} tone="week" />
         <PeriodCard label="THIS MONTH" value={dashboard.monthlyPerformance} completed={dashboard.monthCompleted} total={dashboard.monthTotal} date={dashboard.periods.month} icon={<FaTrophy />} tone="month" />
       </section>
 
-      <section className="analytics-grid">{renderPerformanceBars()}{renderDonut()}{renderStudentDistribution()}</section>
+      <section className="analytics-grid">{renderPerformanceChartCard()}{renderDonut()}{renderStudentDistribution()}</section>
       {renderStudentTable()}
     </div>
   );
 
   const renderMyStudents = () => (
     <section className="students-page">
-      <div className="page-heading-card"><div><span className="section-kicker">STUDENT DIRECTORY</span><h2>Students</h2><p>View each student’s learning activity and open their detailed dashboard.</p></div><button className="refresh-button" onClick={loadDashboard} disabled={loading}><FaRotate /> {loading ? "Refreshing" : "Refresh"}</button></div>
+      <div className="page-heading-card"><div><span className="section-kicker">STUDENT DIRECTORY</span><h2>Students</h2><p>View each student's learning activity and open their detailed dashboard.</p></div><button className="refresh-button" onClick={loadDashboard} disabled={loading}><FaRotate /> {loading ? "Refreshing" : "Refresh"}</button></div>
       <div className="student-toolbar"><div className="search-box"><FaMagnifyingGlass /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email or ID..." /></div><div className="result-count">{filteredStudents.length} {filteredStudents.length === 1 ? "student" : "students"}</div></div>
-      {loading ? <div className="loading-state"><span /><p>Loading students...</p></div> : filteredStudents.length === 0 ? <div className="empty-state large"><div><FaUserGraduate /></div><h3>No students found</h3><p>No students are currently available for this parent account.</p></div> : <div className="student-cards-grid">{filteredStudents.map((student) => { const p = getPerformance(student); const total = Number(student.totalTasks) || 0; const completed = Number(student.completedTasks) || 0; const pending = Number(student.pendingTasks) || Math.max(0, total - completed); return <article className="student-card" key={student.id} onClick={() => openStudentDashboard(student)}><div className="student-card-head"><div className="student-avatar">{getInitials(student.name)}</div><div className="student-card-name"><h3>{student.name || "Unnamed Student"}</h3><span>Student ID #{student.id}</span></div><FaArrowRight className="student-card-arrow" /></div><div className="student-email"><FaUser /> {student.email || "No email available"}</div><div className="student-mini-stats"><div><span>Total</span><strong>{total}</strong></div><div><span>Completed</span><strong className="green-text">{completed}</strong></div><div><span>Pending</span><strong className="orange-text">{pending}</strong></div></div><div className="student-card-performance"><div><span>Weekly performance</span><strong>{p}%</strong></div><em className={getPerformanceClass(p)}>{getPerformanceLabel(p)}</em></div><div className="student-progress"><span className={getPerformanceClass(p)} style={{ width: `${p}%` }} /></div><div className="student-period-row"><div><span>Today</span><strong>{clamp(student.todayPerformance)}%</strong></div><div><span>Week</span><strong>{p}%</strong></div><div><span>Month</span><strong>{clamp(student.monthlyPerformance)}%</strong></div></div><button className="student-open-button" onClick={(e) => { e.stopPropagation(); openStudentDashboard(student); }}>Open student dashboard <FaArrowRight /></button></article>; })}</div>}
+      {loading ? <div className="loading-state"><span /><p>Loading students...</p></div> : filteredStudents.length === 0 ? <div className="empty-state large"><div><FaUserGraduate /></div><h3>No students found</h3><p>No students are currently available for this parent account.</p></div> : <div className="student-cards-grid">{filteredStudents.map((student) => { const p = getPerformance(student); const total = Number(student.weekTotal) || 0; const completed = Number(student.weekCompleted) || 0; const pending = Math.max(0, total - completed); return <article className="student-card" key={student.id} onClick={() => openStudentDashboard(student)}><div className="student-card-head"><div className="student-avatar">{getInitials(student.name)}</div><div className="student-card-name"><h3>{student.name || "Unnamed Student"}</h3><span>Student ID #{student.id}</span></div><FaArrowRight className="student-card-arrow" /></div><div className="student-email"><FaUser /> {student.email || "No email available"}</div><div className="student-mini-stats"><div><span>Weekly Total</span><strong>{total}</strong></div><div><span>Completed</span><strong className="green-text">{completed}</strong></div><div><span>Pending</span><strong className="orange-text">{pending}</strong></div></div><div className="student-card-performance"><div><span>This week's performance</span><strong>{p}%</strong></div><em className={getPerformanceClass(p)}>{getPerformanceLabel(p)}</em></div><div className="student-progress"><span className={getPerformanceClass(p)} style={{ width: `${p}%` }} /></div><div className="student-period-row"><div><span>Today</span><strong>{clamp(student.todayPerformance)}%</strong></div><div><span>This Week</span><strong>{p}%</strong></div><div><span>This Month</span><strong>{clamp(student.monthlyPerformance)}%</strong></div></div><button className="student-open-button" onClick={(e) => { e.stopPropagation(); openStudentDashboard(student); }}>Open student dashboard <FaArrowRight /></button></article>; })}</div>}
     </section>
   );
 
@@ -448,7 +475,7 @@ function ParentDashboard() {
     return <section className="profile-page"><div className="page-heading-card"><div><span className="section-kicker">ACCOUNT</span><h2>My Profile</h2><p>View the information connected to your parent account.</p></div></div><div className="profile-hero"><div className="profile-avatar-large">{getInitials(profileName)}</div><div><span>Parent account</span><h2>{profileName}</h2><p><FaUser /> {profileUsername} · ID #{profileId}</p></div></div><div className="profile-grid"><div className="profile-detail"><FaUser /><span>Full Name</span><strong>{profileName}</strong></div><div className="profile-detail"><FaListCheck /><span>Username</span><strong>{profileUsername}</strong></div><div className="profile-detail"><FaChartLine /><span>Email</span><strong>{profileEmail}</strong></div><div className="profile-detail"><FaClock /><span>Phone</span><strong>{profilePhone}</strong></div><div className="profile-detail wide"><FaCalendarDays /><span>Address</span><strong>{profileAddress}</strong></div></div><div className="profile-summary"><div><FaUserGraduate /><span>Students</span><strong>{students.length}</strong></div><div><FaListCheck /><span>Weekly Tasks</span><strong>{dashboard.weekTotal}</strong></div><div><FaCircleCheck /><span>Weekly Completed</span><strong>{dashboard.weekCompleted}</strong></div><div><FaArrowTrendUp /><span>Weekly Performance</span><strong>{clamp(dashboard.weeklyPerformance)}%</strong></div></div></section>;
   };
 
-  return <div className="parent-dashboard"><>{renderSidebar()}</><main className="parent-main">{renderTopbar()}<div className="parent-content">{activePage === "dashboard" && renderDashboardHome()}{activePage === "students" && renderMyStudents()}{activePage === "profile" && renderParentProfile()}</div></main></div>;
+  return <div className="parent-dashboard">{renderSidebar()}<main className="parent-main">{renderTopbar()}<div className="parent-content">{activePage === "dashboard" && renderDashboardHome()}{activePage === "students" && renderMyStudents()}{activePage === "profile" && renderParentProfile()}</div></main></div>;
 }
 
 export default ParentDashboard;
