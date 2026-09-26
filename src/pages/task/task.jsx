@@ -933,9 +933,18 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   };
 
 useEffect(() => {
+  // Load immediately
   fetchTasks();
-}, [currentKey, taskEmail, adminView, parentView]);
 
+  // Automatically sync task changes from other devices
+  const syncTimer = setInterval(() => {
+    fetchTasks();
+  }, 2000);
+
+  return () => {
+    clearInterval(syncTimer);
+  };
+}, [currentKey, taskEmail, adminView, parentView]);
 // =====================================================
 // FIREBASE PUSH NOTIFICATION SETUP
 // =====================================================
