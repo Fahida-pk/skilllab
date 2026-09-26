@@ -1,7 +1,6 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
-import { getToken } from "firebase/messaging";
-import { getMessagingInstance } from "../../firebase";
+import { requestNotificationPermission } from "../../firebase";
 import "./login.css";
 
 import { FaUser } from "react-icons/fa";
@@ -10,146 +9,16 @@ function Login() {
   const navigate = useNavigate();
 
   // =====================================================
-  // FCM REGISTRATION
-  // Runs AFTER login/dashboard navigation
-  // =====================================================
-  const registerFCM = async (googleToken) => {
-    try {
-      // =================================================
-      // 1. Register Firebase Service Worker
-      // =================================================
-      const registration =
-        await navigator.serviceWorker.register(
-          "/firebase-messaging-sw.js"
-        );
-
-      console.log(
-        "Service Worker registered"
-      );
-
-      // =================================================
-      // 2. Check Notification Support
-      // =================================================
-      if (!("Notification" in window)) {
-        console.log(
-          "Notifications are not supported"
-        );
-        return;
-      }
-
-      // =================================================
-      // 3. Notification Permission
-      // =================================================
-      const permission =
-        await Notification.requestPermission();
-
-      console.log(
-        "Notification permission:",
-        permission
-      );
-
-      if (permission !== "granted") {
-        console.log(
-          "Notification permission not granted"
-        );
-        return;
-      }
-
-      // =================================================
-      // 4. Firebase Messaging
-      // =================================================
-      const messaging =
-        await getMessagingInstance();
-
-      if (!messaging) {
-        console.log(
-          "Firebase Messaging unavailable"
-        );
-        return;
-      }
-
-      // =================================================
-      // 5. Get FCM Token
-      // =================================================
-      const fcmToken = await getToken(
-        messaging,
-        {
-          vapidKey:
-            "BANg8hVOS1rmbemDYS0cPbuhLOFSnClKfqVZL5itSLXlBhNEJsb0Rsu0nl2091wKP_ojb6dUIwOZfSx_KDNHzdU",
-
-          serviceWorkerRegistration:
-            registration,
-        }
-      );
-
-      console.log(
-        "FCM Token:",
-        fcmToken
-      );
-
-      // =================================================
-      // 6. Save FCM Token
-      // =================================================
-      if (fcmToken) {
-        try {
-          const response = await fetch(
-            "https://zyntaweb.com/skilllab/login.php",
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
-
-              body: JSON.stringify({
-                token: googleToken,
-                fcmToken: fcmToken,
-              }),
-            }
-          );
-
-          const data =
-            await response.json();
-
-          console.log(
-            "FCM Token Save Response:",
-            data
-          );
-        } catch (error) {
-          console.error(
-            "FCM token save failed:",
-            error
-          );
-        }
-      }
-    } catch (error) {
-      // =================================================
-      // IMPORTANT:
-      // FCM ERROR SHOULD NOT AFFECT LOGIN
-      // =================================================
-      console.error(
-        "FCM registration error:",
-        error
-      );
-    }
-  };
-
-  // =====================================================
   // GOOGLE LOGIN SUCCESS
   // =====================================================
   const handleSuccess = async (res) => {
     try {
-      const googleToken =
-        res.credential;
+      const googleToken = res.credential;
 
-      console.log(
-        "Google Login Success"
-      );
+      console.log("Google Login Success");
 
       // =================================================
       // 1. LOGIN PHP FIRST
-      // Don't wait for FCM
       // =================================================
       const response = await fetch(
         "https://zyntaweb.com/skilllab/login.php",
@@ -157,8 +26,7 @@ function Login() {
           method: "POST",
 
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
 
           body: JSON.stringify({
@@ -169,7 +37,7 @@ function Login() {
       );
 
       // =================================================
-      // Check HTTP response
+      // CHECK HTTP RESPONSE
       // =================================================
       if (!response.ok) {
         throw new Error(
@@ -177,23 +45,15 @@ function Login() {
         );
       }
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
-      console.log(
-        "Backend Response:",
-        data
-      );
+      console.log("Backend Response:", data);
 
       // =================================================
       // 2. LOGIN FAILED
       // =================================================
       if (!data.success) {
-        alert(
-          data.message ||
-          "Login failed"
-        );
-
+        alert(data.message || "Login failed");
         return;
       }
 
@@ -211,18 +71,37 @@ function Login() {
       );
 
       // =================================================
-      // 4. GO TO DASHBOARD IMMEDIATELY
+      // 4. GO TO DASHBOARD
       // =================================================
       navigate("/dashboard", {
         replace: true,
       });
 
       // =================================================
-      // 5. FCM AFTER LOGIN
+      // 5. REGISTER FCM
       // =================================================
-      // Do NOT await this.
-      // Dashboard opens immediately.
-      registerFCM(googleToken);
+      // Notification permission + FCM token
+      // will be handled inside firebase.js
+
+      if (data.user?.email) {
+        requestNotificationPermission(data.user.email)
+          .then((fcmToken) => {
+            console.log(
+              "FCM registration completed:",
+              fcmToken
+            );
+          })
+          .catch((error) => {
+            console.error(
+              "FCM registration failed:",
+              error
+            );
+          });
+      } else {
+        console.warn(
+          "User email not available for FCM registration"
+        );
+      }
 
     } catch (error) {
       console.error(
@@ -321,11 +200,8 @@ function Login() {
 
           <GoogleLogin
             onSuccess={handleSuccess}
-
             onError={handleError}
-
             auto_select={false}
-
             useOneTap={false}
           />
 
