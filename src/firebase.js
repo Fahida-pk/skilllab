@@ -1,3 +1,7 @@
+// =====================================================
+// FIREBASE APP
+// =====================================================
+
 import { initializeApp } from "firebase/app";
 
 import {
@@ -12,9 +16,8 @@ import {
 // =====================================================
 
 const firebaseConfig = {
-
   apiKey:
-    "AIzaSyBBspGNBspO9N5ePghA9dLuZOrf00MkqyfI",
+    "AIzaSyBBspQGNBxON5ePghA9dLuZOrf00MkqyfI",
 
   authDomain:
     "skill-lab-b5e16.firebaseapp.com",
@@ -29,8 +32,7 @@ const firebaseConfig = {
     "128086383416",
 
   appId:
-    "1:128086383416:web:527a77f86a8bc54db0bfcd"
-
+    "1:128086383416:web:527a77f86a8bc54db0bfcd",
 };
 
 
@@ -59,7 +61,7 @@ export const VAPID_KEY =
 
 
 // =====================================================
-// REGISTER FCM
+// REGISTER FCM DEVICE
 // =====================================================
 
 export async function requestNotificationPermission(
@@ -117,7 +119,7 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // EMAIL REQUIRED FOR LOGIN-BASED REGISTRATION
+    // EMAIL REQUIRED
     // =================================================
 
     if (!email) {
@@ -207,7 +209,24 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 4. REGISTER SERVICE WORKER
+    // 4. SERVICE WORKER SUPPORT
+    // =================================================
+
+    if (
+      !("serviceWorker" in navigator)
+    ) {
+
+      console.error(
+        "❌ Service Worker is not supported"
+      );
+
+      return null;
+
+    }
+
+
+    // =================================================
+    // 5. REGISTER FIREBASE SERVICE WORKER
     // =================================================
 
     console.log(
@@ -219,7 +238,7 @@ export async function requestNotificationPermission(
       await navigator.serviceWorker.register(
         "/firebase-messaging-sw.js",
         {
-          scope: "/"
+          scope: "/",
         }
       );
 
@@ -231,7 +250,7 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 5. WAIT FOR SERVICE WORKER
+    // 6. WAIT FOR SERVICE WORKER
     // =================================================
 
     await navigator.serviceWorker.ready;
@@ -243,7 +262,7 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 6. GENERATE FCM TOKEN
+    // 7. GENERATE FCM TOKEN
     // =================================================
 
     console.log(
@@ -255,13 +274,11 @@ export async function requestNotificationPermission(
       await getToken(
         messaging,
         {
-
           vapidKey:
             VAPID_KEY,
 
           serviceWorkerRegistration:
-            registration
-
+            registration,
         }
       );
 
@@ -287,6 +304,10 @@ export async function requestNotificationPermission(
     }
 
 
+    // =================================================
+    // TOKEN GENERATED
+    // =================================================
+
     console.log(
       "========================================"
     );
@@ -311,21 +332,8 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 7. SAVE TOKEN TO NEW TABLE
+    // 8. SAVE TOKEN TO DATABASE
     // =================================================
-    //
-    // IMPORTANT:
-    // NEW FILE:
-    //
-    // save_fcm_device.php
-    //
-    // OLD FILE:
-    //
-    // save_fcm_token.php
-    //
-    // is no longer used.
-    // =================================================
-
 
     console.log(
       "Saving FCM device to server..."
@@ -336,27 +344,25 @@ export async function requestNotificationPermission(
       await fetch(
         "https://zyntaweb.com/skilllab/api/save_fcm_device.php",
         {
+          method:
+            "POST",
 
-          method: "POST",
-
-          headers: {
-
-            "Content-Type":
-              "application/json"
-
-          },
+          headers:
+            {
+              "Content-Type":
+                "application/json",
+            },
 
           body:
-            JSON.stringify({
+            JSON.stringify(
+              {
+                email:
+                  email,
 
-              email:
-                email,
-
-              token:
-                token
-
-            })
-
+                token:
+                  token,
+              }
+            ),
         }
       );
 
@@ -368,7 +374,7 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 8. READ RESPONSE
+    // 9. READ SERVER RESPONSE
     // =================================================
 
     const responseText =
@@ -395,6 +401,10 @@ export async function requestNotificationPermission(
 
       console.error(
         "❌ Server did not return valid JSON"
+      );
+
+      console.error(
+        responseText
       );
 
       return null;
@@ -427,7 +437,7 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // SAVE TOKEN LOCALLY
+    // 10. SAVE TOKEN LOCALLY
     // =================================================
 
     localStorage.setItem(
@@ -435,6 +445,10 @@ export async function requestNotificationPermission(
       token
     );
 
+
+    // =================================================
+    // SUCCESS
+    // =================================================
 
     console.log(
       "========================================"
@@ -549,6 +563,15 @@ export function listenForegroundMessages() {
 
 
       // =================================================
+      // TASK ID
+      // =================================================
+
+      const taskId =
+        payload.data?.taskId ||
+        "";
+
+
+      // =================================================
       // SHOW FOREGROUND NOTIFICATION
       // =================================================
 
@@ -556,14 +579,14 @@ export function listenForegroundMessages() {
 
         "Notification" in window &&
 
-        Notification.permission === "granted"
+        Notification.permission ===
+          "granted"
 
       ) {
 
         new Notification(
           title,
           {
-
             body:
               body,
 
@@ -574,9 +597,9 @@ export function listenForegroundMessages() {
               "/favicon.svg",
 
             tag:
-              payload.data?.taskId
-                ? `skilllab-task-${payload.data.taskId}`
-                : "skilllab-task"
+              taskId
+                ? `skilllab-task-${taskId}`
+                : "skilllab-task",
 
           }
         );
