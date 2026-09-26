@@ -70,40 +70,73 @@ function Login() {
         googleToken
       );
 
+      console.log(
+        "User saved:",
+        data.user
+      );
+
       // =================================================
-      // 4. GO TO DASHBOARD
+      // 4. REGISTER FCM
       // =================================================
+      // IMPORTANT:
+      // Register notification BEFORE going to dashboard.
+      // This makes sure the phone's FCM token is saved.
+
+      if (data.user?.email) {
+
+        console.log(
+          "Starting FCM registration..."
+        );
+
+        try {
+
+          const fcmToken =
+            await requestNotificationPermission(
+              data.user.email
+            );
+
+          if (fcmToken) {
+
+            console.log(
+              "FCM registration completed successfully:",
+              fcmToken
+            );
+
+          } else {
+
+            console.warn(
+              "FCM token was not generated."
+            );
+
+          }
+
+        } catch (error) {
+
+          console.error(
+            "FCM registration failed:",
+            error
+          );
+
+        }
+
+      } else {
+
+        console.warn(
+          "User email not available for FCM registration"
+        );
+
+      }
+
+      // =================================================
+      // 5. GO TO DASHBOARD
+      // =================================================
+
       navigate("/dashboard", {
         replace: true,
       });
 
-      // =================================================
-      // 5. REGISTER FCM
-      // =================================================
-      // Notification permission + FCM token
-      // will be handled inside firebase.js
-
-      if (data.user?.email) {
-        requestNotificationPermission(data.user.email)
-          .then((fcmToken) => {
-            console.log(
-              "FCM registration completed:",
-              fcmToken
-            );
-          })
-          .catch((error) => {
-            console.error(
-              "FCM registration failed:",
-              error
-            );
-          });
-      } else {
-        console.warn(
-          "User email not available for FCM registration"
-        );
-      }
-
     } catch (error) {
+
       console.error(
         "Login Error:",
         error
@@ -115,10 +148,12 @@ function Login() {
     }
   };
 
+
   // =====================================================
   // GOOGLE LOGIN ERROR
   // =====================================================
   const handleError = () => {
+
     console.log(
       "Google Login Failed"
     );
@@ -127,6 +162,7 @@ function Login() {
       "Google Login Failed"
     );
   };
+
 
   // =====================================================
   // UI
