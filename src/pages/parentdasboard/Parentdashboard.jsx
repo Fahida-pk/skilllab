@@ -888,11 +888,7 @@ function ParentDashboard() {
 
         <div className="parent-topbar-right">
 
-          <div className="parent-live-status">
-            <span className="live-dot" />
-            <span>Live</span>
-          </div>
-
+  
           <div className="parent-topbar-date">
             <FaCalendarDays />
             <span>
