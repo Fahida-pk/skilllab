@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   FaGaugeHigh,
   FaUserGraduate,
@@ -78,23 +78,84 @@ function ParentDashboard() {
     }
   }, [navigate]);
 
+  // Prevent overlapping background requests.
+  const refreshInProgressRef = useRef(false);
+
   useEffect(() => {
-    if (parent?.id) loadDashboard();
+    if (!parent?.id) return;
+
+    // First load: show the normal loading state.
+    loadDashboard(false);
+
+    // Background refresh: no page refresh and no loading-screen flicker.
+    // This checks the database every 2 seconds while the parent dashboard is open.
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadDashboard(true);
+      }
+    }, 2000);
+
+    // Refresh immediately when the user comes back to the tab/window.
+    const handleFocus = () => {
+      if (document.visibilityState === "visible") {
+        loadDashboard(true);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadDashboard(true);
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [parent]);
 
-  const loadDashboard = async () => {
+  const loadDashboard = async (silent = false) => {
+    if (!parent?.id) return;
+
+    // Do not start another request if the previous one is still running.
+    if (refreshInProgressRef.current) return;
+
+    refreshInProgressRef.current = true;
+
     try {
-      setLoading(true);
-      const response = await fetch(API_URL, {
+      // Only the first/manual load shows the loading UI.
+      if (!silent) {
+        setLoading(true);
+      }
+
+      // Cache-busting timestamp makes sure the browser/proxy does not reuse
+      // an older dashboard response.
+      const response = await fetch(`${API_URL}?_=${Date.now()}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "parent_overview", parent_id: parent.id }),
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+        },
+        body: JSON.stringify({
+          action: "parent_overview",
+          parent_id: parent.id,
+        }),
       });
 
       const data = await response.json();
-      if (!data.success) throw new Error(data.message || "Unable to load dashboard");
+
+      if (!data.success) {
+        throw new Error(data.message || "Unable to load dashboard");
+      }
 
       const overview = data.overview || {};
+
       setDashboard({
         students: Array.isArray(overview.students) ? overview.students : [],
         totalStudents: Number(overview.totalStudents) || 0,
@@ -125,16 +186,32 @@ function ParentDashboard() {
       });
     } catch (error) {
       console.error("Parent dashboard error:", error);
-      try {
-        const savedStudents = JSON.parse(localStorage.getItem("parentStudents") || "[]");
-        if (Array.isArray(savedStudents)) {
-          setDashboard((prev) => ({ ...prev, students: savedStudents, totalStudents: savedStudents.length }));
+
+      // During background refresh, keep the current dashboard visible.
+      // Only use the local student fallback when the initial load fails.
+      if (!silent) {
+        try {
+          const savedStudents = JSON.parse(
+            localStorage.getItem("parentStudents") || "[]"
+          );
+
+          if (Array.isArray(savedStudents)) {
+            setDashboard((prev) => ({
+              ...prev,
+              students: savedStudents,
+              totalStudents: savedStudents.length,
+            }));
+          }
+        } catch (storageError) {
+          console.error("Student storage error:", storageError);
         }
-      } catch (storageError) {
-        console.error("Student storage error:", storageError);
       }
     } finally {
-      setLoading(false);
+      refreshInProgressRef.current = false;
+
+      if (!silent) {
+        setLoading(false);
+      }
     }
   };
 
