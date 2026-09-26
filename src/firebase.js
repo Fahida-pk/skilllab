@@ -1,21 +1,36 @@
 import { initializeApp } from "firebase/app";
+
 import {
   getMessaging,
   getToken,
   onMessage,
 } from "firebase/messaging";
 
+
 // =====================================================
 // FIREBASE CONFIG
 // =====================================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBBspGNBspO9N5ePghA9dLuZOrf00MkqyfI",
-  authDomain: "skill-lab-b5e16.firebaseapp.com",
-  projectId: "skill-lab-b5e16",
-  storageBucket: "skill-lab-b5e16.firebasestorage.app",
-  messagingSenderId: "128086383416",
-  appId: "1:128086383416:web:527a77f86a8bc54db0bfcd",
+
+  apiKey:
+    "AIzaSyBBspGNBspO9N5ePghA9dLuZOrf00MkqyfI",
+
+  authDomain:
+    "skill-lab-b5e16.firebaseapp.com",
+
+  projectId:
+    "skill-lab-b5e16",
+
+  storageBucket:
+    "skill-lab-b5e16.firebasestorage.app",
+
+  messagingSenderId:
+    "128086383416",
+
+  appId:
+    "1:128086383416:web:527a77f86a8bc54db0bfcd"
+
 };
 
 
@@ -23,22 +38,20 @@ const firebaseConfig = {
 // INITIALIZE FIREBASE
 // =====================================================
 
-const app = initializeApp(firebaseConfig);
+const app =
+  initializeApp(firebaseConfig);
 
 
 // =====================================================
 // FIREBASE MESSAGING
 // =====================================================
 
-export const messaging = getMessaging(app);
+export const messaging =
+  getMessaging(app);
 
 
 // =====================================================
-// FIREBASE WEB PUSH VAPID KEY
-// Firebase Console
-// → Project Settings
-// → Cloud Messaging
-// → Web Push certificates
+// WEB PUSH VAPID KEY
 // =====================================================
 
 export const VAPID_KEY =
@@ -69,7 +82,7 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 1. GET USER EMAIL
+    // 1. GET EMAIL
     // =================================================
 
     if (!email) {
@@ -78,7 +91,8 @@ export async function requestNotificationPermission(
 
         const savedUser =
           JSON.parse(
-            localStorage.getItem("user") || "null"
+            localStorage.getItem("user") ||
+            "null"
           );
 
         email =
@@ -92,6 +106,7 @@ export async function requestNotificationPermission(
         );
 
       }
+
     }
 
 
@@ -101,6 +116,10 @@ export async function requestNotificationPermission(
     );
 
 
+    // =================================================
+    // EMAIL REQUIRED FOR LOGIN-BASED REGISTRATION
+    // =================================================
+
     if (!email) {
 
       console.error(
@@ -108,6 +127,7 @@ export async function requestNotificationPermission(
       );
 
       return null;
+
     }
 
 
@@ -115,35 +135,41 @@ export async function requestNotificationPermission(
     // 2. CHECK NOTIFICATION SUPPORT
     // =================================================
 
-    if (!("Notification" in window)) {
+    if (
+      !("Notification" in window)
+    ) {
 
       console.error(
-        "❌ This browser does not support notifications"
+        "❌ Browser does not support notifications"
       );
 
       return null;
+
     }
 
 
-    console.log(
-      "Current notification permission:",
-      Notification.permission
-    );
-
-
     // =================================================
-    // 3. REQUEST NOTIFICATION PERMISSION
+    // 3. NOTIFICATION PERMISSION
     // =================================================
 
     let permission =
       Notification.permission;
 
 
-    if (permission === "default") {
+    console.log(
+      "Current notification permission:",
+      permission
+    );
+
+
+    if (
+      permission === "default"
+    ) {
 
       console.log(
         "Requesting notification permission..."
       );
+
 
       permission =
         await Notification.requestPermission();
@@ -158,10 +184,12 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // PERMISSION DENIED
+    // PERMISSION NOT GRANTED
     // =================================================
 
-    if (permission !== "granted") {
+    if (
+      permission !== "granted"
+    ) {
 
       console.error(
         "❌ Notification permission was not granted:",
@@ -169,6 +197,7 @@ export async function requestNotificationPermission(
       );
 
       return null;
+
     }
 
 
@@ -190,7 +219,7 @@ export async function requestNotificationPermission(
       await navigator.serviceWorker.register(
         "/firebase-messaging-sw.js",
         {
-          scope: "/",
+          scope: "/"
         }
       );
 
@@ -226,10 +255,13 @@ export async function requestNotificationPermission(
       await getToken(
         messaging,
         {
-          vapidKey: VAPID_KEY,
+
+          vapidKey:
+            VAPID_KEY,
 
           serviceWorkerRegistration:
-            registration,
+            registration
+
         }
       );
 
@@ -251,12 +283,9 @@ export async function requestNotificationPermission(
       );
 
       return null;
+
     }
 
-
-    // =================================================
-    // TOKEN GENERATED
-    // =================================================
 
     console.log(
       "========================================"
@@ -282,32 +311,52 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 7. SAVE TOKEN TO PHP DATABASE
+    // 7. SAVE TOKEN TO NEW TABLE
+    // =================================================
+    //
+    // IMPORTANT:
+    // NEW FILE:
+    //
+    // save_fcm_device.php
+    //
+    // OLD FILE:
+    //
+    // save_fcm_token.php
+    //
+    // is no longer used.
     // =================================================
 
+
     console.log(
-      "Saving FCM token to server..."
+      "Saving FCM device to server..."
     );
 
 
     const response =
       await fetch(
-        "https://zyntaweb.com/skilllab/api/save_fcm_token.php",
+        "https://zyntaweb.com/skilllab/api/save_fcm_device.php",
         {
+
           method: "POST",
 
           headers: {
+
             "Content-Type":
-              "application/json",
+              "application/json"
+
           },
 
-          body: JSON.stringify({
+          body:
+            JSON.stringify({
 
-            email: email,
+              email:
+                email,
 
-            token: token,
+              token:
+                token
 
-          }),
+            })
+
         }
       );
 
@@ -319,7 +368,7 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 8. READ SERVER RESPONSE
+    // 8. READ RESPONSE
     // =================================================
 
     const responseText =
@@ -338,7 +387,9 @@ export async function requestNotificationPermission(
     try {
 
       data =
-        JSON.parse(responseText);
+        JSON.parse(
+          responseText
+        );
 
     } catch (error) {
 
@@ -347,32 +398,36 @@ export async function requestNotificationPermission(
       );
 
       return null;
+
     }
 
 
     console.log(
-      "FCM token server response:",
+      "FCM device server response:",
       data
     );
 
 
     // =================================================
-    // 9. SERVER FAILED
+    // SERVER FAILED
     // =================================================
 
-    if (!data.success) {
+    if (
+      !data.success
+    ) {
 
       console.error(
-        "❌ FCM token was NOT saved",
+        "❌ FCM device was NOT saved:",
         data.message || ""
       );
 
       return null;
+
     }
 
 
     // =================================================
-    // 10. SAVE TOKEN LOCALLY
+    // SAVE TOKEN LOCALLY
     // =================================================
 
     localStorage.setItem(
@@ -392,6 +447,16 @@ export async function requestNotificationPermission(
     console.log(
       "Email:",
       email
+    );
+
+    console.log(
+      "Device ID:",
+      data.device_id
+    );
+
+    console.log(
+      "User ID:",
+      data.user_id
     );
 
     console.log(
@@ -424,9 +489,10 @@ export async function requestNotificationPermission(
       "========================================"
     );
 
-
     return null;
+
   }
+
 }
 
 
@@ -483,27 +549,34 @@ export function listenForegroundMessages() {
 
 
       // =================================================
-      // SHOW NOTIFICATION
+      // SHOW FOREGROUND NOTIFICATION
       // =================================================
 
       if (
+
         "Notification" in window &&
+
         Notification.permission === "granted"
+
       ) {
 
         new Notification(
           title,
           {
-            body: body,
 
-            icon: "/favicon.svg",
+            body:
+              body,
 
-            badge: "/favicon.svg",
+            icon:
+              "/favicon.svg",
+
+            badge:
+              "/favicon.svg",
 
             tag:
               payload.data?.taskId
                 ? `skilllab-task-${payload.data.taskId}`
-                : "skilllab-task",
+                : "skilllab-task"
 
           }
         );
@@ -512,4 +585,5 @@ export function listenForegroundMessages() {
 
     }
   );
+
 }

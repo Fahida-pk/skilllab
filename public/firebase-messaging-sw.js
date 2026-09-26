@@ -7,9 +7,14 @@ importScripts(
 );
 
 
+// =====================================================
+// FIREBASE CONFIG
+// =====================================================
+
 firebase.initializeApp({
 
-  apiKey: "AIzaSyBBspGNBspO9N5ePghA9dLuZOrf00MkqyfI",
+  apiKey:
+    "AIzaSyBBspGNBspO9N5ePghA9dLuZOrf00MkqyfI",
 
   authDomain:
     "skill-lab-b5e16.firebaseapp.com",
@@ -25,12 +30,17 @@ firebase.initializeApp({
 
   appId:
     "1:128086383416:web:527a77f86a8bc54db0bfcd"
+
 });
 
 
 const messaging =
   firebase.messaging();
 
+
+// =====================================================
+// BACKGROUND MESSAGE
+// =====================================================
 
 messaging.onBackgroundMessage(
   function (payload) {
@@ -59,7 +69,8 @@ messaging.onBackgroundMessage(
 
     const notificationOptions = {
 
-      body: body,
+      body:
+        body,
 
       icon:
         "/favicon.svg",
@@ -72,15 +83,18 @@ messaging.onBackgroundMessage(
           ? `skilllab-task-${taskId}`
           : "skilllab-task",
 
-      renotify: true,
+      renotify:
+        true,
 
-      requireInteraction: true,
+      requireInteraction:
+        true,
 
-      vibrate: [
-        200,
-        100,
-        200
-      ],
+      vibrate:
+        [
+          200,
+          100,
+          200
+        ],
 
       data: {
 
@@ -90,6 +104,7 @@ messaging.onBackgroundMessage(
 
         taskId:
           taskId
+
       }
 
     };
@@ -124,41 +139,44 @@ self.addEventListener(
 
       clients.matchAll({
 
-        type: "window",
+        type:
+          "window",
 
-        includeUncontrolled: true
+        includeUncontrolled:
+          true
 
       })
 
-      .then(function (clientList) {
+      .then(
+        function (clientList) {
 
-        for (
-          const client of clientList
-        ) {
-
-          if (
-            "focus" in client
+          for (
+            const client of clientList
           ) {
 
-            return client
-              .focus();
+            if (
+              "focus" in client
+            ) {
+
+              return client.focus();
+
+            }
+
+          }
+
+
+          if (
+            clients.openWindow
+          ) {
+
+            return clients.openWindow(
+              url
+            );
 
           }
 
         }
-
-
-        if (
-          clients.openWindow
-        ) {
-
-          return clients.openWindow(
-            url
-          );
-
-        }
-
-      })
+      )
 
     );
 
