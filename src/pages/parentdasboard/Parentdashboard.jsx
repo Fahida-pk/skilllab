@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -467,6 +467,65 @@ function ParentDashboard() {
   };
 
   /* =========================================================
+     TIME-BASED PARENT GREETING
+  ========================================================= */
+
+  const getParentGreeting = () => {
+    const hour = new Date().getHours();
+
+    const name =
+      parent?.name ||
+      parent?.full_name ||
+      parent?.fullName ||
+      parent?.username ||
+      "Parent";
+
+    let period = "night";
+
+    if (hour >= 5 && hour < 12) {
+      period = "morning";
+    } else if (hour >= 12 && hour < 17) {
+      period = "afternoon";
+    } else if (hour >= 17 && hour < 22) {
+      period = "evening";
+    }
+
+    const messages = {
+      morning: [
+        `Good morning, ${name}. Good to see you!`,
+        `Good morning, ${name}. Ready to check today's progress?`,
+        `Good morning, ${name}. Let's see how your students are doing.`,
+        `Good morning, ${name}. A fresh day for learning.`
+      ],
+      afternoon: [
+        `Good afternoon, ${name}. Here's how the learning day is going.`,
+        `Good afternoon, ${name}. Let's check today's progress.`,
+        `Good afternoon, ${name}. Hope your day is going well.`,
+        `Good afternoon, ${name}. Let's take a quick look at the progress.`
+      ],
+      evening: [
+        `Good evening, ${name}. Had you tea?`,
+        `Good evening, ${name}. How did the learning day go?`,
+        `Good evening, ${name}. Let's check today's progress.`,
+        `Good evening, ${name}. Here's today's learning summary.`
+      ],
+      night: [
+        `Good evening, ${name}. Here's today's learning summary.`,
+        `Good evening, ${name}. Let's take a quick look at today's progress.`,
+        `Good night, ${name}. Today's learning progress is ready to review.`
+      ]
+    };
+
+    const list = messages[period];
+    const todaySeed =
+      new Date().getFullYear() * 10000 +
+      (new Date().getMonth() + 1) * 100 +
+      new Date().getDate();
+
+    return list[todaySeed % list.length];
+  };
+
+  /* =========================================================
      PERFORMANCE
   ========================================================= */
 
@@ -771,63 +830,93 @@ function ParentDashboard() {
      TOPBAR
   ========================================================= */
 
-  const renderTopbar = () => (
-    <header className="parent-topbar">
+  const renderTopbar = () => {
+    const topbarName =
+      parent?.name ||
+      parent?.full_name ||
+      parent?.fullName ||
+      parent?.username ||
+      "Parent";
 
-      <div className="parent-topbar-left">
+    return (
+      <header className="parent-topbar">
 
-        <button
-          className="parent-mobile-menu"
-          onClick={() =>
-            setMobileOpen(true)
-          }
-          aria-label="Open menu"
-        >
-          <FaBars />
-        </button>
+        <div className="parent-topbar-left">
 
-        <div>
-          <h1>
-            {activePage ===
-            "students"
-              ? "Students"
-              : activePage ===
-                "profile"
-              ? "My Profile"
-              : "Parent Dashboard"}
-          </h1>
+          <button
+            className="parent-mobile-menu"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+          >
+            <FaBars />
+          </button>
 
-          <p>
-            {activePage ===
-            "students"
-              ? "Review student activity and performance."
-              : activePage ===
-                "profile"
-              ? "Manage your parent account information."
-              : "A clear view of your students' learning progress."}
-          </p>
+          <div className="topbar-heading-wrap">
+            <div className="topbar-breadcrumb">
+              <span>Skill Lab</span>
+              <b>›</b>
+              <span>Parent</span>
+              <b>›</b>
+              <strong>
+                {activePage === "students"
+                  ? "Students"
+                  : activePage === "profile"
+                  ? "My Profile"
+                  : "Dashboard"}
+              </strong>
+            </div>
+
+            <h1>
+              {activePage === "students"
+                ? "Students"
+                : activePage === "profile"
+                ? "My Profile"
+                : "Parent Dashboard"}
+            </h1>
+
+            <p>
+              {activePage === "students"
+                ? "Review student activity and performance."
+                : activePage === "profile"
+                ? "Manage your parent account information."
+                : "A clear view of your students' learning progress."}
+            </p>
+          </div>
         </div>
 
-      </div>
+        <div className="parent-topbar-right">
 
-      <div className="parent-profile">
+          <div className="parent-live-status">
+            <span className="live-dot" />
+            <span>Live</span>
+          </div>
 
-        <div>
-          <strong>
-            {parent?.name ||
-              "Parent"}
-          </strong>
+          <div className="parent-topbar-date">
+            <FaCalendarDays />
+            <span>
+              {new Date().toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+              })}
+            </span>
+          </div>
 
-          <span>
-            {parent?.username ||
-              "Parent account"}
-          </span>
+          <div className="parent-profile">
+            <div className="parent-profile-avatar">
+              {getInitials(topbarName)}
+            </div>
+            <div>
+              <strong>{topbarName}</strong>
+              <span>Parent account</span>
+            </div>
+          </div>
+
         </div>
 
-      </div>
-
-    </header>
-  );
+      </header>
+    );
+  };
 
   /* =========================================================
      METRIC CARD
@@ -2355,11 +2444,7 @@ function ParentDashboard() {
               PARENT LEARNING CENTER
             </span>
 
-            <h2>
-              Good to see you,{" "}
-              {parent?.name ||
-                "Parent"}.
-            </h2>
+            <h2>{getParentGreeting()}</h2>
 
             <p>
               Monitor the learning progress of the students assigned to your parent account.
@@ -2963,238 +3048,136 @@ function ParentDashboard() {
      PROFILE
   ========================================================= */
 
-  const renderParentProfile =
-    () => {
+  const renderParentProfile = () => {
+    const profileName =
+      parent?.name ||
+      parent?.full_name ||
+      parent?.fullName ||
+      parent?.username ||
+      "Parent";
 
-      const profileName =
-        parent?.name ||
-        parent?.full_name ||
-        parent?.fullName ||
-        parent?.username ||
-        "Parent";
+    const profileUsername = parent?.username || "—";
+    const profileEmail = parent?.email || parent?.mail || "—";
+    const profilePhone = parent?.phone || parent?.mobile || parent?.contact || "—";
+    const profileAddress = parent?.address || "—";
+    const profileId = parent?.id || parent?.parent_id || "—";
 
-      const profileUsername =
-        parent?.username ||
-        "—";
+    return (
+      <section className="profile-page premium-profile-page">
 
-      const profileEmail =
-        parent?.email ||
-        parent?.mail ||
-        "—";
-
-      const profilePhone =
-        parent?.phone ||
-        parent?.mobile ||
-        parent?.contact ||
-        "—";
-
-      const profileAddress =
-        parent?.address ||
-        "—";
-
-      const profileId =
-        parent?.id ||
-        parent?.parent_id ||
-        "—";
-
-      return (
-        <section className="profile-page">
-
-          <div className="page-heading-card">
-
-            <div>
-
-              <span className="section-kicker">
-                ACCOUNT
-              </span>
-
-              <h2>
-                My Profile
-              </h2>
-
-              <p>
-                View the information connected to your parent account.
-              </p>
-
-            </div>
-
+        <div className="profile-heading-row">
+          <div>
+            <span className="section-kicker">ACCOUNT</span>
+            <h2>My Profile</h2>
+            <p>View and manage the information connected to your parent account.</p>
           </div>
 
-          <div className="profile-hero">
+          <div className="profile-live-badge">
+            <span /> Active account
+          </div>
+        </div>
 
+        <div className="profile-premium-hero">
+          <div className="profile-hero-orb orb-one" />
+          <div className="profile-hero-orb orb-two" />
+
+          <div className="profile-avatar-shell">
             <div className="profile-avatar-large">
-              {getInitials(
-                profileName
-              )}
+              {getInitials(profileName)}
             </div>
-
-            <div>
-
-              <span>
-                Parent account
-              </span>
-
-              <h2>
-                {profileName}
-              </h2>
-
-              <p>
-
-                <FaUser />
-
-                {" "}
-
-                {profileUsername}
-
-                {" · "}
-
-                ID #{profileId}
-
-              </p>
-
-            </div>
-
-          </div>
-
-          <div className="profile-grid">
-
-            <div className="profile-detail">
-
-              <FaUser />
-
-              <span>
-                Full Name
-              </span>
-
-              <strong>
-                {profileName}
-              </strong>
-
-            </div>
-
-            <div className="profile-detail">
-
-              <FaListCheck />
-
-              <span>
-                Username
-              </span>
-
-              <strong>
-                {profileUsername}
-              </strong>
-
-            </div>
-
-            <div className="profile-detail">
-
-              <FaChartLine />
-
-              <span>
-                Email
-              </span>
-
-              <strong>
-                {profileEmail}
-              </strong>
-
-            </div>
-
-            <div className="profile-detail">
-
-              <FaClock />
-
-              <span>
-                Phone
-              </span>
-
-              <strong>
-                {profilePhone}
-              </strong>
-
-            </div>
-
-            <div className="profile-detail wide">
-
-              <FaCalendarDays />
-
-              <span>
-                Address
-              </span>
-
-              <strong>
-                {profileAddress}
-              </strong>
-
-            </div>
-
-          </div>
-
-          <div className="profile-summary">
-
-            <div>
-
-              <FaUserGraduate />
-
-              <span>
-                Students
-              </span>
-
-              <strong>
-                {students.length}
-              </strong>
-
-            </div>
-
-            <div>
-
-              <FaListCheck />
-
-              <span>
-                Weekly Tasks
-              </span>
-
-              <strong>
-                {dashboard.weekTotal}
-              </strong>
-
-            </div>
-
-            <div>
-
+            <div className="profile-verified-dot">
               <FaCircleCheck />
-
-              <span>
-                Weekly Completed
-              </span>
-
-              <strong>
-                {dashboard.weekCompleted}
-              </strong>
-
             </div>
-
-            <div>
-
-              <FaArrowTrendUp />
-
-              <span>
-                Weekly Performance
-              </span>
-
-              <strong>
-                {clamp(
-                  dashboard.weeklyPerformance
-                )}%
-              </strong>
-
-            </div>
-
           </div>
 
-        </section>
-      );
-    };
+          <div className="profile-hero-copy">
+            <span className="profile-role">PARENT ACCOUNT</span>
+            <h2>{profileName}</h2>
+            <p>
+              <FaUser />
+              <span>{profileUsername}</span>
+              <b>•</b>
+              <span>ID #{profileId}</span>
+            </p>
+          </div>
+
+          <div className="profile-hero-stat">
+            <span>ASSIGNED STUDENTS</span>
+            <strong>{students.length}</strong>
+            <i>
+              <b style={{ width: `${students.length ? 100 : 0}%` }} />
+            </i>
+          </div>
+        </div>
+
+        <div className="profile-section-title">
+          <div>
+            <span className="section-kicker">ACCOUNT DETAILS</span>
+            <h3>Personal information</h3>
+          </div>
+          <span className="profile-secure">Secure account</span>
+        </div>
+
+        <div className="profile-grid premium-profile-grid">
+          <div className="profile-detail premium-detail">
+            <div className="profile-detail-icon purple"><FaUser /></div>
+            <div><span>Full Name</span><strong>{profileName}</strong></div>
+          </div>
+          <div className="profile-detail premium-detail">
+            <div className="profile-detail-icon blue"><FaListCheck /></div>
+            <div><span>Username</span><strong>{profileUsername}</strong></div>
+          </div>
+          <div className="profile-detail premium-detail">
+            <div className="profile-detail-icon green"><FaChartLine /></div>
+            <div><span>Email Address</span><strong>{profileEmail}</strong></div>
+          </div>
+          <div className="profile-detail premium-detail">
+            <div className="profile-detail-icon orange"><FaClock /></div>
+            <div><span>Phone Number</span><strong>{profilePhone}</strong></div>
+          </div>
+          <div className="profile-detail premium-detail wide">
+            <div className="profile-detail-icon pink"><FaCalendarDays /></div>
+            <div><span>Address</span><strong>{profileAddress}</strong></div>
+          </div>
+        </div>
+
+        <div className="profile-section-title profile-summary-title">
+          <div>
+            <span className="section-kicker">LEARNING OVERVIEW</span>
+            <h3>Account activity</h3>
+          </div>
+        </div>
+
+        <div className="premium-profile-summary">
+          <div className="profile-summary-card purple">
+            <div className="profile-summary-icon"><FaUserGraduate /></div>
+            <span>Assigned Students</span>
+            <strong>{students.length}</strong>
+            <small>Students linked to this parent</small>
+          </div>
+          <div className="profile-summary-card blue">
+            <div className="profile-summary-icon"><FaListCheck /></div>
+            <span>Weekly Tasks</span>
+            <strong>{dashboard.weekTotal}</strong>
+            <small>Total tasks this week</small>
+          </div>
+          <div className="profile-summary-card green">
+            <div className="profile-summary-icon"><FaCircleCheck /></div>
+            <span>Weekly Completed</span>
+            <strong>{dashboard.weekCompleted}</strong>
+            <small>Completed tasks this week</small>
+          </div>
+          <div className="profile-summary-card orange">
+            <div className="profile-summary-icon"><FaArrowTrendUp /></div>
+            <span>Weekly Performance</span>
+            <strong>{clamp(dashboard.weeklyPerformance)}%</strong>
+            <small>Current weekly progress</small>
+          </div>
+        </div>
+
+      </section>
+    );
+  };
 
   /* =========================================================
      MAIN
