@@ -889,17 +889,6 @@ function ParentDashboard() {
         <div className="parent-topbar-right">
 
   
-          <div className="parent-topbar-date">
-            <FaCalendarDays />
-            <span>
-              {new Date().toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-              })}
-            </span>
-          </div>
-
           <div className="parent-profile">
             <div className="parent-profile-avatar">
               {getInitials(topbarName)}
