@@ -3427,21 +3427,11 @@ body,
   backdrop-filter:blur(12px);
   font-size:23px;
 }
-
+/* Hide green verified tick on profile avatar */
 .profile-verified-dot {
-  position:absolute;
-  right:-5px;
-  bottom:-4px;
-  width:25px;
-  height:25px;
-  display:grid;
-  place-items:center;
-  border-radius:50%;
-  background:#fff;
-  color:#19b986;
-  border:3px solid rgba(103,78,235,.8);
-  font-size:11px;
+  display: none !important;
 }
+
 
 .profile-hero-copy {
   position:relative;
