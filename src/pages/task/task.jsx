@@ -36,7 +36,10 @@ import {
 } from "react-icons/fa";
 import { FaChartBar } from "react-icons/fa";
 import "./task.css";
-
+import {
+  requestNotificationPermission,
+  listenForegroundMessages,
+} from "../../firebase";
 const API_URL = "https://zyntaweb.com/skilllab/api/task.php";
 
 function Task({ adminView = false, parentView = false }) {
@@ -944,9 +947,38 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     }
   };
 
-  useEffect(() => {
-    fetchTasks();
-  }, [currentKey, taskEmail, adminView, parentView]);
+useEffect(() => {
+  fetchTasks();
+}, [currentKey, taskEmail, adminView, parentView]);
+
+// =====================================================
+// FIREBASE PUSH NOTIFICATION SETUP
+// =====================================================
+useEffect(() => {
+  if (adminView || parentView) return;
+  if (!user?.email) return;
+
+  let unsubscribe = null;
+
+  const setupFCM = async () => {
+    try {
+      await requestNotificationPermission(user.email);
+
+      unsubscribe = listenForegroundMessages();
+    } catch (error) {
+      console.error("FCM setup failed:", error);
+    }
+  };
+
+  setupFCM();
+
+  return () => {
+    if (unsubscribe) {
+      unsubscribe();
+    }
+  };
+}, [user?.email, adminView, parentView]);
+
 
   const isNextDay = (from, to) => {
     if (!from || !to) return false;

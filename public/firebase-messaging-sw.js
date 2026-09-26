@@ -1,6 +1,7 @@
 importScripts(
   "https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"
 );
+
 importScripts(
   "https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"
 );
@@ -17,14 +18,56 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
+  console.log("Background FCM message:", payload);
+
   const title =
-    payload.notification?.title || "Skill Lab";
+    payload.notification?.title ||
+    payload.data?.title ||
+    "Skill Lab";
+
+  const body =
+    payload.notification?.body ||
+    payload.data?.body ||
+    "Your task time is ready.";
 
   const options = {
-    body:
-      payload.notification?.body || "Your task time has started.",
-    icon: "/favicon.svg"
+    body,
+    icon: "/favicon.svg",
+    badge: "/favicon.svg",
+    tag: payload.data?.taskId
+      ? `skilllab-task-${payload.data.taskId}`
+      : "skilllab-task",
+    renotify: true,
+    requireInteraction: false,
+    data: {
+      url: payload.data?.url || "/"
+    }
   };
 
   self.registration.showNotification(title, options);
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const url =
+    event.notification?.data?.url || "/";
+
+  event.waitUntil(
+    clients.matchAll({
+      type: "window",
+      includeUncontrolled: true
+    }).then((clientList) => {
+      for (const client of clientList) {
+        if ("focus" in client) {
+          client.navigate(url);
+          return client.focus();
+        }
+      }
+
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
+    })
+  );
 });
