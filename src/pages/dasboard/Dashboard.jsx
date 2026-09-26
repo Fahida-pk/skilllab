@@ -1812,22 +1812,14 @@ useEffect(() => {
      INITIAL LOAD
   ===================================================== */
 
-  // =====================================================
-// AUTOMATIC TASK SYNC
-// Refresh dashboard automatically when task/time changes
-// on another device.
-// =====================================================
-useEffect(() => {
-  if (!dashboardEmail) return;
+  useEffect(() => {
+    loadDashboard(
+      selectedDate
+    );
+    loadWeeklyProgress();
+    loadMonthlyProgress();
+  }, [selectedDate, dashboardEmail, adminView]);
 
-  const syncDashboard = setInterval(() => {
-    loadDashboard(selectedDate);
-  }, 2000);
-
-  return () => {
-    clearInterval(syncDashboard);
-  };
-}, [selectedDate, dashboardEmail, adminView, parentView]);
   /* =====================================================
      REFRESH AFTER TASK UPDATE
   ===================================================== */
