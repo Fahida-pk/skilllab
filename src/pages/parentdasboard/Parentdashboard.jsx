@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   FaGaugeHigh,
   FaUserGraduate,
@@ -78,17 +78,73 @@ function ParentDashboard() {
     }
   }, [navigate]);
 
+  // Prevent multiple dashboard requests from running at the same time.
+  const refreshInProgressRef = useRef(false);
+
+  // Automatically refresh dashboard data without browser refresh.
+  // The dashboard checks the database every 2 seconds while the page is visible.
   useEffect(() => {
-    if (parent?.id) loadDashboard();
+    if (!parent?.id) return;
+
+    // First load
+    loadDashboard(false);
+
+    // Automatic background refresh
+    const intervalId = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadDashboard(true);
+      }
+    }, 2000);
+
+    // Refresh immediately when user returns to this tab/window
+    const handleFocus = () => {
+      if (document.visibilityState === "visible") {
+        loadDashboard(true);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadDashboard(true);
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [parent]);
 
-  const loadDashboard = async () => {
+  const loadDashboard = async (silent = false) => {
+    if (!parent?.id) return;
+
+    // Do not start another request if the previous one is still running.
+    if (refreshInProgressRef.current) return;
+
+    refreshInProgressRef.current = true;
+
     try {
-      setLoading(true);
+      // Silent background refresh should not show the loading screen.
+      if (!silent) {
+        setLoading(true);
+      }
+
       const response = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "parent_overview", parent_id: parent.id }),
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+        },
+        body: JSON.stringify({
+          action: "parent_overview",
+          parent_id: parent.id,
+        }),
       });
 
       const data = await response.json();
@@ -134,7 +190,10 @@ function ParentDashboard() {
         console.error("Student storage error:", storageError);
       }
     } finally {
-      setLoading(false);
+      refreshInProgressRef.current = false;
+      if (!silent) {
+        setLoading(false);
+      }
     }
   };
 
@@ -790,7 +849,7 @@ function ParentDashboard() {
 
   const renderMyStudents = () => (
     <section className="students-page">
-      <div className="page-heading-card"><div><span className="section-kicker">STUDENT DIRECTORY</span><h2>Students</h2><p>View each student's learning activity and open their detailed dashboard.</p></div><button className="refresh-button" onClick={loadDashboard} disabled={loading}><FaRotate /> {loading ? "Refreshing" : "Refresh"}</button></div>
+      <div className="page-heading-card"><div><span className="section-kicker">STUDENT DIRECTORY</span><h2>Students</h2><p>View each student's learning activity and open their detailed dashboard.</p></div><button className="refresh-button" onClick={() => loadDashboard(false)} disabled={loading}><FaRotate /> {loading ? "Refreshing" : "Refresh"}</button></div>
       <div className="student-toolbar"><div className="search-box"><FaMagnifyingGlass /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email or ID..." /></div><div className="result-count">{filteredStudents.length} {filteredStudents.length === 1 ? "student" : "students"}</div></div>
       {loading ? <div className="loading-state"><span /><p>Loading students...</p></div> : filteredStudents.length === 0 ? <div className="empty-state large"><div><FaUserGraduate /></div><h3>No students found</h3><p>No students are currently available for this parent account.</p></div> : <div className="student-cards-grid">{filteredStudents.map((student) => { const p = getPerformance(student); const total = Number(student.weekTotal) || 0; const completed = Number(student.weekCompleted) || 0; const pending = Math.max(0, total - completed); return <article className="student-card" key={student.id} onClick={() => openStudentDashboard(student)}><div className="student-card-head"><div className="student-avatar">{getInitials(student.name)}</div><div className="student-card-name"><h3>{student.name || "Unnamed Student"}</h3><span>Student ID #{student.id}</span></div><FaArrowRight className="student-card-arrow" /></div><div className="student-email"><FaUser /> {student.email || "No email available"}</div><div className="student-mini-stats"><div><span>Weekly Total</span><strong>{total}</strong></div><div><span>Completed</span><strong className="green-text">{completed}</strong></div><div><span>Pending</span><strong className="orange-text">{pending}</strong></div></div><div className="student-card-performance"><div><span>This week's performance</span><strong>{p}%</strong></div><em className={getPerformanceClass(p)}>{getPerformanceLabel(p)}</em></div><div className="student-progress"><span className={getPerformanceClass(p)} style={{ width: `${p}%` }} /></div><div className="student-period-row"><div><span>Today</span><strong>{clamp(student.todayPerformance)}%</strong></div><div><span>This Week</span><strong>{p}%</strong></div><div><span>This Month</span><strong>{clamp(student.monthlyPerformance)}%</strong></div></div><button className="student-open-button" onClick={(e) => { e.stopPropagation(); openStudentDashboard(student); }}>Open student dashboard <FaArrowRight /></button></article>; })}</div>}
     </section>
