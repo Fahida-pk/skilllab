@@ -908,34 +908,19 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           nextDay: isNextDay(t.from, t.to),
         }));
 
-        // Apply date-wise schedule to built-in rows and prevent duplicate
-        // built-in rows from ever being shown after an edit.
-        const dateSchedules = getDateDefaultSchedules(currentKey);
+        // Database is the single source of truth for task schedules.
+        // Keep the existing duplicate-protection, but do not overlay
+        // browser localStorage schedules here. This keeps the same
+        // task times on desktop, mobile and other devices using the
+        // same account.
         const seenBuiltIns = new Set();
-        const normalized = formatted
-          .map((task) => {
-            const builtInId = getBuiltInDefaultId(task);
-            if (!builtInId) return task;
-
-            const schedule = dateSchedules[String(builtInId)];
-            if (!schedule) return task;
-
-            return {
-              ...task,
-              title: schedule.title || task.title,
-              from: schedule.from || (builtInId === "d1" ? undefined : task.from),
-              time: schedule.time || (builtInId === "d1" ? task.from : undefined),
-              to: schedule.to || (builtInId === "d1" ? undefined : task.to),
-              nextDay: Boolean(schedule.nextDay),
-            };
-          })
-          .filter((task) => {
-            const builtInId = getBuiltInDefaultId(task);
-            if (!builtInId) return true;
-            if (seenBuiltIns.has(builtInId)) return false;
-            seenBuiltIns.add(builtInId);
-            return true;
-          });
+        const normalized = formatted.filter((task) => {
+          const builtInId = getBuiltInDefaultId(task);
+          if (!builtInId) return true;
+          if (seenBuiltIns.has(builtInId)) return false;
+          seenBuiltIns.add(builtInId);
+          return true;
+        });
 
         setTasks(normalized);
       } else {
@@ -1846,6 +1831,35 @@ useEffect(() => {
           to: undefined,
           nextDay: false,
         });
+
+        // Also persist the inherited Wake Up time in the database so
+        // every device receives the same next-day schedule.
+        try {
+          const wakeUpForm = new FormData();
+          wakeUpForm.append("action", "sync_default_wakeup");
+          wakeUpForm.append("email", user?.email || "");
+          wakeUpForm.append("task_date", nextDateKey);
+          wakeUpForm.append("time", formattedTo);
+
+          const wakeUpResponse = await fetch(API_URL, {
+            method: "POST",
+            body: wakeUpForm,
+          });
+
+          const wakeUpData = await wakeUpResponse.json();
+
+          if (!wakeUpData.success) {
+            console.error(
+              "Next-day Wake Up database sync failed:",
+              wakeUpData.message
+            );
+          }
+        } catch (wakeUpError) {
+          console.error(
+            "Next-day Wake Up database sync error:",
+            wakeUpError
+          );
+        }
       }
 
       notifyTaskUpdated();
