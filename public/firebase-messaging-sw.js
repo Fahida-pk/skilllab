@@ -1,6 +1,20 @@
+// =====================================================
+// FIREBASE MESSAGING SERVICE WORKER
+// =====================================================
+
+
+// =====================================================
+// FIREBASE APP COMPAT
+// =====================================================
+
 importScripts(
   "https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"
 );
+
+
+// =====================================================
+// FIREBASE MESSAGING COMPAT
+// =====================================================
 
 importScripts(
   "https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"
@@ -14,7 +28,7 @@ importScripts(
 firebase.initializeApp({
 
   apiKey:
-    "AIzaSyBBspGNBspO9N5ePghA9dLuZOrf00MkqyfI",
+    "AIzaSyBBspQGNBxON5ePghA9dLuZOrf00MkqyfI",
 
   authDomain:
     "skill-lab-b5e16.firebaseapp.com",
@@ -34,28 +48,51 @@ firebase.initializeApp({
 });
 
 
+// =====================================================
+// FIREBASE MESSAGING
+// =====================================================
+
 const messaging =
   firebase.messaging();
 
 
 // =====================================================
-// BACKGROUND MESSAGE
+// BACKGROUND FCM MESSAGE
 // =====================================================
 
 messaging.onBackgroundMessage(
   function (payload) {
 
     console.log(
-      "BACKGROUND FCM:",
+      "========================================"
+    );
+
+    console.log(
+      "BACKGROUND FCM MESSAGE"
+    );
+
+    console.log(
       payload
     );
 
+    console.log(
+      "========================================"
+    );
+
+
+    // =================================================
+    // TITLE
+    // =================================================
 
     const title =
       payload.notification?.title ||
       payload.data?.title ||
-      "Skill Lab";
+      "⏰ Skill Lab";
 
+
+    // =================================================
+    // BODY
+    // =================================================
 
     const body =
       payload.notification?.body ||
@@ -63,9 +100,27 @@ messaging.onBackgroundMessage(
       "Your task time is ready.";
 
 
-    const taskId =
-      payload.data?.taskId || "";
+    // =================================================
+    // TASK ID
+    // =================================================
 
+    const taskId =
+      payload.data?.taskId ||
+      "";
+
+
+    // =================================================
+    // URL
+    // =================================================
+
+    const notificationUrl =
+      payload.data?.url ||
+      "/task";
+
+
+    // =================================================
+    // NOTIFICATION OPTIONS
+    // =================================================
 
     const notificationOptions = {
 
@@ -99,8 +154,7 @@ messaging.onBackgroundMessage(
       data: {
 
         url:
-          payload.data?.url ||
-          "/task",
+          notificationUrl,
 
         taskId:
           taskId
@@ -109,6 +163,10 @@ messaging.onBackgroundMessage(
 
     };
 
+
+    // =================================================
+    // SHOW NOTIFICATION
+    // =================================================
 
     return self.registration.showNotification(
       title,
@@ -127,56 +185,74 @@ self.addEventListener(
   "notificationclick",
   function (event) {
 
+    console.log(
+      "Notification clicked"
+    );
+
+
+    // Close notification
     event.notification.close();
 
 
+    // Get URL from notification
     const url =
       event.notification?.data?.url ||
       "/task";
 
 
+    // =================================================
+    // OPEN / FOCUS SKILL LAB
+    // =================================================
+
     event.waitUntil(
 
-      clients.matchAll({
+      clients
+        .matchAll({
+          type:
+            "window",
 
-        type:
-          "window",
+          includeUncontrolled:
+            true
+        })
 
-        includeUncontrolled:
-          true
+        .then(
+          function (clientList) {
 
-      })
+            // -----------------------------------------
+            // Existing Skill Lab window
+            // -----------------------------------------
 
-      .then(
-        function (clientList) {
-
-          for (
-            const client of clientList
-          ) {
-
-            if (
-              "focus" in client
+            for (
+              const client of clientList
             ) {
 
-              return client.focus();
+              if (
+                "focus" in client
+              ) {
+
+                return client.focus();
+
+              }
+
+            }
+
+
+            // -----------------------------------------
+            // Open new window
+            // -----------------------------------------
+
+            if (
+              clients.openWindow
+            ) {
+
+              return clients.openWindow(
+                url
+              );
 
             }
 
           }
-
-
-          if (
-            clients.openWindow
-          ) {
-
-            return clients.openWindow(
-              url
-            );
-
-          }
-
-        }
-      )
+        )
 
     );
 
