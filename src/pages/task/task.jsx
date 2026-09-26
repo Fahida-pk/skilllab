@@ -1,44 +1,44 @@
-
+import Sidebar from "../dasboard/Sidebar.jsx";
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
-  useLocation,
-  useNavigate,
+useLocation,
+useNavigate,
 } from "react-router-dom";
 import {
-  FaMoon,
-  FaChevronLeft,
-  FaChevronRight,
-  FaSun,
-  FaBook,
-  FaLanguage,
-  FaDumbbell,
-  FaCheck,
-  FaClock,
-  FaCoffee,
-  FaUtensils,
-  FaLaptop,
-  FaBriefcase,
-  FaHome,
-  FaRunning,
-  FaMusic,
-  FaPen,
-  FaHeart,
-  FaShoppingCart,
-  FaCar,
-  FaPlane,
-  FaCalendarAlt,
-  FaCode,
-  FaGamepad,
-  FaFilm,
-  FaBicycle,
-  FaWater,
-  FaAppleAlt
+FaMoon,
+FaChevronLeft,
+FaChevronRight,
+FaSun,
+FaBook,
+FaLanguage,
+FaDumbbell,
+FaCheck,
+FaClock,
+FaCoffee,
+FaUtensils,
+FaLaptop,
+FaBriefcase,
+FaHome,
+FaRunning,
+FaMusic,
+FaPen,
+FaHeart,
+FaShoppingCart,
+FaCar,
+FaPlane,
+FaCalendarAlt,
+FaCode,
+FaGamepad,
+FaFilm,
+FaBicycle,
+FaWater,
+FaAppleAlt
 } from "react-icons/fa";
 import { FaChartBar } from "react-icons/fa";
 import "./task.css";
 import {
-  requestNotificationPermission,
-  listenForegroundMessages,
+requestNotificationPermission,
+listenForegroundMessages,
 } from "../../firebase";
 const API_URL = "https://zyntaweb.com/skilllab/api/task.php";
 
