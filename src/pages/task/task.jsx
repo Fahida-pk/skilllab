@@ -1,4 +1,4 @@
-import Sidebar from "../dasboard/Sidebar.jsx";
+
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
   useLocation,
@@ -191,6 +191,8 @@ const taskEmail = adminView
   const [performanceErrorTaskId, setPerformanceErrorTaskId] = useState(null);
   // Prevent multiple Save/Add clicks from creating duplicate database rows.
   const saveInProgressRef = useRef(false);
+  // Prevent background sync from resetting the slider while it is being dragged.
+  const isPercentageDraggingRef = useRef(false);
 const [deleteConfirm, setDeleteConfirm] = useState(null);
   const getDateKey = (d) => {
     const year = d.getFullYear();
@@ -936,9 +938,12 @@ useEffect(() => {
   // Load immediately
   fetchTasks();
 
-  // Automatically sync task changes from other devices
+  // Automatically sync task changes from other devices.
+  // Do not refresh while the percentage slider is being dragged.
   const syncTimer = setInterval(() => {
-    fetchTasks();
+    if (!isPercentageDraggingRef.current) {
+      fetchTasks();
+    }
   }, 2000);
 
   return () => {
@@ -1424,10 +1429,11 @@ useEffect(() => {
 
 
   const handlePercentageChange = (task, value) => {
-    if (adminView || parentView) return;
+    if (adminView || parentView || isPreviousDay) return;
 
     const percentage = Math.max(0, Math.min(100, Number(value)));
 
+    // Update only the UI while dragging.
     setTasks((prev) =>
       prev.map((t) =>
         String(t.id) === String(task.id) ? { ...t, percentage } : t
@@ -1436,9 +1442,26 @@ useEffect(() => {
   };
 
   const saveTaskPercentage = async (task, value) => {
-    if (adminView || parentView) return;
+    if (adminView || parentView || isPreviousDay) return;
 
     const percentage = Math.max(0, Math.min(100, Number(value)));
+
+    // 0% must never remain marked/completed.
+    // If a completed task is moved to 0%, automatically remove its tick.
+    if (percentage <= 0) {
+      if (task.completed) {
+        await toggleTask({ ...task, percentage: 0 });
+      } else {
+        setTasks((prev) =>
+          prev.map((t) =>
+            String(t.id) === String(task.id)
+              ? { ...t, percentage: 0, completed: false }
+              : t
+          )
+        );
+      }
+      return;
+    }
 
     try {
       const res = await fetch(API_URL, {
@@ -2878,22 +2901,24 @@ const taskAccuracyPercentage =
                           Math.min(100, Number(task.percentage ?? 0))
                         )}
                         disabled={adminView || parentView || isPreviousDay}
+                        onPointerDown={() => {
+                          if (adminView || parentView || isPreviousDay) return;
+                          isPercentageDraggingRef.current = true;
+                        }}
                         onChange={(e) => {
-                          if (adminView || parentView) return;
-                          if (isPreviousDay) return;
+                          if (adminView || parentView || isPreviousDay) return;
                           handlePercentageChange(task, e.target.value);
                         }}
-                        onMouseUp={(e) => {
-                          if (adminView || parentView) return;
-                          saveTaskPercentage(task, e.currentTarget.value);
+                        onPointerUp={async (e) => {
+                          if (adminView || parentView || isPreviousDay) return;
+
+                          const value = Number(e.currentTarget.value);
+                          isPercentageDraggingRef.current = false;
+
+                          await saveTaskPercentage(task, value);
                         }}
-                        onTouchEnd={(e) => {
-                          if (adminView || parentView) return;
-                          saveTaskPercentage(task, e.currentTarget.value);
-                        }}
-                        onBlur={(e) => {
-                          if (adminView || parentView) return;
-                          saveTaskPercentage(task, e.currentTarget.value);
+                        onPointerCancel={() => {
+                          isPercentageDraggingRef.current = false;
                         }}
                         aria-label={`Progress percentage for ${task.title}`}
                       />
