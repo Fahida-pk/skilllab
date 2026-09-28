@@ -373,6 +373,49 @@ function AdminDashboard() {
     );
   };
 
+  const addStudentDefault = () => {
+    const customId = `c_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 5)}`;
+
+    setStudentDefaults((prev) => [
+      ...prev,
+      {
+        default_id: customId,
+        title: "New Task",
+        from: "08:00 AM",
+        to: "09:00 AM",
+        icon: "clock",
+        color: "linear-gradient(135deg, #667eea, #764ba2)",
+        next_day: 0,
+        is_custom: true,
+        is_new: true,
+      },
+    ]);
+  };
+
+  const deleteStudentDefault = (defaultId) => {
+    const task = studentDefaults.find(
+      (item) => String(item.default_id) === String(defaultId)
+    );
+
+    if (!task) return;
+
+    // Keep Wake Up and Sleep as permanent core defaults.
+    if (["d1", "d5"].includes(String(defaultId))) {
+      alert("Wake Up and Sleep are permanent default tasks and cannot be deleted.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete "${task.title || "this task"}" from this student's recurring defaults?\n\nIt will stop appearing from future days. Existing completed history will remain.`
+    );
+
+    if (!confirmed) return;
+
+    setStudentDefaults((prev) =>
+      prev.filter((item) => String(item.default_id) !== String(defaultId))
+    );
+  };
+
   const saveStudentDefaults = async () => {
     if (!selectedDefaultStudent || defaultSaving) return;
 
@@ -1647,10 +1690,10 @@ const openStudentDashboard = (student) => {
               ) : (
                 <div style={{ display: "grid", gap: "12px" }}>
                   {studentDefaults.map((task) => (
-                    <div key={task.default_id} style={{ border: "1px solid #e2e8f0", borderRadius: "16px", padding: "14px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", alignItems: "end" }}>
+                    <div key={task.default_id} style={{ border: "1px solid #e2e8f0", borderRadius: "16px", padding: "14px", display: "grid", gridTemplateColumns: "minmax(180px,1fr) minmax(130px,1fr) minmax(130px,1fr) auto", gap: "12px", alignItems: "end" }}>
                       <label style={{ display: "grid", gap: "6px" }}>
                         <span style={{ fontSize: "12px", fontWeight: 700, color: "#64748b" }}>Task</span>
-                        <input value={task.title || ""} onChange={(e) => updateStudentDefault(task.default_id, "title", e.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: "10px 11px", border: "1px solid #cbd5e1", borderRadius: "10px" }} />
+                        <input data-default-edit={task.default_id} value={task.title || ""} onChange={(e) => updateStudentDefault(task.default_id, "title", e.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: "10px 11px", border: "1px solid #cbd5e1", borderRadius: "10px" }} />
                       </label>
                       <label style={{ display: "grid", gap: "6px" }}>
                         <span style={{ fontSize: "12px", fontWeight: 700, color: "#64748b" }}>From</span>
@@ -1660,16 +1703,23 @@ const openStudentDashboard = (student) => {
                         <span style={{ fontSize: "12px", fontWeight: 700, color: "#64748b" }}>To</span>
                         <input type="time" value={(() => { const v=String(task.to||""); const m=v.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i); if(!m) return ""; let h=Number(m[1]); if(m[3].toUpperCase()==="PM"&&h!==12)h+=12; if(m[3].toUpperCase()==="AM"&&h===12)h=0; return `${String(h).padStart(2,"0")}:${m[2]}`; })()} onChange={(e) => { if(!e.target.value){ updateStudentDefault(task.default_id,"to",""); return; } const [h,m]=e.target.value.split(":").map(Number); const ap=h>=12?"PM":"AM"; const hh=h%12||12; updateStudentDefault(task.default_id,"to",`${hh}:${String(m).padStart(2,"0")} ${ap}`); }} style={{ width: "100%", boxSizing: "border-box", padding: "10px 11px", border: "1px solid #cbd5e1", borderRadius: "10px" }} />
                       </label>
+                      <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                        <button type="button" title="Edit task" onClick={() => { const input = document.querySelector(`[data-default-edit="${task.default_id}"]`); if (input) input.focus(); }} style={{ width: "38px", height: "38px", border: "1px solid #cbd5e1", borderRadius: "10px", background: "#f8fafc", cursor: "pointer", fontSize: "16px" }}>✏️</button>
+                        <button type="button" title="Delete task" onClick={() => deleteStudentDefault(task.default_id)} style={{ width: "38px", height: "38px", border: "1px solid #fecaca", borderRadius: "10px", background: "#fff1f2", color: "#dc2626", cursor: "pointer", fontSize: "16px" }}>🗑️</button>
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", marginTop: "20px", flexWrap: "wrap" }}>
+                <button type="button" onClick={addStudentDefault} disabled={defaultLoading || defaultSaving} style={{ padding: "11px 16px", borderRadius: "10px", border: "0", background: "#eef2ff", color: "#4f46e5", fontWeight: 700, cursor: "pointer" }}>+ Add New Task</button>
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
                 <button type="button" onClick={closeDefaultModal} disabled={defaultSaving} style={{ padding: "11px 18px", borderRadius: "10px", border: "1px solid #cbd5e1", background: "#fff", cursor: "pointer" }}>Cancel</button>
                 <button type="button" onClick={saveStudentDefaults} disabled={defaultLoading || defaultSaving} style={{ padding: "11px 20px", borderRadius: "10px", border: 0, background: "linear-gradient(135deg, #6d5dfc, #8f7cff)", color: "#fff", fontWeight: 700, cursor: "pointer" }}>
                   {defaultSaving ? "Saving..." : "Save Default Tasks"}
                 </button>
+                </div>
               </div>
             </div>
           </div>

@@ -187,6 +187,7 @@ const taskEmail = adminView
   const [imagePreview, setImagePreview] = useState("");
   const [removeImage, setRemoveImage] = useState(false);
   const [editTask, setEditTask] = useState(null);
+  const [repeatDaily, setRepeatDaily] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [performanceErrorTaskId, setPerformanceErrorTaskId] = useState(null);
   // Prevent multiple Save/Add clicks from creating duplicate database rows.
@@ -925,6 +926,7 @@ useEffect(() => {
     setImage(null);
     setImagePreview("");
     setRemoveImage(false);
+    setRepeatDaily(false);
   };
 
   const notifyTaskUpdated = () => {
@@ -970,47 +972,38 @@ useEffect(() => {
 
     const defaultId = getBuiltInDefaultId(task);
 
-    // Built-in/default tasks are deleted only for the selected date.
-    // Keep their default definition intact for other dates.
+    // Default tasks are recurring student schedules. Delete the recurring
+    // definition and current/future uncompleted rows. Historical completed
+    // rows remain untouched. Wake Up and Sleep are permanent.
     if (defaultId) {
+      if (defaultId === "d1" || defaultId === "d5") {
+        alert("Wake Up and Sleep are permanent default tasks and cannot be deleted.");
+        return;
+      }
+
       try {
-        const deletedKey = getDeletedDefaultKey(currentKey);
-        const saved = localStorage.getItem(deletedKey);
-        const deletedIds = saved ? JSON.parse(saved) : [];
-        const nextDeletedIds = Array.from(
-          new Set([...deletedIds.map(String), String(defaultId)])
-        );
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "delete_student_default",
+            email: user?.email || "",
+            default_id: String(defaultId),
+          }),
+        });
 
-        localStorage.setItem(deletedKey, JSON.stringify(nextDeletedIds));
-        setDeletedDefaultIds(nextDeletedIds);
-
-        // Remove the visible row immediately. The date-wise deleted marker
-        // prevents ensure_defaults from putting it back on this date.
-        setTasks((prev) => prev.filter((t) => String(t.id) !== String(task.id)));
-
-        // Delete the matching database row as well, if it exists.
-        if (task.id != null) {
-          try {
-            await fetch(API_URL, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                action: "delete",
-                email: user?.email,
-                id: task.id,
-              }),
-            });
-          } catch (dbError) {
-            console.error("Built-in task database delete error:", dbError);
-          }
+        const data = await res.json();
+        if (!data.success) {
+          alert(data.message || "Unable to delete default task");
+          return;
         }
 
         await fetchTasks();
         notifyTaskUpdated();
         return;
       } catch (error) {
-        console.error("Default task delete error:", error);
-        alert("Unable to delete task");
+        console.error("Recurring default delete error:", error);
+        alert("Unable to delete default task");
         return;
       }
     }
@@ -1644,52 +1637,39 @@ useEffect(() => {
       // Do NOT save them under the selected date in localStorage.
       // The PHP API stores them by (student, default_id).
 
-      // Keep the existing database row and persist the edited default
-      // on the server using its permanent default_id identity.
+      // Save the default directly as a recurring student default.
       try {
-        const defaultUpdateForm = new FormData();
-        defaultUpdateForm.append("action", "update");
-        defaultUpdateForm.append("email", user?.email || "");
-        defaultUpdateForm.append("id", String(editTask.id));
-        defaultUpdateForm.append("title", title.trim());
-        defaultUpdateForm.append(
-          "from",
-          taskTitle === "wake up" ? formattedFrom : formattedFrom
-        );
-        defaultUpdateForm.append(
-          "to",
-          taskTitle === "wake up" ? "" : formattedTo
-        );
-        defaultUpdateForm.append("task_date", currentKey);
-        defaultUpdateForm.append("default_id", String(defaultId));
-
         const defaultUpdateResponse = await fetch(API_URL, {
           method: "POST",
-          body: defaultUpdateForm,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "save_student_default",
+            email: user?.email || "",
+            default_id: String(defaultId),
+            title: title.trim(),
+            from: formattedFrom,
+            to: taskTitle === "wake up" ? "" : formattedTo,
+            icon: editTask?.icon || "clock",
+            color: editTask?.color || colors[tasks.length % colors.length],
+            next_day: taskTitle === "wake up" ? 0 : (nextDay ? 1 : 0),
+          }),
         });
 
         const defaultUpdateData = await defaultUpdateResponse.json();
 
         if (!defaultUpdateData.success) {
-          alert(
-            defaultUpdateData.message ||
-            "Could not save default task"
-          );
+          alert(defaultUpdateData.message || "Could not save default task");
           saveInProgressRef.current = false;
           return;
         }
       } catch (defaultUpdateError) {
-        console.error(
-          "Default task database update error:",
-          defaultUpdateError
-        );
+        console.error("Recurring default database update error:", defaultUpdateError);
         alert("Unable to save default task");
         saveInProgressRef.current = false;
         return;
       }
 
-      // Keep the existing database row; only its date-wise schedule changes.
-      // This is what prevents an extra Study MERN/Practice English/Workout row.
+      // Keep the current generated row visually in sync.
       setTasks((prev) =>
         prev.map((task) => {
           if (String(task.id) !== String(editTask.id)) return task;
@@ -1759,6 +1739,46 @@ useEffect(() => {
       resetModal();
       saveInProgressRef.current = false;
       return;
+    }
+
+    // =========================
+    // SAVE AS RECURRING DEFAULT
+    // =========================
+    if (!editTask && repeatDaily) {
+      try {
+        const customDefaultId = `c_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "save_student_default",
+            email: user?.email || "",
+            default_id: customDefaultId,
+            title: title.trim(),
+            from: formattedFrom,
+            to: formattedTo,
+            icon: "clock",
+            color: colors[tasks.length % colors.length],
+            next_day: nextDay ? 1 : 0,
+          }),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          alert(data.message || "Could not save recurring default task");
+          saveInProgressRef.current = false;
+          return;
+        }
+        await fetchTasks();
+        notifyTaskUpdated();
+        resetModal();
+        saveInProgressRef.current = false;
+        return;
+      } catch (error) {
+        console.error("Recurring default add error:", error);
+        alert("Unable to save recurring default task");
+        saveInProgressRef.current = false;
+        return;
+      }
     }
 
     // =========================
@@ -2846,6 +2866,19 @@ const taskAccuracyPercentage =
                 </>
               )}
             </div>
+
+            {!editTask && (
+              <div className="input-group" style={{ marginTop: "14px" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={repeatDaily}
+                    onChange={(e) => setRepeatDaily(e.target.checked)}
+                  />
+                  <span>Set as default &amp; repeat every day</span>
+                </label>
+              </div>
+            )}
 
             {editTask?.title !== "Sleep" && editTask?.title !== "Wake Up" && (
               <div className="input-group">
