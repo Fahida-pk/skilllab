@@ -187,7 +187,6 @@ const taskEmail = adminView
   const [imagePreview, setImagePreview] = useState("");
   const [removeImage, setRemoveImage] = useState(false);
   const [editTask, setEditTask] = useState(null);
-  const [repeatDaily, setRepeatDaily] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [performanceErrorTaskId, setPerformanceErrorTaskId] = useState(null);
   // Prevent multiple Save/Add clicks from creating duplicate database rows.
@@ -926,7 +925,6 @@ useEffect(() => {
     setImage(null);
     setImagePreview("");
     setRemoveImage(false);
-    setRepeatDaily(false);
   };
 
   const notifyTaskUpdated = () => {
@@ -1655,10 +1653,26 @@ useEffect(() => {
           }),
         });
 
-        const defaultUpdateData = await defaultUpdateResponse.json();
+        const defaultRaw = await defaultUpdateResponse.text();
+        let defaultUpdateData = null;
+
+        try {
+          defaultUpdateData = JSON.parse(defaultRaw);
+        } catch (parseError) {
+          console.error("Default task API returned non-JSON:", defaultRaw);
+          alert(
+            "Unable to save default task. Please check task.php on the server."
+          );
+          saveInProgressRef.current = false;
+          return;
+        }
 
         if (!defaultUpdateData.success) {
-          alert(defaultUpdateData.message || "Could not save default task");
+          alert(
+            defaultUpdateData.message ||
+            defaultUpdateData.error ||
+            "Could not save default task"
+          );
           saveInProgressRef.current = false;
           return;
         }
@@ -1739,46 +1753,6 @@ useEffect(() => {
       resetModal();
       saveInProgressRef.current = false;
       return;
-    }
-
-    // =========================
-    // SAVE AS RECURRING DEFAULT
-    // =========================
-    if (!editTask && repeatDaily) {
-      try {
-        const customDefaultId = `c_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "save_student_default",
-            email: user?.email || "",
-            default_id: customDefaultId,
-            title: title.trim(),
-            from: formattedFrom,
-            to: formattedTo,
-            icon: "clock",
-            color: colors[tasks.length % colors.length],
-            next_day: nextDay ? 1 : 0,
-          }),
-        });
-        const data = await res.json();
-        if (!data.success) {
-          alert(data.message || "Could not save recurring default task");
-          saveInProgressRef.current = false;
-          return;
-        }
-        await fetchTasks();
-        notifyTaskUpdated();
-        resetModal();
-        saveInProgressRef.current = false;
-        return;
-      } catch (error) {
-        console.error("Recurring default add error:", error);
-        alert("Unable to save recurring default task");
-        saveInProgressRef.current = false;
-        return;
-      }
     }
 
     // =========================
@@ -2866,19 +2840,6 @@ const taskAccuracyPercentage =
                 </>
               )}
             </div>
-
-            {!editTask && (
-              <div className="input-group" style={{ marginTop: "14px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}>
-                  <input
-                    type="checkbox"
-                    checked={repeatDaily}
-                    onChange={(e) => setRepeatDaily(e.target.checked)}
-                  />
-                  <span>Set as default &amp; repeat every day</span>
-                </label>
-              </div>
-            )}
 
             {editTask?.title !== "Sleep" && editTask?.title !== "Wake Up" && (
               <div className="input-group">
