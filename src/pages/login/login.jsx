@@ -353,9 +353,9 @@ function Login() {
 
             <div className="pwa-install-box">
 
-              <div className="pwa-install-icon">
-                📱
-              </div>
+             <div className="pwa-install-icon">
+  S
+</div>
 
               <h3>
                 Add Skill Lab to Home Screen?
