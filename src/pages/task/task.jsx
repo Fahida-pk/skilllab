@@ -1731,21 +1731,25 @@ useEffect(() => {
       );
     });
 
-    if (overlappingTask) {
-      const existingFrom =
-        overlappingTask.from || overlappingTask.time || "";
-      const existingTo = overlappingTask.to || "";
+   if (overlappingTask && !editTask) {
+  const existingFrom =
+    overlappingTask.from || overlappingTask.time || "";
 
-      const existingTime = existingTo
-        ? `${existingFrom} - ${existingTo}`
-        : existingFrom;
+  const existingTo = overlappingTask.to || "";
 
-      alert(
-        `Time conflict: ${overlappingTask.title} is already scheduled for ${existingTime}.\n\nPlease choose a time outside this period.`
-      );
-      saveInProgressRef.current = false;
-      return;
-    }
+  const existingTime = existingTo
+    ? `${existingFrom} - ${existingTo}`
+    : existingFrom;
+
+  alert(
+    `This time cannot be scheduled.\n\n` +
+    `${overlappingTask.title} is already scheduled for ${existingTime}.\n\n` +
+    `Please choose another time.`
+  );
+
+  saveInProgressRef.current = false;
+  return;
+}
 
     // Built-in/default tasks are edited through their date-wise schedule.
     // Do NOT call the generic DB "add/update" path for them; that path can
