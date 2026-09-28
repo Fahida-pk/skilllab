@@ -13,36 +13,42 @@ function Login() {
   const navigate = useNavigate();
 
   // =====================================================
-  // PWA INSTALL STATE
+  // PWA INSTALL
   // =====================================================
 
   const [installPrompt, setInstallPrompt] =
     useState(null);
 
-  const [showInstallButton, setShowInstallButton] =
+  const [pwaReady, setPwaReady] =
     useState(false);
 
 
   // =====================================================
-  // PWA INSTALL PROMPT
+  // GET INSTALL PROMPT
   // =====================================================
 
   useEffect(() => {
 
+    console.log(
+      "PWA: Login component loaded"
+    );
+
+
     const handleBeforeInstallPrompt = (event) => {
 
       console.log(
-        "🔥 INSTALL PROMPT RECEIVED"
+        "🔥🔥 BEFORE INSTALL PROMPT RECEIVED 🔥🔥"
       );
 
-      // Prevent Chrome default install prompt
       event.preventDefault();
 
-      // Save browser install event
+      window.__skillLabInstallPrompt =
+        event;
+
       setInstallPrompt(event);
 
-      // Show our custom button
-      setShowInstallButton(true);
+      setPwaReady(true);
+
     };
 
 
@@ -50,6 +56,23 @@ function Login() {
       "beforeinstallprompt",
       handleBeforeInstallPrompt
     );
+
+
+    // Check if already installed
+    const isStandalone =
+      window.matchMedia(
+        "(display-mode: standalone)"
+      ).matches ||
+      window.navigator.standalone === true;
+
+
+    if (isStandalone) {
+
+      console.log(
+        "📱 Skill Lab is already installed"
+      );
+
+    }
 
 
     return () => {
@@ -70,47 +93,82 @@ function Login() {
 
   const handleInstallApp = async () => {
 
-    if (!installPrompt) {
+    console.log(
+      "📱 Install button clicked"
+    );
+
+
+    // Try saved global prompt
+    const prompt =
+      installPrompt ||
+      window.__skillLabInstallPrompt;
+
+
+    if (!prompt) {
 
       console.log(
-        "❌ Install prompt is not available"
+        "❌ NO INSTALL PROMPT AVAILABLE"
       );
 
+
+      alert(
+        "Skill Lab install is not available yet. Please open this site in Chrome and refresh the page."
+      );
+
+
       return;
+
     }
 
 
     try {
 
       console.log(
-        "📱 Opening Skill Lab install prompt..."
+        "🚀 Opening native install dialog..."
       );
 
 
-      // Open native browser install popup
-      await installPrompt.prompt();
+      await prompt.prompt();
 
 
-      // Get user choice
-      const { outcome } =
-        await installPrompt.userChoice;
+      const result =
+        await prompt.userChoice;
 
 
       console.log(
         "PWA install result:",
-        outcome
+        result.outcome
       );
 
 
-      // Prompt can only be used once
+      if (
+        result.outcome === "accepted"
+      ) {
+
+        console.log(
+          "✅ Skill Lab installation accepted"
+        );
+
+      } else {
+
+        console.log(
+          "❌ Skill Lab installation dismissed"
+        );
+
+      }
+
+
       setInstallPrompt(null);
 
-      setShowInstallButton(false);
+      setPwaReady(false);
+
+      window.__skillLabInstallPrompt =
+        null;
 
     } catch (error) {
 
       console.error(
-        "❌ PWA install failed:",
+        "❌ Install error:",
         error
       );
 
@@ -134,7 +192,10 @@ function Login() {
 
       setInstallPrompt(null);
 
-      setShowInstallButton(false);
+      setPwaReady(false);
+
+      window.__skillLabInstallPrompt =
+        null;
 
     };
 
@@ -158,32 +219,6 @@ function Login() {
 
 
   // =====================================================
-  // CHECK IF APP IS ALREADY INSTALLED
-  // =====================================================
-
-  useEffect(() => {
-
-    const isStandalone =
-      window.matchMedia(
-        "(display-mode: standalone)"
-      ).matches ||
-      window.navigator.standalone === true;
-
-
-    if (isStandalone) {
-
-      console.log(
-        "📱 Skill Lab is already installed"
-      );
-
-      setShowInstallButton(false);
-
-    }
-
-  }, []);
-
-
-  // =====================================================
   // GOOGLE LOGIN
   // =====================================================
 
@@ -194,10 +229,6 @@ function Login() {
       const googleToken =
         res.credential;
 
-
-      // =================================================
-      // LOGIN API
-      // =================================================
 
       const response = await fetch(
         "https://zyntaweb.com/skilllab/login.php",
@@ -217,10 +248,6 @@ function Login() {
       );
 
 
-      // =================================================
-      // SERVER ERROR
-      // =================================================
-
       if (!response.ok) {
 
         throw new Error(
@@ -233,10 +260,6 @@ function Login() {
       const data =
         await response.json();
 
-
-      // =================================================
-      // LOGIN FAILED
-      // =================================================
 
       if (!data.success) {
 
@@ -251,7 +274,7 @@ function Login() {
 
 
       // =================================================
-      // SAVE USER
+      // SAVE LOGIN
       // =================================================
 
       localStorage.setItem(
@@ -267,7 +290,7 @@ function Login() {
 
 
       // =================================================
-      // FCM NOTIFICATION REGISTRATION
+      // FCM
       // =================================================
 
       if (data.user?.email) {
@@ -283,14 +306,8 @@ function Login() {
           if (fcmToken) {
 
             console.log(
-              "FCM registration completed successfully:",
+              "FCM registration completed:",
               fcmToken
-            );
-
-          } else {
-
-            console.warn(
-              "FCM token was not generated."
             );
 
           }
@@ -308,7 +325,7 @@ function Login() {
 
 
       // =================================================
-      // GO TO DASHBOARD
+      // DASHBOARD
       // =================================================
 
       navigate(
@@ -345,7 +362,6 @@ function Login() {
       "Google Login Failed"
     );
 
-
     alert(
       "Google Login Failed"
     );
@@ -361,11 +377,6 @@ function Login() {
 
     <div className="login-page">
 
-
-      {/* =================================================
-          BACKGROUND GLOW
-      ================================================= */}
-
       <div
         className="login-glow login-glow-blue"
       />
@@ -379,18 +390,12 @@ function Login() {
       />
 
 
-      {/* =================================================
-          LOGIN CARD
-      ================================================= */}
-
       <div className="login-card">
 
         <div className="card-shine" />
 
 
-        {/* =================================================
-            PROFILE ICON
-        ================================================= */}
+        {/* PROFILE */}
 
         <div className="profile-icon">
 
@@ -399,9 +404,7 @@ function Login() {
         </div>
 
 
-        {/* =================================================
-            SKILL LAB
-        ================================================= */}
+        {/* BRAND */}
 
         <h1
           className="title skill-lab-title"
@@ -410,9 +413,7 @@ function Login() {
         </h1>
 
 
-        {/* =================================================
-            SIGN IN
-        ================================================= */}
+        {/* SIGN IN */}
 
         <h1 className="title">
           Sign In
@@ -424,9 +425,7 @@ function Login() {
         </p>
 
 
-        {/* =================================================
-            GOOGLE LOGIN
-        ================================================= */}
+        {/* GOOGLE */}
 
         <div className="google-btn">
 
@@ -441,32 +440,46 @@ function Login() {
 
 
         {/* =================================================
-            PWA INSTALL BUTTON
+            INSTALL BUTTON
+
+            TEMPORARILY ALWAYS VISIBLE
+            FOR TESTING
         ================================================= */}
 
-        {showInstallButton &&
-          installPrompt && (
+        <button
+          type="button"
+          className="install-app-btn"
+          onClick={handleInstallApp}
+        >
 
-            <button
-              type="button"
-              className="install-app-btn"
-              onClick={handleInstallApp}
-            >
+          <FaMobileScreenButton />
 
-              <FaMobileScreenButton />
+          <span>
+            Add Skill Lab to Home Screen
+          </span>
 
-              <span>
-                Add Skill Lab to Home Screen
-              </span>
-
-            </button>
-
-          )}
+        </button>
 
 
-        {/* =================================================
-            FOOTER
-        ================================================= */}
+        {/* STATUS */}
+
+        <div
+          style={{
+            marginTop: "10px",
+            fontSize: "11px",
+            textAlign: "center",
+            opacity: 0.6,
+          }}
+        >
+
+          {pwaReady
+            ? "Install available"
+            : "Checking installation availability..."}
+
+        </div>
+
+
+        {/* FOOTER */}
 
         <div className="login-footer">
 
