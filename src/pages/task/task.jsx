@@ -1643,34 +1643,57 @@ useEffect(() => {
       return;
     }
 
-    // Convert an interval into one or two same-day ranges.
-    // Overnight tasks such as 11:00 PM - 8:00 AM become:
-    //   23:00 -> 24:00 and 00:00 -> 08:00
+    // =========================================================
+    // DATE-BASED TASK TIME OVERLAP CHECK
+    // =========================================================
+    // IMPORTANT:
+    // An overnight task such as 11:00 PM - 5:00 AM starts on the
+    // selected date and finishes on the NEXT date.
+    //
+    // Therefore, while editing the selected date, only the
+    // 11:00 PM -> 12:00 AM part belongs to this date.
+    //
+    // The 12:00 AM -> 5:00 AM part belongs to the next date and
+    // becomes the next day's Wake Up time.
+    //
+    // The old code checked both parts on the same date. That caused:
+    //   Sleep 11 PM - 5 AM
+    //   Wake Up 4 AM
+    // to be incorrectly reported as a conflict.
+    //
+    // It also caused Study MERN 6 AM - 10 AM to conflict with
+    // Sleep 10 PM - 8 AM, even though the 12 AM - 8 AM part of
+    // Sleep belongs to the next day.
+    //
+    // So conflict checking is now based only on the portion of
+    // each task that belongs to the selected task_date.
     const getTaskRanges = (from, to, taskNextDay = false) => {
       if (!from) return [];
 
       const start = toMin(from);
-      if (!to) return [[start, start]];
+
+      // Wake Up / point task.
+      if (!to) {
+        return [[start, start]];
+      }
 
       const end = toMin(to);
       const overnight = taskNextDay || end < start;
 
+      // Normal same-day task.
       if (!overnight) {
         return [[start, end]];
       }
 
-      return [
-        [start, 24 * 60],
-        [0, end],
-      ];
+      // Overnight task:
+      // ONLY the selected-date portion is checked here.
+      // The after-midnight portion belongs to the next date.
+      return [[start, 24 * 60]];
     };
 
     const candidateRanges =
       formattedTo && nextDay
-        ? [
-            [candidateStart, 24 * 60],
-            [0, candidateEnd],
-          ]
+        ? [[candidateStart, 24 * 60]]
         : [[candidateStart, candidateEnd]];
 
     const rangesOverlap = (a, b) => {
