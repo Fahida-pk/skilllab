@@ -446,19 +446,25 @@ function Login() {
             FOR TESTING
         ================================================= */}
 
-        <button
-          type="button"
-          className="install-app-btn"
-          onClick={handleInstallApp}
-        >
+    {/* =================================================
+    PWA INSTALL MESSAGE
+================================================= */}
 
-          <FaMobileScreenButton />
+{pwaReady && (
+  <div className="pwa-install-message">
+    <FaMobileScreenButton className="pwa-message-icon" />
 
-          <span>
-            Add Skill Lab to Home Screen
-          </span>
+    <div className="pwa-message-content">
+      <strong>
+        Add Skill Lab to Home Screen
+      </strong>
 
-        </button>
+      <span>
+        Skill Lab is ready to be installed on your device.
+      </span>
+    </div>
+  </div>
+)}
 
 
         {/* STATUS */}
