@@ -4,7 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { requestNotificationPermission } from "../../firebase";
 import "./login.css";
 
-import { FaUser, FaMobileScreenButton } from "react-icons/fa6";
+import {
+  FaUser,
+  FaMobileScreenButton,
+} from "react-icons/fa6";
 
 function Login() {
   const navigate = useNavigate();
@@ -14,17 +17,18 @@ function Login() {
   // =====================================================
 
   const [installPrompt, setInstallPrompt] = useState(null);
-  const [showInstallButton, setShowInstallButton] = useState(false);
+  const [showInstallButton, setShowInstallButton] =
+    useState(false);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event) => {
-      // Prevent browser's automatic mini prompt
+      // Prevent browser's default install mini prompt
       event.preventDefault();
 
       // Save the install event
       setInstallPrompt(event);
 
-      // Show our own Install button
+      // Show our custom install button
       setShowInstallButton(true);
     };
 
@@ -49,29 +53,38 @@ function Login() {
     if (!installPrompt) return;
 
     try {
-      // Open native browser install dialog
+      // Open browser's native PWA install dialog
       await installPrompt.prompt();
 
-      // Check user's choice
-      const { outcome } = await installPrompt.userChoice;
+      // Get user's choice
+      const { outcome } =
+        await installPrompt.userChoice;
 
-      console.log("PWA install result:", outcome);
+      console.log(
+        "PWA install result:",
+        outcome
+      );
 
-      // Prompt can only be used once
+      // Install prompt can be used only once
       setInstallPrompt(null);
       setShowInstallButton(false);
     } catch (error) {
-      console.error("PWA install failed:", error);
+      console.error(
+        "PWA install failed:",
+        error
+      );
     }
   };
 
   // =====================================================
-  // WHEN APP IS ALREADY INSTALLED
+  // APP INSTALLED EVENT
   // =====================================================
 
   useEffect(() => {
     const handleAppInstalled = () => {
-      console.log("Skill Lab installed successfully");
+      console.log(
+        "Skill Lab installed successfully"
+      );
 
       setInstallPrompt(null);
       setShowInstallButton(false);
@@ -106,15 +119,21 @@ function Login() {
         "https://zyntaweb.com/skilllab/login.php",
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
           },
+
           body: JSON.stringify({
             token: googleToken,
             fcmToken: "",
           }),
         }
       );
+
+      // =================================================
+      // SERVER ERROR
+      // =================================================
 
       if (!response.ok) {
         throw new Error(
@@ -129,7 +148,10 @@ function Login() {
       // =================================================
 
       if (!data.success) {
-        alert(data.message || "Login failed");
+        alert(
+          data.message || "Login failed"
+        );
+
         return;
       }
 
@@ -183,8 +205,12 @@ function Login() {
       navigate("/dashboard", {
         replace: true,
       });
+
     } catch (error) {
-      console.error("Login Error:", error);
+      console.error(
+        "Login Error:",
+        error
+      );
 
       alert(
         "Login failed. Please try again."
@@ -197,9 +223,13 @@ function Login() {
   // =====================================================
 
   const handleError = () => {
-    console.log("Google Login Failed");
+    console.log(
+      "Google Login Failed"
+    );
 
-    alert("Google Login Failed");
+    alert(
+      "Google Login Failed"
+    );
   };
 
   // =====================================================
@@ -213,11 +243,17 @@ function Login() {
           BACKGROUND GLOW
       ================================================= */}
 
-      <div className="login-glow login-glow-blue"></div>
+      <div
+        className="login-glow login-glow-blue"
+      />
 
-      <div className="login-glow login-glow-purple"></div>
+      <div
+        className="login-glow login-glow-purple"
+      />
 
-      <div className="login-glow login-glow-pink"></div>
+      <div
+        className="login-glow login-glow-pink"
+      />
 
 
       {/* =================================================
@@ -226,24 +262,30 @@ function Login() {
 
       <div className="login-card">
 
-        <div className="card-shine"></div>
+        <div className="card-shine" />
 
 
-        {/* PROFILE ICON */}
+        {/* =================================================
+            PROFILE ICON
+        ================================================= */}
 
         <div className="profile-icon">
           <FaUser />
         </div>
 
 
-        {/* BRAND */}
+        {/* =================================================
+            BRAND
+        ================================================= */}
 
         <h1 className="title skill-lab-title">
           SKILL LAB
         </h1>
 
 
-        {/* SIGN IN */}
+        {/* =================================================
+            SIGN IN
+        ================================================= */}
 
         <h1 className="title">
           Sign In
@@ -273,25 +315,26 @@ function Login() {
 
         {/* =================================================
             PWA INSTALL BUTTON
-            Only Android / Desktop browsers supporting
-            beforeinstallprompt
         ================================================= */}
 
-        {showInstallButton && installPrompt && (
-          <button
-            type="button"
-            className="install-app-btn"
-            onClick={handleInstallApp}
-          >
+        {showInstallButton &&
+          installPrompt && (
 
-            <FaMobileScreenButton />
+            <button
+              type="button"
+              className="install-app-btn"
+              onClick={handleInstallApp}
+            >
 
-            <span>
-              Install Skill Lab
-            </span>
+              <FaMobileScreenButton />
 
-          </button>
-        )}
+              <span>
+                Add Skill Lab to Home Screen
+              </span>
+
+            </button>
+
+          )}
 
 
         {/* =================================================
