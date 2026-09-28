@@ -13,103 +13,187 @@ function Login() {
   const navigate = useNavigate();
 
   // =====================================================
-  // PWA INSTALL PROMPT
+  // PWA INSTALL STATE
   // =====================================================
 
-  const [installPrompt, setInstallPrompt] = useState(null);
+  const [installPrompt, setInstallPrompt] =
+    useState(null);
+
   const [showInstallButton, setShowInstallButton] =
     useState(false);
 
+
+  // =====================================================
+  // PWA INSTALL PROMPT
+  // =====================================================
+
   useEffect(() => {
+
     const handleBeforeInstallPrompt = (event) => {
-      // Prevent browser's default install mini prompt
+
+      console.log(
+        "🔥 INSTALL PROMPT RECEIVED"
+      );
+
+      // Prevent Chrome default install prompt
       event.preventDefault();
 
-      // Save the install event
+      // Save browser install event
       setInstallPrompt(event);
 
-      // Show our custom install button
+      // Show our custom button
       setShowInstallButton(true);
     };
+
 
     window.addEventListener(
       "beforeinstallprompt",
       handleBeforeInstallPrompt
     );
 
+
     return () => {
+
       window.removeEventListener(
         "beforeinstallprompt",
         handleBeforeInstallPrompt
       );
+
     };
+
   }, []);
 
+
   // =====================================================
-  // INSTALL APP
+  // INSTALL SKILL LAB
   // =====================================================
 
   const handleInstallApp = async () => {
-    if (!installPrompt) return;
+
+    if (!installPrompt) {
+
+      console.log(
+        "❌ Install prompt is not available"
+      );
+
+      return;
+    }
+
 
     try {
-      // Open browser's native PWA install dialog
+
+      console.log(
+        "📱 Opening Skill Lab install prompt..."
+      );
+
+
+      // Open native browser install popup
       await installPrompt.prompt();
 
-      // Get user's choice
+
+      // Get user choice
       const { outcome } =
         await installPrompt.userChoice;
+
 
       console.log(
         "PWA install result:",
         outcome
       );
 
-      // Install prompt can be used only once
+
+      // Prompt can only be used once
       setInstallPrompt(null);
+
       setShowInstallButton(false);
+
     } catch (error) {
+
       console.error(
-        "PWA install failed:",
+        "❌ PWA install failed:",
         error
       );
+
     }
+
   };
 
+
   // =====================================================
-  // APP INSTALLED EVENT
+  // APP INSTALLED
   // =====================================================
 
   useEffect(() => {
+
     const handleAppInstalled = () => {
+
       console.log(
-        "Skill Lab installed successfully"
+        "✅ Skill Lab installed successfully"
       );
 
+
       setInstallPrompt(null);
+
       setShowInstallButton(false);
+
     };
+
 
     window.addEventListener(
       "appinstalled",
       handleAppInstalled
     );
 
+
     return () => {
+
       window.removeEventListener(
         "appinstalled",
         handleAppInstalled
       );
+
     };
+
   }, []);
+
+
+  // =====================================================
+  // CHECK IF APP IS ALREADY INSTALLED
+  // =====================================================
+
+  useEffect(() => {
+
+    const isStandalone =
+      window.matchMedia(
+        "(display-mode: standalone)"
+      ).matches ||
+      window.navigator.standalone === true;
+
+
+    if (isStandalone) {
+
+      console.log(
+        "📱 Skill Lab is already installed"
+      );
+
+      setShowInstallButton(false);
+
+    }
+
+  }, []);
+
 
   // =====================================================
   // GOOGLE LOGIN
   // =====================================================
 
   const handleSuccess = async (res) => {
+
     try {
-      const googleToken = res.credential;
+
+      const googleToken =
+        res.credential;
+
 
       // =================================================
       // LOGIN API
@@ -121,7 +205,8 @@ function Login() {
           method: "POST",
 
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
 
           body: JSON.stringify({
@@ -131,32 +216,42 @@ function Login() {
         }
       );
 
+
       // =================================================
       // SERVER ERROR
       // =================================================
 
       if (!response.ok) {
+
         throw new Error(
           `Server error: ${response.status}`
         );
+
       }
 
-      const data = await response.json();
+
+      const data =
+        await response.json();
+
 
       // =================================================
       // LOGIN FAILED
       // =================================================
 
       if (!data.success) {
+
         alert(
-          data.message || "Login failed"
+          data.message ||
+          "Login failed"
         );
 
         return;
+
       }
 
+
       // =================================================
-      // SAVE LOGIN DATA
+      // SAVE USER
       // =================================================
 
       localStorage.setItem(
@@ -164,80 +259,108 @@ function Login() {
         JSON.stringify(data.user)
       );
 
+
       localStorage.setItem(
         "token",
         googleToken
       );
+
 
       // =================================================
       // FCM NOTIFICATION REGISTRATION
       // =================================================
 
       if (data.user?.email) {
+
         try {
+
           const fcmToken =
             await requestNotificationPermission(
               data.user.email
             );
 
+
           if (fcmToken) {
+
             console.log(
               "FCM registration completed successfully:",
               fcmToken
             );
+
           } else {
+
             console.warn(
               "FCM token was not generated."
             );
+
           }
+
         } catch (error) {
+
           console.error(
             "FCM registration failed:",
             error
           );
+
         }
+
       }
+
 
       // =================================================
       // GO TO DASHBOARD
       // =================================================
 
-      navigate("/dashboard", {
-        replace: true,
-      });
+      navigate(
+        "/dashboard",
+        {
+          replace: true,
+        }
+      );
 
     } catch (error) {
+
       console.error(
         "Login Error:",
         error
       );
 
+
       alert(
         "Login failed. Please try again."
       );
+
     }
+
   };
+
 
   // =====================================================
   // GOOGLE LOGIN ERROR
   // =====================================================
 
   const handleError = () => {
+
     console.log(
       "Google Login Failed"
     );
 
+
     alert(
       "Google Login Failed"
     );
+
   };
+
 
   // =====================================================
   // UI
   // =====================================================
 
   return (
+
     <div className="login-page">
+
 
       {/* =================================================
           BACKGROUND GLOW
@@ -270,15 +393,19 @@ function Login() {
         ================================================= */}
 
         <div className="profile-icon">
+
           <FaUser />
+
         </div>
 
 
         {/* =================================================
-            BRAND
+            SKILL LAB
         ================================================= */}
 
-        <h1 className="title skill-lab-title">
+        <h1
+          className="title skill-lab-title"
+        >
           SKILL LAB
         </h1>
 
@@ -352,6 +479,7 @@ function Login() {
       </div>
 
     </div>
+
   );
 }
 
