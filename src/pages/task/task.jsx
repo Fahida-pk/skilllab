@@ -1621,6 +1621,22 @@ useEffect(() => {
     const nextDay = isNextDay(formattedFrom, formattedTo);
 
     // =========================================================
+    // NEW TASK ONLY - OVERNIGHT DEFAULT CONFLICT RULE
+    // =========================================================
+    // The PHP API performs the final authoritative check.
+    // This is intentionally applied only when ADDING a new task.
+    // Existing/default task edit logic below is unchanged.
+    //
+    // Example:
+    // Sep 27 Sleep = 10:00 PM -> 4:00 AM (Next Day)
+    // Sep 28 New Task = 3:00 AM -> 4:00 AM  -> BLOCKED
+    // Sep 28 New Task = 4:00 AM -> 5:00 AM  -> ALLOWED
+    // Sep 28 New Task = 3:00 PM -> 4:00 PM  -> ALLOWED
+    //
+    // The server checks the previous/current/next dates because the
+    // current page only displays tasks for the selected date.
+
+    // =========================================================
     // TASK TIME OVERLAP CHECK
     // =========================================================
     // Do not allow two different tasks to occupy the same time.
