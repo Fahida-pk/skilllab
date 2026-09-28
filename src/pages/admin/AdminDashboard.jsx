@@ -81,6 +81,13 @@ function AdminDashboard() {
 
   const [search, setSearch] = useState("");
 
+  // Per-student recurring default-task editor
+  const [defaultModalOpen, setDefaultModalOpen] = useState(false);
+  const [selectedDefaultStudent, setSelectedDefaultStudent] = useState(null);
+  const [studentDefaults, setStudentDefaults] = useState([]);
+  const [defaultLoading, setDefaultLoading] = useState(false);
+  const [defaultSaving, setDefaultSaving] = useState(false);
+
   const [mobileOpen, setMobileOpen] =
     useState(false);
 
@@ -321,6 +328,89 @@ function AdminDashboard() {
       );
     });
   }, [students, search]);
+
+  /* =========================================
+     STUDENT RECURRING DEFAULT TASKS
+  ========================================= */
+
+  const openDefaultTasks = async (student) => {
+    setSelectedDefaultStudent(student);
+    setDefaultModalOpen(true);
+    setDefaultLoading(true);
+
+    try {
+      const adminData = JSON.parse(localStorage.getItem("admin") || "null");
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "get_student_defaults",
+          admin_email: adminData?.email || "",
+          student_id: student.id,
+        }),
+      });
+
+      const data = await response.json();
+      if (!data.success) throw new Error(data.message || "Unable to load defaults");
+
+      setStudentDefaults(Array.isArray(data.defaults) ? data.defaults : []);
+    } catch (error) {
+      console.error("Student defaults load error:", error);
+      alert(error.message || "Unable to load student default tasks");
+      setDefaultModalOpen(false);
+    } finally {
+      setDefaultLoading(false);
+    }
+  };
+
+  const updateStudentDefault = (defaultId, field, value) => {
+    setStudentDefaults((prev) =>
+      prev.map((task) =>
+        String(task.default_id) === String(defaultId)
+          ? { ...task, [field]: value }
+          : task
+      )
+    );
+  };
+
+  const saveStudentDefaults = async () => {
+    if (!selectedDefaultStudent || defaultSaving) return;
+
+    setDefaultSaving(true);
+    try {
+      const adminData = JSON.parse(localStorage.getItem("admin") || "null");
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save_student_defaults",
+          admin_email: adminData?.email || "",
+          student_id: selectedDefaultStudent.id,
+          defaults: studentDefaults,
+        }),
+      });
+
+      const data = await response.json();
+      if (!data.success) throw new Error(data.message || "Unable to save defaults");
+
+      alert(`Default tasks saved for ${selectedDefaultStudent.name || "this student"}.\nThese times will repeat every day.`);
+      setDefaultModalOpen(false);
+      setSelectedDefaultStudent(null);
+      setStudentDefaults([]);
+    } catch (error) {
+      console.error("Student defaults save error:", error);
+      alert(error.message || "Unable to save student default tasks");
+    } finally {
+      setDefaultSaving(false);
+    }
+  };
+
+  const closeDefaultModal = () => {
+    if (defaultSaving) return;
+    setDefaultModalOpen(false);
+    setSelectedDefaultStudent(null);
+    setStudentDefaults([]);
+  };
 
   /* =========================================
      LOGOUT
@@ -1461,6 +1551,21 @@ const openStudentDashboard = (student) => {
                   </div>
 
 
+                  {/* RECURRING DEFAULT TASKS */}
+
+                  <button
+                    type="button"
+                    className="student-dashboard-button"
+                    style={{ marginBottom: "10px", background: "linear-gradient(135deg, #6d5dfc, #8f7cff)" }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openDefaultTasks(student);
+                    }}
+                  >
+                    <FaClock />
+                    Default Tasks
+                  </button>
+
                   {/* BUTTON */}
 
         <button
@@ -1504,6 +1609,71 @@ const openStudentDashboard = (student) => {
             : renderDashboardHome()}
 
         </div>
+
+        {defaultModalOpen && (
+          <div
+            onClick={closeDefaultModal}
+            style={{
+              position: "fixed", inset: 0, zIndex: 9999,
+              background: "rgba(15, 23, 42, 0.65)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: "20px", backdropFilter: "blur(6px)"
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "min(760px, 100%)", maxHeight: "90vh", overflowY: "auto",
+                background: "#fff", borderRadius: "24px", padding: "24px",
+                boxShadow: "0 24px 70px rgba(0,0,0,.25)"
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "16px", alignItems: "flex-start", marginBottom: "8px" }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: "22px", color: "#1e1b4b" }}>Student Default Tasks</h2>
+                  <p style={{ margin: "6px 0 0", color: "#64748b", fontSize: "13px" }}>
+                    {selectedDefaultStudent?.name || "Student"} — recurring every day
+                  </p>
+                </div>
+                <button type="button" onClick={closeDefaultModal} style={{ border: 0, background: "#f1f5f9", borderRadius: "10px", width: "36px", height: "36px", cursor: "pointer", fontSize: "18px" }}>×</button>
+              </div>
+
+              <div style={{ background: "#f8f7ff", border: "1px solid #e9e5ff", padding: "12px 14px", borderRadius: "14px", margin: "14px 0 18px", color: "#5b21b6", fontSize: "13px" }}>
+                These are this student's recurring defaults. Changing the calendar date will not change these times. Other students have their own defaults.
+              </div>
+
+              {defaultLoading ? (
+                <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>Loading default tasks...</div>
+              ) : (
+                <div style={{ display: "grid", gap: "12px" }}>
+                  {studentDefaults.map((task) => (
+                    <div key={task.default_id} style={{ border: "1px solid #e2e8f0", borderRadius: "16px", padding: "14px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", alignItems: "end" }}>
+                      <label style={{ display: "grid", gap: "6px" }}>
+                        <span style={{ fontSize: "12px", fontWeight: 700, color: "#64748b" }}>Task</span>
+                        <input value={task.title || ""} onChange={(e) => updateStudentDefault(task.default_id, "title", e.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: "10px 11px", border: "1px solid #cbd5e1", borderRadius: "10px" }} />
+                      </label>
+                      <label style={{ display: "grid", gap: "6px" }}>
+                        <span style={{ fontSize: "12px", fontWeight: 700, color: "#64748b" }}>From</span>
+                        <input type="time" value={(() => { const v=String(task.from||""); const m=v.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i); if(!m) return ""; let h=Number(m[1]); if(m[3].toUpperCase()==="PM"&&h!==12)h+=12; if(m[3].toUpperCase()==="AM"&&h===12)h=0; return `${String(h).padStart(2,"0")}:${m[2]}`; })()} onChange={(e) => { const [h,m]=e.target.value.split(":").map(Number); const ap=h>=12?"PM":"AM"; const hh=h%12||12; updateStudentDefault(task.default_id,"from",`${hh}:${String(m).padStart(2,"0")} ${ap}`); }} style={{ width: "100%", boxSizing: "border-box", padding: "10px 11px", border: "1px solid #cbd5e1", borderRadius: "10px" }} />
+                      </label>
+                      <label style={{ display: "grid", gap: "6px" }}>
+                        <span style={{ fontSize: "12px", fontWeight: 700, color: "#64748b" }}>To</span>
+                        <input type="time" value={(() => { const v=String(task.to||""); const m=v.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i); if(!m) return ""; let h=Number(m[1]); if(m[3].toUpperCase()==="PM"&&h!==12)h+=12; if(m[3].toUpperCase()==="AM"&&h===12)h=0; return `${String(h).padStart(2,"0")}:${m[2]}`; })()} onChange={(e) => { if(!e.target.value){ updateStudentDefault(task.default_id,"to",""); return; } const [h,m]=e.target.value.split(":").map(Number); const ap=h>=12?"PM":"AM"; const hh=h%12||12; updateStudentDefault(task.default_id,"to",`${hh}:${String(m).padStart(2,"0")} ${ap}`); }} style={{ width: "100%", boxSizing: "border-box", padding: "10px 11px", border: "1px solid #cbd5e1", borderRadius: "10px" }} />
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
+                <button type="button" onClick={closeDefaultModal} disabled={defaultSaving} style={{ padding: "11px 18px", borderRadius: "10px", border: "1px solid #cbd5e1", background: "#fff", cursor: "pointer" }}>Cancel</button>
+                <button type="button" onClick={saveStudentDefaults} disabled={defaultLoading || defaultSaving} style={{ padding: "11px 20px", borderRadius: "10px", border: 0, background: "linear-gradient(135deg, #6d5dfc, #8f7cff)", color: "#fff", fontWeight: 700, cursor: "pointer" }}>
+                  {defaultSaving ? "Saving..." : "Save Default Tasks"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </main>
 

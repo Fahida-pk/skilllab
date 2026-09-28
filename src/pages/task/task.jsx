@@ -590,28 +590,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     },
   ];
 
-  const [defaultTasks, setDefaultTasks] = useState(() => {
-    try {
-      const saved = localStorage.getItem("defaultTasks");
-      const parsed = saved ? JSON.parse(saved) : [];
-
-      // Restore missing built-in defaults (for example, defaults
-      // deleted by the previous global-delete version).
-      const savedById = new Map(
-        Array.isArray(parsed) ? parsed.map((task) => [String(task.id), task]) : []
-      );
-
-      return DEFAULT_TASKS.map((baseTask) => ({
-        ...baseTask,
-        ...(savedById.get(String(baseTask.id)) || {}),
-        completed: false,
-      }));
-    } catch (error) {
-      console.error("Default task parse error:", error);
-      return DEFAULT_TASKS;
-    }
-  });
-
   // Date-wise deleted default tasks. Deleting on one date does NOT
   // remove the default definition from other dates.
   const getDeletedDefaultKey = (dateKey) =>
@@ -641,94 +619,8 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
   const getDefaultCompletionKey = (dateKey) =>
     `defaultTaskCompleted_${dateKey}`;
 
-  // =========================================================
-  // DATE-WISE DEFAULT TASK SCHEDULES
-  // =========================================================
-  // Default task definitions are shared across all dates, but
-  // their edited times are stored per date.
-  //
-  // Sleep on Sep 1: 9:00 PM -> 2:00 AM (Next Day)
-  // automatically makes Sep 2 Wake Up: 2:00 AM.
-  // Editing Sep 2 Sleep will NOT change Sep 1 Wake Up.
-  // =========================================================
-
-  const getDefaultScheduleKey = (dateKey) =>
-    `defaultTaskSchedule_${dateKey}`;
-
-  const getDateDefaultSchedules = (dateKey) => {
-    try {
-      const saved = localStorage.getItem(getDefaultScheduleKey(dateKey));
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  };
-
-  const getDateDefaultTasks = (dateKey) => {
-    const schedules = getDateDefaultSchedules(dateKey);
-
-    // Wake Up is the first task of the selected day.
-    // When the previous day's Sleep crosses midnight, the Sleep TO time
-    // becomes the selected day's Wake Up time. This takes priority over
-    // any old/manual Wake Up value saved for the selected date.
-    const selectedDate = new Date(`${dateKey}T00:00:00`);
-    const previousDate = new Date(selectedDate);
-    previousDate.setDate(previousDate.getDate() - 1);
-
-    const previousDateKey = getDateKey(previousDate);
-    const previousSchedules = getDateDefaultSchedules(previousDateKey);
-    const previousSleep = previousSchedules["d5"];
-
-    let inheritedWakeUp = "";
-
-    if (
-      previousSleep &&
-      previousSleep.from &&
-      previousSleep.to &&
-      isNextDay(previousSleep.from, previousSleep.to)
-    ) {
-      inheritedWakeUp = previousSleep.to;
-    }
-
-    return defaultTasks.map((task) => {
-      const savedSchedule = schedules[String(task.id)] || {};
-
-      if (String(task.id) === "d1" && inheritedWakeUp) {
-        return {
-          ...task,
-          ...savedSchedule,
-          title: "Wake Up",
-          time: inheritedWakeUp,
-          from: undefined,
-          to: undefined,
-          nextDay: false,
-          completed: false,
-        };
-      }
-
-      return {
-        ...task,
-        ...savedSchedule,
-        completed: false,
-      };
-    });
-  };
-
-  const saveDateDefaultSchedule = (dateKey, taskId, values) => {
-    const key = getDefaultScheduleKey(dateKey);
-    const current = getDateDefaultSchedules(dateKey);
-
-    const updated = {
-      ...current,
-      [String(taskId)]: {
-        ...(current[String(taskId)] || {}),
-        ...values,
-      },
-    };
-
-    localStorage.setItem(key, JSON.stringify(updated));
-    return updated;
-  };
+  // Default schedule is no longer stored by date in browser localStorage.
+  // The server stores recurring defaults per student.
 
   const [defaultCompleted, setDefaultCompleted] = useState({});
 
@@ -774,13 +666,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     }
   }, [currentKey]);
 
-  useEffect(() => {
-    const cleanTasks = defaultTasks.map((task) => ({
-      ...task,
-      completed: false,
-    }));
-    localStorage.setItem("defaultTasks", JSON.stringify(cleanTasks));
-  }, [defaultTasks]);
+
 
   // Make sure the built-in tasks (Wake Up, Study MERN, etc.) are also
   // stored in the database for the selected calendar date.
@@ -791,7 +677,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       const deletedRaw = localStorage.getItem(getDeletedDefaultKey(currentKey));
       const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
 
-      const dateDefaults = getDateDefaultTasks(currentKey)
+      const dateDefaults = DEFAULT_TASKS
         .filter((task) => !deletedIds.includes(String(task.id)))
         .map((task) => ({
           default_id: String(task.id),
@@ -852,14 +738,12 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           ? null
           : localStorage.getItem(getDeletedDefaultKey(currentKey));
         const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
-        const deletedDefaultTitles = adminView
-          ? []
-          : getDateDefaultTasks(currentKey)
-              .filter((task) => deletedIds.includes(String(task.id)))
-              .map((task) => String(task.title).trim().toLowerCase());
-
         const formatted = data.tasks
-          .filter((t) => !deletedDefaultTitles.includes(String(t.title).trim().toLowerCase()))
+          .filter((t) => {
+            if (adminView) return true;
+            const did = String(t.default_id || t.defaultId || "");
+            return !did || !deletedIds.includes(did);
+          })
           .map((t, index) => ({
           id: t.id,
           title: t.title,
@@ -1068,27 +952,8 @@ useEffect(() => {
       return defaultIdMap[titleKey];
     }
 
-    // 3) IMPORTANT:
-    //    After editing a default task's title, the title is no longer
-    //    "Study MERN"/"Practice English"/"Workout". In that case identify
-    //    the row from this date's saved default schedule.
-    //
-    //    This makes renamed default tasks still behave as DEFAULT tasks:
-    //      - Edit updates the same row
-    //      - Delete creates a date-wise deleted marker
-    //      - ensure_defaults will not recreate it on that date
-    const schedules = getDateDefaultSchedules(currentKey);
-
-    for (const defaultId of ["d1", "d2", "d3", "d4", "d5"]) {
-      const schedule = schedules[String(defaultId)];
-      if (!schedule) continue;
-
-      const scheduleTitle = String(schedule.title || "").trim().toLowerCase();
-      if (scheduleTitle && scheduleTitle === titleKey) {
-        return defaultId;
-      }
-    }
-
+    // 3) New/renamed default rows are identified by default_id returned
+    //    from the database. No date-based localStorage lookup is needed.
     return null;
   };
 
@@ -1775,13 +1640,9 @@ useEffect(() => {
     if (editTask && defaultId) {
       const taskTitle = String(editTask.title).trim().toLowerCase();
 
-      saveDateDefaultSchedule(currentKey, defaultId, {
-        title: title.trim(),
-        from: taskTitle === "wake up" ? undefined : formattedFrom,
-        time: taskTitle === "wake up" ? formattedFrom : undefined,
-        to: formattedTo,
-        nextDay,
-      });
+      // Default-task edits are now recurring for this student.
+      // Do NOT save them under the selected date in localStorage.
+      // The PHP API stores them by (student, default_id).
 
       // Keep the existing database row and persist the edited default
       // on the server using its permanent default_id identity.
@@ -1893,49 +1754,6 @@ useEffect(() => {
         }
       }
 
-      // If Sleep crosses midnight, its TO time becomes the next day's Wake Up.
-      if (taskTitle === "sleep" && formattedTo && nextDay) {
-        const nextDate = new Date(date);
-        nextDate.setDate(nextDate.getDate() + 1);
-        const nextDateKey = getDateKey(nextDate);
-
-        saveDateDefaultSchedule(nextDateKey, "d1", {
-          title: "Wake Up",
-          time: formattedTo,
-          from: undefined,
-          to: undefined,
-          nextDay: false,
-        });
-
-        // Also persist the inherited Wake Up time in the database so
-        // every device receives the same next-day schedule.
-        try {
-          const wakeUpForm = new FormData();
-          wakeUpForm.append("action", "sync_default_wakeup");
-          wakeUpForm.append("email", user?.email || "");
-          wakeUpForm.append("task_date", nextDateKey);
-          wakeUpForm.append("time", formattedTo);
-
-          const wakeUpResponse = await fetch(API_URL, {
-            method: "POST",
-            body: wakeUpForm,
-          });
-
-          const wakeUpData = await wakeUpResponse.json();
-
-          if (!wakeUpData.success) {
-            console.error(
-              "Next-day Wake Up database sync failed:",
-              wakeUpData.message
-            );
-          }
-        } catch (wakeUpError) {
-          console.error(
-            "Next-day Wake Up database sync error:",
-            wakeUpError
-          );
-        }
-      }
 
       notifyTaskUpdated();
       resetModal();
