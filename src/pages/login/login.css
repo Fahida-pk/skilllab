@@ -1133,66 +1133,213 @@ body,
   font-size: 18px;
 }
 /* =====================================================
-   ADD SKILL LAB TO HOME SCREEN
+   PWA INSTALL MESSAGE OVERLAY
 ===================================================== */
 
-.install-app-btn {
-  width: 100%;
-  margin-top: 16px;
+.pwa-install-overlay {
+  position: fixed;
+  inset: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.35);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  z-index: 9999;
+}
+
+
+/* =====================================================
+   PWA MESSAGE BOX
+===================================================== */
+
+.pwa-install-box {
+  width: min(360px, 90vw);
+
+  padding: 24px 22px;
+
+  text-align: center;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.92),
+      rgba(255, 255, 255, 0.78)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.28);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  animation: pwaBoxShow 0.25s ease;
+}
+
+
+/* =====================================================
+   ICON
+===================================================== */
+
+.pwa-install-icon {
+  width: 58px;
+  height: 58px;
+
+  margin: 0 auto 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 18px;
+
+  font-size: 28px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #7c3aed,
+      #ec4899
+    );
+
+  box-shadow:
+    0 10px 25px rgba(99, 102, 241, 0.3);
+}
+
+
+/* =====================================================
+   TITLE
+===================================================== */
+
+.pwa-install-box h3 {
+  margin: 0 0 9px;
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  color: #1e1b4b;
+}
+
+
+/* =====================================================
+   DESCRIPTION
+===================================================== */
+
+.pwa-install-box p {
+  margin: 0;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+  color: #4b5563;
+}
+
+
+/* =====================================================
+   YES / NO BUTTONS
+===================================================== */
+
+.pwa-install-actions {
+  display: flex;
+
   gap: 10px;
 
-  padding: 13px 18px;
+  margin-top: 22px;
+}
+
+
+/* COMMON */
+
+.pwa-install-actions button {
+  flex: 1;
+
+  height: 42px;
 
   border: none;
+
   border-radius: 12px;
 
-  background: linear-gradient(
-    135deg,
-    #2563eb,
-    #7c3aed
-  );
+  font-size: 14px;
 
-  color: #ffffff;
-
-  font-size: 15px;
   font-weight: 700;
 
   cursor: pointer;
-
-  box-shadow:
-    0 8px 25px rgba(
-      37,
-      99,
-      235,
-      0.25
-    );
 
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
 
-.install-app-btn:hover {
-  transform: translateY(-2px);
+
+/* NO */
+
+.pwa-no-btn {
+  color: #374151;
+
+  background: #e5e7eb;
+}
+
+
+.pwa-no-btn:hover {
+  background: #d1d5db;
+
+  transform: translateY(-1px);
+}
+
+
+/* YES */
+
+.pwa-yes-btn {
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #7c3aed,
+      #9333ea
+    );
 
   box-shadow:
-    0 12px 30px rgba(
-      37,
-      99,
-      235,
-      0.35
-    );
+    0 8px 20px rgba(99, 102, 241, 0.3);
 }
 
-.install-app-btn:active {
-  transform: scale(0.98);
+
+.pwa-yes-btn:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 10px 25px rgba(99, 102, 241, 0.4);
 }
 
-.install-app-btn svg {
-  font-size: 18px;
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+@keyframes pwaBoxShow {
+
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+
 }
