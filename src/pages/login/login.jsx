@@ -1,34 +1,114 @@
+import { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { requestNotificationPermission } from "../../firebase";
 import "./login.css";
 
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaMobileScreenButton } from "react-icons/fa6";
 
 function Login() {
   const navigate = useNavigate();
 
   // =====================================================
-  // GOOGLE LOGIN SUCCESS
+  // PWA INSTALL PROMPT
   // =====================================================
+
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [showInstallButton, setShowInstallButton] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (event) => {
+      // Prevent browser's automatic mini prompt
+      event.preventDefault();
+
+      // Save the install event
+      setInstallPrompt(event);
+
+      // Show our own Install button
+      setShowInstallButton(true);
+    };
+
+    window.addEventListener(
+      "beforeinstallprompt",
+      handleBeforeInstallPrompt
+    );
+
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt
+      );
+    };
+  }, []);
+
+  // =====================================================
+  // INSTALL APP
+  // =====================================================
+
+  const handleInstallApp = async () => {
+    if (!installPrompt) return;
+
+    try {
+      // Open native browser install dialog
+      await installPrompt.prompt();
+
+      // Check user's choice
+      const { outcome } = await installPrompt.userChoice;
+
+      console.log("PWA install result:", outcome);
+
+      // Prompt can only be used once
+      setInstallPrompt(null);
+      setShowInstallButton(false);
+    } catch (error) {
+      console.error("PWA install failed:", error);
+    }
+  };
+
+  // =====================================================
+  // WHEN APP IS ALREADY INSTALLED
+  // =====================================================
+
+  useEffect(() => {
+    const handleAppInstalled = () => {
+      console.log("Skill Lab installed successfully");
+
+      setInstallPrompt(null);
+      setShowInstallButton(false);
+    };
+
+    window.addEventListener(
+      "appinstalled",
+      handleAppInstalled
+    );
+
+    return () => {
+      window.removeEventListener(
+        "appinstalled",
+        handleAppInstalled
+      );
+    };
+  }, []);
+
+  // =====================================================
+  // GOOGLE LOGIN
+  // =====================================================
+
   const handleSuccess = async (res) => {
     try {
       const googleToken = res.credential;
 
-      console.log("Google Login Success");
+      // =================================================
+      // LOGIN API
+      // =================================================
 
-      // =================================================
-      // 1. LOGIN PHP FIRST
-      // =================================================
       const response = await fetch(
         "https://zyntaweb.com/skilllab/login.php",
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json",
           },
-
           body: JSON.stringify({
             token: googleToken,
             fcmToken: "",
@@ -36,9 +116,6 @@ function Login() {
         }
       );
 
-      // =================================================
-      // CHECK HTTP RESPONSE
-      // =================================================
       if (!response.ok) {
         throw new Error(
           `Server error: ${response.status}`
@@ -47,19 +124,19 @@ function Login() {
 
       const data = await response.json();
 
-      console.log("Backend Response:", data);
+      // =================================================
+      // LOGIN FAILED
+      // =================================================
 
-      // =================================================
-      // 2. LOGIN FAILED
-      // =================================================
       if (!data.success) {
         alert(data.message || "Login failed");
         return;
       }
 
       // =================================================
-      // 3. SAVE USER
+      // SAVE LOGIN DATA
       // =================================================
+
       localStorage.setItem(
         "user",
         JSON.stringify(data.user)
@@ -70,77 +147,44 @@ function Login() {
         googleToken
       );
 
-      console.log(
-        "User saved:",
-        data.user
-      );
-
       // =================================================
-      // 4. REGISTER FCM
+      // FCM NOTIFICATION REGISTRATION
       // =================================================
-      // IMPORTANT:
-      // Register notification BEFORE going to dashboard.
-      // This makes sure the phone's FCM token is saved.
 
       if (data.user?.email) {
-
-        console.log(
-          "Starting FCM registration..."
-        );
-
         try {
-
           const fcmToken =
             await requestNotificationPermission(
               data.user.email
             );
 
           if (fcmToken) {
-
             console.log(
               "FCM registration completed successfully:",
               fcmToken
             );
-
           } else {
-
             console.warn(
               "FCM token was not generated."
             );
-
           }
-
         } catch (error) {
-
           console.error(
             "FCM registration failed:",
             error
           );
-
         }
-
-      } else {
-
-        console.warn(
-          "User email not available for FCM registration"
-        );
-
       }
 
       // =================================================
-      // 5. GO TO DASHBOARD
+      // GO TO DASHBOARD
       // =================================================
 
       navigate("/dashboard", {
         replace: true,
       });
-
     } catch (error) {
-
-      console.error(
-        "Login Error:",
-        error
-      );
+      console.error("Login Error:", error);
 
       alert(
         "Login failed. Please try again."
@@ -148,31 +192,26 @@ function Login() {
     }
   };
 
-
   // =====================================================
   // GOOGLE LOGIN ERROR
   // =====================================================
+
   const handleError = () => {
+    console.log("Google Login Failed");
 
-    console.log(
-      "Google Login Failed"
-    );
-
-    alert(
-      "Google Login Failed"
-    );
+    alert("Google Login Failed");
   };
-
 
   // =====================================================
   // UI
   // =====================================================
+
   return (
     <div className="login-page">
 
-      {/* =========================================
-          BACKGROUND GLOWS
-      ========================================= */}
+      {/* =================================================
+          BACKGROUND GLOW
+      ================================================= */}
 
       <div className="login-glow login-glow-blue"></div>
 
@@ -181,56 +220,44 @@ function Login() {
       <div className="login-glow login-glow-pink"></div>
 
 
-      {/* =========================================
+      {/* =================================================
           LOGIN CARD
-      ========================================= */}
+      ================================================= */}
 
       <div className="login-card">
-
-        {/* Glass Shine */}
 
         <div className="card-shine"></div>
 
 
-        {/* =========================================
-            PROFILE ICON
-        ========================================= */}
+        {/* PROFILE ICON */}
 
         <div className="profile-icon">
           <FaUser />
         </div>
 
 
-        {/* =========================================
-            SKILL LAB
-        ========================================= */}
+        {/* BRAND */}
 
         <h1 className="title skill-lab-title">
           SKILL LAB
         </h1>
 
 
-        {/* =========================================
-            SIGN IN
-        ========================================= */}
+        {/* SIGN IN */}
 
         <h1 className="title">
           Sign In
         </h1>
 
 
-        {/* =========================================
-            SUBTITLE
-        ========================================= */}
-
         <p className="subtitle">
           Continue your learning journey
         </p>
 
 
-        {/* =========================================
+        {/* =================================================
             GOOGLE LOGIN
-        ========================================= */}
+        ================================================= */}
 
         <div className="google-btn">
 
@@ -244,9 +271,32 @@ function Login() {
         </div>
 
 
-        {/* =========================================
+        {/* =================================================
+            PWA INSTALL BUTTON
+            Only Android / Desktop browsers supporting
+            beforeinstallprompt
+        ================================================= */}
+
+        {showInstallButton && installPrompt && (
+          <button
+            type="button"
+            className="install-app-btn"
+            onClick={handleInstallApp}
+          >
+
+            <FaMobileScreenButton />
+
+            <span>
+              Install Skill Lab
+            </span>
+
+          </button>
+        )}
+
+
+        {/* =================================================
             FOOTER
-        ========================================= */}
+        ================================================= */}
 
         <div className="login-footer">
 
