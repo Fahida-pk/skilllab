@@ -3032,6 +3032,63 @@ const taskAccuracyPercentage =
 
 </div>
 
+
+          {/* DATE + DEFAULT TASKS HEADER */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "12px",
+              margin: "18px 0 12px",
+              padding: "12px 14px",
+              borderRadius: "14px",
+              background: "rgba(255,255,255,.82)",
+              border: "1px solid rgba(109,93,252,.16)",
+            }}
+          >
+            <div>
+              <strong style={{ display: "block", fontSize: "16px" }}>
+                Tasks for {date.toLocaleDateString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </strong>
+              <span style={{ fontSize: "12px", color: "#64748b" }}>
+                Default tasks are shown first. Student-added tasks follow them.
+              </span>
+            </div>
+
+            {!adminView && !parentView && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditTask(null);
+                  setTitle("");
+                  setFromTime("");
+                  setToTime("");
+                  setImage(null);
+                  setImagePreview("");
+                  setRemoveImage(false);
+                  setShowModal(true);
+                }}
+                style={{
+                  border: 0,
+                  borderRadius: "10px",
+                  padding: "9px 13px",
+                  background: "linear-gradient(135deg, #6d5dfc, #8f7cff)",
+                  color: "#fff",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                + Add Task
+              </button>
+            )}
+          </div>
+
           {/* TASK CARDS */}
           <div className="cards">
             {sortedTasks.length === 0 ? (
