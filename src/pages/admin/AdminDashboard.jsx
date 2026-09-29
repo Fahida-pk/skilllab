@@ -1871,18 +1871,18 @@ const openStudentDashboard = (student) => {
 
                   {/* RECURRING DEFAULT TASKS */}
 
-                  <button
-                    type="button"
-                    className="student-dashboard-button"
-                    style={{ marginBottom: "10px", background: "linear-gradient(135deg, #6d5dfc, #8f7cff)" }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openDefaultTasks(student);
-                    }}
-                  >
-                    <FaClock />
-                    Default Tasks
-                  </button>
+                <button
+  type="button"
+  className="student-dashboard-button"
+  style={{ marginBottom: "10px" }}
+  onClick={(e) => {
+    e.stopPropagation();
+    openDefaultTasks(student);
+  }}
+>
+  <FaClock />
+  Default Tasks
+</button>
 
                   {/* BUTTON */}
 
