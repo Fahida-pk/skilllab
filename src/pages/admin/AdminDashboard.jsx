@@ -1880,7 +1880,7 @@ const openStudentDashboard = (student) => {
     openDefaultTasks(student);
   }}
 >
-  <FaClock />
+<FaTasks />
   Default Tasks
 </button>
 
