@@ -846,21 +846,10 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       ];
 
       if (data.success) {
-        // Admin view must not use the admin browser's localStorage
-        // deletion markers. Admin should see the student's default tasks.
-        const deletedRaw = adminView
-          ? null
-          : localStorage.getItem(getDeletedDefaultKey(currentKey));
-        const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
-        const deletedDefaultTitles = adminView
-          ? []
-          : getDateDefaultTasks(currentKey)
-              .filter((task) => deletedIds.includes(String(task.id)))
-              .map((task) => String(task.title).trim().toLowerCase());
-
-        const formatted = data.tasks
-          .filter((t) => !deletedDefaultTitles.includes(String(t.title).trim().toLowerCase()))
-          .map((t, index) => ({
+        // The server is the single source of truth for default-task
+        // deletion and Admin-managed profiles. Do not hide tasks using
+        // another device's browser-local deletion markers.
+        const formatted = data.tasks.map((t, index) => ({
           id: t.id,
           title: t.title,
           from: t.from,
@@ -907,6 +896,10 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           icon: t.icon || null,
           iconImage: t.icon_image || t.iconImage || null,
           default_id: t.default_id || t.defaultId || null,
+          adminManaged:
+            t.admin_managed === true ||
+            t.admin_managed === 1 ||
+            t.admin_managed === "1",
           nextDay: isNextDay(t.from, t.to),
         }));
 
@@ -1097,6 +1090,11 @@ useEffect(() => {
   const deleteTask = async (task) => {
 
     if (adminView || parentView) return;
+
+    if (task?.adminManaged) {
+      alert("This default task is managed by Admin and cannot be deleted by the student.");
+      return;
+    }
 
     if (isPreviousDay) {
       alert("Previous day tasks cannot be deleted.");
@@ -1494,6 +1492,11 @@ useEffect(() => {
   const handleEdit = (task) => {
 
     if (adminView || parentView) return;
+
+    if (task?.adminManaged) {
+      alert("This default task is managed by Admin. Please ask Admin to change it.");
+      return;
+    }
 
     if (isPreviousDay) {
       alert("Previous day tasks cannot be edited.");
