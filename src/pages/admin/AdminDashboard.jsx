@@ -32,6 +32,7 @@ import {
   FaMoon,
   FaPen,
   FaTrashCan,
+  FaTasks,
 } from "react-icons/fa6";
 
 import "./admin-dashboard.css";
