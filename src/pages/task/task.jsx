@@ -1186,6 +1186,8 @@ useEffect(() => {
                 action: "delete",
                 email: user?.email,
                 id: task.id,
+                task_date: currentKey,
+                default_id: String(defaultId),
               }),
             });
           } catch (dbError) {
@@ -1211,6 +1213,8 @@ useEffect(() => {
           action: "delete",
           email: user?.email,
           id: task.id,
+          task_date: currentKey,
+          default_id: defaultId || "",
         }),
       });
 
