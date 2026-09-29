@@ -852,12 +852,9 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           ? null
           : localStorage.getItem(getDeletedDefaultKey(currentKey));
         const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
-        /*
-         * Database is the source of truth for date-wise delete state.
-         * Do NOT filter by title from localStorage here:
-         * a student may create a custom task with the same title as a
-         * built-in default, and that custom task must remain visible.
-         */
+        // Database is the source of truth for fetched tasks.
+        // Do not hide rows by title because a student may have a custom task
+        // with the same title as a deleted built-in default.
         const formatted = data.tasks.map((t, index) => ({
           id: t.id,
           title: t.title,
@@ -1877,6 +1874,72 @@ useEffect(() => {
               );
               alert("Unable to save task image");
               return;
+            }
+          }
+
+          // =====================================================
+          // WAKE UP -> PREVIOUS DAY SLEEP END
+          // =====================================================
+          // Wake Up on Sep 30 is the end time of Sleep on Sep 29.
+          // Keep the relationship date-aware in the database so Admin
+          // Default Tasks shows Sep 29 Sleep with the same 4:30 AM end.
+          if (isWakeUp && formattedFrom) {
+            try {
+              const previousDate = new Date(date);
+              previousDate.setDate(previousDate.getDate() - 1);
+              const previousDateKey = getDateKey(previousDate);
+
+              const sleepSyncForm = new FormData();
+              sleepSyncForm.append(
+                "action",
+                "sync_previous_sleep"
+              );
+              sleepSyncForm.append(
+                "email",
+                user?.email || ""
+              );
+              sleepSyncForm.append(
+                "wake_date",
+                currentKey
+              );
+              sleepSyncForm.append(
+                "sleep_date",
+                previousDateKey
+              );
+              sleepSyncForm.append(
+                "time",
+                formattedFrom
+              );
+
+              const sleepSyncResponse = await fetch(API_URL, {
+                method: "POST",
+                body: sleepSyncForm,
+              });
+
+              const sleepSyncData = await sleepSyncResponse.json();
+
+              if (!sleepSyncData.success) {
+                console.error(
+                  "Previous-day Sleep database sync failed:",
+                  sleepSyncData.message
+                );
+              }
+
+              // Keep the local date-wise schedule consistent as well.
+              const previousSchedules = getDateDefaultSchedules(previousDateKey);
+              const previousSleep = previousSchedules["d5"];
+              if (previousSleep) {
+                saveDateDefaultSchedule(previousDateKey, "d5", {
+                  ...previousSleep,
+                  to: formattedFrom,
+                  nextDay: true,
+                });
+              }
+            } catch (sleepSyncError) {
+              console.error(
+                "Previous-day Sleep database sync error:",
+                sleepSyncError
+              );
             }
           }
 
