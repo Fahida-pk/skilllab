@@ -2099,12 +2099,32 @@ useEffect(() => {
 
       const overlappingTask = tasks.find(
         (existingTask) => {
-          // Ignore the task itself while editing
+          // Ignore the task itself while editing.
           if (
             editTask &&
             String(existingTask.id) ===
               String(editTask.id)
           ) {
+            return false;
+          }
+
+          /*
+           * IMPORTANT:
+           * Admin/default tasks are date-specific schedule records.
+           * A student is allowed to add a task even when its time overlaps
+           * an Admin/default task. The student task is saved for this date
+           * and is then returned to the Admin Default Tasks screen as part
+           * of the same final date-wise task list.
+           *
+           * All mapped tasks have a default_id. Do not reject a student
+           * Add/Edit just because it overlaps one of those mapped records.
+           */
+          const existingDefaultId =
+            existingTask.default_id ||
+            existingTask.defaultId ||
+            "";
+
+          if (String(existingDefaultId).trim() !== "") {
             return false;
           }
 
