@@ -386,10 +386,9 @@ function AdminDashboard() {
     let match = raw.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
     if (match) {
       const hour = Number(match[1]);
-      const minute = Number(match[2]);
 
-      if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
-        return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      if (hour >= 0 && hour <= 23) {
+        return `${String(hour).padStart(2, "0")}:00`;
       }
     }
 
@@ -397,13 +396,12 @@ function AdminDashboard() {
     match = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
     if (match) {
       let hour = Number(match[1]);
-      const minute = Number(match[2]);
       const modifier = match[3].toUpperCase();
 
       if (modifier === "PM" && hour !== 12) hour += 12;
       if (modifier === "AM" && hour === 12) hour = 0;
 
-      return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      return `${String(hour).padStart(2, "0")}:00`;
     }
 
     return "";
@@ -423,19 +421,39 @@ function AdminDashboard() {
     return `${hour}:${minute} ${ampm}`;
   };
 
+  // =========================================================
+  // ADMIN DEFAULT TIME MODEL
+  // Use whole hours only: 5:00, 6:00, 7:00 ...
+  // =========================================================
+  const normalizeAdminHourInput = (value) => {
+    if (!value) return "";
+
+    const match = String(value).trim().match(/^(\d{1,2})(?::\d{2})?/);
+    if (!match) return "";
+
+    const hour = Number(match[1]);
+
+    if (!Number.isFinite(hour) || hour < 0 || hour > 23) {
+      return "";
+    }
+
+    return `${String(hour).padStart(2, "0")}:00`;
+  };
+
   const inputToDisplayTime = (value) => {
     if (!value) return "";
 
-    const [hourString, minute] = value.split(":");
-    let hour = Number(hourString);
+    const normalized = normalizeAdminHourInput(value);
+    if (!normalized) return "";
 
-    if (!Number.isFinite(hour) || !minute) return "";
+    const [hourString] = normalized.split(":");
+    let hour = Number(hourString);
 
     const ampm = hour >= 12 ? "PM" : "AM";
     hour = hour % 12;
     if (hour === 0) hour = 12;
 
-    return `${hour}:${minute} ${ampm}`;
+    return `${hour}:00 ${ampm}`;
   };
 
   const isOvernightDefault = (from, to) => {
@@ -2197,6 +2215,9 @@ const openStudentDashboard = (student) => {
 
                               <input
                                 type="time"
+                                step="3600"
+                                min="00:00"
+                                max="23:00"
                                 value={fromInput}
                                 onChange={(e) => {
                                   updateStudentDefault(

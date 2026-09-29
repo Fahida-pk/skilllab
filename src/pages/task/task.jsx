@@ -852,8 +852,9 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
         const formatted = data.tasks.map((t, index) => ({
           id: t.id,
           title: t.title,
-          from: t.from,
-          to: t.to,
+          // Normalize even older database values such as 07:02 to 07:00.
+          from: t.from ? formatTime(t.from) : "",
+          to: t.to ? formatTime(t.to) : "",
           completed:
             t.completed === true ||
             t.completed === 1 ||
@@ -984,18 +985,46 @@ useEffect(() => {
     }
   };
 
+  // =========================================================
+  // HOURLY TIME MODEL
+  // All task times use whole hours only:
+  // 5:00, 6:00, 7:00 ... 11:00
+  // Minutes are always normalized to 00.
+  // =========================================================
+  const normalizeHourInput = (value) => {
+    if (!value) return "";
+
+    const match = String(value).trim().match(/^(\d{1,2})(?::\d{2})?/);
+    if (!match) return "";
+
+    const hour = Number(match[1]);
+
+    if (!Number.isFinite(hour) || hour < 0 || hour > 23) {
+      return "";
+    }
+
+    return `${String(hour).padStart(2, "0")}:00`;
+  };
+
   const formatTime = (t) => {
     if (!t) return "";
 
     try {
-      const [hour, minute] = t.split(":");
+      // Always save/display the hour with :00 minutes.
+      const inputValue = normalizeHourInput(
+        String(t).trim().toUpperCase().replace(/\s+/g, " ")
+      );
+
+      if (!inputValue) return "";
+
+      const [hour] = inputValue.split(":");
       let h = parseInt(hour, 10);
       const ampm = h >= 12 ? "PM" : "AM";
 
       h = h % 12;
       if (h === 0) h = 12;
 
-      return `${h}:${minute} ${ampm}`;
+      return `${h}:00 ${ampm}`;
     } catch {
       return "";
     }
@@ -1005,15 +1034,27 @@ useEffect(() => {
     if (!timeStr) return "";
 
     try {
-      const [time, modifier] = timeStr.split(" ");
-      let [hours, minutes] = time.split(":");
+      const raw = String(timeStr).trim();
 
-      hours = parseInt(hours, 10);
+      // MySQL TIME: 07:00:00 / 17:00:00
+      const mysqlMatch = raw.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+      if (mysqlMatch) {
+        return normalizeHourInput(`${mysqlMatch[1]}:${mysqlMatch[2]}`);
+      }
 
-      if (modifier === "PM" && hours !== 12) hours += 12;
-      if (modifier === "AM" && hours === 12) hours = 0;
+      // UI value: 7:00 AM / 7:00 PM
+      const uiMatch = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+      if (uiMatch) {
+        let hours = parseInt(uiMatch[1], 10);
+        const modifier = uiMatch[3].toUpperCase();
 
-      return `${hours.toString().padStart(2, "0")}:${minutes}`;
+        if (modifier === "PM" && hours !== 12) hours += 12;
+        if (modifier === "AM" && hours === 12) hours = 0;
+
+        return normalizeHourInput(`${hours}:00`);
+      }
+
+      return "";
     } catch {
       return "";
     }
@@ -3014,8 +3055,13 @@ const taskAccuracyPercentage =
               <label>From Time</label>
               <input
                 type="time"
+                step="3600"
+                min="00:00"
+                max="23:00"
                 value={fromTime}
-                onChange={(e) => setFromTime(e.target.value)}
+                onChange={(e) =>
+                  setFromTime(normalizeHourInput(e.target.value))
+                }
               />
 
               {editTask?.title !== "Wake Up" && (
@@ -3023,8 +3069,13 @@ const taskAccuracyPercentage =
                   <label>To Time</label>
                   <input
                     type="time"
+                    step="3600"
+                    min="00:00"
+                    max="23:00"
                     value={toTime}
-                    onChange={(e) => setToTime(e.target.value)}
+                    onChange={(e) =>
+                      setToTime(normalizeHourInput(e.target.value))
+                    }
                   />
                 </>
               )}
