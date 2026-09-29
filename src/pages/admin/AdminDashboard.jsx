@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   FaGaugeHigh,
@@ -617,37 +617,17 @@ function AdminDashboard() {
           : task
       );
 
-      // Wake Up and Sleep are linked:
-      // Sleep end time = next day's Wake Up time.
-      // Keep both sides synchronized immediately in the Admin modal.
-      if (String(defaultId) === "d5" && field === "to" && value) {
-        return updated.map((task) =>
-          String(task.default_id) === "d1"
-            ? {
-                ...task,
-                from: value,
-                to: "",
-                next_day: 0,
-              }
-            : task
-        );
-      }
-
-      // If Admin changes Wake Up, update Sleep's next-day end too.
-      // This prevents the validation from treating Wake Up as an
-      // accidental overlap with Sleep.
-      if (String(defaultId) === "d1" && field === "from" && value) {
-        return updated.map((task) =>
-          String(task.default_id) === "d5"
-            ? {
-                ...task,
-                to: value,
-                next_day: 1,
-              }
-            : task
-        );
-      }
-
+      // IMPORTANT:
+      // Sleep and Wake Up are NOT linked inside the same date.
+      //
+      // Example:
+      // 29-Sep Sleep = 10:03 PM -> 5:20 AM
+      // 29-Sep Wake Up stays whatever is configured for 29-Sep.
+      // 30-Sep Wake Up becomes 5:20 AM on the server when the 29-Sep
+      // Sleep schedule is saved.
+      //
+      // Do not change d1 when editing d5 here, and do not change d5 when
+      // editing d1. The server handles the next-day inheritance.
       return updated;
     });
   };
