@@ -846,15 +846,25 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       ];
 
       if (data.success) {
-        // The server is the single source of truth for default-task
-        // deletion and Admin-configured profiles. Do not hide tasks using
-        // another device's browser-local deletion markers.
-        const formatted = data.tasks.map((t, index) => ({
+        // Admin view must not use the admin browser's localStorage
+        // deletion markers. Admin should see the student's default tasks.
+        const deletedRaw = adminView
+          ? null
+          : localStorage.getItem(getDeletedDefaultKey(currentKey));
+        const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
+        const deletedDefaultTitles = adminView
+          ? []
+          : getDateDefaultTasks(currentKey)
+              .filter((task) => deletedIds.includes(String(task.id)))
+              .map((task) => String(task.title).trim().toLowerCase());
+
+        const formatted = data.tasks
+          .filter((t) => !deletedDefaultTitles.includes(String(t.title).trim().toLowerCase()))
+          .map((t, index) => ({
           id: t.id,
           title: t.title,
-          // Normalize even older database values such as 07:02 to 07:00.
-          from: t.from ? formatTime(t.from) : "",
-          to: t.to ? formatTime(t.to) : "",
+          from: t.from,
+          to: t.to,
           completed:
             t.completed === true ||
             t.completed === 1 ||
@@ -897,10 +907,6 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           icon: t.icon || null,
           iconImage: t.icon_image || t.iconImage || null,
           default_id: t.default_id || t.defaultId || null,
-          adminManaged:
-            t.admin_managed === true ||
-            t.admin_managed === 1 ||
-            t.admin_managed === "1",
           nextDay: isNextDay(t.from, t.to),
         }));
 
@@ -985,46 +991,18 @@ useEffect(() => {
     }
   };
 
-  // =========================================================
-  // HOURLY TIME MODEL
-  // All task times use whole hours only:
-  // 5:00, 6:00, 7:00 ... 11:00
-  // Minutes are always normalized to 00.
-  // =========================================================
-  const normalizeHourInput = (value) => {
-    if (!value) return "";
-
-    const match = String(value).trim().match(/^(\d{1,2})(?::\d{2})?/);
-    if (!match) return "";
-
-    const hour = Number(match[1]);
-
-    if (!Number.isFinite(hour) || hour < 0 || hour > 23) {
-      return "";
-    }
-
-    return `${String(hour).padStart(2, "0")}:00`;
-  };
-
   const formatTime = (t) => {
     if (!t) return "";
 
     try {
-      // Always save/display the hour with :00 minutes.
-      const inputValue = normalizeHourInput(
-        String(t).trim().toUpperCase().replace(/\s+/g, " ")
-      );
-
-      if (!inputValue) return "";
-
-      const [hour] = inputValue.split(":");
+      const [hour, minute] = t.split(":");
       let h = parseInt(hour, 10);
       const ampm = h >= 12 ? "PM" : "AM";
 
       h = h % 12;
       if (h === 0) h = 12;
 
-      return `${h}:00 ${ampm}`;
+      return `${h}:${minute} ${ampm}`;
     } catch {
       return "";
     }
@@ -1034,27 +1012,15 @@ useEffect(() => {
     if (!timeStr) return "";
 
     try {
-      const raw = String(timeStr).trim();
+      const [time, modifier] = timeStr.split(" ");
+      let [hours, minutes] = time.split(":");
 
-      // MySQL TIME: 07:00:00 / 17:00:00
-      const mysqlMatch = raw.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
-      if (mysqlMatch) {
-        return normalizeHourInput(`${mysqlMatch[1]}:${mysqlMatch[2]}`);
-      }
+      hours = parseInt(hours, 10);
 
-      // UI value: 7:00 AM / 7:00 PM
-      const uiMatch = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-      if (uiMatch) {
-        let hours = parseInt(uiMatch[1], 10);
-        const modifier = uiMatch[3].toUpperCase();
+      if (modifier === "PM" && hours !== 12) hours += 12;
+      if (modifier === "AM" && hours === 12) hours = 0;
 
-        if (modifier === "PM" && hours !== 12) hours += 12;
-        if (modifier === "AM" && hours === 12) hours = 0;
-
-        return normalizeHourInput(`${hours}:00`);
-      }
-
-      return "";
+      return `${hours.toString().padStart(2, "0")}:${minutes}`;
     } catch {
       return "";
     }
@@ -1143,31 +1109,36 @@ useEffect(() => {
     // Keep their default definition intact for other dates.
     if (defaultId) {
       try {
-        // Server is the single source of truth for date-wise default deletion.
-        // Do not use browser-local deletion markers because another device
-        // using the same account must see the same result.
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "delete",
-            email: user?.email,
-            id: task.id,
-            default_id: defaultId,
-            task_date: currentKey,
-          }),
-        });
-
-        const data = await res.json();
-
-        if (!data.success) {
-          alert(data.message || "Default task delete failed");
-          return;
-        }
-
-        setTasks((prev) =>
-          prev.filter((t) => String(t.id) !== String(task.id))
+        const deletedKey = getDeletedDefaultKey(currentKey);
+        const saved = localStorage.getItem(deletedKey);
+        const deletedIds = saved ? JSON.parse(saved) : [];
+        const nextDeletedIds = Array.from(
+          new Set([...deletedIds.map(String), String(defaultId)])
         );
+
+        localStorage.setItem(deletedKey, JSON.stringify(nextDeletedIds));
+        setDeletedDefaultIds(nextDeletedIds);
+
+        // Remove the visible row immediately. The date-wise deleted marker
+        // prevents ensure_defaults from putting it back on this date.
+        setTasks((prev) => prev.filter((t) => String(t.id) !== String(task.id)));
+
+        // Delete the matching database row as well, if it exists.
+        if (task.id != null) {
+          try {
+            await fetch(API_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "delete",
+                email: user?.email,
+                id: task.id,
+              }),
+            });
+          } catch (dbError) {
+            console.error("Built-in task database delete error:", dbError);
+          }
+        }
 
         await fetchTasks();
         notifyTaskUpdated();
@@ -1524,9 +1495,6 @@ useEffect(() => {
 
     if (adminView || parentView) return;
 
-    // Student can edit Admin-created/default tasks too.
-    // Admin/Parent views remain read-only through the check above.
-
     if (isPreviousDay) {
       alert("Previous day tasks cannot be edited.");
       return;
@@ -1779,7 +1747,7 @@ useEffect(() => {
       );
     });
 
-   if (overlappingTask && !editTask) {
+   if (overlappingTask) {
   const existingFrom =
     overlappingTask.from || overlappingTask.time || "";
 
@@ -1806,14 +1774,6 @@ useEffect(() => {
 
     if (editTask && defaultId) {
       const taskTitle = String(editTask.title).trim().toLowerCase();
-
-      saveDateDefaultSchedule(currentKey, defaultId, {
-        title: title.trim(),
-        from: taskTitle === "wake up" ? undefined : formattedFrom,
-        time: taskTitle === "wake up" ? formattedFrom : undefined,
-        to: formattedTo,
-        nextDay,
-      });
 
       // Keep the existing database row and persist the edited default
       // on the server using its permanent default_id identity.
@@ -1849,6 +1809,17 @@ useEffect(() => {
           saveInProgressRef.current = false;
           return;
         }
+
+        // Only update the local date-wise schedule after the server
+        // has accepted the change. This prevents a rejected conflict
+        // from leaving the browser showing a time that was not saved.
+        saveDateDefaultSchedule(currentKey, defaultId, {
+          title: title.trim(),
+          from: taskTitle === "wake up" ? undefined : formattedFrom,
+          time: taskTitle === "wake up" ? formattedFrom : undefined,
+          to: formattedTo,
+          nextDay,
+        });
       } catch (defaultUpdateError) {
         console.error(
           "Default task database update error:",
@@ -1992,16 +1963,6 @@ useEffect(() => {
       formData.append("to", formattedTo);
       formData.append("task_date", currentKey);
       formData.append("nextDay", nextDay ? "1" : "0");
-
-      // Preserve the default-task identity when editing a default task.
-      // This lets the same database row remain linked to its default id
-      // after the student changes its title/time.
-      if (editTask) {
-        const editDefaultId = getBuiltInDefaultId(editTask);
-        if (editDefaultId) {
-          formData.append("default_id", String(editDefaultId));
-        }
-      }
       formData.append(
         "color",
         editTask?.color || colors[tasks.length % colors.length]
@@ -3055,13 +3016,8 @@ const taskAccuracyPercentage =
               <label>From Time</label>
               <input
                 type="time"
-                step="3600"
-                min="00:00"
-                max="23:00"
                 value={fromTime}
-                onChange={(e) =>
-                  setFromTime(normalizeHourInput(e.target.value))
-                }
+                onChange={(e) => setFromTime(e.target.value)}
               />
 
               {editTask?.title !== "Wake Up" && (
@@ -3069,13 +3025,8 @@ const taskAccuracyPercentage =
                   <label>To Time</label>
                   <input
                     type="time"
-                    step="3600"
-                    min="00:00"
-                    max="23:00"
                     value={toTime}
-                    onChange={(e) =>
-                      setToTime(normalizeHourInput(e.target.value))
-                    }
+                    onChange={(e) => setToTime(e.target.value)}
                   />
                 </>
               )}
