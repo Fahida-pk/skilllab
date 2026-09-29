@@ -5193,8 +5193,7 @@ body {
   color: #ef4444 !important;
 }
 /* =========================================================
-   ALL STUDENTS — MOBILE HEADER FIX
-   360px / Samsung safe
+   ALL STUDENTS — MOBILE SAME LINE
 ========================================================= */
 
 @media (max-width: 800px) {
@@ -5203,27 +5202,22 @@ body {
     width: 100% !important;
 
     display: flex !important;
-    flex-direction: column !important;
+    flex-direction: row !important;
 
-    align-items: stretch !important;
-    justify-content: flex-start !important;
+    align-items: center !important;
+    justify-content: space-between !important;
 
-    gap: 10px !important;
+    gap: 8px !important;
 
     margin-bottom: 15px !important;
   }
 
   .all-students-header > div:first-child {
-    width: 100% !important;
+    flex: 1 1 auto !important;
     min-width: 0 !important;
-    flex: none !important;
   }
 
   .all-students-header h2 {
-    display: block !important;
-
-    width: 100% !important;
-
     margin: 0 !important;
 
     font-size: 20px !important;
@@ -5236,14 +5230,9 @@ body {
   }
 
   .all-students-header p {
-    display: block !important;
+    margin: 4px 0 0 !important;
 
-    width: 100% !important;
-
-    margin: 5px 0 0 !important;
-
-    font-size: 10px !important;
-    line-height: 1.4 !important;
+    font-size: 9px !important;
 
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -5251,48 +5240,46 @@ body {
   }
 
   .refresh-button {
-    width: 100% !important;
+    flex: 0 0 auto !important;
 
-    height: 36px !important;
+    width: auto !important;
+    min-width: 65px !important;
 
-    flex: none !important;
+    height: 34px !important;
 
-    padding: 0 12px !important;
+    padding: 0 10px !important;
 
-    font-size: 10px !important;
+    font-size: 9px !important;
 
-    margin: 0 !important;
-  }
-
-  .students-search-box {
-    width: 100% !important;
-    max-width: 100% !important;
-
-    margin-top: 2px !important;
+    white-space: nowrap !important;
   }
 }
 
 
 /* =========================================================
-   VERY SMALL PHONE — 360px
+   360px MOBILE
 ========================================================= */
 
 @media (max-width: 380px) {
 
   .all-students-header {
-    gap: 8px !important;
+    gap: 6px !important;
   }
 
   .all-students-header h2 {
-    font-size: 19px !important;
+    font-size: 18px !important;
   }
 
   .all-students-header p {
-    font-size: 9px !important;
+    font-size: 8px !important;
   }
 
   .refresh-button {
-    height: 34px !important;
-    font-size: 10px !important;
+    min-width: 60px !important;
+    height: 32px !important;
+
+    padding: 0 8px !important;
+
+    font-size: 8px !important;
   }
 }
