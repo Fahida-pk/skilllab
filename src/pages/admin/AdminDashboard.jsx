@@ -32,9 +32,9 @@ import {
   FaMoon,
   FaPen,
   FaTrashCan,
-  FaTasks,
+  
 } from "react-icons/fa6";
-
+import { FaTasks } from "react-icons/fa";
 import "./admin-dashboard.css";
 
 const API_URL =
