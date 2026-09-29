@@ -1987,24 +1987,57 @@ const openStudentDashboard = (student) => {
                     {selectedDefaultStudent?.name || "Student"} — date-wise default tasks
                   </p>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                    <span style={{ fontSize: "12px", fontWeight: 800, color: "#475569" }}>Date</span>
-                    <input
-                      type="date"
-                      value={defaultTaskDate}
-                      onChange={(e) => reloadStudentDefaultsForDate(e.target.value)}
-                      disabled={defaultSaving || defaultLoading}
-                      style={{
-                        border: "1px solid #cbd5e1",
-                        borderRadius: "10px",
-                        padding: "7px 9px",
-                        color: "#172554",
-                        background: "#fff",
-                        fontWeight: 700,
-                      }}
-                    />
-                  </div>
-                </div>
+             <div
+  className="default-date-row"
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    flex: 1,
+    minWidth: 0,
+  }}
+>
+  <span
+    style={{
+      fontSize: "12px",
+      fontWeight: 800,
+      color: "#475569",
+      flexShrink: 0,
+    }}
+  >
+    Date
+  </span>
+
+  <input
+    type="date"
+    value={defaultTaskDate}
+    onChange={(e) =>
+      reloadStudentDefaultsForDate(e.target.value)
+    }
+    disabled={defaultSaving || defaultLoading}
+    style={{
+      border: "1px solid #cbd5e1",
+      borderRadius: "10px",
+      padding: "7px 9px",
+      color: "#172554",
+      background: "#fff",
+      fontWeight: 700,
+      minWidth: 0,
+    }}
+  />
+
+  {/* + ADD TASK */}
+  <button
+    type="button"
+    className="default-add-task-btn"
+    onClick={addStudentDefault}
+    disabled={defaultLoading || defaultSaving}
+    title="Add New Task"
+  >
+    +
+  </button>
+</div>
+</div>
 
                 <button
                   type="button"
@@ -2424,23 +2457,7 @@ const openStudentDashboard = (student) => {
                   flexWrap: "wrap",
                 }}
               >
-                <button
-                  type="button"
-                  onClick={addStudentDefault}
-                  disabled={defaultLoading || defaultSaving}
-                  style={{
-                    padding: "11px 15px",
-                    borderRadius: "12px",
-                    border: "1px solid #c7d2fe",
-                    background: "#eef2ff",
-                    color: "#4f46e5",
-                    fontWeight: 800,
-                    cursor: "pointer",
-                  }}
-                >
-                  + Add New Task
-                </button>
-
+           
                 <div
                   style={{
                     display: "flex",
