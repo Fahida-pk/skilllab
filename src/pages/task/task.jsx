@@ -852,15 +852,13 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           ? null
           : localStorage.getItem(getDeletedDefaultKey(currentKey));
         const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
-        const deletedDefaultTitles = adminView
-          ? []
-          : getDateDefaultTasks(currentKey)
-              .filter((task) => deletedIds.includes(String(task.id)))
-              .map((task) => String(task.title).trim().toLowerCase());
-
-        const formatted = data.tasks
-          .filter((t) => !deletedDefaultTitles.includes(String(t.title).trim().toLowerCase()))
-          .map((t, index) => ({
+        /*
+         * Database is the source of truth for date-wise delete state.
+         * Do NOT filter by title from localStorage here:
+         * a student may create a custom task with the same title as a
+         * built-in default, and that custom task must remain visible.
+         */
+        const formatted = data.tasks.map((t, index) => ({
           id: t.id,
           title: t.title,
           from: t.from,
