@@ -847,7 +847,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
       if (data.success) {
         // The server is the single source of truth for default-task
-        // deletion and Admin-managed profiles. Do not hide tasks using
+        // deletion and Admin-configured profiles. Do not hide tasks using
         // another device's browser-local deletion markers.
         const formatted = data.tasks.map((t, index) => ({
           id: t.id,
@@ -1091,11 +1091,6 @@ useEffect(() => {
 
     if (adminView || parentView) return;
 
-    if (task?.adminManaged) {
-      alert("This default task is managed by Admin and cannot be deleted by the student.");
-      return;
-    }
-
     if (isPreviousDay) {
       alert("Previous day tasks cannot be deleted.");
       return;
@@ -1107,36 +1102,31 @@ useEffect(() => {
     // Keep their default definition intact for other dates.
     if (defaultId) {
       try {
-        const deletedKey = getDeletedDefaultKey(currentKey);
-        const saved = localStorage.getItem(deletedKey);
-        const deletedIds = saved ? JSON.parse(saved) : [];
-        const nextDeletedIds = Array.from(
-          new Set([...deletedIds.map(String), String(defaultId)])
-        );
+        // Server is the single source of truth for date-wise default deletion.
+        // Do not use browser-local deletion markers because another device
+        // using the same account must see the same result.
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "delete",
+            email: user?.email,
+            id: task.id,
+            default_id: defaultId,
+            task_date: currentKey,
+          }),
+        });
 
-        localStorage.setItem(deletedKey, JSON.stringify(nextDeletedIds));
-        setDeletedDefaultIds(nextDeletedIds);
+        const data = await res.json();
 
-        // Remove the visible row immediately. The date-wise deleted marker
-        // prevents ensure_defaults from putting it back on this date.
-        setTasks((prev) => prev.filter((t) => String(t.id) !== String(task.id)));
-
-        // Delete the matching database row as well, if it exists.
-        if (task.id != null) {
-          try {
-            await fetch(API_URL, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                action: "delete",
-                email: user?.email,
-                id: task.id,
-              }),
-            });
-          } catch (dbError) {
-            console.error("Built-in task database delete error:", dbError);
-          }
+        if (!data.success) {
+          alert(data.message || "Default task delete failed");
+          return;
         }
+
+        setTasks((prev) =>
+          prev.filter((t) => String(t.id) !== String(task.id))
+        );
 
         await fetchTasks();
         notifyTaskUpdated();
@@ -1493,10 +1483,8 @@ useEffect(() => {
 
     if (adminView || parentView) return;
 
-    if (task?.adminManaged) {
-      alert("This default task is managed by Admin. Please ask Admin to change it.");
-      return;
-    }
+    // Student can edit Admin-created/default tasks too.
+    // Admin/Parent views remain read-only through the check above.
 
     if (isPreviousDay) {
       alert("Previous day tasks cannot be edited.");
@@ -1963,6 +1951,16 @@ useEffect(() => {
       formData.append("to", formattedTo);
       formData.append("task_date", currentKey);
       formData.append("nextDay", nextDay ? "1" : "0");
+
+      // Preserve the default-task identity when editing a default task.
+      // This lets the same database row remain linked to its default id
+      // after the student changes its title/time.
+      if (editTask) {
+        const editDefaultId = getBuiltInDefaultId(editTask);
+        if (editDefaultId) {
+          formData.append("default_id", String(editDefaultId));
+        }
+      }
       formData.append(
         "color",
         editTask?.color || colors[tasks.length % colors.length]
