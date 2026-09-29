@@ -1172,28 +1172,32 @@ useEffect(() => {
         localStorage.setItem(deletedKey, JSON.stringify(nextDeletedIds));
         setDeletedDefaultIds(nextDeletedIds);
 
-        // Remove the visible row immediately. The date-wise deleted marker
-        // prevents ensure_defaults from putting it back on this date.
-        setTasks((prev) => prev.filter((t) => String(t.id) !== String(task.id)));
-
-        // Delete the matching database row as well, if it exists.
-        if (task.id != null) {
-          try {
-            await fetch(API_URL, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                action: "delete",
-                email: user?.email,
-                id: task.id,
-                task_date: currentKey,
-                default_id: String(defaultId),
-              }),
-            });
-          } catch (dbError) {
-            console.error("Built-in task database delete error:", dbError);
-          }
+        // Persist the date-wise delete on the server first.
+        // Admin Default page reads this same server-side state.
+        if (task.id == null) {
+          throw new Error("Default task ID missing");
         }
+
+        const deleteResponse = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "delete",
+            email: user?.email,
+            id: task.id,
+            task_date: currentKey,
+            default_id: String(defaultId),
+          }),
+        });
+
+        const deleteData = await deleteResponse.json();
+
+        if (!deleteData.success) {
+          throw new Error(deleteData.message || "Could not save date-wise delete");
+        }
+
+        // Only update local state after the server confirms the delete.
+        setTasks((prev) => prev.filter((t) => String(t.id) !== String(task.id)));
 
         await fetchTasks();
         notifyTaskUpdated();
