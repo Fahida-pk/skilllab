@@ -1590,390 +1590,524 @@ useEffect(() => {
   };
 
   const handleAddTask = async () => {
-
     if (adminView || parentView) return;
 
-    // Ignore repeated clicks while the current save is still running.
+    // Prevent multiple Save clicks
     if (saveInProgressRef.current) return;
     saveInProgressRef.current = true;
 
-    if (isPreviousDay) {
-      alert("Previous day tasks cannot be added or edited.");
-      saveInProgressRef.current = false;
-      return;
-    }
-
-    if (!title.trim() || !fromTime) {
-      alert("Please enter task title and from time");
-      saveInProgressRef.current = false;
-      return;
-    }
-
-    const colors = [
-      "linear-gradient(135deg, #43e97b, #38f9d7)",
-      "linear-gradient(135deg, #fa709a, #fee140)",
-      "linear-gradient(135deg, #30cfd0, #330867)",
-      "linear-gradient(135deg, #f093fb, #f5576c)",
-    ];
-
-    const formattedFrom = formatTime(fromTime);
-    const formattedTo = toTime ? formatTime(toTime) : "";
-    const nextDay = isNextDay(formattedFrom, formattedTo);
-
-    // =========================================================
-    // NEW TASK ONLY - OVERNIGHT DEFAULT CONFLICT RULE
-    // =========================================================
-    // The PHP API performs the final authoritative check.
-    // This is intentionally applied only when ADDING a new task.
-    // Existing/default task edit logic below is unchanged.
-    //
-    // Example:
-    // Sep 27 Sleep = 10:00 PM -> 4:00 AM (Next Day)
-    // Sep 28 New Task = 3:00 AM -> 4:00 AM  -> BLOCKED
-    // Sep 28 New Task = 4:00 AM -> 5:00 AM  -> ALLOWED
-    // Sep 28 New Task = 3:00 PM -> 4:00 PM  -> ALLOWED
-    //
-    // The server checks the previous/current/next dates because the
-    // current page only displays tasks for the selected date.
-
-    // =========================================================
-    // TASK TIME OVERLAP CHECK
-    // =========================================================
-    // Do not allow two different tasks to occupy the same time.
-    // Example:
-    //   Maths 8:21 PM - 9:22 PM
-    //   New task 9:21 PM - 10:23 PM  -> BLOCKED
-    //
-    // While editing, the current task itself is ignored so the user
-    // can save its existing time unchanged.
-    const candidateStart = toMin(formattedFrom);
-    const candidateEnd = formattedTo
-      ? toMin(formattedTo)
-      : candidateStart;
-
-    // A task must have a real duration. Same start/end is not treated as
-    // an overnight task; only an end time earlier than the start is overnight.
-    if (formattedTo && candidateEnd === candidateStart) {
-      alert("Start time and end time cannot be the same. Please choose another time.");
-      saveInProgressRef.current = false;
-      return;
-    }
-
-    // =========================================================
-    // DATE-BASED TASK TIME OVERLAP CHECK
-    // =========================================================
-    // IMPORTANT:
-    // An overnight task such as 11:00 PM - 5:00 AM starts on the
-    // selected date and finishes on the NEXT date.
-    //
-    // Therefore, while editing the selected date, only the
-    // 11:00 PM -> 12:00 AM part belongs to this date.
-    //
-    // The 12:00 AM -> 5:00 AM part belongs to the next date and
-    // becomes the next day's Wake Up time.
-    //
-    // The old code checked both parts on the same date. That caused:
-    //   Sleep 11 PM - 5 AM
-    //   Wake Up 4 AM
-    // to be incorrectly reported as a conflict.
-    //
-    // It also caused Study MERN 6 AM - 10 AM to conflict with
-    // Sleep 10 PM - 8 AM, even though the 12 AM - 8 AM part of
-    // Sleep belongs to the next day.
-    //
-    // So conflict checking is now based only on the portion of
-    // each task that belongs to the selected task_date.
-    const getTaskRanges = (from, to, taskNextDay = false) => {
-      if (!from) return [];
-
-      const start = toMin(from);
-
-      // Wake Up / point task.
-      if (!to) {
-        return [[start, start]];
-      }
-
-      const end = toMin(to);
-      const overnight = taskNextDay || end < start;
-
-      // Normal same-day task.
-      if (!overnight) {
-        return [[start, end]];
-      }
-
-      // Overnight task:
-      // ONLY the selected-date portion is checked here.
-      // The after-midnight portion belongs to the next date.
-      return [[start, 24 * 60]];
-    };
-
-    const candidateRanges =
-      formattedTo && nextDay
-        ? [[candidateStart, 24 * 60]]
-        : [[candidateStart, candidateEnd]];
-
-    const rangesOverlap = (a, b) => {
-      // A zero-length task only conflicts with another task that contains
-      // that exact start time.
-      if (a[0] === a[1]) {
-        return b[0] <= a[0] && a[0] < b[1];
-      }
-
-      if (b[0] === b[1]) {
-        return a[0] <= b[0] && b[0] < a[1];
-      }
-
-      return a[0] < b[1] && b[0] < a[1];
-    };
-
-    const overlappingTask = tasks.find((existingTask) => {
-      if (editTask && String(existingTask.id) === String(editTask.id)) {
-        return false;
-      }
-
-      const existingFrom = existingTask.from || existingTask.time || "";
-      const existingTo = existingTask.to || "";
-
-      const existingRanges = getTaskRanges(
-        existingFrom,
-        existingTo,
-        Boolean(existingTask.nextDay)
-      );
-
-      return candidateRanges.some((candidateRange) =>
-        existingRanges.some((existingRange) =>
-          rangesOverlap(candidateRange, existingRange)
-        )
-      );
-    });
-
-   if (overlappingTask) {
-  const existingFrom =
-    overlappingTask.from || overlappingTask.time || "";
-
-  const existingTo = overlappingTask.to || "";
-
-  const existingTime = existingTo
-    ? `${existingFrom} - ${existingTo}`
-    : existingFrom;
-
-  alert(
-    `This time cannot be scheduled.\n\n` +
-    `${overlappingTask.title} is already scheduled for ${existingTime}.\n\n` +
-    `Please choose another time.`
-  );
-
-  saveInProgressRef.current = false;
-  return;
-}
-
-    // Built-in/default tasks are edited through their date-wise schedule.
-    // Do NOT call the generic DB "add/update" path for them; that path can
-    // create a second row instead of updating the existing default row.
-    const defaultId = editTask ? getBuiltInDefaultId(editTask) : null;
-
-    if (editTask && defaultId) {
-      const taskTitle = String(editTask.title).trim().toLowerCase();
-
-      // Keep the existing database row and persist the edited default
-      // on the server using its permanent default_id identity.
-      try {
-        const defaultUpdateForm = new FormData();
-        defaultUpdateForm.append("action", "update");
-        defaultUpdateForm.append("email", user?.email || "");
-        defaultUpdateForm.append("id", String(editTask.id));
-        defaultUpdateForm.append("title", title.trim());
-        defaultUpdateForm.append(
-          "from",
-          taskTitle === "wake up" ? formattedFrom : formattedFrom
-        );
-        defaultUpdateForm.append(
-          "to",
-          taskTitle === "wake up" ? "" : formattedTo
-        );
-        defaultUpdateForm.append("task_date", currentKey);
-        defaultUpdateForm.append("default_id", String(defaultId));
-
-        const defaultUpdateResponse = await fetch(API_URL, {
-          method: "POST",
-          body: defaultUpdateForm,
-        });
-
-        const defaultUpdateData = await defaultUpdateResponse.json();
-
-        if (!defaultUpdateData.success) {
-          alert(
-            defaultUpdateData.message ||
-            "Could not save default task"
-          );
-          saveInProgressRef.current = false;
-          return;
-        }
-
-        // Only update the local date-wise schedule after the server
-        // has accepted the change. This prevents a rejected conflict
-        // from leaving the browser showing a time that was not saved.
-        saveDateDefaultSchedule(currentKey, defaultId, {
-          title: title.trim(),
-          from: taskTitle === "wake up" ? undefined : formattedFrom,
-          time: taskTitle === "wake up" ? formattedFrom : undefined,
-          to: formattedTo,
-          nextDay,
-        });
-      } catch (defaultUpdateError) {
-        console.error(
-          "Default task database update error:",
-          defaultUpdateError
-        );
-        alert("Unable to save default task");
-        saveInProgressRef.current = false;
+    try {
+      // =========================================================
+      // DATE CHECK
+      // =========================================================
+      if (isPreviousDay) {
+        alert("Previous day tasks cannot be added or edited.");
         return;
       }
 
-      // Keep the existing database row; only its date-wise schedule changes.
-      // This is what prevents an extra Study MERN/Practice English/Workout row.
-      setTasks((prev) =>
-        prev.map((task) => {
-          if (String(task.id) !== String(editTask.id)) return task;
-
-          return {
-            ...task,
-            title: title.trim(),
-            ...(taskTitle === "wake up"
-              ? { from: undefined, time: formattedFrom, to: undefined, nextDay: false }
-              : { from: formattedFrom, to: formattedTo, nextDay }),
-          };
-        })
-      );
-
-      // Remove the existing image when the user selected "Remove Photo".
-      if (removeImage && editTask?.id) {
-        try {
-          const removeData = await removeTaskImage(editTask.id);
-          if (!removeData.success) {
-            alert(removeData.message || "Could not remove task image");
-            saveInProgressRef.current = false;
-            return;
-          }
-          setTasks((prev) =>
-            prev.map((task) =>
-              String(task.id) === String(editTask.id)
-                ? { ...task, iconImage: null }
-                : task
-            )
-          );
-        } catch (removeError) {
-          console.error("Default task image remove error:", removeError);
-          alert("Unable to remove task image");
-          saveInProgressRef.current = false;
-          return;
-        }
+      // =========================================================
+      // BASIC VALIDATION
+      // =========================================================
+      if (!title.trim() || !fromTime) {
+        alert("Please enter task title and from time");
+        return;
       }
 
-      // Save a newly selected image against the existing default-task row.
-      if (image && editTask?.id) {
+      const colors = [
+        "linear-gradient(135deg, #43e97b, #38f9d7)",
+        "linear-gradient(135deg, #fa709a, #fee140)",
+        "linear-gradient(135deg, #30cfd0, #330867)",
+        "linear-gradient(135deg, #f093fb, #f5576c)",
+      ];
+
+      // =========================================================
+      // FORMAT TIME
+      // =========================================================
+      const formattedFrom = formatTime(fromTime);
+      const formattedTo = toTime ? formatTime(toTime) : "";
+      const nextDay = isNextDay(formattedFrom, formattedTo);
+
+      // =========================================================
+      // IDENTIFY BUILT-IN / DEFAULT TASK
+      // =========================================================
+      // d1 = Wake Up
+      // d2 = Study MERN
+      // d3 = Practice English
+      // d4 = Workout
+      // d5 = Sleep
+      //
+      // IMPORTANT:
+      // Built-in tasks are handled BEFORE normal overlap checking.
+      // This allows Wake Up to be edited independently.
+      // =========================================================
+      const defaultId = editTask
+        ? getBuiltInDefaultId(editTask)
+        : null;
+
+      const isEditingBuiltInTask =
+        Boolean(editTask) && Boolean(defaultId);
+
+      // =========================================================
+      // BUILT-IN / DEFAULT TASK EDIT
+      // =========================================================
+      if (isEditingBuiltInTask) {
+        const taskTitle = String(editTask.title || "")
+          .trim()
+          .toLowerCase();
+
+        const isWakeUp = taskTitle === "wake up";
+        const isSleep = taskTitle === "sleep";
+
         try {
-          const imageData = await saveTaskImage(editTask.id);
+          // =====================================================
+          // UPDATE EXISTING DEFAULT DATABASE ROW
+          // =====================================================
+          const defaultUpdateForm = new FormData();
 
-          if (!imageData.success) {
-            alert(imageData.message || "Could not save task image");
-            saveInProgressRef.current = false;
-            return;
-          }
-
-          setTasks((prev) =>
-            prev.map((task) =>
-              String(task.id) === String(editTask.id)
-                ? { ...task, iconImage: imageData.icon_image || task.iconImage }
-                : task
-            )
+          defaultUpdateForm.append("action", "update");
+          defaultUpdateForm.append("email", user?.email || "");
+          defaultUpdateForm.append("id", String(editTask.id));
+          defaultUpdateForm.append("title", title.trim());
+          defaultUpdateForm.append("from", formattedFrom);
+          defaultUpdateForm.append(
+            "to",
+            isWakeUp ? "" : formattedTo
           );
-        } catch (imageError) {
-          console.error("Default task image save error:", imageError);
-          alert("Unable to save task image");
-          saveInProgressRef.current = false;
-          return;
-        }
-      }
+          defaultUpdateForm.append("task_date", currentKey);
+          defaultUpdateForm.append("default_id", String(defaultId));
 
-      // If Sleep crosses midnight, its TO time becomes the next day's Wake Up.
-      if (taskTitle === "sleep" && formattedTo && nextDay) {
-        const nextDate = new Date(date);
-        nextDate.setDate(nextDate.getDate() + 1);
-        const nextDateKey = getDateKey(nextDate);
-
-        saveDateDefaultSchedule(nextDateKey, "d1", {
-          title: "Wake Up",
-          time: formattedTo,
-          from: undefined,
-          to: undefined,
-          nextDay: false,
-        });
-
-        // Also persist the inherited Wake Up time in the database so
-        // every device receives the same next-day schedule.
-        try {
-          const wakeUpForm = new FormData();
-          wakeUpForm.append("action", "sync_default_wakeup");
-          wakeUpForm.append("email", user?.email || "");
-          wakeUpForm.append("task_date", nextDateKey);
-          wakeUpForm.append("time", formattedTo);
-
-          const wakeUpResponse = await fetch(API_URL, {
+          const defaultUpdateResponse = await fetch(API_URL, {
             method: "POST",
-            body: wakeUpForm,
+            body: defaultUpdateForm,
           });
 
-          const wakeUpData = await wakeUpResponse.json();
+          const defaultUpdateData =
+            await defaultUpdateResponse.json();
 
-          if (!wakeUpData.success) {
-            console.error(
-              "Next-day Wake Up database sync failed:",
-              wakeUpData.message
+          if (!defaultUpdateData.success) {
+            alert(
+              defaultUpdateData.message ||
+                "Could not save default task"
             );
+            return;
           }
-        } catch (wakeUpError) {
-          console.error(
-            "Next-day Wake Up database sync error:",
-            wakeUpError
+
+          // =====================================================
+          // SAVE DATE-WISE DEFAULT SCHEDULE
+          // =====================================================
+          saveDateDefaultSchedule(currentKey, defaultId, {
+            title: title.trim(),
+            ...(isWakeUp
+              ? {
+                  time: formattedFrom,
+                  from: undefined,
+                  to: undefined,
+                  nextDay: false,
+                }
+              : {
+                  from: formattedFrom,
+                  to: formattedTo,
+                  time: undefined,
+                  nextDay,
+                }),
+          });
+
+          // =====================================================
+          // UPDATE UI IMMEDIATELY
+          // =====================================================
+          setTasks((prev) =>
+            prev.map((task) => {
+              if (
+                String(task.id) !==
+                String(editTask.id)
+              ) {
+                return task;
+              }
+
+              if (isWakeUp) {
+                return {
+                  ...task,
+                  title: title.trim(),
+                  from: undefined,
+                  time: formattedFrom,
+                  to: undefined,
+                  nextDay: false,
+                };
+              }
+
+              return {
+                ...task,
+                title: title.trim(),
+                from: formattedFrom,
+                to: formattedTo,
+                nextDay,
+              };
+            })
           );
+
+          // =====================================================
+          // REMOVE IMAGE
+          // =====================================================
+          if (removeImage && editTask?.id) {
+            try {
+              const removeData =
+                await removeTaskImage(editTask.id);
+
+              if (!removeData.success) {
+                alert(
+                  removeData.message ||
+                    "Could not remove task image"
+                );
+                return;
+              }
+
+              setTasks((prev) =>
+                prev.map((task) =>
+                  String(task.id) ===
+                  String(editTask.id)
+                    ? {
+                        ...task,
+                        iconImage: null,
+                      }
+                    : task
+                )
+              );
+            } catch (removeError) {
+              console.error(
+                "Default task image remove error:",
+                removeError
+              );
+              alert("Unable to remove task image");
+              return;
+            }
+          }
+
+          // =====================================================
+          // SAVE NEW IMAGE
+          // =====================================================
+          if (image && editTask?.id) {
+            try {
+              const imageData =
+                await saveTaskImage(editTask.id);
+
+              if (!imageData.success) {
+                alert(
+                  imageData.message ||
+                    "Could not save task image"
+                );
+                return;
+              }
+
+              setTasks((prev) =>
+                prev.map((task) =>
+                  String(task.id) ===
+                  String(editTask.id)
+                    ? {
+                        ...task,
+                        iconImage:
+                          imageData.icon_image ||
+                          task.iconImage,
+                      }
+                    : task
+                )
+              );
+            } catch (imageError) {
+              console.error(
+                "Default task image save error:",
+                imageError
+              );
+              alert("Unable to save task image");
+              return;
+            }
+          }
+
+          // =====================================================
+          // SLEEP -> NEXT DAY WAKE UP
+          // =====================================================
+          if (isSleep && formattedTo && nextDay) {
+            const nextDate = new Date(date);
+            nextDate.setDate(nextDate.getDate() + 1);
+
+            const nextDateKey = getDateKey(nextDate);
+
+            saveDateDefaultSchedule(
+              nextDateKey,
+              "d1",
+              {
+                title: "Wake Up",
+                time: formattedTo,
+                from: undefined,
+                to: undefined,
+                nextDay: false,
+              }
+            );
+
+            try {
+              const wakeUpForm = new FormData();
+
+              wakeUpForm.append(
+                "action",
+                "sync_default_wakeup"
+              );
+              wakeUpForm.append(
+                "email",
+                user?.email || ""
+              );
+              wakeUpForm.append(
+                "task_date",
+                nextDateKey
+              );
+              wakeUpForm.append(
+                "time",
+                formattedTo
+              );
+
+              const wakeUpResponse = await fetch(API_URL, {
+                method: "POST",
+                body: wakeUpForm,
+              });
+
+              const wakeUpData =
+                await wakeUpResponse.json();
+
+              if (!wakeUpData.success) {
+                console.error(
+                  "Next-day Wake Up database sync failed:",
+                  wakeUpData.message
+                );
+              }
+            } catch (wakeUpError) {
+              console.error(
+                "Next-day Wake Up database sync error:",
+                wakeUpError
+              );
+            }
+          }
+
+          notifyTaskUpdated();
+          resetModal();
+          return;
+        } catch (defaultUpdateError) {
+          console.error(
+            "Default task database update error:",
+            defaultUpdateError
+          );
+          alert("Unable to save default task");
+          return;
         }
       }
 
-      notifyTaskUpdated();
-      resetModal();
-      saveInProgressRef.current = false;
-      return;
-    }
+      // =========================================================
+      // NORMAL / CUSTOM TASKS
+      // =========================================================
+      const candidateStart = toMin(formattedFrom);
 
-    // =========================
-    // DATABASE ADD / UPDATE
-    // =========================
-    try {
-      const formData = new FormData();
-      formData.append("action", editTask ? "update" : "add");
+      const candidateEnd = formattedTo
+        ? toMin(formattedTo)
+        : candidateStart;
 
-      if (editTask?.id) {
-        formData.append("id", String(editTask.id));
+      // Same start/end is invalid
+      if (
+        formattedTo &&
+        candidateEnd === candidateStart
+      ) {
+        alert(
+          "Start time and end time cannot be the same. Please choose another time."
+        );
+        return;
       }
 
-      formData.append("email", user?.email || "");
-      formData.append("title", title.trim());
-      formData.append("from", formattedFrom);
-      formData.append("to", formattedTo);
-      formData.append("task_date", currentKey);
-      formData.append("nextDay", nextDay ? "1" : "0");
+      // =========================================================
+      // DATE-BASED TASK TIME OVERLAP CHECK
+      // =========================================================
+      const getTaskRanges = (
+        from,
+        to,
+        taskNextDay = false
+      ) => {
+        if (!from) return [];
+
+        const start = toMin(from);
+
+        // Point-time task
+        if (!to) {
+          return [[start, start]];
+        }
+
+        const end = toMin(to);
+        const overnight =
+          taskNextDay || end < start;
+
+        // Normal same-day task
+        if (!overnight) {
+          return [[start, end]];
+        }
+
+        // Only the selected-date portion is checked.
+        return [[start, 24 * 60]];
+      };
+
+      const candidateRanges =
+        formattedTo && nextDay
+          ? [[candidateStart, 24 * 60]]
+          : [[candidateStart, candidateEnd]];
+
+      const rangesOverlap = (a, b) => {
+        // Point task
+        if (a[0] === a[1]) {
+          return (
+            b[0] <= a[0] &&
+            a[0] < b[1]
+          );
+        }
+
+        // Existing task is point task
+        if (b[0] === b[1]) {
+          return (
+            a[0] <= b[0] &&
+            b[0] < a[1]
+          );
+        }
+
+        return (
+          a[0] < b[1] &&
+          b[0] < a[1]
+        );
+      };
+
+      const overlappingTask = tasks.find(
+        (existingTask) => {
+          // Ignore the task itself while editing
+          if (
+            editTask &&
+            String(existingTask.id) ===
+              String(editTask.id)
+          ) {
+            return false;
+          }
+
+          const existingFrom =
+            existingTask.from ||
+            existingTask.time ||
+            "";
+
+          const existingTo =
+            existingTask.to || "";
+
+          const existingRanges =
+            getTaskRanges(
+              existingFrom,
+              existingTo,
+              Boolean(existingTask.nextDay)
+            );
+
+          return candidateRanges.some(
+            (candidateRange) =>
+              existingRanges.some(
+                (existingRange) =>
+                  rangesOverlap(
+                    candidateRange,
+                    existingRange
+                  )
+              )
+          );
+        }
+      );
+
+      if (overlappingTask) {
+        const existingFrom =
+          overlappingTask.from ||
+          overlappingTask.time ||
+          "";
+
+        const existingTo =
+          overlappingTask.to || "";
+
+        const existingTime = existingTo
+          ? `${existingFrom} - ${existingTo}`
+          : existingFrom;
+
+        alert(
+          `This time cannot be scheduled.\n\n` +
+            `${overlappingTask.title} is already scheduled for ${existingTime}.\n\n` +
+            `Please choose another time.`
+        );
+
+        return;
+      }
+
+      // =========================================================
+      // DATABASE ADD / UPDATE
+      // =========================================================
+      const formData = new FormData();
+
+      formData.append(
+        "action",
+        editTask ? "update" : "add"
+      );
+
+      if (editTask?.id) {
+        formData.append(
+          "id",
+          String(editTask.id)
+        );
+      }
+
+      formData.append(
+        "email",
+        user?.email || ""
+      );
+
+      formData.append(
+        "title",
+        title.trim()
+      );
+
+      formData.append(
+        "from",
+        formattedFrom
+      );
+
+      formData.append(
+        "to",
+        formattedTo
+      );
+
+      formData.append(
+        "task_date",
+        currentKey
+      );
+
+      formData.append(
+        "nextDay",
+        nextDay ? "1" : "0"
+      );
+
       formData.append(
         "color",
-        editTask?.color || colors[tasks.length % colors.length]
+        editTask?.color ||
+          colors[
+            tasks.length %
+              colors.length
+          ]
       );
 
       if (image) {
-        formData.append("image", image);
+        formData.append(
+          "image",
+          image
+        );
       }
 
-      if (editTask && removeImage && !image) {
-        formData.append("remove_image", "1");
+      if (
+        editTask &&
+        removeImage &&
+        !image
+      ) {
+        formData.append(
+          "remove_image",
+          "1"
+        );
       }
 
       const res = await fetch(API_URL, {
@@ -1984,18 +2118,26 @@ useEffect(() => {
       const data = await res.json();
 
       if (!data.success) {
-        alert(data.message || "Task save failed");
-        saveInProgressRef.current = false;
+        alert(
+          data.message ||
+            "Task save failed"
+        );
         return;
       }
 
       await fetchTasks();
+
       notifyTaskUpdated();
+
       resetModal();
-      saveInProgressRef.current = false;
     } catch (error) {
-      console.error("Add/update task error:", error);
+      console.error(
+        "Add/update task error:",
+        error
+      );
       alert("Unable to save task");
+    } finally {
+      // Always unlock Save button
       saveInProgressRef.current = false;
     }
   };
