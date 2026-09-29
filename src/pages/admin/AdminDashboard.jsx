@@ -386,22 +386,36 @@ function AdminDashboard() {
     let match = raw.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
     if (match) {
       const hour = Number(match[1]);
+      const minute = Number(match[2]);
 
-      if (hour >= 0 && hour <= 23) {
-        return `${String(hour).padStart(2, "0")}:00`;
+      if (
+        hour >= 0 &&
+        hour <= 23 &&
+        minute >= 0 &&
+        minute <= 59
+      ) {
+        return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
       }
     }
 
-    // UI value: 5:00 AM / 5:00 PM
+    // UI value: 5:00 AM / 5:30 PM
     match = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
     if (match) {
       let hour = Number(match[1]);
+      const minute = Number(match[2]);
       const modifier = match[3].toUpperCase();
 
       if (modifier === "PM" && hour !== 12) hour += 12;
       if (modifier === "AM" && hour === 12) hour = 0;
 
-      return `${String(hour).padStart(2, "0")}:00`;
+      if (
+        hour >= 0 &&
+        hour <= 23 &&
+        minute >= 0 &&
+        minute <= 59
+      ) {
+        return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      }
     }
 
     return "";
@@ -423,21 +437,29 @@ function AdminDashboard() {
 
   // =========================================================
   // ADMIN DEFAULT TIME MODEL
-  // Use whole hours only: 5:00, 6:00, 7:00 ...
+  // Allow 30-minute slots:
+  // 04:00, 04:30, 05:00, 05:30 ... 23:30
   // =========================================================
   const normalizeAdminHourInput = (value) => {
     if (!value) return "";
 
-    const match = String(value).trim().match(/^(\d{1,2})(?::\d{2})?/);
+    const match = String(value).trim().match(/^(\d{1,2}):(\d{2})$/);
     if (!match) return "";
 
     const hour = Number(match[1]);
+    const minute = Number(match[2]);
 
-    if (!Number.isFinite(hour) || hour < 0 || hour > 23) {
+    if (
+      !Number.isFinite(hour) ||
+      !Number.isFinite(minute) ||
+      hour < 0 ||
+      hour > 23 ||
+      ![0, 30].includes(minute)
+    ) {
       return "";
     }
 
-    return `${String(hour).padStart(2, "0")}:00`;
+    return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
   };
 
   const inputToDisplayTime = (value) => {
@@ -446,14 +468,14 @@ function AdminDashboard() {
     const normalized = normalizeAdminHourInput(value);
     if (!normalized) return "";
 
-    const [hourString] = normalized.split(":");
+    const [hourString, minuteString] = normalized.split(":");
     let hour = Number(hourString);
 
     const ampm = hour >= 12 ? "PM" : "AM";
     hour = hour % 12;
     if (hour === 0) hour = 12;
 
-    return `${hour}:00 ${ampm}`;
+    return `${hour}:${minuteString} ${ampm}`;
   };
 
   const isOvernightDefault = (from, to) => {
@@ -550,9 +572,9 @@ function AdminDashboard() {
           : task
       );
 
-      // Sleep end time is the next day's Wake Up time.
-      // Keep the preview in sync immediately; PHP applies the same
-      // relationship again when the defaults are saved.
+      // Wake Up and Sleep are linked:
+      // Sleep end time = next day's Wake Up time.
+      // Keep both sides synchronized immediately in the Admin modal.
       if (String(defaultId) === "d5" && field === "to" && value) {
         return updated.map((task) =>
           String(task.default_id) === "d1"
@@ -561,6 +583,21 @@ function AdminDashboard() {
                 from: value,
                 to: "",
                 next_day: 0,
+              }
+            : task
+        );
+      }
+
+      // If Admin changes Wake Up, update Sleep's next-day end too.
+      // This prevents the validation from treating Wake Up as an
+      // accidental overlap with Sleep.
+      if (String(defaultId) === "d1" && field === "from" && value) {
+        return updated.map((task) =>
+          String(task.default_id) === "d5"
+            ? {
+                ...task,
+                to: value,
+                next_day: 1,
               }
             : task
         );
@@ -2215,9 +2252,9 @@ const openStudentDashboard = (student) => {
 
                               <input
                                 type="time"
-                                step="3600"
+                                step="1800"
                                 min="00:00"
-                                max="23:00"
+                                max="23:30"
                                 value={fromInput}
                                 onChange={(e) => {
                                   updateStudentDefault(
@@ -2265,9 +2302,9 @@ const openStudentDashboard = (student) => {
 
                                 <input
                                   type="time"
-                                  step="3600"
+                                  step="1800"
                                   min="00:00"
-                                  max="23:00"
+                                  max="23:30"
                                   value={toInput}
                                   onChange={(e) =>
                                     updateStudentDefault(
