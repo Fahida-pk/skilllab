@@ -233,6 +233,302 @@ try {
             if (isset($input["task_date"]) && $selectedDate !== "") {
                 $coreIds = array_column($systemDefaults, "id");
 
+                /* =========================================================
+                   DATE-WISE TIME CONFLICT VALIDATION
+
+                   Validate the complete date payload BEFORE writing any
+                   rows. This prevents partial saves when two defaults or
+                   a default and a student-created task overlap.
+                ========================================================= */
+                $dateCheckTasks = [];
+                $incomingDateDefaultIds = [];
+
+                $dateMakeRanges = function ($from, $to) {
+                    if ($to === null) {
+                        return [["start" => $from, "end" => $from]];
+                    }
+                    if ($to > $from) {
+                        return [["start" => $from, "end" => $to]];
+                    }
+                    return [
+                        ["start" => $from, "end" => 1440],
+                        ["start" => 0, "end" => $to]
+                    ];
+                };
+
+                $dateRangesOverlap = function ($a, $b) {
+                    if ($a["start"] === $a["end"]) {
+                        return $b["start"] <= $a["start"] && $a["start"] < $b["end"];
+                    }
+                    if ($b["start"] === $b["end"]) {
+                        return $a["start"] <= $b["start"] && $b["start"] < $a["end"];
+                    }
+                    return $a["start"] < $b["end"] && $b["start"] < $a["end"];
+                };
+
+                $dateFormatTime = function ($minutes) {
+                    $minutes = (int)$minutes;
+                    $h = intdiv($minutes, 60);
+                    $m = $minutes % 60;
+                    $ampm = $h >= 12 ? "PM" : "AM";
+                    $displayH = $h % 12;
+                    if ($displayH === 0) $displayH = 12;
+                    return sprintf("%d:%02d %s", $displayH, $m, $ampm);
+                };
+
+                foreach ($defaults as $d) {
+                    $defaultId = trim((string)($d["default_id"] ?? $d["id"] ?? ""));
+                    $title = trim((string)($d["title"] ?? ""));
+                    $from = trim((string)($d["from"] ?? $d["time"] ?? ""));
+                    $to = trim((string)($d["to"] ?? ""));
+
+                    if ($defaultId === "" || $title === "" || $from === "") continue;
+
+                    /* A student deletion for this date ALWAYS wins.
+                       Even if a stale Admin UI sends this default again,
+                       do not resurrect it. */
+                    $deletedCheck = $conn->prepare("
+                        SELECT 1
+                        FROM skilllab_deleted_default_tasks
+                        WHERE user_id=? AND task_date=? AND default_id=?
+                        LIMIT 1
+                    ");
+                    $deletedCheck->bind_param("iss", $studentId, $selectedDate, $defaultId);
+                    $deletedCheck->execute();
+                    $isDeleted = $deletedCheck->get_result()->num_rows > 0;
+                    $deletedCheck->close();
+                    if ($isDeleted) continue;
+
+                    /* student_deleted is another hard stop. */
+                    $overrideCheck = $conn->prepare("
+                        SELECT is_active, source
+                        FROM student_default_task_dates
+                        WHERE user_id=? AND task_date=? AND default_id=?
+                        LIMIT 1
+                    ");
+                    $overrideCheck->bind_param("iss", $studentId, $selectedDate, $defaultId);
+                    $overrideCheck->execute();
+                    $overrideRow = $overrideCheck->get_result()->fetch_assoc();
+                    $overrideCheck->close();
+
+                    if (
+                        $overrideRow &&
+                        (int)($overrideRow["is_active"] ?? 1) === 0 &&
+                        in_array((string)($overrideRow["source"] ?? ""), ["student", "student_deleted"], true)
+                    ) {
+                        continue;
+                    }
+
+                    if ($defaultId === "d1") $to = "";
+
+                    /*
+                     * A student date-specific edit is authoritative.
+                     * If the student changed this default on this exact date,
+                     * Admin's save must not turn it back into the Admin value.
+                     *
+                     * The student can still edit/delete/add tasks, and the
+                     * Admin get_student_defaults action will read the actual
+                     * student value back from the mapped task.
+                     */
+                    $studentOverrideCheck = $conn->prepare("
+                        SELECT is_active, source
+                        FROM student_default_task_dates
+                        WHERE user_id=? AND task_date=? AND default_id=?
+                        LIMIT 1
+                    ");
+                    $studentOverrideCheck->bind_param(
+                        "iss",
+                        $studentId,
+                        $selectedDate,
+                        $defaultId
+                    );
+                    $studentOverrideCheck->execute();
+                    $studentOverrideRow = $studentOverrideCheck->get_result()->fetch_assoc();
+                    $studentOverrideCheck->close();
+
+                    if (
+                        $studentOverrideRow &&
+                        (int)($studentOverrideRow["is_active"] ?? 0) === 1 &&
+                        (string)($studentOverrideRow["source"] ?? "") === "student"
+                    ) {
+                        /*
+                         * Keep the student's actual task untouched.
+                         * It is already mapped to this default_id.
+                         */
+                        continue;
+                    }
+
+                    try {
+                        $fromDb = normalizeDbTime($from);
+                        $toDb = normalizeDbTime($to);
+                    } catch (Throwable $e) {
+                        echo json_encode([
+                            "success" => false,
+                            "message" => "Invalid time for $title."
+                        ]);
+                        exit;
+                    }
+
+                    if ($fromDb === null) continue;
+
+                    $fromMin = ((int)substr($fromDb, 0, 2) * 60) + (int)substr($fromDb, 3, 2);
+                    $toMin = $toDb !== null
+                        ? ((int)substr($toDb, 0, 2) * 60) + (int)substr($toDb, 3, 2)
+                        : null;
+
+                    if ($toMin !== null && $toMin === $fromMin) {
+                        echo json_encode([
+                            "success" => false,
+                            "message" => "Time conflict\n\n$title cannot have the same From Time and To Time.\n\nPlease choose another time."
+                        ]);
+                        exit;
+                    }
+
+                    if ($toMin !== null && $toMin < $fromMin && $defaultId !== "d5") {
+                        echo json_encode([
+                            "success" => false,
+                            "message" => "Time conflict\n\n$title cannot end before its start time.\n\nOnly Sleep can cross midnight."
+                        ]);
+                        exit;
+                    }
+
+                    $incomingDateDefaultIds[$defaultId] = true;
+                    $dateCheckTasks[] = [
+                        "id" => $defaultId,
+                        "title" => $title,
+                        "from" => $fromMin,
+                        "to" => $toMin
+                    ];
+                }
+
+                /* Default vs default overlap. Wake Up and Sleep are linked. */
+                for ($i = 0; $i < count($dateCheckTasks); $i++) {
+                    for ($j = $i + 1; $j < count($dateCheckTasks); $j++) {
+                        $a = $dateCheckTasks[$i];
+                        $b = $dateCheckTasks[$j];
+
+                        if (
+                            ($a["id"] === "d1" && $b["id"] === "d5") ||
+                            ($a["id"] === "d5" && $b["id"] === "d1")
+                        ) {
+                            continue;
+                        }
+
+                        foreach ($dateMakeRanges($a["from"], $a["to"]) as $ar) {
+                            foreach ($dateMakeRanges($b["from"], $b["to"]) as $br) {
+                                if ($dateRangesOverlap($ar, $br)) {
+                                    $aTime = $a["to"] === null
+                                        ? $dateFormatTime($a["from"])
+                                        : $dateFormatTime($a["from"]) . " - " . $dateFormatTime($a["to"]);
+                                    $bTime = $b["to"] === null
+                                        ? $dateFormatTime($b["from"])
+                                        : $dateFormatTime($b["from"]) . " - " . $dateFormatTime($b["to"]);
+
+                                    echo json_encode([
+                                        "success" => false,
+                                        "message" => "Time conflict\n\n" .
+                                            $a["title"] . " ($aTime) overlaps with " .
+                                            $b["title"] . " ($bTime).\n\n" .
+                                            "Please choose another time."
+                                    ]);
+                                    exit;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                /*
+                 * IMPORTANT:
+                 * Existing student tasks are NOT Admin-default conflicts.
+                 *
+                 * A student may already have tasks before Admin assigns
+                 * defaults. Admin defaults must be allowed to coexist with
+                 * those tasks. If an existing task has the same title as an
+                 * incoming Admin default and is not mapped yet, attach the
+                 * existing task to that default_id instead of creating a
+                 * second copy.
+                 *
+                 * Student edits/deletes are handled through:
+                 *   - student_default_task_dates
+                 *   - skilllab_deleted_default_tasks
+                 *   - skilllab_task_default_map
+                 *
+                 * Therefore we deliberately DO NOT reject Admin saves because
+                 * of overlap with an existing student task.
+                 */
+                foreach ($defaults as $incoming) {
+                    $incomingId = trim((string)($incoming["default_id"] ?? $incoming["id"] ?? ""));
+                    $incomingTitle = trim((string)($incoming["title"] ?? ""));
+
+                    if ($incomingId === "" || $incomingTitle === "") {
+                        continue;
+                    }
+
+                    /* Never remap a task that is already explicitly mapped. */
+                    $mappedCheck = $conn->prepare("
+                        SELECT task_id
+                        FROM skilllab_task_default_map
+                        WHERE user_id=? AND task_date=? AND default_id=?
+                        LIMIT 1
+                    ");
+                    $mappedCheck->bind_param("iss", $studentId, $selectedDate, $incomingId);
+                    $mappedCheck->execute();
+                    $alreadyMapped = $mappedCheck->get_result()->fetch_assoc();
+                    $mappedCheck->close();
+
+                    if ($alreadyMapped) {
+                        continue;
+                    }
+
+                    /*
+                     * Find an existing task with the same title which is not
+                     * already mapped to another default. This is how an
+                     * already-existing student task becomes the Admin default
+                     * task without creating a duplicate.
+                     */
+                    $sameTitle = $conn->prepare("
+                        SELECT t.id
+                        FROM tasks t
+                        LEFT JOIN skilllab_task_default_map m
+                          ON m.task_id=t.id
+                         AND m.user_id=t.user_id
+                         AND m.task_date=t.task_date
+                        WHERE t.user_id=?
+                          AND t.task_date=?
+                          AND t.status=0
+                          AND LOWER(TRIM(t.task_name))=LOWER(TRIM(?))
+                          AND m.id IS NULL
+                        ORDER BY t.id ASC
+                        LIMIT 1
+                    ");
+                    $sameTitle->bind_param("iss", $studentId, $selectedDate, $incomingTitle);
+                    $sameTitle->execute();
+                    $sameTitleRow = $sameTitle->get_result()->fetch_assoc();
+                    $sameTitle->close();
+
+                    if ($sameTitleRow) {
+                        $existingTaskId = (int)$sameTitleRow["id"];
+
+                        $mapExisting = $conn->prepare("
+                            INSERT INTO skilllab_task_default_map
+                                (task_id, user_id, task_date, default_id)
+                            VALUES (?, ?, ?, ?)
+                            ON DUPLICATE KEY UPDATE
+                                task_id=VALUES(task_id)
+                        ");
+                        $mapExisting->bind_param(
+                            "iiss",
+                            $existingTaskId,
+                            $studentId,
+                            $selectedDate,
+                            $incomingId
+                        );
+                        $mapExisting->execute();
+                        $mapExisting->close();
+                    }
+                }
+
                 // Validate and save every task received for this date.
                 foreach ($defaults as $d) {
                     $defaultId = trim((string)($d["default_id"] ?? $d["id"] ?? ""));
@@ -242,6 +538,37 @@ try {
                     if ($defaultId === "" || $title === "" || $from === "") continue;
 
                     if ($defaultId === "d1") $to = "";
+
+                    /* A student deletion for this date always wins. */
+                    $deletedBeforeSave = $conn->prepare("
+                        SELECT 1
+                        FROM skilllab_deleted_default_tasks
+                        WHERE user_id=? AND task_date=? AND default_id=?
+                        LIMIT 1
+                    ");
+                    $deletedBeforeSave->bind_param("iss", $studentId, $selectedDate, $defaultId);
+                    $deletedBeforeSave->execute();
+                    $blockedByDelete = $deletedBeforeSave->get_result()->num_rows > 0;
+                    $deletedBeforeSave->close();
+                    if ($blockedByDelete) continue;
+
+                    $studentDeleteOverride = $conn->prepare("
+                        SELECT is_active, source
+                        FROM student_default_task_dates
+                        WHERE user_id=? AND task_date=? AND default_id=?
+                        LIMIT 1
+                    ");
+                    $studentDeleteOverride->bind_param("iss", $studentId, $selectedDate, $defaultId);
+                    $studentDeleteOverride->execute();
+                    $studentDeleteRow = $studentDeleteOverride->get_result()->fetch_assoc();
+                    $studentDeleteOverride->close();
+                    if (
+                        $studentDeleteRow &&
+                        (int)($studentDeleteRow["is_active"] ?? 1) === 0 &&
+                        in_array((string)($studentDeleteRow["source"] ?? ""), ["student", "student_deleted"], true)
+                    ) {
+                        continue;
+                    }
 
                     try {
                         $fromDb = normalizeDbTime($from);
@@ -289,15 +616,7 @@ try {
                     $up->execute();
                     $up->close();
 
-                    /* Admin explicitly enabled/changed this default for this date.
-                       Remove any older student delete marker for the same date. */
-                    $clearDeleted = $conn->prepare("
-                        DELETE FROM skilllab_deleted_default_tasks
-                        WHERE user_id=? AND task_date=? AND default_id=?
-                    ");
-                    $clearDeleted->bind_param("iss", $studentId, $selectedDate, $defaultId);
-                    $clearDeleted->execute();
-                    $clearDeleted->close();
+                    /* Student date-wise deletions are never cleared here. */
 
                     // Update the actual task row for this exact date if it exists.
                     $mapped = $conn->prepare("

@@ -1001,14 +1001,15 @@ if ($action === "add") {
 
         $addOverride = $conn->prepare("
             INSERT INTO student_default_task_dates
-                (user_id, task_date, default_id, task_title, from_time, to_time, icon, color, next_day, is_active)
-            VALUES (?, ?, ?, ?, ?, ?, 'clock', NULL, ?, 1)
+                (user_id, task_date, default_id, task_title, from_time, to_time, icon, color, next_day, is_active, source)
+            VALUES (?, ?, ?, ?, ?, ?, 'clock', NULL, ?, 1, 'student')
             ON DUPLICATE KEY UPDATE
                 task_title=VALUES(task_title),
                 from_time=VALUES(from_time),
                 to_time=VALUES(to_time),
                 next_day=VALUES(next_day),
-                is_active=1
+                is_active=1,
+                source='student'
         ");
         $addOverride->bind_param(
             "isssssi",
@@ -1078,118 +1079,22 @@ if ($action === "get") {
     $date = mysqli_real_escape_string($conn, $dateRaw);
 
     /*
-     * Admin can open a student's task page directly.
-     * If this is the first visit, create the five defaults on the server,
-     * except defaults that were explicitly deleted for this date.
+     * ADMIN VIEW
+     * -----------
+     * Admin/student viewing is read-only here.
+     *
+     * IMPORTANT:
+     * Do NOT create the five hard-coded defaults merely because Admin
+     * opened a student's task page. Admin defaults are created only by the
+     * Admin Default Tasks editor for the selected student/date.
+     *
+     * This keeps:
+     *   Admin default -> student can edit/delete/add
+     *   Student change -> Admin sees the same date-specific result
+     *   Other dates -> unchanged
+     *
+     * The normal SELECT below is the single source for the actual tasks.
      */
-    if (!empty($data['admin_view'])) {
-
-        $adminDefaults = [
-            ["id" => "d1", "title" => "Wake Up", "from" => "5:00 AM", "to" => ""],
-            ["id" => "d2", "title" => "Study MERN", "from" => "5:00 AM", "to" => "10:00 AM"],
-            ["id" => "d3", "title" => "Practice English", "from" => "1:00 PM", "to" => "4:00 PM"],
-            ["id" => "d4", "title" => "Workout", "from" => "6:00 PM", "to" => "7:00 PM"],
-            ["id" => "d5", "title" => "Sleep", "from" => "10:00 PM", "to" => "8:00 AM"]
-        ];
-
-        foreach ($adminDefaults as $defaultTask) {
-
-            $did = mysqli_real_escape_string($conn, $defaultTask['id']);
-            $dtitle = mysqli_real_escape_string($conn, $defaultTask['title']);
-            $dfrom = mysqli_real_escape_string($conn, $defaultTask['from']);
-            $dto = mysqli_real_escape_string($conn, $defaultTask['to']);
-
-            $deleted = mysqli_query($conn, "
-                SELECT 1
-                FROM skilllab_deleted_default_tasks
-                WHERE user_id='$user_id'
-                  AND task_date='$date'
-                  AND default_id='$did'
-                LIMIT 1
-            ");
-
-            if ($deleted && mysqli_fetch_assoc($deleted)) {
-                continue;
-            }
-
-            $mapped = mysqli_query($conn, "
-                SELECT task_id
-                FROM skilllab_task_default_map
-                WHERE user_id='$user_id'
-                  AND task_date='$date'
-                  AND default_id='$did'
-                LIMIT 1
-            ");
-
-            $mappedRow = $mapped ? mysqli_fetch_assoc($mapped) : null;
-
-            if ($mappedRow) {
-                continue;
-            }
-
-            /* Map an old row with the original default title. */
-            $legacy = mysqli_query($conn, "
-                SELECT id
-                FROM tasks
-                WHERE user_id='$user_id'
-                  AND task_date='$date'
-                  AND task_name='$dtitle'
-                LIMIT 1
-            ");
-
-            $legacyRow = $legacy ? mysqli_fetch_assoc($legacy) : null;
-
-            if ($legacyRow) {
-
-                $legacyId = (int)$legacyRow['id'];
-
-                mysqli_query($conn, "
-                    INSERT INTO skilllab_task_default_map
-                        (task_id, user_id, task_date, default_id)
-                    VALUES
-                        ('$legacyId', '$user_id', '$date', '$did')
-                    ON DUPLICATE KEY UPDATE
-                        default_id=VALUES(default_id)
-                ");
-
-                continue;
-            }
-
-            if (mysqli_query($conn, "
-                INSERT INTO tasks
-                (
-                    user_id,
-                    task_name,
-                    task_date,
-                    from_time,
-                    to_time,
-                    status,
-                    task_percentage
-                )
-                VALUES
-                (
-                    '$user_id',
-                    '$dtitle',
-                    '$date',
-                    '$dfrom',
-                    '$dto',
-                    0,
-                    0
-                )
-            ")) {
-
-                $newTaskId = (int)mysqli_insert_id($conn);
-
-                mysqli_query($conn, "
-                    INSERT INTO skilllab_task_default_map
-                        (task_id, user_id, task_date, default_id)
-                    VALUES
-                        ('$newTaskId', '$user_id', '$date', '$did')
-                ");
-            }
-        }
-    }
-
     $sql = "
         SELECT
             t.*,
