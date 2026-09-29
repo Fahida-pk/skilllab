@@ -2037,10 +2037,7 @@ const openStudentDashboard = (student) => {
                   lineHeight: 1.5,
                 }}
               >
-                These defaults are shown for the selected date. If the student
-                edited a default task on this date, that date-specific change is
-                loaded here. Saving from Admin changes only this selected date.
-                Sleep can cross midnight and its end time becomes the next day's Wake Up time.
+               
               </div>
 
               {defaultLoading ? (
