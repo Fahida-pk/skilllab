@@ -25,6 +25,13 @@ import {
   FaArrowRight,
   FaMagnifyingGlass,
   FaUser,
+  FaSun,
+  FaBook,
+  FaLanguage,
+  FaDumbbell,
+  FaMoon,
+  FaPen,
+  FaTrashCan,
 } from "react-icons/fa6";
 
 import "./admin-dashboard.css";
@@ -87,6 +94,7 @@ function AdminDashboard() {
   const [studentDefaults, setStudentDefaults] = useState([]);
   const [defaultLoading, setDefaultLoading] = useState(false);
   const [defaultSaving, setDefaultSaving] = useState(false);
+  const [editingDefaultId, setEditingDefaultId] = useState(null);
 
   const [mobileOpen, setMobileOpen] =
     useState(false);
@@ -336,6 +344,7 @@ function AdminDashboard() {
   const openDefaultTasks = async (student) => {
     setSelectedDefaultStudent(student);
     setDefaultModalOpen(true);
+    setEditingDefaultId(null);
     setDefaultLoading(true);
 
     try {
@@ -363,18 +372,190 @@ function AdminDashboard() {
     }
   };
 
+  /* =========================================
+     DEFAULT TASK TIME / ICON HELPERS
+     Keep Admin's recurring-default editor in
+     the same time model as the Student task UI.
+  ========================================= */
+
+  const toInputTime = (value) => {
+    const raw = String(value ?? "").trim();
+    if (!raw) return "";
+
+    // MySQL TIME: 05:00:00 / 17:30:00
+    let match = raw.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+    if (match) {
+      const hour = Number(match[1]);
+      const minute = Number(match[2]);
+
+      if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+        return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      }
+    }
+
+    // UI value: 5:00 AM / 5:00 PM
+    match = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (match) {
+      let hour = Number(match[1]);
+      const minute = Number(match[2]);
+      const modifier = match[3].toUpperCase();
+
+      if (modifier === "PM" && hour !== 12) hour += 12;
+      if (modifier === "AM" && hour === 12) hour = 0;
+
+      return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+    }
+
+    return "";
+  };
+
+  const toDisplayTime = (value) => {
+    const inputValue = toInputTime(value);
+    if (!inputValue) return "";
+
+    const [hourString, minute] = inputValue.split(":");
+    let hour = Number(hourString);
+    const ampm = hour >= 12 ? "PM" : "AM";
+
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+
+    return `${hour}:${minute} ${ampm}`;
+  };
+
+  const inputToDisplayTime = (value) => {
+    if (!value) return "";
+
+    const [hourString, minute] = value.split(":");
+    let hour = Number(hourString);
+
+    if (!Number.isFinite(hour) || !minute) return "";
+
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+
+    return `${hour}:${minute} ${ampm}`;
+  };
+
+  const isOvernightDefault = (from, to) => {
+    const fromInput = toInputTime(from);
+    const toInput = toInputTime(to);
+
+    if (!fromInput || !toInput) return false;
+
+    const [fh, fm] = fromInput.split(":").map(Number);
+    const [th, tm] = toInput.split(":").map(Number);
+
+    return th * 60 + tm <= fh * 60 + fm;
+  };
+
+  const getDefaultIcon = (task) => {
+    const key = String(task?.icon || task?.default_id || task?.title || "")
+      .toLowerCase()
+      .trim();
+
+    if (key.includes("d1") || key.includes("wake") || key.includes("sun")) {
+      return <FaSun />;
+    }
+
+    if (
+      key.includes("d2") ||
+      key.includes("study") ||
+      key.includes("book")
+    ) {
+      return <FaBook />;
+    }
+
+    if (
+      key.includes("d3") ||
+      key.includes("english") ||
+      key.includes("language")
+    ) {
+      return <FaLanguage />;
+    }
+
+    if (
+      key.includes("d4") ||
+      key.includes("workout") ||
+      key.includes("dumbbell")
+    ) {
+      return <FaDumbbell />;
+    }
+
+    if (
+      key.includes("d5") ||
+      key.includes("sleep") ||
+      key.includes("moon")
+    ) {
+      return <FaMoon />;
+    }
+
+    return <FaClock />;
+  };
+
+  const getDefaultGradient = (task, index) => {
+    if (task?.color) return task.color;
+
+    const gradients = [
+      "linear-gradient(135deg, #56ccf2, #2f80ed)",
+      "linear-gradient(135deg, #667eea, #764ba2)",
+      "linear-gradient(135deg, #f093fb, #f5576c)",
+      "linear-gradient(135deg, #f6d365, #fda085)",
+      "linear-gradient(135deg, #43e97b, #38f9d7)",
+    ];
+
+    return gradients[index % gradients.length];
+  };
+
   const updateStudentDefault = (defaultId, field, value) => {
-    setStudentDefaults((prev) =>
-      prev.map((task) =>
+    setStudentDefaults((prev) => {
+      const updated = prev.map((task) =>
         String(task.default_id) === String(defaultId)
-          ? { ...task, [field]: value }
+          ? {
+              ...task,
+              [field]: value,
+              ...(field === "from" || field === "to"
+                ? {
+                    next_day:
+                      String(defaultId) === "d5"
+                        ? isOvernightDefault(
+                            field === "from" ? value : task.from,
+                            field === "to" ? value : task.to
+                          )
+                          ? 1
+                          : 0
+                        : task.next_day,
+                  }
+                : {}),
+            }
           : task
-      )
-    );
+      );
+
+      // Sleep end time is the next day's Wake Up time.
+      // Keep the preview in sync immediately; PHP applies the same
+      // relationship again when the defaults are saved.
+      if (String(defaultId) === "d5" && field === "to" && value) {
+        return updated.map((task) =>
+          String(task.default_id) === "d1"
+            ? {
+                ...task,
+                from: value,
+                to: "",
+                next_day: 0,
+              }
+            : task
+        );
+      }
+
+      return updated;
+    });
   };
 
   const addStudentDefault = () => {
-    const customId = `c_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 5)}`;
+    const customId = `c_${Date.now().toString(36)}_${Math.random()
+      .toString(36)
+      .slice(2, 5)}`;
 
     setStudentDefaults((prev) => [
       ...prev,
@@ -390,6 +571,8 @@ function AdminDashboard() {
         is_new: true,
       },
     ]);
+
+    setEditingDefaultId(customId);
   };
 
   const deleteStudentDefault = (defaultId) => {
@@ -399,9 +582,11 @@ function AdminDashboard() {
 
     if (!task) return;
 
-    // Keep Wake Up and Sleep as permanent core defaults.
+    // Wake Up and Sleep are permanent recurring defaults.
     if (["d1", "d5"].includes(String(defaultId))) {
-      alert("Wake Up and Sleep are permanent default tasks and cannot be deleted.");
+      alert(
+        "Wake Up and Sleep are permanent default tasks and cannot be deleted."
+      );
       return;
     }
 
@@ -412,8 +597,14 @@ function AdminDashboard() {
     if (!confirmed) return;
 
     setStudentDefaults((prev) =>
-      prev.filter((item) => String(item.default_id) !== String(defaultId))
+      prev.filter(
+        (item) => String(item.default_id) !== String(defaultId)
+      )
     );
+
+    if (String(editingDefaultId) === String(defaultId)) {
+      setEditingDefaultId(null);
+    }
   };
 
   const saveStudentDefaults = async () => {
@@ -440,6 +631,7 @@ function AdminDashboard() {
       setDefaultModalOpen(false);
       setSelectedDefaultStudent(null);
       setStudentDefaults([]);
+      setEditingDefaultId(null);
     } catch (error) {
       console.error("Student defaults save error:", error);
       alert(error.message || "Unable to save student default tasks");
@@ -453,6 +645,7 @@ function AdminDashboard() {
     setDefaultModalOpen(false);
     setSelectedDefaultStudent(null);
     setStudentDefaults([]);
+    setEditingDefaultId(null);
   };
 
   /* =========================================
@@ -1657,73 +1850,543 @@ const openStudentDashboard = (student) => {
           <div
             onClick={closeDefaultModal}
             style={{
-              position: "fixed", inset: 0, zIndex: 9999,
-              background: "rgba(15, 23, 42, 0.65)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              padding: "20px", backdropFilter: "blur(6px)"
+              position: "fixed",
+              inset: 0,
+              zIndex: 9999,
+              background: "rgba(15, 23, 42, 0.68)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "20px",
+              backdropFilter: "blur(7px)",
             }}
           >
             <div
               onClick={(e) => e.stopPropagation()}
               style={{
-                width: "min(760px, 100%)", maxHeight: "90vh", overflowY: "auto",
-                background: "#fff", borderRadius: "24px", padding: "24px",
-                boxShadow: "0 24px 70px rgba(0,0,0,.25)"
+                width: "min(680px, 100%)",
+                maxHeight: "90vh",
+                overflowY: "auto",
+                background: "#f8fafc",
+                borderRadius: "26px",
+                padding: "22px",
+                boxShadow: "0 24px 80px rgba(15,23,42,.30)",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "16px", alignItems: "flex-start", marginBottom: "8px" }}>
+              {/* HEADER */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: "16px",
+                  alignItems: "flex-start",
+                  marginBottom: "12px",
+                }}
+              >
                 <div>
-                  <h2 style={{ margin: 0, fontSize: "22px", color: "#1e1b4b" }}>Student Default Tasks</h2>
-                  <p style={{ margin: "6px 0 0", color: "#64748b", fontSize: "13px" }}>
-                    {selectedDefaultStudent?.name || "Student"} — recurring every day
+                  <h2
+                    style={{
+                      margin: 0,
+                      fontSize: "23px",
+                      fontWeight: 800,
+                      color: "#172554",
+                    }}
+                  >
+                    Student Default Tasks
+                  </h2>
+                  <p
+                    style={{
+                      margin: "5px 0 0",
+                      color: "#64748b",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {selectedDefaultStudent?.name || "Student"} — recurring
+                    every day
                   </p>
                 </div>
-                <button type="button" onClick={closeDefaultModal} style={{ border: 0, background: "#f1f5f9", borderRadius: "10px", width: "36px", height: "36px", cursor: "pointer", fontSize: "18px" }}>×</button>
+
+                <button
+                  type="button"
+                  onClick={closeDefaultModal}
+                  disabled={defaultSaving}
+                  style={{
+                    width: "38px",
+                    height: "38px",
+                    border: 0,
+                    borderRadius: "12px",
+                    background: "#eef2f7",
+                    color: "#0f172a",
+                    cursor: "pointer",
+                    fontSize: "20px",
+                    flexShrink: 0,
+                  }}
+                >
+                  ×
+                </button>
               </div>
 
-              <div style={{ background: "#f8f7ff", border: "1px solid #e9e5ff", padding: "12px 14px", borderRadius: "14px", margin: "14px 0 18px", color: "#5b21b6", fontSize: "13px" }}>
-                These are this student's recurring defaults. Changing the calendar date will not change these times. Other students have their own defaults.
+              <div
+                style={{
+                  background: "#f4f0ff",
+                  border: "1px solid #ddd6fe",
+                  padding: "12px 14px",
+                  borderRadius: "15px",
+                  margin: "0 0 18px",
+                  color: "#5b21b6",
+                  fontSize: "13px",
+                  lineHeight: 1.5,
+                }}
+              >
+                These are this student's recurring tasks. The same schedule is
+                used every day. Sleep can cross midnight, and its end time
+                becomes the next day's Wake Up time.
               </div>
 
               {defaultLoading ? (
-                <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>Loading default tasks...</div>
+                <div
+                  style={{
+                    padding: "50px 20px",
+                    textAlign: "center",
+                    color: "#64748b",
+                  }}
+                >
+                  Loading default tasks...
+                </div>
               ) : (
-                <div style={{ display: "grid", gap: "12px" }}>
-                  {studentDefaults.map((task) => (
-                    <div key={task.default_id} style={{ border: "1px solid #e2e8f0", borderRadius: "16px", padding: "14px", display: "grid", gridTemplateColumns: "minmax(180px,1fr) minmax(130px,1fr) minmax(130px,1fr) auto", gap: "12px", alignItems: "end" }}>
-                      <label style={{ display: "grid", gap: "6px" }}>
-                        <span style={{ fontSize: "12px", fontWeight: 700, color: "#64748b" }}>Task</span>
-                        <input data-default-edit={task.default_id} value={task.title || ""} onChange={(e) => updateStudentDefault(task.default_id, "title", e.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: "10px 11px", border: "1px solid #cbd5e1", borderRadius: "10px" }} />
-                      </label>
-                      <label style={{ display: "grid", gap: "6px" }}>
-                        <span style={{ fontSize: "12px", fontWeight: 700, color: "#64748b" }}>From</span>
-                        <input type="time" value={(() => { const v=String(task.from||""); const m=v.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i); if(!m) return ""; let h=Number(m[1]); if(m[3].toUpperCase()==="PM"&&h!==12)h+=12; if(m[3].toUpperCase()==="AM"&&h===12)h=0; return `${String(h).padStart(2,"0")}:${m[2]}`; })()} onChange={(e) => { const [h,m]=e.target.value.split(":").map(Number); const ap=h>=12?"PM":"AM"; const hh=h%12||12; updateStudentDefault(task.default_id,"from",`${hh}:${String(m).padStart(2,"0")} ${ap}`); }} style={{ width: "100%", boxSizing: "border-box", padding: "10px 11px", border: "1px solid #cbd5e1", borderRadius: "10px" }} />
-                      </label>
-                      <label style={{ display: "grid", gap: "6px" }}>
-                        <span style={{ fontSize: "12px", fontWeight: 700, color: "#64748b" }}>To</span>
-                        <input type="time" value={(() => { const v=String(task.to||""); const m=v.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i); if(!m) return ""; let h=Number(m[1]); if(m[3].toUpperCase()==="PM"&&h!==12)h+=12; if(m[3].toUpperCase()==="AM"&&h===12)h=0; return `${String(h).padStart(2,"0")}:${m[2]}`; })()} onChange={(e) => { if(!e.target.value){ updateStudentDefault(task.default_id,"to",""); return; } const [h,m]=e.target.value.split(":").map(Number); const ap=h>=12?"PM":"AM"; const hh=h%12||12; updateStudentDefault(task.default_id,"to",`${hh}:${String(m).padStart(2,"0")} ${ap}`); }} style={{ width: "100%", boxSizing: "border-box", padding: "10px 11px", border: "1px solid #cbd5e1", borderRadius: "10px" }} />
-                      </label>
-                      <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                        <button type="button" title="Edit task" onClick={() => { const input = document.querySelector(`[data-default-edit="${task.default_id}"]`); if (input) input.focus(); }} style={{ width: "38px", height: "38px", border: "1px solid #cbd5e1", borderRadius: "10px", background: "#f8fafc", cursor: "pointer", fontSize: "16px" }}>✏️</button>
-                        <button type="button" title="Delete task" onClick={() => deleteStudentDefault(task.default_id)} style={{ width: "38px", height: "38px", border: "1px solid #fecaca", borderRadius: "10px", background: "#fff1f2", color: "#dc2626", cursor: "pointer", fontSize: "16px" }}>🗑️</button>
+                <div style={{ display: "grid", gap: "14px" }}>
+                  {studentDefaults.map((task, index) => {
+                    const isWakeUp =
+                      String(task.default_id) === "d1" ||
+                      String(task.title || "").trim().toLowerCase() ===
+                        "wake up";
+
+                    const isSleep =
+                      String(task.default_id) === "d5" ||
+                      String(task.title || "").trim().toLowerCase() ===
+                        "sleep";
+
+                    const isEditing =
+                      String(editingDefaultId) ===
+                      String(task.default_id);
+
+                    const fromInput = toInputTime(task.from);
+                    const toInput = toInputTime(task.to);
+
+                    const displayFrom = toDisplayTime(task.from);
+                    const displayTo = toDisplayTime(task.to);
+
+                    const overnight =
+                      isSleep &&
+                      (Number(task.next_day) === 1 ||
+                        isOvernightDefault(task.from, task.to));
+
+                    const cardGradient = getDefaultGradient(task, index);
+
+                    return (
+                      <div
+                        key={task.default_id}
+                        style={{
+                          position: "relative",
+                          overflow: "hidden",
+                          borderRadius: "21px",
+                          padding: "15px",
+                          background: cardGradient,
+                          color: "#fff",
+                          boxShadow:
+                            "0 12px 28px rgba(15,23,42,.12)",
+                        }}
+                      >
+                        {/* MAIN TASK ROW */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "52px",
+                              height: "52px",
+                              borderRadius: "16px",
+                              background: "rgba(255,255,255,.24)",
+                              border: "1px solid rgba(255,255,255,.25)",
+                              display: "grid",
+                              placeItems: "center",
+                              fontSize: "23px",
+                              flexShrink: 0,
+                              backdropFilter: "blur(8px)",
+                            }}
+                          >
+                            {getDefaultIcon(task)}
+                          </div>
+
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            {isEditing && !isWakeUp && !isSleep ? (
+                              <input
+                                data-default-edit={task.default_id}
+                                value={task.title || ""}
+                                onChange={(e) =>
+                                  updateStudentDefault(
+                                    task.default_id,
+                                    "title",
+                                    e.target.value
+                                  )
+                                }
+                                style={{
+                                  width: "100%",
+                                  boxSizing: "border-box",
+                                  border: "1px solid rgba(255,255,255,.55)",
+                                  borderRadius: "10px",
+                                  padding: "8px 10px",
+                                  background: "rgba(255,255,255,.16)",
+                                  color: "#fff",
+                                  fontSize: "18px",
+                                  fontWeight: 800,
+                                  outline: "none",
+                                }}
+                              />
+                            ) : (
+                              <div
+                                style={{
+                                  fontSize: "18px",
+                                  fontWeight: 800,
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {task.title || "Task"}
+                              </div>
+                            )}
+
+                            {!isEditing && (
+                              <div
+                                style={{
+                                  marginTop: "5px",
+                                  fontSize: "13px",
+                                  fontWeight: 600,
+                                  opacity: 0.92,
+                                }}
+                              >
+                                {isWakeUp
+                                  ? displayFrom || "Set wake-up time"
+                                  : `${displayFrom || "--:--"}${
+                                      displayTo
+                                        ? ` - ${displayTo}`
+                                        : ""
+                                    }`}
+                              </div>
+                            )}
+
+                            {isSleep && overnight && !isEditing && (
+                              <div
+                                style={{
+                                  marginTop: "4px",
+                                  fontSize: "11px",
+                                  fontWeight: 700,
+                                  opacity: 0.88,
+                                }}
+                              >
+                                Next day • Wake Up{" "}
+                                {displayTo || "—"}
+                              </div>
+                            )}
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "7px",
+                              flexShrink: 0,
+                            }}
+                          >
+                            <button
+                              type="button"
+                              title={isEditing ? "Done editing" : "Edit task"}
+                              onClick={() =>
+                                setEditingDefaultId(
+                                  isEditing ? null : task.default_id
+                                )
+                              }
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "12px",
+                                border:
+                                  "1px solid rgba(255,255,255,.48)",
+                                background: "rgba(255,255,255,.16)",
+                                color: "#fff",
+                                cursor: "pointer",
+                                display: "grid",
+                                placeItems: "center",
+                                fontSize: "17px",
+                              }}
+                            >
+                              <FaPen />
+                            </button>
+
+                            <button
+                              type="button"
+                              title={
+                                isWakeUp || isSleep
+                                  ? "Permanent task"
+                                  : "Delete task"
+                              }
+                              onClick={() =>
+                                deleteStudentDefault(task.default_id)
+                              }
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "12px",
+                                border:
+                                  "1px solid rgba(255,255,255,.48)",
+                                background:
+                                  isWakeUp || isSleep
+                                    ? "rgba(255,255,255,.10)"
+                                    : "rgba(255,255,255,.16)",
+                                color: "#fff",
+                                cursor:
+                                  isWakeUp || isSleep
+                                    ? "not-allowed"
+                                    : "pointer",
+                                display: "grid",
+                                placeItems: "center",
+                                fontSize: "17px",
+                                opacity:
+                                  isWakeUp || isSleep ? 0.55 : 1,
+                              }}
+                            >
+                              <FaTrashCan />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* TIME EDITOR — SAME SIMPLE TIME MODEL AS STUDENT TASKS */}
+                        {isEditing && (
+                          <div
+                            style={{
+                              marginTop: "13px",
+                              paddingTop: "13px",
+                              borderTop:
+                                "1px solid rgba(255,255,255,.24)",
+                              display: "grid",
+                              gridTemplateColumns: isWakeUp
+                                ? "1fr"
+                                : "1fr 1fr",
+                              gap: "10px",
+                            }}
+                          >
+                            <label
+                              style={{
+                                display: "grid",
+                                gap: "6px",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontSize: "11px",
+                                  fontWeight: 800,
+                                  opacity: 0.88,
+                                }}
+                              >
+                                {isWakeUp ? "Wake Up Time" : "From Time"}
+                              </span>
+
+                              <input
+                                type="time"
+                                value={fromInput}
+                                onChange={(e) => {
+                                  updateStudentDefault(
+                                    task.default_id,
+                                    "from",
+                                    inputToDisplayTime(e.target.value)
+                                  );
+                                }}
+                                style={{
+                                  width: "100%",
+                                  boxSizing: "border-box",
+                                  minHeight: "42px",
+                                  padding: "8px 10px",
+                                  border:
+                                    "1px solid rgba(255,255,255,.55)",
+                                  borderRadius: "11px",
+                                  background: "rgba(255,255,255,.95)",
+                                  color: "#172554",
+                                  fontSize: "14px",
+                                  fontWeight: 700,
+                                  outline: "none",
+                                }}
+                              />
+                            </label>
+
+                            {!isWakeUp && (
+                              <label
+                                style={{
+                                  display: "grid",
+                                  gap: "6px",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: "11px",
+                                    fontWeight: 800,
+                                    opacity: 0.88,
+                                  }}
+                                >
+                                  To Time
+                                  {isSleep && overnight
+                                    ? " • Next Day"
+                                    : ""}
+                                </span>
+
+                                <input
+                                  type="time"
+                                  value={toInput}
+                                  onChange={(e) =>
+                                    updateStudentDefault(
+                                      task.default_id,
+                                      "to",
+                                      e.target.value
+                                        ? inputToDisplayTime(
+                                            e.target.value
+                                          )
+                                        : ""
+                                    )
+                                  }
+                                  style={{
+                                    width: "100%",
+                                    boxSizing: "border-box",
+                                    minHeight: "42px",
+                                    padding: "8px 10px",
+                                    border:
+                                      "1px solid rgba(255,255,255,.55)",
+                                    borderRadius: "11px",
+                                    background: "rgba(255,255,255,.95)",
+                                    color: "#172554",
+                                    fontSize: "14px",
+                                    fontWeight: 700,
+                                    outline: "none",
+                                  }}
+                                />
+                              </label>
+                            )}
+
+                            {isSleep && (
+                              <div
+                                style={{
+                                  gridColumn: "1 / -1",
+                                  fontSize: "11px",
+                                  fontWeight: 700,
+                                  opacity: 0.9,
+                                }}
+                              >
+                                Sleep end time is used as the next day's
+                                Wake Up time.
+                              </div>
+                            )}
+
+                            {isWakeUp && (
+                              <div
+                                style={{
+                                  gridColumn: "1 / -1",
+                                  fontSize: "11px",
+                                  fontWeight: 700,
+                                  opacity: 0.9,
+                                }}
+                              >
+                                Wake Up uses one time only — there is no
+                                To Time.
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", marginTop: "20px", flexWrap: "wrap" }}>
-                <button type="button" onClick={addStudentDefault} disabled={defaultLoading || defaultSaving} style={{ padding: "11px 16px", borderRadius: "10px", border: "0", background: "#eef2ff", color: "#4f46e5", fontWeight: 700, cursor: "pointer" }}>+ Add New Task</button>
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-                <button type="button" onClick={closeDefaultModal} disabled={defaultSaving} style={{ padding: "11px 18px", borderRadius: "10px", border: "1px solid #cbd5e1", background: "#fff", cursor: "pointer" }}>Cancel</button>
-                <button type="button" onClick={saveStudentDefaults} disabled={defaultLoading || defaultSaving} style={{ padding: "11px 20px", borderRadius: "10px", border: 0, background: "linear-gradient(135deg, #6d5dfc, #8f7cff)", color: "#fff", fontWeight: 700, cursor: "pointer" }}>
-                  {defaultSaving ? "Saving..." : "Save Default Tasks"}
+              {/* FOOTER */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "10px",
+                  marginTop: "18px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={addStudentDefault}
+                  disabled={defaultLoading || defaultSaving}
+                  style={{
+                    padding: "11px 15px",
+                    borderRadius: "12px",
+                    border: "1px solid #c7d2fe",
+                    background: "#eef2ff",
+                    color: "#4f46e5",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                  }}
+                >
+                  + Add New Task
                 </button>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: "9px",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={closeDefaultModal}
+                    disabled={defaultSaving}
+                    style={{
+                      padding: "11px 17px",
+                      borderRadius: "12px",
+                      border: "1px solid #cbd5e1",
+                      background: "#fff",
+                      color: "#334155",
+                      cursor: "pointer",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={saveStudentDefaults}
+                    disabled={defaultLoading || defaultSaving}
+                    style={{
+                      padding: "11px 19px",
+                      borderRadius: "12px",
+                      border: 0,
+                      background:
+                        "linear-gradient(135deg, #6d5dfc, #8f7cff)",
+                      color: "#fff",
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      boxShadow: "0 8px 18px rgba(109,93,252,.25)",
+                    }}
+                  >
+                    {defaultSaving
+                      ? "Saving..."
+                      : "Save Default Tasks"}
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         )}
+
 
       </main>
 
