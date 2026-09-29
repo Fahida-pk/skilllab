@@ -3016,6 +3016,9 @@ const taskAccuracyPercentage =
               <label>From Time</label>
               <input
                 type="time"
+                step="3600"
+                min="00:00"
+                max="23:00"
                 value={fromTime}
                 onChange={(e) => setFromTime(e.target.value)}
               />
@@ -3025,6 +3028,9 @@ const taskAccuracyPercentage =
                   <label>To Time</label>
                   <input
                     type="time"
+                    step="3600"
+                    min="00:00"
+                    max="23:00"
                     value={toTime}
                     onChange={(e) => setToTime(e.target.value)}
                   />

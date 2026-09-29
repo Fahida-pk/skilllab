@@ -2265,6 +2265,9 @@ const openStudentDashboard = (student) => {
 
                                 <input
                                   type="time"
+                                  step="3600"
+                                  min="00:00"
+                                  max="23:00"
                                   value={toInput}
                                   onChange={(e) =>
                                     updateStudentDefault(
