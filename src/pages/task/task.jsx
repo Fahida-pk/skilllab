@@ -991,21 +991,74 @@ useEffect(() => {
     }
   };
 
-  const formatTime = (t) => {
-    if (!t) return "";
+  // =========================================================
+  // TIME FORMAT HELPERS
+  // Database may return:
+  //   05:30:00
+  //   07:30:00
+  //   17:03:00
+  //
+  // UI should always display:
+  //   5:30 AM
+  //   7:30 AM
+  //   5:03 PM
+  //
+  // Also supports an already formatted value such as:
+  //   5:30 AM
+  // =========================================================
+
+  const displayTime = (timeValue) => {
+    if (!timeValue) return "";
 
     try {
-      const [hour, minute] = t.split(":");
-      let h = parseInt(hour, 10);
-      const ampm = h >= 12 ? "PM" : "AM";
+      const value = String(timeValue).trim();
 
-      h = h % 12;
-      if (h === 0) h = 12;
+      if (!value) return "";
 
-      return `${h}:${minute} ${ampm}`;
+      // Already in AM/PM format
+      if (/[AaPp][Mm]$/.test(value)) {
+        const parts = value.split(/\s+/);
+        const timePart = parts[0];
+        const modifier = parts[1]?.toUpperCase();
+
+        let [hours, minutes] = timePart.split(":");
+
+        hours = parseInt(hours, 10);
+        minutes = String(minutes || "00").padStart(2, "0");
+
+        if (!Number.isFinite(hours)) return "";
+
+        hours = hours % 12;
+        if (hours === 0) hours = 12;
+
+        return `${hours}:${minutes} ${modifier}`;
+      }
+
+      // MySQL / 24-hour format:
+      // HH:MM or HH:MM:SS
+      const parts = value.split(":");
+
+      let hours = parseInt(parts[0], 10);
+      const minutes = String(parts[1] || "00").padStart(2, "0");
+
+      if (!Number.isFinite(hours)) return "";
+
+      const modifier = hours >= 12 ? "PM" : "AM";
+
+      hours = hours % 12;
+
+      if (hours === 0) {
+        hours = 12;
+      }
+
+      return `${hours}:${minutes} ${modifier}`;
     } catch {
       return "";
     }
+  };
+
+  const formatTime = (t) => {
+    return displayTime(t);
   };
 
   const convertToInputTime = (timeStr) => {
@@ -2198,20 +2251,44 @@ useEffect(() => {
     const getTaskMinutes = (time) => {
       if (!time) return null;
 
-      const parts = String(time).trim().split(" ");
-      const timePart = parts[0];
-      const modifier = parts[1];
+      try {
+        const value = String(time).trim();
 
-      if (!timePart || !modifier) return null;
+        if (!value) return null;
 
-      let [h, m] = timePart.split(":").map(Number);
+        const parts = value.split(/\s+/);
+        const timePart = parts[0];
+        const modifier = parts[1]
+          ? parts[1].toUpperCase()
+          : null;
 
-      if (!Number.isFinite(h) || !Number.isFinite(m)) return null;
+        let [h, m] = timePart.split(":").map(Number);
 
-      if (modifier === "PM" && h !== 12) h += 12;
-      if (modifier === "AM" && h === 12) h = 0;
+        if (
+          !Number.isFinite(h) ||
+          !Number.isFinite(m)
+        ) {
+          return null;
+        }
 
-      return h * 60 + m;
+        // Database format: HH:MM:SS
+        if (!modifier) {
+          return h * 60 + m;
+        }
+
+        // AM / PM format
+        if (modifier === "PM" && h !== 12) {
+          h += 12;
+        }
+
+        if (modifier === "AM" && h === 12) {
+          h = 0;
+        }
+
+        return h * 60 + m;
+      } catch {
+        return null;
+      }
     };
 
     const checkTaskTimes = () => {
@@ -2987,9 +3064,15 @@ const taskAccuracyPercentage =
 
                         <p>
                           {task.title === "Wake Up"
-                            ? task.time || task.from
-                            : `${task.from || ""} - ${task.to || ""} ${
-                                task.nextDay ? "(Next Day)" : ""
+                            ? displayTime(task.time || task.from)
+                            : `${displayTime(task.from)}${
+                                task.to
+                                  ? ` - ${displayTime(task.to)}`
+                                  : ""
+                              }${
+                                task.nextDay
+                                  ? " (Next Day)"
+                                  : ""
                               }`}
                         </p>
                       </div>
