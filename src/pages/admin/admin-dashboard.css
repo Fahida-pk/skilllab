@@ -5283,3 +5283,108 @@ body {
     font-size: 8px !important;
   }
 }
+/* =====================================================
+   DEFAULT TASK MODAL - MOBILE
+===================================================== */
+
+.default-add-task-btn {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: linear-gradient(
+    135deg,
+    #6d5dfc,
+    #9b5cff
+  );
+
+  color: #fff;
+
+  font-size: 25px;
+  font-weight: 400;
+
+  line-height: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px rgba(109, 93, 252, 0.30);
+
+  transition: 0.2s ease;
+}
+
+.default-add-task-btn:hover {
+  transform: scale(1.06);
+}
+
+.default-add-task-btn:active {
+  transform: scale(0.95);
+}
+
+.default-add-task-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .default-date-row {
+    width: 100%;
+  }
+
+  .default-date-row input[type="date"] {
+    flex: 1;
+    width: 0;
+    min-width: 0;
+
+    font-size: 12px;
+  }
+
+  .default-add-task-btn {
+    width: 38px;
+    height: 38px;
+
+    font-size: 25px;
+  }
+}
+
+
+/* =====================================================
+   VERY SMALL MOBILE
+===================================================== */
+
+@media (max-width: 380px) {
+
+  .default-date-row {
+    gap: 6px;
+  }
+
+  .default-date-row span {
+    font-size: 11px !important;
+  }
+
+  .default-date-row input[type="date"] {
+    font-size: 11px;
+    padding: 7px 6px !important;
+  }
+
+  .default-add-task-btn {
+    width: 36px;
+    height: 36px;
+
+    font-size: 23px;
+  }
+}
