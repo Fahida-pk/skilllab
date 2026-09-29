@@ -96,6 +96,18 @@ function AdminDashboard() {
   const [defaultSaving, setDefaultSaving] = useState(false);
   const [editingDefaultId, setEditingDefaultId] = useState(null);
 
+  // The admin default editor is date-aware. Student task edits are stored
+  // against a specific task_date, so Admin must load/save the same date.
+  const getTodayKey = () => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+
+  const [defaultTaskDate, setDefaultTaskDate] = useState(getTodayKey);
+
   const [mobileOpen, setMobileOpen] =
     useState(false);
 
@@ -341,8 +353,9 @@ function AdminDashboard() {
      STUDENT RECURRING DEFAULT TASKS
   ========================================= */
 
-  const openDefaultTasks = async (student) => {
+  const openDefaultTasks = async (student, taskDate = defaultTaskDate) => {
     setSelectedDefaultStudent(student);
+    setDefaultTaskDate(taskDate || getTodayKey());
     setDefaultModalOpen(true);
     setEditingDefaultId(null);
     setDefaultLoading(true);
@@ -356,6 +369,7 @@ function AdminDashboard() {
           action: "get_student_defaults",
           admin_email: adminData?.email || "",
           student_id: student.id,
+          task_date: taskDate || getTodayKey(),
         }),
       });
 
@@ -367,6 +381,37 @@ function AdminDashboard() {
       console.error("Student defaults load error:", error);
       alert(error.message || "Unable to load student default tasks");
       setDefaultModalOpen(false);
+    } finally {
+      setDefaultLoading(false);
+    }
+  };
+
+  const reloadStudentDefaultsForDate = async (taskDate) => {
+    if (!selectedDefaultStudent || defaultLoading) return;
+
+    setDefaultTaskDate(taskDate);
+    setDefaultLoading(true);
+
+    try {
+      const adminData = JSON.parse(localStorage.getItem("admin") || "null");
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "get_student_defaults",
+          admin_email: adminData?.email || "",
+          student_id: selectedDefaultStudent.id,
+          task_date: taskDate,
+        }),
+      });
+
+      const data = await response.json();
+      if (!data.success) throw new Error(data.message || "Unable to load defaults");
+      setStudentDefaults(Array.isArray(data.defaults) ? data.defaults : []);
+      setEditingDefaultId(null);
+    } catch (error) {
+      console.error("Date defaults load error:", error);
+      alert(error.message || "Unable to load date-specific defaults");
     } finally {
       setDefaultLoading(false);
     }
@@ -675,6 +720,7 @@ function AdminDashboard() {
           action: "save_student_defaults",
           admin_email: adminData?.email || "",
           student_id: selectedDefaultStudent.id,
+          task_date: defaultTaskDate,
           defaults: studentDefaults,
         }),
       });
@@ -682,7 +728,7 @@ function AdminDashboard() {
       const data = await response.json();
       if (!data.success) throw new Error(data.message || "Unable to save defaults");
 
-      alert(`Default tasks saved for ${selectedDefaultStudent.name || "this student"}.\nThese times will repeat every day.`);
+      alert(`Default tasks saved for ${selectedDefaultStudent.name || "this student"} on ${defaultTaskDate}.\nThis schedule applies to this date.`);
       setDefaultModalOpen(false);
       setSelectedDefaultStudent(null);
       setStudentDefaults([]);
@@ -1951,14 +1997,31 @@ const openStudentDashboard = (student) => {
                   </h2>
                   <p
                     style={{
-                      margin: "5px 0 0",
+                      margin: "5px 0 8px",
                       color: "#64748b",
                       fontSize: "13px",
                     }}
                   >
-                    {selectedDefaultStudent?.name || "Student"} — recurring
-                    every day
+                    {selectedDefaultStudent?.name || "Student"} — date-wise default tasks
                   </p>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                    <span style={{ fontSize: "12px", fontWeight: 800, color: "#475569" }}>Date</span>
+                    <input
+                      type="date"
+                      value={defaultTaskDate}
+                      onChange={(e) => reloadStudentDefaultsForDate(e.target.value)}
+                      disabled={defaultSaving || defaultLoading}
+                      style={{
+                        border: "1px solid #cbd5e1",
+                        borderRadius: "10px",
+                        padding: "7px 9px",
+                        color: "#172554",
+                        background: "#fff",
+                        fontWeight: 700,
+                      }}
+                    />
+                  </div>
                 </div>
 
                 <button
@@ -1993,9 +2056,10 @@ const openStudentDashboard = (student) => {
                   lineHeight: 1.5,
                 }}
               >
-                These are this student's recurring tasks. The same schedule is
-                used every day. Sleep can cross midnight, and its end time
-                becomes the next day's Wake Up time.
+                These defaults are shown for the selected date. If the student
+                edited a default task on this date, that date-specific change is
+                loaded here. Saving from Admin changes only this selected date.
+                Sleep can cross midnight and its end time becomes the next day's Wake Up time.
               </div>
 
               {defaultLoading ? (
