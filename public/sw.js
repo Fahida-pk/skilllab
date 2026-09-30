@@ -50,11 +50,12 @@ const messaging =
 
 
 // =====================================================
-// PWA CACHE
+// CACHE
 // =====================================================
 
 const CACHE_NAME =
-  "skill-lab-v4";
+  "skill-lab-v5";
+
 
 const APP_FILES = [
   "/",
@@ -72,8 +73,9 @@ self.addEventListener(
   (event) => {
 
     console.log(
-      "✅ Skill Lab Service Worker installed"
+      "✅ Skill Lab SW installed"
     );
+
 
     event.waitUntil(
 
@@ -92,6 +94,7 @@ self.addEventListener(
 
     );
 
+
     self.skipWaiting();
 
   }
@@ -107,8 +110,9 @@ self.addEventListener(
   (event) => {
 
     console.log(
-      "✅ Skill Lab Service Worker activated"
+      "✅ Skill Lab SW activated"
     );
+
 
     event.waitUntil(
 
@@ -155,7 +159,8 @@ self.addEventListener(
   (event) => {
 
     if (
-      event.request.method !== "GET"
+      event.request.method !==
+      "GET"
     ) {
 
       return;
@@ -168,7 +173,8 @@ self.addEventListener(
     // =================================================
 
     if (
-      event.request.mode === "navigate"
+      event.request.mode ===
+      "navigate"
     ) {
 
       event.respondWith(
@@ -183,6 +189,7 @@ self.addEventListener(
             const clone =
               response.clone();
 
+
             caches.open(
               CACHE_NAME
             )
@@ -196,6 +203,7 @@ self.addEventListener(
 
               }
             );
+
 
             return response;
 
@@ -213,6 +221,7 @@ self.addEventListener(
         )
 
       );
+
 
       return;
 
@@ -240,6 +249,7 @@ self.addEventListener(
             const clone =
               response.clone();
 
+
             caches.open(
               CACHE_NAME
             )
@@ -255,6 +265,7 @@ self.addEventListener(
             );
 
           }
+
 
           return response;
 
@@ -278,7 +289,7 @@ self.addEventListener(
 
 
 // =====================================================
-// FIREBASE BACKGROUND NOTIFICATION
+// FIREBASE BACKGROUND FCM
 // =====================================================
 
 messaging.onBackgroundMessage(
@@ -340,7 +351,7 @@ messaging.onBackgroundMessage(
 
 
     // =================================================
-    // NOTIFICATION OPTIONS
+    // NOTIFICATION
     // =================================================
 
     const options = {
@@ -349,15 +360,15 @@ messaging.onBackgroundMessage(
         body,
 
       icon:
-        "/favicon.svg",
+        "/icons/icon-192.png",
 
       badge:
-        "/favicon.svg",
+        "/icons/icon-192.png",
 
       tag:
         taskId
           ? `skilllab-task-${taskId}`
-          : "skilllab-task",
+          : `skilllab-task-${Date.now()}`,
 
       renotify:
         true,
@@ -365,12 +376,11 @@ messaging.onBackgroundMessage(
       requireInteraction:
         true,
 
-      vibrate:
-        [
-          200,
-          100,
-          200
-        ],
+      vibrate: [
+        200,
+        100,
+        200
+      ],
 
       data: {
 
@@ -386,7 +396,7 @@ messaging.onBackgroundMessage(
 
 
     // =================================================
-    // SHOW MOBILE NOTIFICATION
+    // SHOW
     // =================================================
 
     return self.registration.showNotification(
@@ -434,15 +444,17 @@ self.addEventListener(
       .then(
         (clientList) => {
 
-          // ---------------------------------------------
+
+          // =============================================
           // EXISTING SKILL LAB WINDOW
-          // ---------------------------------------------
+          // =============================================
 
           for (
             const client of clientList
           ) {
 
             if (
+              "navigate" in client &&
               "focus" in client
             ) {
 
@@ -457,9 +469,9 @@ self.addEventListener(
           }
 
 
-          // ---------------------------------------------
-          // OPEN NEW WINDOW
-          // ---------------------------------------------
+          // =============================================
+          // OPEN NEW
+          // =============================================
 
           if (
             clients.openWindow

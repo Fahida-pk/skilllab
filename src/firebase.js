@@ -1,5 +1,5 @@
 // =====================================================
-// SKILL LAB - FIREBASE
+// SKILL LAB - FIREBASE FCM
 // =====================================================
 
 import {
@@ -45,13 +45,11 @@ const firebaseConfig = {
 // =====================================================
 
 const app =
-  initializeApp(
-    firebaseConfig
-  );
+  initializeApp(firebaseConfig);
 
 
 // =====================================================
-// MESSAGING
+// FIREBASE MESSAGING
 // =====================================================
 
 export const messaging =
@@ -76,8 +74,20 @@ export async function requestNotificationPermission(
 
   try {
 
+    console.log(
+      "===================================="
+    );
+
+    console.log(
+      "🔔 SKILL LAB FCM REGISTRATION"
+    );
+
+    console.log(
+      "====================================");
+
+
     // =================================================
-    // GET USER EMAIL
+    // GET EMAIL
     // =================================================
 
     if (!email) {
@@ -107,10 +117,14 @@ export async function requestNotificationPermission(
     }
 
 
+    // =================================================
+    // EMAIL REQUIRED
+    // =================================================
+
     if (!email) {
 
       console.error(
-        "❌ No email available"
+        "❌ No user email available"
       );
 
       return null;
@@ -118,8 +132,14 @@ export async function requestNotificationPermission(
     }
 
 
+    console.log(
+      "👤 User email:",
+      email
+    );
+
+
     // =================================================
-    // NOTIFICATION SUPPORT
+    // CHECK NOTIFICATION SUPPORT
     // =================================================
 
     if (
@@ -127,7 +147,7 @@ export async function requestNotificationPermission(
     ) {
 
       console.error(
-        "❌ Notifications not supported"
+        "❌ Browser does not support notifications"
       );
 
       return null;
@@ -136,11 +156,17 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // PERMISSION
+    // REQUEST PERMISSION
     // =================================================
 
     let permission =
       Notification.permission;
+
+
+    console.log(
+      "🔔 Current permission:",
+      permission
+    );
 
 
     if (
@@ -154,17 +180,21 @@ export async function requestNotificationPermission(
 
 
     console.log(
-      "Notification permission:",
+      "🔔 Final permission:",
       permission
     );
 
+
+    // =================================================
+    // PERMISSION NOT GRANTED
+    // =================================================
 
     if (
       permission !== "granted"
     ) {
 
       console.error(
-        "❌ Notification permission denied"
+        "❌ Notification permission not granted"
       );
 
       return null;
@@ -173,15 +203,33 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // GET OUR SINGLE SERVICE WORKER
+    // WAIT FOR SKILL LAB SERVICE WORKER
     // =================================================
+
+    if (
+      !("serviceWorker" in navigator)
+    ) {
+
+      console.error(
+        "❌ Service Worker not supported"
+      );
+
+      return null;
+
+    }
+
 
     const registration =
       await navigator.serviceWorker.ready;
 
 
     console.log(
-      "✅ Skill Lab service worker ready"
+      "✅ Service Worker ready"
+    );
+
+    console.log(
+      "SW scope:",
+      registration.scope
     );
 
 
@@ -205,15 +253,19 @@ export async function requestNotificationPermission(
 
 
     console.log(
-      "FCM TOKEN:",
+      "🔥 FCM TOKEN:",
       token
     );
 
 
+    // =================================================
+    // TOKEN FAILED
+    // =================================================
+
     if (!token) {
 
       console.error(
-        "❌ FCM token not generated"
+        "❌ FCM token was not generated"
       );
 
       return null;
@@ -233,11 +285,12 @@ export async function requestNotificationPermission(
           method:
             "POST",
 
-          headers:
-            {
-              "Content-Type":
-                "application/json"
-            },
+          headers: {
+
+            "Content-Type":
+              "application/json"
+
+          },
 
           body:
             JSON.stringify({
@@ -254,6 +307,10 @@ export async function requestNotificationPermission(
       );
 
 
+    // =================================================
+    // READ SERVER RESPONSE
+    // =================================================
+
     const responseText =
       await response.text();
 
@@ -266,6 +323,7 @@ export async function requestNotificationPermission(
 
     let data;
 
+
     try {
 
       data =
@@ -276,13 +334,17 @@ export async function requestNotificationPermission(
     } catch (error) {
 
       console.error(
-        "❌ Invalid server response"
+        "❌ Server returned invalid JSON"
       );
 
       return null;
 
     }
 
+
+    // =================================================
+    // SAVE FAILED
+    // =================================================
 
     if (
       !data.success
@@ -299,7 +361,7 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // SAVE LOCALLY
+    // SAVE TOKEN LOCALLY
     // =================================================
 
     localStorage.setItem(
@@ -308,8 +370,27 @@ export async function requestNotificationPermission(
     );
 
 
+    localStorage.setItem(
+      "fcmEmail",
+      email
+    );
+
+
     console.log(
-      "✅ FCM registration successful"
+      "===================================="
+    );
+
+    console.log(
+      "✅ FCM REGISTRATION SUCCESS"
+    );
+
+    console.log(
+      "👤 Email:",
+      email
+    );
+
+    console.log(
+      "===================================="
     );
 
 
@@ -340,20 +421,31 @@ export function listenForegroundMessages() {
     (payload) => {
 
       console.log(
-        "🔥 FOREGROUND FCM MESSAGE",
+        "===================================="
+      );
+
+      console.log(
+        "🔥 FOREGROUND FCM MESSAGE"
+      );
+
+      console.log(
         payload
+      );
+
+      console.log(
+        "===================================="
       );
 
 
       const title =
-        payload.notification?.title ||
         payload.data?.title ||
+        payload.notification?.title ||
         "⏰ Skill Lab";
 
 
       const body =
-        payload.notification?.body ||
         payload.data?.body ||
+        payload.notification?.body ||
         "Your task starts in 5 minutes.";
 
 
@@ -361,6 +453,10 @@ export function listenForegroundMessages() {
         payload.data?.taskId ||
         "";
 
+
+      // =================================================
+      // SHOW FOREGROUND NOTIFICATION
+      // =================================================
 
       if (
         Notification.permission ===
@@ -375,15 +471,15 @@ export function listenForegroundMessages() {
               body,
 
             icon:
-              "/favicon.svg",
+              "/icons/icon-192.png",
 
             badge:
-              "/favicon.svg",
+              "/icons/icon-192.png",
 
             tag:
               taskId
                 ? `skilllab-task-${taskId}`
-                : "skilllab-task"
+                : `skilllab-task-${Date.now()}`
 
           }
         );
