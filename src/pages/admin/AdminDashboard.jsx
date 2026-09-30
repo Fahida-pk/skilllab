@@ -2063,12 +2063,12 @@ const openStudentDashboard = (student) => {
             <div
               onClick={(e) => e.stopPropagation()}
               style={{
-                width: "min(680px, 100%)",
+width: "min(680px, calc(100vw - 32px))",
                 maxHeight: "90vh",
                 overflowY: "auto",
                 background: "#f8fafc",
                 borderRadius: "26px",
-                padding: "22px",
+padding: "22px 20px",
                 boxShadow: "0 24px 80px rgba(15,23,42,.30)",
               }}
             >
