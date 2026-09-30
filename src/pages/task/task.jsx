@@ -2386,38 +2386,6 @@ useEffect(() => {
     );
   });
 
-  // =========================================================
-  // NEXT SEQUENTIAL TASK START
-  // The next task starts exactly when the latest normal task ends.
-  // Example: MERN 5:00 AM - 6:00 AM -> next task starts at 6:00 AM.
-  // Overnight Sleep is ignored because its after-midnight part belongs
-  // to the next calendar date and creates the next day's Wake Up.
-  // =========================================================
-  const getNextSequentialStartInput = () => {
-    let latestEnd = null;
-
-    displayTasks.forEach((task) => {
-      const fromValue = task.from || task.time || "";
-      if (!fromValue) return;
-
-      const from = toMin(fromValue);
-      const to = task.to ? toMin(task.to) : from;
-      const isOvernight = Boolean(task.nextDay) || (task.to && to < from);
-
-      if (isOvernight) return;
-
-      if (latestEnd === null || to > latestEnd) {
-        latestEnd = to;
-      }
-    });
-
-    if (latestEnd === null) return "";
-
-    const hours = Math.floor(latestEnd / 60);
-    const minutes = latestEnd % 60;
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-  };
-
   // =========================
   // TASK TIME NOTIFICATIONS
   // =========================
@@ -3097,7 +3065,7 @@ const taskAccuracyPercentage =
       onClick={() => {
         setEditTask(null);
         setTitle("");
-        setFromTime(getNextSequentialStartInput());
+        setFromTime("");
         setToTime("");
         setImage(null);
         setShowModal(true);
