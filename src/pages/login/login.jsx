@@ -23,27 +23,6 @@ function Login() {
   useEffect(() => {
     console.log("PWA: Login component loaded");
 
-    const handleBeforeInstallPrompt = (event) => {
-      console.log(
-        "🔥🔥 BEFORE INSTALL PROMPT RECEIVED 🔥🔥"
-      );
-
-      // Prevent Chrome's automatic mini-infobar
-      event.preventDefault();
-
-      // Save prompt globally
-      window.__skillLabInstallPrompt = event;
-
-      // Save in React state
-      setInstallPrompt(event);
-      setPwaReady(true);
-    };
-
-    window.addEventListener(
-      "beforeinstallprompt",
-      handleBeforeInstallPrompt
-    );
-
     // =================================================
     // CHECK IF ALREADY INSTALLED
     // =================================================
@@ -60,7 +39,71 @@ function Login() {
       );
 
       setPwaReady(false);
+
+      return;
     }
+
+    // =================================================
+    // CHECK IF USER WAS ALREADY ASKED
+    // =================================================
+
+    const alreadyAsked =
+      localStorage.getItem(
+        "skillLabInstallAsked"
+      ) === "true";
+
+    if (alreadyAsked) {
+      console.log(
+        "⛔ Skill Lab install popup already shown before"
+      );
+
+      setPwaReady(false);
+
+      return;
+    }
+
+    // =================================================
+    // BEFORE INSTALL PROMPT
+    // =================================================
+
+    const handleBeforeInstallPrompt = (event) => {
+      console.log(
+        "🔥🔥 BEFORE INSTALL PROMPT RECEIVED 🔥🔥"
+      );
+
+      // Prevent Chrome's automatic install prompt
+      event.preventDefault();
+
+      // =================================================
+      // SAVE PROMPT
+      // =================================================
+
+      window.__skillLabInstallPrompt = event;
+
+      setInstallPrompt(event);
+
+      // =================================================
+      // IMPORTANT
+      // Mark that user has already been asked
+      // =================================================
+
+      localStorage.setItem(
+        "skillLabInstallAsked",
+        "true"
+      );
+
+      // Show our custom popup
+      setPwaReady(true);
+    };
+
+    window.addEventListener(
+      "beforeinstallprompt",
+      handleBeforeInstallPrompt
+    );
+
+    // =================================================
+    // CLEANUP
+    // =================================================
 
     return () => {
       window.removeEventListener(
@@ -83,12 +126,24 @@ function Login() {
       installPrompt ||
       window.__skillLabInstallPrompt;
 
+    // =================================================
+    // CLOSE OUR CUSTOM POPUP
+    // =================================================
+
+    setPwaReady(false);
+
+    // =================================================
+    // NO PROMPT AVAILABLE
+    // =================================================
+
     if (!prompt) {
       console.log(
         "❌ NO INSTALL PROMPT AVAILABLE"
       );
 
-      setPwaReady(false);
+      setInstallPrompt(null);
+
+      window.__skillLabInstallPrompt = null;
 
       return;
     }
@@ -98,39 +153,61 @@ function Login() {
         "🚀 Opening native Skill Lab install dialog..."
       );
 
-      // Open Chrome's native install dialog
+      // =================================================
+      // OPEN NATIVE INSTALL DIALOG
+      // =================================================
+
       await prompt.prompt();
 
-      // Wait for user's choice
-      const result = await prompt.userChoice;
+      // =================================================
+      // WAIT FOR USER'S CHOICE
+      // =================================================
+
+      const result =
+        await prompt.userChoice;
 
       console.log(
         "PWA install result:",
         result.outcome
       );
 
+      // =================================================
+      // ACCEPTED
+      // =================================================
+
       if (result.outcome === "accepted") {
         console.log(
           "✅ Skill Lab installation accepted"
         );
-      } else {
+      }
+
+      // =================================================
+      // DISMISSED
+      // =================================================
+
+      else {
         console.log(
           "❌ Skill Lab installation dismissed"
         );
       }
 
-      // Prompt can only be used once
+      // =================================================
+      // PROMPT CAN ONLY BE USED ONCE
+      // =================================================
+
       setInstallPrompt(null);
-      setPwaReady(false);
 
       window.__skillLabInstallPrompt = null;
+
     } catch (error) {
       console.error(
         "❌ Install error:",
         error
       );
 
-      setPwaReady(false);
+      setInstallPrompt(null);
+
+      window.__skillLabInstallPrompt = null;
     }
   };
 
@@ -143,7 +220,22 @@ function Login() {
       "❌ User selected NO for Skill Lab installation"
     );
 
+    // =================================================
+    // IMPORTANT
+    // The user has already been asked.
+    // Do NOT ask again.
+    // =================================================
+
+    localStorage.setItem(
+      "skillLabInstallAsked",
+      "true"
+    );
+
     setPwaReady(false);
+
+    setInstallPrompt(null);
+
+    window.__skillLabInstallPrompt = null;
   };
 
   // =====================================================
@@ -156,7 +248,16 @@ function Login() {
         "✅ Skill Lab installed successfully"
       );
 
+      // Keep the asked flag
+      // so popup doesn't appear again
+
+      localStorage.setItem(
+        "skillLabInstallAsked",
+        "true"
+      );
+
       setInstallPrompt(null);
+
       setPwaReady(false);
 
       window.__skillLabInstallPrompt = null;
@@ -183,6 +284,10 @@ function Login() {
     try {
       const googleToken = res.credential;
 
+      // =================================================
+      // LOGIN API
+      // =================================================
+
       const response = await fetch(
         "https://zyntaweb.com/skilllab/login.php",
         {
@@ -199,13 +304,26 @@ function Login() {
         }
       );
 
+      // =================================================
+      // SERVER ERROR
+      // =================================================
+
       if (!response.ok) {
         throw new Error(
           `Server error: ${response.status}`
         );
       }
 
-      const data = await response.json();
+      // =================================================
+      // RESPONSE
+      // =================================================
+
+      const data =
+        await response.json();
+
+      // =================================================
+      // LOGIN FAILED
+      // =================================================
 
       if (!data.success) {
         alert(
@@ -262,6 +380,7 @@ function Login() {
       navigate("/task", {
         replace: true,
       });
+
     } catch (error) {
       console.error(
         "Login Error:",
@@ -295,6 +414,10 @@ function Login() {
   return (
     <div className="login-page">
 
+      {/* =================================================
+          BACKGROUND GLOW
+      ================================================= */}
+
       <div
         className="login-glow login-glow-blue"
       />
@@ -307,23 +430,33 @@ function Login() {
         className="login-glow login-glow-pink"
       />
 
+      {/* =================================================
+          LOGIN CARD
+      ================================================= */}
+
       <div className="login-card">
 
         <div className="card-shine" />
 
-        {/* PROFILE */}
+        {/* =================================================
+            PROFILE
+        ================================================= */}
 
         <div className="profile-icon">
           <FaUser />
         </div>
 
-        {/* BRAND */}
+        {/* =================================================
+            BRAND
+        ================================================= */}
 
         <h1 className="title skill-lab-title">
           SKILL LAB
         </h1>
 
-        {/* SIGN IN */}
+        {/* =================================================
+            SIGN IN
+        ================================================= */}
 
         <h1 className="title">
           Sign In
@@ -333,15 +466,19 @@ function Login() {
           Continue your learning journey
         </p>
 
-        {/* GOOGLE LOGIN */}
+        {/* =================================================
+            GOOGLE LOGIN
+        ================================================= */}
 
         <div className="google-btn">
+
           <GoogleLogin
             onSuccess={handleSuccess}
             onError={handleError}
             auto_select={false}
             useOneTap={false}
           />
+
         </div>
 
         {/* =================================================
@@ -353,20 +490,30 @@ function Login() {
 
             <div className="pwa-install-box">
 
-             <div className="pwa-install-icon">
-  S
-</div>
+              {/* APP ICON */}
+
+              <div className="pwa-install-icon">
+                S
+              </div>
+
+              {/* TITLE */}
 
               <h3>
                 Add Skill Lab to Home Screen?
               </h3>
+
+              {/* DESCRIPTION */}
 
               <p>
                 Would you like to add Skill Lab
                 to your home screen?
               </p>
 
+              {/* BUTTONS */}
+
               <div className="pwa-install-actions">
+
+                {/* NO */}
 
                 <button
                   type="button"
@@ -375,6 +522,8 @@ function Login() {
                 >
                   No
                 </button>
+
+                {/* YES */}
 
                 <button
                   type="button"
@@ -391,15 +540,20 @@ function Login() {
           </div>
         )}
 
-        {/* FOOTER */}
+        {/* =================================================
+            FOOTER
+        ================================================= */}
 
         <div className="login-footer">
+
           <p>
             Learn • Practice • Grow
           </p>
+
         </div>
 
       </div>
+
     </div>
   );
 }
