@@ -2106,14 +2106,13 @@ const openStudentDashboard = (student) => {
                     {selectedDefaultStudent?.name || "Student"} — date-wise default tasks
                   </p>
 
-             <div
+<div
   className="default-date-row"
   style={{
     display: "flex",
     alignItems: "center",
     gap: "8px",
-    flex: 1,
-    minWidth: 0,
+    width: "100%",
   }}
 >
   <span
@@ -2146,15 +2145,19 @@ const openStudentDashboard = (student) => {
   />
 
   {/* + ADD TASK */}
-  <button
-    type="button"
-    className="default-add-task-btn"
-    onClick={addStudentDefault}
-    disabled={defaultLoading || defaultSaving}
-    title="Add New Task"
-  >
-    +
-  </button>
+<button
+  type="button"
+  className="default-add-task-btn"
+  onClick={addStudentDefault}
+  disabled={defaultLoading || defaultSaving}
+  title="Add New Task"
+  style={{
+    marginLeft: "auto",
+    flexShrink: 0,
+  }}
+>
+  +
+</button>
 </div>
 </div>
 
