@@ -6,16 +6,13 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import "./index.css";
 import App from "./App.jsx";
 
+
 // =====================================================
-// SKILL LAB - GLOBAL PWA INSTALL PROMPT
-// =====================================================
-//
-// IMPORTANT:
-// beforeinstallprompt can fire BEFORE Login.jsx loads.
-// So we capture it globally here.
+// SKILL LAB - PWA INSTALL PROMPT
 // =====================================================
 
 window.__skillLabInstallPrompt = null;
+
 
 // =====================================================
 // BEFORE INSTALL PROMPT
@@ -24,25 +21,25 @@ window.__skillLabInstallPrompt = null;
 window.addEventListener(
   "beforeinstallprompt",
   (event) => {
+
     console.log(
-      "🔥🔥 GLOBAL BEFORE INSTALL PROMPT RECEIVED 🔥🔥"
+      "🔥 Skill Lab install prompt available"
     );
 
-    // Prevent Chrome's automatic install prompt
+    // Stop Chrome automatic prompt
     event.preventDefault();
 
-    // Save globally
+    // Save prompt
     window.__skillLabInstallPrompt = event;
 
-    // =================================================
-    // Notify Login.jsx if it is already mounted
-    // =================================================
-
+    // Tell Login page
     window.dispatchEvent(
       new Event("skillLabInstallAvailable")
     );
+
   }
 );
+
 
 // =====================================================
 // APP INSTALLED
@@ -51,19 +48,21 @@ window.addEventListener(
 window.addEventListener(
   "appinstalled",
   () => {
+
     console.log(
-      "✅ Skill Lab PWA installed successfully"
+      "✅ Skill Lab installed"
     );
 
     window.__skillLabInstallPrompt = null;
 
-    // Keep asked flag
     localStorage.setItem(
       "skillLabInstallAsked",
       "true"
     );
+
   }
 );
+
 
 // =====================================================
 // REACT APP
@@ -91,36 +90,47 @@ createRoot(
 
 );
 
+
 // =====================================================
-// PWA SERVICE WORKER
+// ONE SERVICE WORKER
+// =====================================================
+//
+// This SAME service worker handles:
+//
+// 1. PWA
+// 2. Firebase background notification
+//
 // =====================================================
 
 if ("serviceWorker" in navigator) {
 
   window.addEventListener(
     "load",
-    () => {
+    async () => {
 
-      navigator.serviceWorker
-        .register("/sw.js")
+      try {
 
-        .then((registration) => {
-
-          console.log(
-            "Skill Lab PWA Service Worker registered:",
-            registration.scope
+        const registration =
+          await navigator.serviceWorker.register(
+            "/sw.js",
+            {
+              scope: "/",
+            }
           );
 
-        })
+        console.log(
+          "✅ Skill Lab Service Worker registered:",
+          registration.scope
+        );
 
-        .catch((error) => {
+      } catch (error) {
 
-          console.error(
-            "Skill Lab PWA Service Worker registration failed:",
-            error
-          );
+        console.error(
+          "❌ Service Worker registration failed:",
+          error
+        );
 
-        });
+      }
 
     }
   );

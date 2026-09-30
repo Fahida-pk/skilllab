@@ -1,13 +1,15 @@
 // =====================================================
-// FIREBASE APP
+// SKILL LAB - FIREBASE
 // =====================================================
 
-import { initializeApp } from "firebase/app";
+import {
+  initializeApp
+} from "firebase/app";
 
 import {
   getMessaging,
   getToken,
-  onMessage,
+  onMessage
 } from "firebase/messaging";
 
 
@@ -16,6 +18,7 @@ import {
 // =====================================================
 
 const firebaseConfig = {
+
   apiKey:
     "AIzaSyBBspQGNBxON5ePghA9dLuZOrf00MkqyfI",
 
@@ -32,7 +35,8 @@ const firebaseConfig = {
     "128086383416",
 
   appId:
-    "1:128086383416:web:527a77f86a8bc54db0bfcd",
+    "1:128086383416:web:527a77f86a8bc54db0bfcd"
+
 };
 
 
@@ -41,11 +45,13 @@ const firebaseConfig = {
 // =====================================================
 
 const app =
-  initializeApp(firebaseConfig);
+  initializeApp(
+    firebaseConfig
+  );
 
 
 // =====================================================
-// FIREBASE MESSAGING
+// MESSAGING
 // =====================================================
 
 export const messaging =
@@ -53,7 +59,7 @@ export const messaging =
 
 
 // =====================================================
-// WEB PUSH VAPID KEY
+// VAPID KEY
 // =====================================================
 
 export const VAPID_KEY =
@@ -61,7 +67,7 @@ export const VAPID_KEY =
 
 
 // =====================================================
-// REGISTER FCM DEVICE
+// REQUEST NOTIFICATION PERMISSION
 // =====================================================
 
 export async function requestNotificationPermission(
@@ -70,21 +76,8 @@ export async function requestNotificationPermission(
 
   try {
 
-    console.log(
-      "========================================"
-    );
-
-    console.log(
-      "FCM REGISTRATION START"
-    );
-
-    console.log(
-      "========================================"
-    );
-
-
     // =================================================
-    // 1. GET EMAIL
+    // GET USER EMAIL
     // =================================================
 
     if (!email) {
@@ -93,12 +86,14 @@ export async function requestNotificationPermission(
 
         const savedUser =
           JSON.parse(
-            localStorage.getItem("user") ||
-            "null"
+            localStorage.getItem(
+              "user"
+            ) || "null"
           );
 
         email =
-          savedUser?.email || null;
+          savedUser?.email ||
+          null;
 
       } catch (error) {
 
@@ -112,20 +107,10 @@ export async function requestNotificationPermission(
     }
 
 
-    console.log(
-      "FCM EMAIL:",
-      email
-    );
-
-
-    // =================================================
-    // EMAIL REQUIRED
-    // =================================================
-
     if (!email) {
 
       console.error(
-        "❌ No email available for FCM registration"
+        "❌ No email available"
       );
 
       return null;
@@ -134,7 +119,7 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 2. CHECK NOTIFICATION SUPPORT
+    // NOTIFICATION SUPPORT
     // =================================================
 
     if (
@@ -142,7 +127,7 @@ export async function requestNotificationPermission(
     ) {
 
       console.error(
-        "❌ Browser does not support notifications"
+        "❌ Notifications not supported"
       );
 
       return null;
@@ -151,27 +136,16 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 3. NOTIFICATION PERMISSION
+    // PERMISSION
     // =================================================
 
     let permission =
       Notification.permission;
 
 
-    console.log(
-      "Current notification permission:",
-      permission
-    );
-
-
     if (
       permission === "default"
     ) {
-
-      console.log(
-        "Requesting notification permission..."
-      );
-
 
       permission =
         await Notification.requestPermission();
@@ -180,44 +154,17 @@ export async function requestNotificationPermission(
 
 
     console.log(
-      "Final notification permission:",
+      "Notification permission:",
       permission
     );
 
-
-    // =================================================
-    // PERMISSION NOT GRANTED
-    // =================================================
 
     if (
       permission !== "granted"
     ) {
 
       console.error(
-        "❌ Notification permission was not granted:",
-        permission
-      );
-
-      return null;
-
-    }
-
-
-    console.log(
-      "✅ Notification permission granted"
-    );
-
-
-    // =================================================
-    // 4. SERVICE WORKER SUPPORT
-    // =================================================
-
-    if (
-      !("serviceWorker" in navigator)
-    ) {
-
-      console.error(
-        "❌ Service Worker is not supported"
+        "❌ Notification permission denied"
       );
 
       return null;
@@ -226,77 +173,47 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 5. REGISTER FIREBASE SERVICE WORKER
+    // GET OUR SINGLE SERVICE WORKER
     // =================================================
-
-    console.log(
-      "Registering Firebase service worker..."
-    );
-
 
     const registration =
-      await navigator.serviceWorker.register(
-        "/firebase-messaging-sw.js",
-        {
-          scope: "/",
-        }
-      );
+      await navigator.serviceWorker.ready;
 
 
     console.log(
-      "✅ Firebase service worker registered:",
-      registration
+      "✅ Skill Lab service worker ready"
     );
 
 
     // =================================================
-    // 6. WAIT FOR SERVICE WORKER
+    // GET FCM TOKEN
     // =================================================
-
-    await navigator.serviceWorker.ready;
-
-
-    console.log(
-      "✅ Firebase service worker is ready"
-    );
-
-
-    // =================================================
-    // 7. GENERATE FCM TOKEN
-    // =================================================
-
-    console.log(
-      "Generating FCM token..."
-    );
-
 
     const token =
       await getToken(
         messaging,
         {
+
           vapidKey:
             VAPID_KEY,
 
           serviceWorkerRegistration:
-            registration,
+            registration
+
         }
       );
 
 
     console.log(
-      "FCM TOKEN RESULT:",
+      "FCM TOKEN:",
       token
     );
 
 
-    // =================================================
-    // TOKEN NOT GENERATED
-    // =================================================
-
     if (!token) {
 
       console.error(
-        "❌ FCM token was not generated"
+        "❌ FCM token not generated"
       );
 
       return null;
@@ -305,90 +222,49 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // TOKEN GENERATED
+    // SAVE TOKEN TO DATABASE
     // =================================================
-
-    console.log(
-      "========================================"
-    );
-
-    console.log(
-      "✅ FCM TOKEN GENERATED"
-    );
-
-    console.log(
-      "Email:",
-      email
-    );
-
-    console.log(
-      "Token:",
-      token
-    );
-
-    console.log(
-      "========================================"
-    );
-
-
-    // =================================================
-    // 8. SAVE TOKEN TO DATABASE
-    // =================================================
-
-    console.log(
-      "Saving FCM device to server..."
-    );
-
 
     const response =
       await fetch(
         "https://zyntaweb.com/skilllab/api/save_fcm_device.php",
         {
+
           method:
             "POST",
 
           headers:
             {
               "Content-Type":
-                "application/json",
+                "application/json"
             },
 
           body:
-            JSON.stringify(
-              {
-                email:
-                  email,
+            JSON.stringify({
 
-                token:
-                  token,
-              }
-            ),
+              email:
+                email,
+
+              token:
+                token
+
+            })
+
         }
       );
 
-
-    console.log(
-      "FCM save HTTP status:",
-      response.status
-    );
-
-
-    // =================================================
-    // 9. READ SERVER RESPONSE
-    // =================================================
 
     const responseText =
       await response.text();
 
 
     console.log(
-      "FCM save raw response:",
+      "FCM save response:",
       responseText
     );
 
 
     let data;
-
 
     try {
 
@@ -400,35 +276,21 @@ export async function requestNotificationPermission(
     } catch (error) {
 
       console.error(
-        "❌ Server did not return valid JSON"
-      );
-
-      console.error(
-        responseText
+        "❌ Invalid server response"
       );
 
       return null;
 
     }
 
-
-    console.log(
-      "FCM device server response:",
-      data
-    );
-
-
-    // =================================================
-    // SERVER FAILED
-    // =================================================
 
     if (
       !data.success
     ) {
 
       console.error(
-        "❌ FCM device was NOT saved:",
-        data.message || ""
+        "❌ FCM device save failed:",
+        data.message
       );
 
       return null;
@@ -437,7 +299,7 @@ export async function requestNotificationPermission(
 
 
     // =================================================
-    // 10. SAVE TOKEN LOCALLY
+    // SAVE LOCALLY
     // =================================================
 
     localStorage.setItem(
@@ -446,61 +308,18 @@ export async function requestNotificationPermission(
     );
 
 
-    // =================================================
-    // SUCCESS
-    // =================================================
-
     console.log(
-      "========================================"
-    );
-
-    console.log(
-      "✅ FCM REGISTRATION SUCCESSFUL"
-    );
-
-    console.log(
-      "Email:",
-      email
-    );
-
-    console.log(
-      "Device ID:",
-      data.device_id
-    );
-
-    console.log(
-      "User ID:",
-      data.user_id
-    );
-
-    console.log(
-      "Token saved in database"
-    );
-
-    console.log(
-      "========================================"
+      "✅ FCM registration successful"
     );
 
 
     return token;
 
-
   } catch (error) {
 
     console.error(
-      "========================================"
-    );
-
-    console.error(
-      "❌ FCM NOTIFICATION SETUP ERROR"
-    );
-
-    console.error(
+      "❌ FCM setup error:",
       error
-    );
-
-    console.error(
-      "========================================"
     );
 
     return null;
@@ -511,82 +330,47 @@ export async function requestNotificationPermission(
 
 
 // =====================================================
-// FOREGROUND FCM MESSAGE
+// FOREGROUND FCM
 // =====================================================
 
 export function listenForegroundMessages() {
-
-  console.log(
-    "Starting foreground FCM listener..."
-  );
-
 
   return onMessage(
     messaging,
     (payload) => {
 
       console.log(
-        "========================================"
-      );
-
-      console.log(
-        "FOREGROUND FCM MESSAGE"
-      );
-
-      console.log(
+        "🔥 FOREGROUND FCM MESSAGE",
         payload
       );
 
-      console.log(
-        "========================================"
-      );
-
-
-      // =================================================
-      // TITLE
-      // =================================================
 
       const title =
         payload.notification?.title ||
         payload.data?.title ||
-        "Skill Lab";
+        "⏰ Skill Lab";
 
-
-      // =================================================
-      // BODY
-      // =================================================
 
       const body =
         payload.notification?.body ||
         payload.data?.body ||
-        "Your task time is ready.";
+        "Your task starts in 5 minutes.";
 
-
-      // =================================================
-      // TASK ID
-      // =================================================
 
       const taskId =
         payload.data?.taskId ||
         "";
 
 
-      // =================================================
-      // SHOW FOREGROUND NOTIFICATION
-      // =================================================
-
       if (
-
-        "Notification" in window &&
-
         Notification.permission ===
-          "granted"
-
+        "granted"
       ) {
 
         new Notification(
           title,
           {
+
             body:
               body,
 
@@ -599,7 +383,7 @@ export function listenForegroundMessages() {
             tag:
               taskId
                 ? `skilllab-task-${taskId}`
-                : "skilllab-task",
+                : "skilllab-task"
 
           }
         );
