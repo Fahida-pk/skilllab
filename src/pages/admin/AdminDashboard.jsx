@@ -2179,6 +2179,7 @@ const openStudentDashboard = (student) => {
               </div>
 
               <div
+                className="admin-default-info"
                 style={{
                   background: "#f4f0ff",
                   border: "1px solid #ddd6fe",
@@ -2236,6 +2237,7 @@ const openStudentDashboard = (student) => {
                     return (
                       <div
                         key={task.default_id}
+                        className="admin-default-task-card"
                         style={{
                           position: "relative",
                           overflow: "hidden",
@@ -2249,6 +2251,7 @@ const openStudentDashboard = (student) => {
                       >
                         {/* MAIN TASK ROW */}
                         <div
+                          className="admin-default-task-main"
                           style={{
                             display: "flex",
                             alignItems: "center",
@@ -2256,6 +2259,7 @@ const openStudentDashboard = (student) => {
                           }}
                         >
                           <div
+                            className="admin-default-task-icon"
                             style={{
                               width: "52px",
                               height: "52px",
@@ -2272,7 +2276,7 @@ const openStudentDashboard = (student) => {
                             {getDefaultIcon(task)}
                           </div>
 
-                          <div style={{ minWidth: 0, flex: 1 }}>
+                          <div className="admin-default-task-content" style={{ minWidth: 0, flex: 1 }}>
                             {isEditing && !isWakeUp && !isSleep ? (
                               <input
                                 data-default-edit={task.default_id}
@@ -2346,6 +2350,7 @@ const openStudentDashboard = (student) => {
                           </div>
 
                           <div
+                            className="admin-default-task-actions"
                             style={{
                               display: "flex",
                               gap: "7px",
@@ -2417,6 +2422,7 @@ const openStudentDashboard = (student) => {
                         {/* TIME EDITOR — SAME SIMPLE TIME MODEL AS STUDENT TASKS */}
                         {isEditing && (
                           <div
+                            className="admin-default-task-editor"
                             style={{
                               marginTop: "13px",
                               paddingTop: "13px",
