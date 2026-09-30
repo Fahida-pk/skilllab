@@ -1,7 +1,6 @@
 // =====================================================
-// FIREBASE MESSAGING SERVICE WORKER
+// SKILL LAB - FIREBASE MESSAGING SERVICE WORKER
 // =====================================================
-
 
 // =====================================================
 // FIREBASE APP COMPAT
@@ -57,18 +56,49 @@ const messaging =
 
 
 // =====================================================
+// SERVICE WORKER READY
+// =====================================================
+
+console.log(
+  "========================================"
+);
+
+console.log(
+  "🔥 SKILL LAB FIREBASE SERVICE WORKER"
+);
+
+console.log(
+  "🔥 SERVICE WORKER LOADED"
+);
+
+console.log(
+  "========================================"
+);
+
+
+// =====================================================
 // BACKGROUND FCM MESSAGE
+//
+// This works when:
+//
+// ✔ Skill Lab tab is in background
+// ✔ Browser is minimized
+// ✔ Skill Lab page is not active
+// ✔ PWA is running in background
+// ✔ Browser is not currently showing Skill Lab
+//
+// Website does NOT need to be active.
 // =====================================================
 
 messaging.onBackgroundMessage(
-  function (payload) {
+  (payload) => {
 
     console.log(
       "========================================"
     );
 
     console.log(
-      "BACKGROUND FCM MESSAGE"
+      "🔥 BACKGROUND FCM MESSAGE RECEIVED"
     );
 
     console.log(
@@ -85,8 +115,8 @@ messaging.onBackgroundMessage(
     // =================================================
 
     const title =
-      payload.notification?.title ||
       payload.data?.title ||
+      payload.notification?.title ||
       "⏰ Skill Lab";
 
 
@@ -95,9 +125,9 @@ messaging.onBackgroundMessage(
     // =================================================
 
     const body =
-      payload.notification?.body ||
       payload.data?.body ||
-      "Your task time is ready.";
+      payload.notification?.body ||
+      "Your task starts in 5 minutes.";
 
 
     // =================================================
@@ -124,25 +154,59 @@ messaging.onBackgroundMessage(
 
     const notificationOptions = {
 
+      // -----------------------------------------------
+      // MESSAGE
+      // -----------------------------------------------
+
       body:
         body,
+
+
+      // -----------------------------------------------
+      // ICON
+      // -----------------------------------------------
 
       icon:
         "/favicon.svg",
 
+
+      // -----------------------------------------------
+      // BADGE
+      // -----------------------------------------------
+
       badge:
         "/favicon.svg",
+
+
+      // -----------------------------------------------
+      // UNIQUE TAG
+      // -----------------------------------------------
 
       tag:
         taskId
           ? `skilllab-task-${taskId}`
           : "skilllab-task",
 
+
+      // -----------------------------------------------
+      // SHOW AGAIN EVEN WITH SAME TAG
+      // -----------------------------------------------
+
       renotify:
         true,
 
+
+      // -----------------------------------------------
+      // KEEP NOTIFICATION VISIBLE
+      // -----------------------------------------------
+
       requireInteraction:
         true,
+
+
+      // -----------------------------------------------
+      // VIBRATION
+      // -----------------------------------------------
 
       vibrate:
         [
@@ -150,6 +214,11 @@ messaging.onBackgroundMessage(
           100,
           200
         ],
+
+
+      // -----------------------------------------------
+      // CUSTOM DATA
+      // -----------------------------------------------
 
       data: {
 
@@ -183,18 +252,24 @@ messaging.onBackgroundMessage(
 
 self.addEventListener(
   "notificationclick",
-  function (event) {
+  (event) => {
 
     console.log(
-      "Notification clicked"
+      "🔔 Skill Lab notification clicked"
     );
 
 
-    // Close notification
+    // =================================================
+    // CLOSE NOTIFICATION
+    // =================================================
+
     event.notification.close();
 
 
-    // Get URL from notification
+    // =================================================
+    // GET URL
+    // =================================================
+
     const url =
       event.notification?.data?.url ||
       "/task";
@@ -206,54 +281,94 @@ self.addEventListener(
 
     event.waitUntil(
 
-      clients
-        .matchAll({
-          type:
-            "window",
+      clients.matchAll({
 
-          includeUncontrolled:
-            true
-        })
+        type:
+          "window",
 
-        .then(
-          function (clientList) {
+        includeUncontrolled:
+          true
 
-            // -----------------------------------------
-            // Existing Skill Lab window
-            // -----------------------------------------
+      })
 
-            for (
-              const client of clientList
-            ) {
-
-              if (
-                "focus" in client
-              ) {
-
-                return client.focus();
-
-              }
-
-            }
+      .then(
+        (clientList) => {
 
 
-            // -----------------------------------------
-            // Open new window
-            // -----------------------------------------
+          // =============================================
+          // CHECK EXISTING SKILL LAB WINDOW
+          // =============================================
+
+          for (
+            const client of clientList
+          ) {
 
             if (
-              clients.openWindow
+              "focus" in client
             ) {
 
-              return clients.openWindow(
-                url
-              );
+              return client.focus();
 
             }
 
           }
-        )
 
+
+          // =============================================
+          // OPEN NEW SKILL LAB WINDOW
+          // =============================================
+
+          if (
+            clients.openWindow
+          ) {
+
+            return clients.openWindow(
+              url
+            );
+
+          }
+
+        }
+      )
+
+    );
+
+  }
+);
+
+
+// =====================================================
+// SERVICE WORKER INSTALL
+// =====================================================
+
+self.addEventListener(
+  "install",
+  () => {
+
+    console.log(
+      "✅ Skill Lab Service Worker installed"
+    );
+
+    self.skipWaiting();
+
+  }
+);
+
+
+// =====================================================
+// SERVICE WORKER ACTIVATE
+// =====================================================
+
+self.addEventListener(
+  "activate",
+  (event) => {
+
+    console.log(
+      "✅ Skill Lab Service Worker activated"
+    );
+
+    event.waitUntil(
+      self.clients.claim()
     );
 
   }
