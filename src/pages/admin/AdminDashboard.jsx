@@ -93,6 +93,10 @@ function AdminDashboard() {
   const [defaultModalOpen, setDefaultModalOpen] = useState(false);
   const [selectedDefaultStudent, setSelectedDefaultStudent] = useState(null);
   const [studentDefaults, setStudentDefaults] = useState([]);
+  // Keep an explicit list of defaults deleted in the current Admin modal.
+  // This is sent to the server so deletion cannot be lost when the payload
+  // is rebuilt/merged from recurring and date-specific defaults.
+  const [deletedDefaultIds, setDeletedDefaultIds] = useState([]);
   const [defaultLoading, setDefaultLoading] = useState(false);
   const [defaultSaving, setDefaultSaving] = useState(false);
   const [editingDefaultId, setEditingDefaultId] = useState(null);
@@ -439,6 +443,7 @@ function AdminDashboard() {
     setDefaultTaskDate(taskDate || getTodayKey());
     setDefaultModalOpen(true);
     setEditingDefaultId(null);
+    setDeletedDefaultIds([]);
     setDefaultLoading(true);
 
     try {
@@ -471,6 +476,7 @@ function AdminDashboard() {
     if (!selectedDefaultStudent || defaultLoading) return;
 
     setDefaultTaskDate(taskDate);
+    setDeletedDefaultIds([]);
     setDefaultLoading(true);
 
     try {
@@ -758,6 +764,12 @@ function AdminDashboard() {
 
     if (!confirmed) return;
 
+    // Remember the exact default_id explicitly deleted by Admin.
+    // Do not rely only on the missing item in the defaults array.
+    setDeletedDefaultIds((prev) =>
+      prev.includes(String(defaultId)) ? prev : [...prev, String(defaultId)]
+    );
+
     setStudentDefaults((prev) =>
       prev.filter(
         (item) => String(item.default_id) !== String(defaultId)
@@ -784,6 +796,9 @@ function AdminDashboard() {
           student_id: selectedDefaultStudent.id,
           task_date: defaultTaskDate,
           defaults: studentDefaults,
+          // Explicit Admin deletions must reach the backend even when the
+          // deleted item is no longer present in `defaults`.
+          deleted_default_ids: deletedDefaultIds,
         }),
       });
 
@@ -813,6 +828,7 @@ function AdminDashboard() {
       setDefaultModalOpen(false);
       setSelectedDefaultStudent(null);
       setStudentDefaults([]);
+      setDeletedDefaultIds([]);
       setEditingDefaultId(null);
     } catch (error) {
       console.error("Student defaults save error:", error);
@@ -827,6 +843,7 @@ function AdminDashboard() {
     setDefaultModalOpen(false);
     setSelectedDefaultStudent(null);
     setStudentDefaults([]);
+    setDeletedDefaultIds([]);
     setEditingDefaultId(null);
   };
 
