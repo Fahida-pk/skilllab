@@ -2042,6 +2042,21 @@ useEffect(() => {
       // =========================================================
       // DATE-BASED TASK TIME OVERLAP CHECK
       // =========================================================
+      // Rule:
+      // 1. Two tasks may NEVER occupy overlapping time.
+      // 2. Two point-time tasks at the exact same time are also a conflict.
+      // 3. Default tasks are included in the conflict check.
+      // 4. An overnight task only occupies the selected date from its
+      //    start time until midnight. Its after-midnight portion belongs
+      //    to the NEXT calendar date and is checked by the server.
+      //
+      // Example:
+      //   Study 6:00 AM - 8:00 AM
+      //   Other 6:30 AM - 8:30 AM  -> BLOCKED
+      //
+      //   Wake Up 4:05 AM
+      //   Other 4:05 AM - 5:00 AM  -> BLOCKED
+      // =========================================================
       const getTaskRanges = (
         from,
         to,
@@ -2065,7 +2080,8 @@ useEffect(() => {
           return [[start, end]];
         }
 
-        // Only the selected-date portion is checked.
+        // For the currently selected task_date, only the portion
+        // before midnight belongs to that date.
         return [[start, 24 * 60]];
       };
 
@@ -2075,22 +2091,30 @@ useEffect(() => {
           : [[candidateStart, candidateEnd]];
 
       const rangesOverlap = (a, b) => {
-        // Point task
-        if (a[0] === a[1]) {
+        const aPoint = a[0] === a[1];
+        const bPoint = b[0] === b[1];
+
+        // Two point-time tasks at exactly the same time are invalid.
+        if (aPoint && bPoint) {
+          return a[0] === b[0];
+        }
+
+        // Point task against a real interval.
+        if (aPoint) {
           return (
             b[0] <= a[0] &&
             a[0] < b[1]
           );
         }
 
-        // Existing task is point task
-        if (b[0] === b[1]) {
+        if (bPoint) {
           return (
             a[0] <= b[0] &&
             b[0] < a[1]
           );
         }
 
+        // Normal interval overlap.
         return (
           a[0] < b[1] &&
           b[0] < a[1]
@@ -2108,26 +2132,10 @@ useEffect(() => {
             return false;
           }
 
-          /*
-           * IMPORTANT:
-           * Admin/default tasks are date-specific schedule records.
-           * A student is allowed to add a task even when its time overlaps
-           * an Admin/default task. The student task is saved for this date
-           * and is then returned to the Admin Default Tasks screen as part
-           * of the same final date-wise task list.
-           *
-           * All mapped tasks have a default_id. Do not reject a student
-           * Add/Edit just because it overlaps one of those mapped records.
-           */
-          const existingDefaultId =
-            existingTask.default_id ||
-            existingTask.defaultId ||
-            "";
-
-          if (String(existingDefaultId).trim() !== "") {
-            return false;
-          }
-
+          // IMPORTANT:
+          // Default/mapped tasks are ALSO part of the schedule.
+          // Do not skip them. A student task cannot overlap a
+          // Wake Up, Study MERN, Sleep, or any other default task.
           const existingFrom =
             existingTask.from ||
             existingTask.time ||
