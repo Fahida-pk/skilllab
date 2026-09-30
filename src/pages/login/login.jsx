@@ -23,8 +23,29 @@ function Login() {
   useEffect(() => {
     console.log("PWA: Login component loaded");
 
+    const handleBeforeInstallPrompt = (event) => {
+      console.log(
+        "🔥🔥 BEFORE INSTALL PROMPT RECEIVED 🔥🔥"
+      );
+
+      // Prevent Chrome's automatic mini-infobar
+      event.preventDefault();
+
+      // Save prompt globally
+      window.__skillLabInstallPrompt = event;
+
+      // Save in React state
+      setInstallPrompt(event);
+      setPwaReady(true);
+    };
+
+    window.addEventListener(
+      "beforeinstallprompt",
+      handleBeforeInstallPrompt
+    );
+
     // =================================================
-    // CHECK IF APP IS ALREADY INSTALLED
+    // CHECK IF ALREADY INSTALLED
     // =================================================
 
     const isStandalone =
@@ -39,86 +60,7 @@ function Login() {
       );
 
       setPwaReady(false);
-
-      return;
     }
-
-    // =================================================
-    // BEFORE INSTALL PROMPT
-    // =================================================
-
-    const handleBeforeInstallPrompt = (event) => {
-      console.log(
-        "🔥🔥 BEFORE INSTALL PROMPT RECEIVED 🔥🔥"
-      );
-
-      // =================================================
-      // STOP CHROME DEFAULT INSTALL POPUP
-      // =================================================
-
-      event.preventDefault();
-
-      // =================================================
-      // CHECK IF WE ALREADY ASKED ONCE
-      // =================================================
-
-      const alreadyAsked =
-        localStorage.getItem(
-          "skillLabInstallAsked"
-        );
-
-      if (alreadyAsked === "true") {
-        console.log(
-          "📱 Skill Lab install question already shown once"
-        );
-
-        return;
-      }
-
-      // =================================================
-      // SAVE INSTALL PROMPT
-      // =================================================
-
-      window.__skillLabInstallPrompt = event;
-
-      setInstallPrompt(event);
-
-      // =================================================
-      // IMPORTANT
-      //
-      // Mark as ASKED immediately.
-      //
-      // So:
-      // YES -> don't ask again
-      // NO  -> don't ask again
-      // Refresh -> don't ask again
-      // Logout/Login -> don't ask again
-      // =================================================
-
-      localStorage.setItem(
-        "skillLabInstallAsked",
-        "true"
-      );
-
-      // =================================================
-      // SHOW CUSTOM QUESTION
-      // =================================================
-
-      setPwaReady(true);
-
-      console.log(
-        "📱 Skill Lab install question shown ONE TIME"
-      );
-    };
-
-    window.addEventListener(
-      "beforeinstallprompt",
-      handleBeforeInstallPrompt
-    );
-
-    // =================================================
-    // CLEANUP
-    // =================================================
 
     return () => {
       window.removeEventListener(
@@ -137,17 +79,9 @@ function Login() {
       "📱 User selected YES for Skill Lab installation"
     );
 
-    // =================================================
-    // GET SAVED PROMPT
-    // =================================================
-
     const prompt =
       installPrompt ||
       window.__skillLabInstallPrompt;
-
-    // =================================================
-    // NO PROMPT
-    // =================================================
 
     if (!prompt) {
       console.log(
@@ -164,72 +98,44 @@ function Login() {
         "🚀 Opening native Skill Lab install dialog..."
       );
 
-      // =================================================
-      // OPEN NATIVE INSTALL DIALOG
-      // =================================================
-
+      // Open Chrome's native install dialog
       await prompt.prompt();
 
-      // =================================================
-      // WAIT FOR USER CHOICE
-      // =================================================
-
-      const result =
-        await prompt.userChoice;
+      // Wait for user's choice
+      const result = await prompt.userChoice;
 
       console.log(
         "PWA install result:",
         result.outcome
       );
 
-      // =================================================
-      // ACCEPTED
-      // =================================================
-
-      if (
-        result.outcome === "accepted"
-      ) {
+      if (result.outcome === "accepted") {
         console.log(
           "✅ Skill Lab installation accepted"
         );
-      }
-
-      // =================================================
-      // DISMISSED
-      // =================================================
-
-      else {
+      } else {
         console.log(
           "❌ Skill Lab installation dismissed"
         );
       }
 
-      // =================================================
-      // PROMPT CAN ONLY BE USED ONCE
-      // =================================================
-
+      // Prompt can only be used once
       setInstallPrompt(null);
-
       setPwaReady(false);
 
       window.__skillLabInstallPrompt = null;
-
     } catch (error) {
       console.error(
         "❌ Install error:",
         error
       );
 
-      setInstallPrompt(null);
-
       setPwaReady(false);
-
-      window.__skillLabInstallPrompt = null;
     }
   };
 
   // =====================================================
-  // NO - CLOSE INSTALL QUESTION
+  // NO - CLOSE MESSAGE
   // =====================================================
 
   const handleInstallNo = () => {
@@ -237,20 +143,7 @@ function Login() {
       "❌ User selected NO for Skill Lab installation"
     );
 
-    // =================================================
-    // IMPORTANT
-    //
-    // skillLabInstallAsked was already saved when
-    // the popup appeared.
-    //
-    // Therefore it will NEVER appear again.
-    // =================================================
-
     setPwaReady(false);
-
-    setInstallPrompt(null);
-
-    window.__skillLabInstallPrompt = null;
   };
 
   // =====================================================
@@ -263,21 +156,7 @@ function Login() {
         "✅ Skill Lab installed successfully"
       );
 
-      // =================================================
-      // KEEP ONE-TIME FLAG
-      // =================================================
-
-      localStorage.setItem(
-        "skillLabInstallAsked",
-        "true"
-      );
-
-      // =================================================
-      // CLEAR PROMPT
-      // =================================================
-
       setInstallPrompt(null);
-
       setPwaReady(false);
 
       window.__skillLabInstallPrompt = null;
@@ -302,34 +181,23 @@ function Login() {
 
   const handleSuccess = async (res) => {
     try {
-      const googleToken =
-        res.credential;
+      const googleToken = res.credential;
 
-      // =================================================
-      // LOGIN API
-      // =================================================
+      const response = await fetch(
+        "https://zyntaweb.com/skilllab/login.php",
+        {
+          method: "POST",
 
-      const response =
-        await fetch(
-          "https://zyntaweb.com/skilllab/login.php",
-          {
-            method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-
-            body: JSON.stringify({
-              token: googleToken,
-              fcmToken: "",
-            }),
-          }
-        );
-
-      // =================================================
-      // SERVER ERROR
-      // =================================================
+          body: JSON.stringify({
+            token: googleToken,
+            fcmToken: "",
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(
@@ -337,16 +205,7 @@ function Login() {
         );
       }
 
-      // =================================================
-      // RESPONSE
-      // =================================================
-
-      const data =
-        await response.json();
-
-      // =================================================
-      // LOGIN FAILED
-      // =================================================
+      const data = await response.json();
 
       if (!data.success) {
         alert(
@@ -363,9 +222,7 @@ function Login() {
 
       localStorage.setItem(
         "user",
-        JSON.stringify(
-          data.user
-        )
+        JSON.stringify(data.user)
       );
 
       localStorage.setItem(
@@ -399,26 +256,12 @@ function Login() {
       }
 
       // =================================================
-      // IMPORTANT
-      //
-      // PWA QUESTION IS NOT CALLED HERE.
-      //
-      // beforeinstallprompt automatically shows our
-      // custom question when browser makes the PWA
-      // installable.
-      // =================================================
-
-      // =================================================
       // DASHBOARD
       // =================================================
 
-      navigate(
-        "/task",
-        {
-          replace: true,
-        }
-      );
-
+      navigate("/task", {
+        replace: true,
+      });
     } catch (error) {
       console.error(
         "Login Error:",
@@ -452,10 +295,6 @@ function Login() {
   return (
     <div className="login-page">
 
-      {/* =================================================
-          BACKGROUND GLOW
-      ================================================= */}
-
       <div
         className="login-glow login-glow-blue"
       />
@@ -468,33 +307,23 @@ function Login() {
         className="login-glow login-glow-pink"
       />
 
-      {/* =================================================
-          LOGIN CARD
-      ================================================= */}
-
       <div className="login-card">
 
         <div className="card-shine" />
 
-        {/* =================================================
-            PROFILE
-        ================================================= */}
+        {/* PROFILE */}
 
         <div className="profile-icon">
           <FaUser />
         </div>
 
-        {/* =================================================
-            BRAND
-        ================================================= */}
+        {/* BRAND */}
 
         <h1 className="title skill-lab-title">
           SKILL LAB
         </h1>
 
-        {/* =================================================
-            SIGN IN
-        ================================================= */}
+        {/* SIGN IN */}
 
         <h1 className="title">
           Sign In
@@ -504,23 +333,19 @@ function Login() {
           Continue your learning journey
         </p>
 
-        {/* =================================================
-            GOOGLE LOGIN
-        ================================================= */}
+        {/* GOOGLE LOGIN */}
 
         <div className="google-btn">
-
           <GoogleLogin
             onSuccess={handleSuccess}
             onError={handleError}
             auto_select={false}
             useOneTap={false}
           />
-
         </div>
 
         {/* =================================================
-            PWA INSTALL QUESTION
+            PWA INSTALL MESSAGE BOX
         ================================================= */}
 
         {pwaReady && (
@@ -528,30 +353,20 @@ function Login() {
 
             <div className="pwa-install-box">
 
-              {/* APP ICON */}
-
-              <div className="pwa-install-icon">
-                S
-              </div>
-
-              {/* TITLE */}
+             <div className="pwa-install-icon">
+  S
+</div>
 
               <h3>
                 Add Skill Lab to Home Screen?
               </h3>
-
-              {/* DESCRIPTION */}
 
               <p>
                 Would you like to add Skill Lab
                 to your home screen?
               </p>
 
-              {/* BUTTONS */}
-
               <div className="pwa-install-actions">
-
-                {/* NO */}
 
                 <button
                   type="button"
@@ -560,8 +375,6 @@ function Login() {
                 >
                   No
                 </button>
-
-                {/* YES */}
 
                 <button
                   type="button"
@@ -578,20 +391,15 @@ function Login() {
           </div>
         )}
 
-        {/* =================================================
-            FOOTER
-        ================================================= */}
+        {/* FOOTER */}
 
         <div className="login-footer">
-
           <p>
             Learn • Practice • Grow
           </p>
-
         </div>
 
       </div>
-
     </div>
   );
 }
