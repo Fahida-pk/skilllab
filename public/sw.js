@@ -54,7 +54,7 @@ const messaging =
 // =====================================================
 
 const CACHE_NAME =
-  "skill-lab-v5";
+  "skill-lab-v6";
 
 
 const APP_FILES = [
@@ -73,9 +73,8 @@ self.addEventListener(
   (event) => {
 
     console.log(
-      "✅ Skill Lab SW installed"
+      "✅ Skill Lab ONE Service Worker installed"
     );
-
 
     event.waitUntil(
 
@@ -94,7 +93,6 @@ self.addEventListener(
 
     );
 
-
     self.skipWaiting();
 
   }
@@ -110,9 +108,8 @@ self.addEventListener(
   (event) => {
 
     console.log(
-      "✅ Skill Lab SW activated"
+      "✅ Skill Lab ONE Service Worker activated"
     );
-
 
     event.waitUntil(
 
@@ -159,8 +156,7 @@ self.addEventListener(
   (event) => {
 
     if (
-      event.request.method !==
-      "GET"
+      event.request.method !== "GET"
     ) {
 
       return;
@@ -173,8 +169,7 @@ self.addEventListener(
     // =================================================
 
     if (
-      event.request.mode ===
-      "navigate"
+      event.request.mode === "navigate"
     ) {
 
       event.respondWith(
@@ -189,7 +184,6 @@ self.addEventListener(
             const clone =
               response.clone();
 
-
             caches.open(
               CACHE_NAME
             )
@@ -203,7 +197,6 @@ self.addEventListener(
 
               }
             );
-
 
             return response;
 
@@ -222,14 +215,13 @@ self.addEventListener(
 
       );
 
-
       return;
 
     }
 
 
     // =================================================
-    // OTHER FILES
+    // OTHER GET REQUESTS
     // =================================================
 
     event.respondWith(
@@ -243,12 +235,12 @@ self.addEventListener(
 
           if (
             response &&
-            response.status === 200
+            response.status === 200 &&
+            response.type === "basic"
           ) {
 
             const clone =
               response.clone();
-
 
             caches.open(
               CACHE_NAME
@@ -265,7 +257,6 @@ self.addEventListener(
             );
 
           }
-
 
           return response;
 
@@ -347,14 +338,14 @@ messaging.onBackgroundMessage(
 
     const notificationUrl =
       payload.data?.url ||
-      "/task";
+      "/#/task";
 
 
     // =================================================
     // NOTIFICATION
     // =================================================
 
-    const options = {
+    const notificationOptions = {
 
       body:
         body,
@@ -401,7 +392,7 @@ messaging.onBackgroundMessage(
 
     return self.registration.showNotification(
       title,
-      options
+      notificationOptions
     );
 
   }
@@ -426,7 +417,7 @@ self.addEventListener(
 
     const url =
       event.notification?.data?.url ||
-      "/task";
+      "/#/task";
 
 
     event.waitUntil(
@@ -444,9 +435,8 @@ self.addEventListener(
       .then(
         (clientList) => {
 
-
           // =============================================
-          // EXISTING SKILL LAB WINDOW
+          // EXISTING WINDOW
           // =============================================
 
           for (
@@ -458,11 +448,11 @@ self.addEventListener(
               "focus" in client
             ) {
 
-              client.navigate(
-                url
-              );
-
-              return client.focus();
+              return client
+                .navigate(url)
+                .then(
+                  () => client.focus()
+                );
 
             }
 
@@ -470,7 +460,7 @@ self.addEventListener(
 
 
           // =============================================
-          // OPEN NEW
+          // OPEN NEW WINDOW
           // =============================================
 
           if (
