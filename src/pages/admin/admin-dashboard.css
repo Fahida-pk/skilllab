@@ -5388,3 +5388,198 @@ body {
     font-size: 23px;
   }
 }
+
+/* =========================================================
+   ADMIN DEFAULT TASKS — CLEAN TASK CARD MODEL
+   Keeps the existing functionality, only improves spacing/UI.
+   ========================================================= */
+
+.admin-default-modal-overlay {
+  padding: 14px !important;
+}
+
+.admin-default-modal {
+  width: min(680px, calc(100vw - 28px)) !important;
+  max-height: 90vh !important;
+  padding: 18px !important;
+  border-radius: 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* The empty purple information strip currently has no text.
+   Hide it so the task list starts immediately below the date row. */
+.admin-default-info {
+  display: none !important;
+}
+
+.admin-default-modal-header {
+  gap: 12px !important;
+  margin-bottom: 10px !important;
+}
+
+.admin-default-task-card {
+  min-height: 86px !important;
+  padding: 11px 12px !important;
+  border-radius: 17px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 7px 18px rgba(15, 23, 42, 0.10) !important;
+}
+
+.admin-default-task-main {
+  min-width: 0 !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+.admin-default-task-icon {
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  border-radius: 13px !important;
+  font-size: 20px !important;
+}
+
+.admin-default-task-content {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.admin-default-task-content > div:first-child {
+  font-size: 16px !important;
+  line-height: 19px !important;
+}
+
+.admin-default-task-content > div:nth-child(2) {
+  margin-top: 3px !important;
+  font-size: 11.5px !important;
+  line-height: 15px !important;
+}
+
+.admin-default-task-actions {
+  flex: 0 0 auto !important;
+  gap: 6px !important;
+}
+
+.admin-default-task-actions button {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  border-radius: 10px !important;
+  font-size: 15px !important;
+}
+
+.admin-default-task-editor {
+  margin-top: 10px !important;
+  padding-top: 10px !important;
+  gap: 8px !important;
+}
+
+@media (max-width: 600px) {
+  .admin-default-modal-overlay {
+    padding: 10px !important;
+  }
+
+  .admin-default-modal {
+    width: calc(100vw - 20px) !important;
+    max-width: none !important;
+    padding: 14px !important;
+    border-radius: 21px !important;
+  }
+
+  .admin-default-modal-header {
+    gap: 9px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .admin-default-modal-header h2 {
+    font-size: 20px !important;
+    line-height: 25px !important;
+  }
+
+  .admin-default-modal-header p {
+    font-size: 11px !important;
+    margin: 3px 0 7px !important;
+  }
+
+  .admin-default-task-card {
+    min-height: 82px !important;
+    padding: 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .admin-default-task-main {
+    gap: 8px !important;
+  }
+
+  .admin-default-task-icon {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    border-radius: 12px !important;
+    font-size: 19px !important;
+  }
+
+  .admin-default-task-content > div:first-child {
+    font-size: 15px !important;
+    line-height: 18px !important;
+  }
+
+  .admin-default-task-content > div:nth-child(2) {
+    font-size: 11px !important;
+    line-height: 14px !important;
+  }
+
+  .admin-default-task-actions {
+    gap: 5px !important;
+  }
+
+  .admin-default-task-actions button {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 9px !important;
+    font-size: 14px !important;
+  }
+
+  .admin-default-task-card .admin-default-task-content div:nth-child(3) {
+    font-size: 9.5px !important;
+    line-height: 12px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-default-modal {
+    width: calc(100vw - 16px) !important;
+    padding: 12px !important;
+  }
+
+  .admin-default-task-card {
+    min-height: 78px !important;
+    padding: 9px !important;
+  }
+
+  .admin-default-task-main {
+    gap: 7px !important;
+  }
+
+  .admin-default-task-icon {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    font-size: 18px !important;
+  }
+
+  .admin-default-task-content > div:first-child {
+    font-size: 14px !important;
+  }
+
+  .admin-default-task-content > div:nth-child(2) {
+    font-size: 10.5px !important;
+  }
+
+  .admin-default-task-actions button {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+  }
+}
