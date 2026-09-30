@@ -2047,6 +2047,7 @@ const openStudentDashboard = (student) => {
 
         {defaultModalOpen && (
           <div
+            className="admin-default-modal-overlay"
             onClick={closeDefaultModal}
             style={{
               position: "fixed",
@@ -2061,19 +2062,21 @@ const openStudentDashboard = (student) => {
             }}
           >
             <div
+              className="admin-default-modal"
               onClick={(e) => e.stopPropagation()}
               style={{
-width: "min(680px, calc(100vw - 32px))",
+                width: "min(680px, 100%)",
                 maxHeight: "90vh",
                 overflowY: "auto",
                 background: "#f8fafc",
                 borderRadius: "26px",
-padding: "22px 20px",
+                padding: "22px",
                 boxShadow: "0 24px 80px rgba(15,23,42,.30)",
               }}
             >
               {/* HEADER */}
               <div
+                className="admin-default-modal-header"
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
