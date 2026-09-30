@@ -259,7 +259,7 @@ function Login() {
       // DASHBOARD
       // =================================================
 
-      navigate("/dashboard", {
+      navigate("/task", {
         replace: true,
       });
     } catch (error) {
