@@ -2067,47 +2067,19 @@ useEffect(() => {
       }
 
       // =========================================================
-      // SEQUENTIAL START RULE FOR NEW TASKS
-      // New tasks must start exactly when the latest normal task ends.
-      // Example:
-      //   Wake Up 4:00 AM -> MERN 4:00-5:00 -> Travel 5:00-6:00  (valid)
-      //   MERN 4:00-5:00 -> Travel 4:30-6:00                    (blocked)
-      //   MERN 4:00-5:00 -> Travel 5:00-6:00                    (valid)
-      // A new task therefore continues directly from the previous task end.
-      // =========================================================
-      if (!editTask) {
-        const requiredStart = getNextSequentialStartInput();
-
-        if (requiredStart && fromTime !== requiredStart) {
-          alert(
-            `This task must start at ${formatTime(requiredStart)}.\n\n` +
-            `The next task must start when the previous task ends.`
-          );
-          return;
-        }
-      }
-
-      // =========================================================
       // DATE-BASED TASK TIME OVERLAP CHECK
       // =========================================================
-      // Rule:
-      // 1. Two duration tasks may NEVER occupy overlapping time.
-      // 2. A point-time task (for example Wake Up at 4:00 AM) may share
-      //    the START boundary of a duration task (MERN 4:00-5:00).
-      // 3. Two point-time tasks at the exact same time are a conflict.
-      // 4. A duration task ending at 5:00 and another starting at 5:00
-      //    is valid because they only touch at the boundary.
-      // 5. Default tasks are included in the conflict check.
-      // 4. An overnight task only occupies the selected date from its
-      //    start time until midnight. Its after-midnight portion belongs
-      //    to the NEXT calendar date and is checked by the server.
-      //
-      // Example:
-      //   Study 6:00 AM - 8:00 AM
-      //   Other 6:30 AM - 8:30 AM  -> BLOCKED
-      //
-      //   Wake Up 4:05 AM
-      //   Other 4:05 AM - 5:00 AM  -> BLOCKED
+      // Rules:
+      // 1. Tasks can be created at ANY free time. There is no mandatory
+      //    "next task must start at previous task end" rule.
+      // 2. Duration tasks cannot overlap.
+      // 3. A task may start exactly when another task ends.
+      // 4. Wake Up is a point-time marker, so Wake Up 4:00 AM +
+      //    MERN 4:00 AM-5:00 AM is valid.
+      // 5. Two point-time tasks at the same time are invalid.
+      // 6. A point-time task inside a duration task is invalid.
+      // 7. Overnight Sleep occupies its selected date until midnight;
+      //    its after-midnight portion is checked on the next date.
       // =========================================================
       const getTaskRanges = (
         from,
@@ -2118,7 +2090,6 @@ useEffect(() => {
 
         const start = toMin(from);
 
-        // Point-time task
         if (!to) {
           return [[start, start]];
         }
@@ -2127,13 +2098,10 @@ useEffect(() => {
         const overnight =
           taskNextDay || end < start;
 
-        // Normal same-day task
         if (!overnight) {
           return [[start, end]];
         }
 
-        // For the currently selected task_date, only the portion
-        // before midnight belongs to that date.
         return [[start, 24 * 60]];
       };
 
@@ -2146,36 +2114,38 @@ useEffect(() => {
         const aPoint = a[0] === a[1];
         const bPoint = b[0] === b[1];
 
-        // Two point-time tasks at exactly the same time are invalid.
         if (aPoint && bPoint) {
           return a[0] === b[0];
         }
 
-        // Point task against a real interval.
+        // A point marker is allowed exactly at the START of a duration
+        // only when that point marker is Wake Up. Other point tasks
+        // inside an interval are conflicts.
         if (aPoint) {
           return (
-            b[0] <= a[0] &&
+            b[0] < a[0] &&
             a[0] < b[1]
           );
         }
 
         if (bPoint) {
           return (
-            a[0] <= b[0] &&
+            a[0] < b[0] &&
             b[0] < a[1]
           );
         }
 
-        // Normal interval overlap.
         return (
           a[0] < b[1] &&
           b[0] < a[1]
         );
       };
 
+      const candidateIsWakeUp =
+        String(title || "").trim().toLowerCase() === "wake up";
+
       const overlappingTask = tasks.find(
         (existingTask) => {
-          // Ignore the task itself while editing.
           if (
             editTask &&
             String(existingTask.id) ===
@@ -2184,10 +2154,6 @@ useEffect(() => {
             return false;
           }
 
-          // IMPORTANT:
-          // Default/mapped tasks are ALSO part of the schedule.
-          // Do not skip them. A student task cannot overlap a
-          // Wake Up, Study MERN, Sleep, or any other default task.
           const existingFrom =
             existingTask.from ||
             existingTask.time ||
@@ -2203,14 +2169,45 @@ useEffect(() => {
               Boolean(existingTask.nextDay)
             );
 
+          const existingIsWakeUp =
+            String(existingTask.title || "").trim().toLowerCase() ===
+            "wake up";
+
           return candidateRanges.some(
             (candidateRange) =>
               existingRanges.some(
-                (existingRange) =>
-                  rangesOverlap(
+                (existingRange) => {
+                  const candidatePoint =
+                    candidateRange[0] === candidateRange[1];
+
+                  const existingPoint =
+                    existingRange[0] === existingRange[1];
+
+                  // Wake Up is a point marker. It may share the exact
+                  // starting boundary of a duration task.
+                  if (
+                    existingIsWakeUp &&
+                    existingPoint &&
+                    !candidatePoint &&
+                    candidateRange[0] === existingRange[0]
+                  ) {
+                    return false;
+                  }
+
+                  if (
+                    candidateIsWakeUp &&
+                    candidatePoint &&
+                    !existingPoint &&
+                    candidateRange[0] === existingRange[0]
+                  ) {
+                    return false;
+                  }
+
+                  return rangesOverlap(
                     candidateRange,
                     existingRange
-                  )
+                  );
+                }
               )
           );
         }
