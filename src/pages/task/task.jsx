@@ -1092,7 +1092,34 @@ useEffect(() => {
   };
 
   const notifyTaskUpdated = () => {
+    // Update this tab immediately.
     window.dispatchEvent(new Event("taskUpdated"));
+
+    // Notify Admin dashboard / other open tabs immediately without refresh.
+    const payload = {
+      type: "TASK_DATA_CHANGED",
+      email: taskEmail || "",
+      date: currentKey,
+      at: Date.now(),
+    };
+
+    try {
+      localStorage.setItem(
+        "skilllab_task_data_changed",
+        JSON.stringify(payload)
+      );
+    } catch (error) {
+      console.warn("Task sync localStorage notification failed:", error);
+    }
+
+    try {
+      const channel = new BroadcastChannel("skilllab_task_sync");
+      channel.postMessage(payload);
+      channel.close();
+    } catch (error) {
+      // BroadcastChannel is not available in some older browsers.
+      console.warn("Task sync BroadcastChannel unavailable:", error);
+    }
   };
 
   const getBuiltInDefaultId = (task) => {
@@ -2042,7 +2069,11 @@ useEffect(() => {
       // =========================================================
       // SEQUENTIAL START RULE FOR NEW TASKS
       // New tasks must start exactly when the latest normal task ends.
-      // Example: MERN 5:00 AM - 6:00 AM -> 5:50 AM is not allowed.
+      // Example:
+      //   Wake Up 4:00 AM -> MERN 4:00-5:00 -> Travel 5:00-6:00  (valid)
+      //   MERN 4:00-5:00 -> Travel 4:30-6:00                    (blocked)
+      //   MERN 4:00-5:00 -> Travel 5:00-6:00                    (valid)
+      // A new task therefore continues directly from the previous task end.
       // =========================================================
       if (!editTask) {
         const requiredStart = getNextSequentialStartInput();
@@ -2060,9 +2091,13 @@ useEffect(() => {
       // DATE-BASED TASK TIME OVERLAP CHECK
       // =========================================================
       // Rule:
-      // 1. Two tasks may NEVER occupy overlapping time.
-      // 2. Two point-time tasks at the exact same time are also a conflict.
-      // 3. Default tasks are included in the conflict check.
+      // 1. Two duration tasks may NEVER occupy overlapping time.
+      // 2. A point-time task (for example Wake Up at 4:00 AM) may share
+      //    the START boundary of a duration task (MERN 4:00-5:00).
+      // 3. Two point-time tasks at the exact same time are a conflict.
+      // 4. A duration task ending at 5:00 and another starting at 5:00
+      //    is valid because they only touch at the boundary.
+      // 5. Default tasks are included in the conflict check.
       // 4. An overnight task only occupies the selected date from its
       //    start time until midnight. Its after-midnight portion belongs
       //    to the NEXT calendar date and is checked by the server.

@@ -308,6 +308,86 @@ function AdminDashboard() {
     };
   }, [admin]);
 
+  // =====================================================
+  // REAL-TIME STUDENT TASK SYNC
+  // Student task changes are broadcast from Task.jsx.
+  // Admin dashboard updates immediately; browser refresh is
+  // not required. The existing 5-second polling remains as
+  // a fallback for cases where browser messaging is unavailable.
+  // =====================================================
+  useEffect(() => {
+    if (!admin?.email) return;
+
+    let channel = null;
+
+    const refreshFromStudentChange = async (event) => {
+      const payload = event?.detail || event?.data || {};
+      if (payload?.type && payload.type !== "TASK_DATA_CHANGED") {
+        return;
+      }
+
+      // Refresh dashboard immediately.
+      await fetchAdminData(true);
+
+      // If the Admin default-task modal is open for the changed student,
+      // refresh the currently selected date in that modal as well.
+      if (
+        selectedDefaultStudent?.id &&
+        payload?.email &&
+        String(selectedDefaultStudent.email || "").toLowerCase() ===
+          String(payload.email).toLowerCase()
+      ) {
+        await reloadStudentDefaultsForDate(
+          payload.date || defaultTaskDate
+        );
+      }
+    };
+
+    const handleTaskUpdated = () => {
+      refreshFromStudentChange();
+    };
+
+    const handleStorage = (event) => {
+      if (event.key !== "skilllab_task_data_changed" || !event.newValue) {
+        return;
+      }
+
+      try {
+        const payload = JSON.parse(event.newValue);
+        if (payload?.type === "TASK_DATA_CHANGED") {
+          refreshFromStudentChange({ data: payload });
+        }
+      } catch (error) {
+        console.warn("Admin task sync payload error:", error);
+      }
+    };
+
+    window.addEventListener("taskUpdated", handleTaskUpdated);
+    window.addEventListener("storage", handleStorage);
+
+    try {
+      channel = new BroadcastChannel("skilllab_task_sync");
+      channel.onmessage = (event) => {
+        refreshFromStudentChange(event);
+      };
+    } catch (error) {
+      console.warn("Admin BroadcastChannel unavailable:", error);
+    }
+
+    return () => {
+      window.removeEventListener("taskUpdated", handleTaskUpdated);
+      window.removeEventListener("storage", handleStorage);
+      if (channel) {
+        channel.close();
+      }
+    };
+  }, [
+    admin,
+    selectedDefaultStudent,
+    defaultTaskDate,
+    defaultLoading,
+  ]);
+
   /* =========================================
      ROUTE
   ========================================= */
@@ -709,6 +789,25 @@ function AdminDashboard() {
 
       const data = await response.json();
       if (!data.success) throw new Error(data.message || "Unable to save defaults");
+
+      // Notify any open Student/Admin task pages immediately.
+      try {
+        const payload = {
+          type: "TASK_DATA_CHANGED",
+          email: selectedDefaultStudent.email || "",
+          date: defaultTaskDate,
+          at: Date.now(),
+        };
+        localStorage.setItem(
+          "skilllab_task_data_changed",
+          JSON.stringify(payload)
+        );
+        const channel = new BroadcastChannel("skilllab_task_sync");
+        channel.postMessage(payload);
+        channel.close();
+      } catch (syncError) {
+        console.warn("Admin task sync notification failed:", syncError);
+      }
 
       alert(`Default tasks saved for ${selectedDefaultStudent.name || "this student"} on ${defaultTaskDate}.\nThis schedule applies to this date.`);
       setDefaultModalOpen(false);
