@@ -351,14 +351,7 @@ function Login() {
         {pwaReady && (
           <div className="pwa-install-overlay">
 
-            <div className="pwa-install-box">
-
-          <div className="pwa-install-icon">
-  <img
-    src="/icons/skill-lab-mark.png"
-    alt="Skill Lab"
-  />
-</div>
+     
 
               <h3>
                 Add Skill Lab to Home Screen?
@@ -391,7 +384,6 @@ function Login() {
 
             </div>
 
-          </div>
         )}
 
         {/* FOOTER */}
