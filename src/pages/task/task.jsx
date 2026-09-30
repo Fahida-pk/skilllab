@@ -3088,7 +3088,7 @@ const taskAccuracyPercentage =
 
     {/* TITLE */}
     <div className="task-accuracy-title">
-      <h2>Task Accuracy Percentage</h2>
+      <h2>Task Accuracy</h2>
 
       <p>Based on task completion time</p>
     </div>
