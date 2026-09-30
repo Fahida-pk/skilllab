@@ -353,8 +353,11 @@ function Login() {
 
             <div className="pwa-install-box">
 
-             <div className="pwa-install-icon">
-  S
+          <div className="pwa-install-icon">
+  <img
+    src="/icons/skill-lab-mark.png"
+    alt="Skill Lab"
+  />
 </div>
 
               <h3>
