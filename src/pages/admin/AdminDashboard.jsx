@@ -784,6 +784,10 @@ function AdminDashboard() {
   const saveStudentDefaults = async () => {
     if (!selectedDefaultStudent || defaultSaving) return;
 
+    // Sleep is an overnight task. Its TO time belongs to the NEXT date and
+    // becomes that date's Wake Up time. Never compare Sleep's next-day tail
+    // with Wake Up on the same calendar date.
+
     /* =========================================================
        CLIENT-SIDE DATE SCHEDULE VALIDATION
        ---------------------------------------------------------
