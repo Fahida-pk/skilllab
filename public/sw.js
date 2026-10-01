@@ -51,16 +51,26 @@ const messaging =
 
 // =====================================================
 // CACHE
+// IMPORTANT:
+// Change version whenever Service Worker is updated
 // =====================================================
 
 const CACHE_NAME =
-  "skill-lab-v6";
+  "skill-lab-v7";
 
+
+// =====================================================
+// BASIC APP FILES
+// =====================================================
 
 const APP_FILES = [
+
   "/",
+
   "/index.html",
+
   "/manifest.webmanifest"
+
 ];
 
 
@@ -73,26 +83,53 @@ self.addEventListener(
   (event) => {
 
     console.log(
-      "✅ Skill Lab ONE Service Worker installed"
+      "===================================="
     );
+
+    console.log(
+      "✅ SKILL LAB SERVICE WORKER INSTALLED"
+    );
+
+    console.log(
+      "📦 Cache:",
+      CACHE_NAME
+    );
+
+    console.log(
+      "===================================="
+    );
+
 
     event.waitUntil(
 
-      caches.open(
-        CACHE_NAME
-      )
-      .then(
-        (cache) => {
+      caches
+        .open(CACHE_NAME)
 
-          return cache.addAll(
-            APP_FILES
-          );
+        .then(
+          (cache) => {
 
-        }
-      )
+            return cache.addAll(
+              APP_FILES
+            );
+
+          }
+        )
+
+        .catch(
+          (error) => {
+
+            console.error(
+              "❌ Cache install error:",
+              error
+            );
+
+          }
+        )
 
     );
 
+
+    // Immediately activate new Service Worker
     self.skipWaiting();
 
   }
@@ -108,33 +145,74 @@ self.addEventListener(
   (event) => {
 
     console.log(
-      "✅ Skill Lab ONE Service Worker activated"
+      "===================================="
     );
+
+    console.log(
+      "✅ SKILL LAB SERVICE WORKER ACTIVATED"
+    );
+
+    console.log(
+      "📦 Current cache:",
+      CACHE_NAME
+    );
+
+    console.log(
+      "===================================="
+    );
+
 
     event.waitUntil(
 
-      caches.keys()
+      caches
+        .keys()
+
         .then(
           (cacheNames) => {
 
             return Promise.all(
 
               cacheNames
+
                 .filter(
-                  (name) =>
-                    name !== CACHE_NAME
+                  (name) => {
+
+                    return (
+                      name !== CACHE_NAME &&
+                      name.startsWith(
+                        "skill-lab-"
+                      )
+                    );
+
+                  }
                 )
+
                 .map(
-                  (name) =>
-                    caches.delete(name)
+                  (name) => {
+
+                    console.log(
+                      "🗑️ Deleting old cache:",
+                      name
+                    );
+
+                    return caches.delete(
+                      name
+                    );
+
+                  }
                 )
 
             );
 
           }
         )
+
         .then(
           () => {
+
+            console.log(
+              "✅ Old Skill Lab caches removed"
+            );
 
             return self.clients.claim();
 
@@ -155,8 +233,33 @@ self.addEventListener(
   "fetch",
   (event) => {
 
+    // Only handle GET requests
     if (
       event.request.method !== "GET"
+    ) {
+
+      return;
+
+    }
+
+
+    // =================================================
+    // Do NOT cache API requests
+    // =================================================
+    // This is important because task data,
+    // student data, etc. must stay fresh.
+    // =================================================
+
+    const requestUrl =
+      new URL(
+        event.request.url
+      );
+
+
+    if (
+      requestUrl.pathname.includes(
+        "/skilllab/api/"
+      )
     ) {
 
       return;
@@ -175,28 +278,41 @@ self.addEventListener(
       event.respondWith(
 
         fetch(
-          event.request
+          event.request,
+          {
+            cache: "no-store"
+          }
         )
 
         .then(
           (response) => {
 
-            const clone =
-              response.clone();
+            if (
+              response &&
+              response.ok
+            ) {
 
-            caches.open(
-              CACHE_NAME
-            )
-            .then(
-              (cache) => {
+              const clone =
+                response.clone();
 
-                cache.put(
-                  event.request,
-                  clone
+
+              caches
+                .open(
+                  CACHE_NAME
+                )
+                .then(
+                  (cache) => {
+
+                    cache.put(
+                      event.request,
+                      clone
+                    );
+
+                  }
                 );
 
-              }
-            );
+            }
+
 
             return response;
 
@@ -205,6 +321,10 @@ self.addEventListener(
 
         .catch(
           () => {
+
+            console.log(
+              "📦 Network unavailable. Using cached page."
+            );
 
             return caches.match(
               event.request
@@ -242,21 +362,24 @@ self.addEventListener(
             const clone =
               response.clone();
 
-            caches.open(
-              CACHE_NAME
-            )
-            .then(
-              (cache) => {
 
-                cache.put(
-                  event.request,
-                  clone
-                );
+            caches
+              .open(
+                CACHE_NAME
+              )
+              .then(
+                (cache) => {
 
-              }
-            );
+                  cache.put(
+                    event.request,
+                    clone
+                  );
+
+                }
+              );
 
           }
+
 
           return response;
 
@@ -295,6 +418,7 @@ messaging.onBackgroundMessage(
     );
 
     console.log(
+      "📩 Payload:",
       payload
     );
 
@@ -308,8 +432,8 @@ messaging.onBackgroundMessage(
     // =================================================
 
     const title =
-      payload.data?.title ||
-      payload.notification?.title ||
+      payload?.data?.title ||
+      payload?.notification?.title ||
       "⏰ Skill Lab";
 
 
@@ -318,8 +442,8 @@ messaging.onBackgroundMessage(
     // =================================================
 
     const body =
-      payload.data?.body ||
-      payload.notification?.body ||
+      payload?.data?.body ||
+      payload?.notification?.body ||
       "Your task starts in 5 minutes.";
 
 
@@ -328,7 +452,8 @@ messaging.onBackgroundMessage(
     // =================================================
 
     const taskId =
-      payload.data?.taskId ||
+      payload?.data?.taskId ||
+      payload?.data?.task_id ||
       "";
 
 
@@ -337,12 +462,12 @@ messaging.onBackgroundMessage(
     // =================================================
 
     const notificationUrl =
-      payload.data?.url ||
+      payload?.data?.url ||
       "/#/task";
 
 
     // =================================================
-    // NOTIFICATION
+    // NOTIFICATION OPTIONS
     // =================================================
 
     const notificationOptions = {
@@ -350,29 +475,41 @@ messaging.onBackgroundMessage(
       body:
         body,
 
+
       icon:
         "/icons/icon-192.png",
+
 
       badge:
         "/icons/icon-192.png",
 
+
+      // Same task should update/replace its notification
       tag:
         taskId
           ? `skilllab-task-${taskId}`
           : `skilllab-task-${Date.now()}`,
 
+
+      // Show again even if same tag exists
       renotify:
         true,
 
+
+      // Keep notification visible
       requireInteraction:
         true,
 
+
+      // Android supported vibration
       vibrate: [
         200,
         100,
         200
       ],
 
+
+      // Data available when notification is clicked
       data: {
 
         url:
@@ -387,13 +524,36 @@ messaging.onBackgroundMessage(
 
 
     // =================================================
-    // SHOW
+    // SHOW NOTIFICATION
     // =================================================
 
-    return self.registration.showNotification(
-      title,
-      notificationOptions
-    );
+    return self.registration
+      .showNotification(
+        title,
+        notificationOptions
+      )
+
+      .then(
+        () => {
+
+          console.log(
+            "✅ Notification displayed:",
+            title
+          );
+
+        }
+      )
+
+      .catch(
+        (error) => {
+
+          console.error(
+            "❌ Notification display failed:",
+            error
+          );
+
+        }
+      );
 
   }
 );
@@ -408,75 +568,148 @@ self.addEventListener(
   (event) => {
 
     console.log(
-      "🔔 Skill Lab notification clicked"
+      "===================================="
+    );
+
+    console.log(
+      "🔔 SKILL LAB NOTIFICATION CLICKED"
+    );
+
+    console.log(
+      "===================================="
     );
 
 
+    // Close notification
     event.notification.close();
 
+
+    // =================================================
+    // GET URL
+    // =================================================
 
     const url =
       event.notification?.data?.url ||
       "/#/task";
 
 
+    // =================================================
+    // HANDLE CLICK
+    // =================================================
+
     event.waitUntil(
 
-      clients.matchAll({
+      clients
+        .matchAll({
 
-        type:
-          "window",
+          type:
+            "window",
 
-        includeUncontrolled:
-          true
+          includeUncontrolled:
+            true
 
-      })
+        })
 
-      .then(
-        (clientList) => {
+        .then(
+          (clientList) => {
 
-          // =============================================
-          // EXISTING WINDOW
-          // =============================================
+            // =========================================
+            // FIND EXISTING SKILL LAB WINDOW
+            // =========================================
 
-          for (
-            const client of clientList
-          ) {
-
-            if (
-              "navigate" in client &&
-              "focus" in client
+            for (
+              const client of clientList
             ) {
 
-              return client
-                .navigate(url)
-                .then(
-                  () => client.focus()
-                );
+              if (
+                "focus" in client
+              ) {
+
+                // Navigate existing tab
+                if (
+                  "navigate" in client
+                ) {
+
+                  return client
+                    .navigate(url)
+
+                    .then(
+                      () => {
+
+                        return client.focus();
+
+                      }
+                    );
+
+                }
+
+
+                return client.focus();
+
+              }
 
             }
 
+
+            // =========================================
+            // OPEN NEW WINDOW
+            // =========================================
+
+            if (
+              clients.openWindow
+            ) {
+
+              return clients.openWindow(
+                url
+              );
+
+            }
+
+
+            return undefined;
+
           }
-
-
-          // =============================================
-          // OPEN NEW WINDOW
-          // =============================================
-
-          if (
-            clients.openWindow
-          ) {
-
-            return clients.openWindow(
-              url
-            );
-
-          }
-
-        }
-      )
+        )
 
     );
 
   }
+);
+
+
+// =====================================================
+// SERVICE WORKER MESSAGE
+// =====================================================
+// Allows the React app to force an update if required.
+// =====================================================
+
+self.addEventListener(
+  "message",
+  (event) => {
+
+    if (
+      event.data &&
+      event.data.type ===
+        "SKILL_LAB_SKIP_WAITING"
+    ) {
+
+      console.log(
+        "🔄 Skill Lab Service Worker update requested"
+      );
+
+      self.skipWaiting();
+
+    }
+
+  }
+);
+
+
+// =====================================================
+// END
+// =====================================================
+
+console.log(
+  "🚀 Skill Lab ONE Service Worker loaded:",
+  CACHE_NAME
 );
