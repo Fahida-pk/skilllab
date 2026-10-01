@@ -784,6 +784,125 @@ function AdminDashboard() {
   const saveStudentDefaults = async () => {
     if (!selectedDefaultStudent || defaultSaving) return;
 
+    /* =========================================================
+       CLIENT-SIDE DATE SCHEDULE VALIDATION
+       ---------------------------------------------------------
+       Server validation is still authoritative, but checking here
+       gives Admin an immediate AM/PM conflict message before Save.
+       ========================================================= */
+    const toMinutes = (value) => {
+      const input = toInputTime(value);
+      if (!input) return null;
+      const [h, m] = input.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    const formatMinutes = (minutes) => {
+      const h24 = Math.floor(minutes / 60) % 24;
+      const m = minutes % 60;
+      const ampm = h24 >= 12 ? "PM" : "AM";
+      let h = h24 % 12;
+      if (h === 0) h = 12;
+      return `${h}:${String(m).padStart(2, "0")} ${ampm}`;
+    };
+
+    const makeRanges = (from, to) => {
+      if (to == null) return [[from, from]];
+      if (to > from) return [[from, to]];
+      return [
+        [from, 1440],
+        [0, to],
+      ];
+    };
+
+    const rangesOverlap = (a, b) => {
+      const aPoint = a[0] === a[1];
+      const bPoint = b[0] === b[1];
+
+      if (aPoint && bPoint) return a[0] === b[0];
+      if (aPoint) return b[0] <= a[0] && a[0] < b[1];
+      if (bPoint) return a[0] <= b[0] && b[0] < a[1];
+
+      return a[0] < b[1] && b[0] < a[1];
+    };
+
+    const candidates = [];
+
+    for (const task of studentDefaults) {
+      const id = String(task.default_id || "");
+      const title = String(task.title || "").trim();
+      const from = toMinutes(task.from);
+      const to = String(task.to || "").trim()
+        ? toMinutes(task.to)
+        : null;
+
+      if (!id || !title || from == null) continue;
+
+      if (to != null && to === from) {
+        alert(
+          `Time conflict\n\n${title} cannot have the same From Time and To Time.`
+        );
+        return;
+      }
+
+      if (to != null && to < from && id !== "d5") {
+        alert(
+          `Time conflict\n\n${title} cannot end before its start time.\n\nOnly Sleep can cross midnight.`
+        );
+        return;
+      }
+
+      candidates.push({ id, title, from, to });
+    }
+
+    for (let i = 0; i < candidates.length; i += 1) {
+      for (let j = i + 1; j < candidates.length; j += 1) {
+        const a = candidates[i];
+        const b = candidates[j];
+
+        for (const ar of makeRanges(a.from, a.to)) {
+          for (const br of makeRanges(b.from, b.to)) {
+            const aPoint = ar[0] === ar[1];
+            const bPoint = br[0] === br[1];
+
+            /* Wake Up is allowed exactly at a task's start/end boundary. */
+            if (
+              a.id === "d1" &&
+              aPoint &&
+              !bPoint &&
+              ar[0] === br[0]
+            ) {
+              continue;
+            }
+
+            if (
+              b.id === "d1" &&
+              bPoint &&
+              !aPoint &&
+              br[0] === ar[0]
+            ) {
+              continue;
+            }
+
+            if (rangesOverlap(ar, br)) {
+              const aTime = a.to == null
+                ? formatMinutes(a.from)
+                : `${formatMinutes(a.from)} - ${formatMinutes(a.to)}`;
+
+              const bTime = b.to == null
+                ? formatMinutes(b.from)
+                : `${formatMinutes(b.from)} - ${formatMinutes(b.to)}`;
+
+              alert(
+                `Time conflict\n\n${a.title} (${aTime}) overlaps with ${b.title} (${bTime}).\n\nPlease choose another time.`
+              );
+              return;
+            }
+          }
+        }
+      }
+    }
+
     setDefaultSaving(true);
     try {
       const adminData = JSON.parse(localStorage.getItem("admin") || "null");
