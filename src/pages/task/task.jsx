@@ -1307,7 +1307,8 @@ useEffect(() => {
       }
     }
     // The existing task-performance slider is still required.
-    // task.percentage is the task performance percentage.
+    // task.percentage is ONLY the task-performance slider value.
+// task.accuracy / task.performanceTime are ONLY used for Task Accuracy.
     const currentPercentage = Math.max(
       0,
       Math.min(100, Number(task.percentage ?? 0))
@@ -1365,7 +1366,8 @@ useEffect(() => {
       }
 
       // IMPORTANT:
-      // Performance Time is the score (100 / 50 / 30), NOT raw elapsed minutes.
+      // Performance Time is the accuracy score (100 / 50 / 30),
+      // NOT the task-performance percentage.
       nextPerformanceTime = nextAccuracy;
 
       savePerformanceTime(currentKey, task.id, nextPerformanceTime);
@@ -1429,7 +1431,8 @@ useEffect(() => {
         return;
       }
 
-      // Use the server's exact 100/50/30 score.
+      // Server keeps Task Percentage separate from Task Accuracy.
+      // Task Percentage remains the slider value (for example 100%).
       if (newStatus === 1) {
         const serverAccuracy = Math.max(
           0,
@@ -1439,6 +1442,14 @@ useEffect(() => {
         const serverPerformanceTime = Math.max(
           0,
           Math.min(100, Number(data.performance_time ?? serverAccuracy))
+        );
+
+        const serverTaskPercentage = Math.max(
+          0,
+          Math.min(
+            100,
+            Number(data.task_percentage ?? currentPercentage)
+          )
         );
 
         savePerformanceTime(
@@ -1452,6 +1463,7 @@ useEffect(() => {
             t.id === task.id
               ? {
                   ...t,
+                  percentage: serverTaskPercentage,
                   accuracy: serverAccuracy,
                   performanceTime: serverPerformanceTime,
                 }
