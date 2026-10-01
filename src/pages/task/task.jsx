@@ -2105,10 +2105,17 @@ useEffect(() => {
         return [[start, 24 * 60]];
       };
 
-      const candidateRanges =
-        formattedTo && nextDay
-          ? [[candidateStart, 24 * 60]]
-          : [[candidateStart, candidateEnd]];
+      // IMPORTANT:
+      // Do not use the `nextDay` flag here. The flag is metadata and can
+      // become stale when a task is edited/synced. The actual From/To
+      // values are the source of truth for overlap calculation.
+      // 10:00 AM -> 11:00 AM must remain a normal same-day interval,
+      // even when another task (Sleep) is overnight 10:00 PM -> 5:00 AM.
+      const candidateRanges = getTaskRanges(
+        formattedFrom,
+        formattedTo,
+        false
+      );
 
       const rangesOverlap = (a, b) => {
         const aPoint = a[0] === a[1];
@@ -2162,11 +2169,13 @@ useEffect(() => {
           const existingTo =
             existingTask.to || "";
 
+          // Derive overnight status from the actual stored times.
+          // Do not trust a stale nextDay flag here.
           const existingRanges =
             getTaskRanges(
               existingFrom,
               existingTo,
-              Boolean(existingTask.nextDay)
+              false
             );
 
           const existingIsWakeUp =
