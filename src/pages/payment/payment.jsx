@@ -682,7 +682,7 @@ function Payment() {
                 </>
               ) : (
                 <>
-                  <FaSave />
+<FaFloppyDisk />
                   Save Razorpay Settings
                 </>
               )}
