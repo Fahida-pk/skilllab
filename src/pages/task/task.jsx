@@ -2589,7 +2589,10 @@ const sumOfPerformanceTime = completedTaskList.reduce(
     total +
     Math.max(
       0,
-      Math.min(100, Number(task.performanceTime ?? 0))
+      Math.min(
+        100,
+        Number(task.accuracy ?? task.performanceTime ?? 0)
+      )
     ),
   0
 );

@@ -1,0 +1,3228 @@
+<?php
+
+error_reporting(0);
+ini_set('display_errors', 0);
+
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Content-Type: application/json");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+date_default_timezone_set("Asia/Kolkata");
+
+/* Convert UI time values like "10:03 PM" or "06:00 AM"
+   into MySQL TIME values like "22:03:00" / "06:00:00". */
+function normalizeDbTime($value) {
+    $value = trim((string)($value ?? ""));
+    if ($value === "") return null;
+
+    if (preg_match('/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/', $value, $m)) {
+        $hour = (int)$m[1];
+        $minute = (int)$m[2];
+        $second = isset($m[3]) ? (int)$m[3] : 0;
+        if ($hour >= 0 && $hour <= 23 && $minute >= 0 && $minute <= 59 && $second >= 0 && $second <= 59) {
+            return sprintf("%02d:%02d:%02d", $hour, $minute, $second);
+        }
+    }
+
+    if (preg_match('/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i', $value, $m)) {
+        $hour = (int)$m[1];
+        $minute = (int)$m[2];
+        $ampm = strtoupper($m[3]);
+        if ($hour < 1 || $hour > 12 || $minute < 0 || $minute > 59) return null;
+        if ($ampm === "AM" && $hour === 12) $hour = 0;
+        if ($ampm === "PM" && $hour !== 12) $hour += 12;
+        return sprintf("%02d:%02d:00", $hour, $minute);
+    }
+
+    $timestamp = strtotime($value);
+    if ($timestamp === false) return null;
+    return date("H:i:s", $timestamp);
+}
+
+
+/* =========================================
+   GET INPUT
+========================================= */
+
+// JSON is used by normal actions. Add/update image uploads use multipart/form-data.
+$data = $_POST;
+
+if (!$data) {
+    $data = json_decode(file_get_contents("php://input"), true);
+}
+
+if (!$data || !is_array($data)) {
+    echo json_encode([
+        "success" => false,
+        "message" => "No data"
+    ]);
+    exit;
+}
+
+
+/* =========================================
+   EMAIL
+========================================= */
+
+$email = $data['email'] ?? '';
+
+if (!$email) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Email missing"
+    ]);
+    exit;
+}
+
+
+/* =========================================
+   DATABASE
+========================================= */
+
+include "../db.php";
+
+/* =========================================
+   DEFAULT TASK STATE TABLES
+   These tables keep default-task identity and
+   date-wise deletion on the server.
+========================================= */
+
+mysqli_query($conn, "
+    CREATE TABLE IF NOT EXISTS skilllab_task_default_map (
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        task_id BIGINT NOT NULL,
+        user_id BIGINT NOT NULL,
+        task_date DATE NOT NULL,
+        default_id VARCHAR(20) NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY uq_task_default_map_task (task_id),
+        UNIQUE KEY uq_task_default_map_date_default (user_id, task_date, default_id),
+        KEY idx_task_default_map_user_date (user_id, task_date)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
+mysqli_query($conn, "
+    CREATE TABLE IF NOT EXISTS skilllab_deleted_default_tasks (
+        user_id BIGINT NOT NULL,
+        task_date DATE NOT NULL,
+        default_id VARCHAR(20) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (user_id, task_date, default_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
+mysqli_query($conn, "
+    CREATE TABLE IF NOT EXISTS student_default_task_dates (
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        user_id BIGINT NOT NULL,
+        task_date DATE NOT NULL,
+        default_id VARCHAR(20) NOT NULL,
+        task_title VARCHAR(255) NOT NULL,
+        from_time TIME NULL,
+        to_time TIME NULL,
+        icon VARCHAR(100) DEFAULT NULL,
+        color VARCHAR(255) DEFAULT NULL,
+        next_day TINYINT(1) DEFAULT 0,
+        is_active TINYINT(1) DEFAULT 1,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        UNIQUE KEY uq_student_date_default (user_id, task_date, default_id),
+        KEY idx_student_date (user_id, task_date)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
+$sourceColumn = $conn->query("SHOW COLUMNS FROM student_default_task_dates LIKE 'source'");
+if (!$sourceColumn || $sourceColumn->num_rows === 0) {
+    $conn->query("ALTER TABLE student_default_task_dates
+                  ADD COLUMN source VARCHAR(20) NOT NULL DEFAULT 'admin' AFTER is_active");
+}
+
+
+
+
+/* =========================================
+   GET USER ID
+========================================= */
+
+$email = mysqli_real_escape_string($conn, $email);
+
+$getUser = "
+    SELECT id
+    FROM users
+    WHERE email='$email'
+    LIMIT 1
+";
+
+$resUser = mysqli_query($conn, $getUser);
+
+if (!$resUser || !($rowUser = mysqli_fetch_assoc($resUser))) {
+
+    echo json_encode([
+        "success" => false,
+        "message" => "User not found"
+    ]);
+
+    exit;
+}
+
+$user_id = (int)$rowUser['id'];
+
+/* =========================================
+   TASK IMAGE UPLOAD
+   Requires tasks.icon_image VARCHAR(500) NULL
+========================================= */
+
+$imageUploadDir = __DIR__ . "/uploads/task_icons/";
+$imageBaseUrl = "https://zyntaweb.com/skilllab/api/uploads/task_icons/";
+
+if (!is_dir($imageUploadDir)) {
+    @mkdir($imageUploadDir, 0755, true);
+}
+
+function saveTaskImage($file, $uploadDir, $baseUrl)
+{
+    if (!$file || !isset($file['tmp_name']) || $file['error'] !== UPLOAD_ERR_OK) {
+        return [
+            "success" => false,
+            "message" => "No valid image uploaded"
+        ];
+    }
+
+    if ((int)$file['size'] > 5 * 1024 * 1024) {
+        return [
+            "success" => false,
+            "message" => "Image must be 5 MB or smaller"
+        ];
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime = $finfo->file($file['tmp_name']);
+
+    $allowed = [
+        "image/jpeg" => "jpg",
+        "image/png"  => "png",
+        "image/gif"  => "gif",
+        "image/webp" => "webp"
+    ];
+
+    if (!isset($allowed[$mime])) {
+        return [
+            "success" => false,
+            "message" => "Only JPG, PNG, GIF or WEBP images are allowed"
+        ];
+    }
+
+    $filename = "task_" . bin2hex(random_bytes(12)) . "." . $allowed[$mime];
+    $target = $uploadDir . $filename;
+
+    if (!move_uploaded_file($file['tmp_name'], $target)) {
+        return [
+            "success" => false,
+            "message" => "Could not save uploaded image"
+        ];
+    }
+
+    return [
+        "success" => true,
+        "filename" => $filename,
+        "url" => $baseUrl . rawurlencode($filename)
+    ];
+}
+
+$action = $data['action'] ?? "";
+
+/* Today's date in Asia/Kolkata */
+$today = date("Y-m-d");
+
+
+/* =========================================
+   STATUS HELPER
+========================================= */
+
+function getTaskStatus($task, $selectedDate)
+{
+    /*
+        Already completed
+    */
+    if ((int)$task['status'] === 1) {
+        return "completed";
+    }
+
+    $taskDate = $task['task_date'];
+
+    /*
+        Future
+    */
+    if ($taskDate > $selectedDate) {
+        return "not_started";
+    }
+
+    /*
+        Previous date
+    */
+    if ($taskDate < $selectedDate) {
+        return "pending";
+    }
+
+    /*
+        Selected date
+    */
+
+    if (!$task['from_time']) {
+        return "not_started";
+    }
+
+    $nowMinutes =
+        ((int)date("H") * 60) +
+        (int)date("i");
+
+    $from = strtotime($task['from_time']);
+
+    if (!$from) {
+        return "not_started";
+    }
+
+    $fromMinutes =
+        ((int)date("H", $from) * 60) +
+        (int)date("i", $from);
+
+
+    /*
+        No ending time
+    */
+
+    if (!$task['to_time']) {
+
+        if ($nowMinutes >= $fromMinutes) {
+            return "in_progress";
+        }
+
+        return "not_started";
+    }
+
+
+    $to = strtotime($task['to_time']);
+
+    if (!$to) {
+        return "not_started";
+    }
+
+    $toMinutes =
+        ((int)date("H", $to) * 60) +
+        (int)date("i", $to);
+
+
+    /*
+        Normal task
+        5 AM - 10 AM
+    */
+
+    if ($toMinutes >= $fromMinutes) {
+
+        if (
+            $nowMinutes >= $fromMinutes &&
+            $nowMinutes <= $toMinutes
+        ) {
+            return "in_progress";
+        }
+
+        if ($nowMinutes > $toMinutes) {
+            return "pending";
+        }
+
+        return "not_started";
+    }
+
+
+    /*
+        Overnight
+        10 PM - 8 AM
+    */
+
+    if (
+        $nowMinutes >= $fromMinutes ||
+        $nowMinutes <= $toMinutes
+    ) {
+        return "in_progress";
+    }
+
+    return "pending";
+}
+
+
+/* =========================================
+   PERCENTAGE
+========================================= */
+
+function percentage($completed, $total)
+{
+    if ($total <= 0) {
+        return 0;
+    }
+
+    return round(
+        ($completed / $total) * 100
+    );
+}
+
+
+/* =========================================
+   ENSURE DEFAULT TASKS
+   Built-in tasks are also stored in DB per user/date.
+========================================= */
+
+if ($action === "ensure_defaults") {
+
+    $dateRaw = trim($data['task_date'] ?? '');
+
+    $defaultTasks = $data['tasks'] ?? [];
+
+    if (!$dateRaw || !is_array($defaultTasks)) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Invalid default task data"
+        ]);
+        exit;
+    }
+
+    $date = mysqli_real_escape_string($conn, $dateRaw);
+
+    /* Database is the source of truth for defaults. Recurring defaults are
+       the base; date-specific Admin defaults override them for this date. */
+    $serverDefaults = [];
+
+    $profileResult = mysqli_query($conn, "
+        SELECT default_id, task_title, from_time, to_time, next_day, is_active
+        FROM student_default_tasks
+        WHERE user_id='$user_id' AND is_active=1
+    ");
+    if ($profileResult) {
+        while ($r = mysqli_fetch_assoc($profileResult)) {
+            $serverDefaults[(string)$r['default_id']] = [
+                'default_id' => (string)$r['default_id'],
+                'title' => $r['task_title'],
+                'from' => $r['from_time'],
+                'to' => $r['to_time'] ?? '',
+                'next_day' => (int)($r['next_day'] ?? 0),
+            ];
+        }
+    }
+
+    $dateOverrideResult = mysqli_query($conn, "
+        SELECT default_id, task_title, from_time, to_time, next_day, is_active
+        FROM student_default_task_dates
+        WHERE user_id='$user_id' AND task_date='$date'
+    ");
+    if ($dateOverrideResult) {
+        while ($r = mysqli_fetch_assoc($dateOverrideResult)) {
+            $id = (string)$r['default_id'];
+            if ((int)$r['is_active'] !== 1) {
+                unset($serverDefaults[$id]);
+                continue;
+            }
+            $serverDefaults[$id] = [
+                'default_id' => $id,
+                'title' => $r['task_title'],
+                'from' => $r['from_time'],
+                'to' => $r['to_time'] ?? '',
+                'next_day' => (int)($r['next_day'] ?? 0),
+            ];
+        }
+    }
+
+    /* =========================================================
+       INHERIT PREVIOUS DAY SLEEP -> TODAY WAKE UP
+       =========================================================
+       If yesterday's Sleep crosses midnight, its end time becomes
+       today's Wake Up time. An explicit today Wake Up override or
+       deletion always wins.
+    ========================================================= */
+    $todayWakeExplicit = false;
+    $todayWakeDeleted = false;
+
+    $wakeOverrideCheck = mysqli_query($conn, "
+        SELECT is_active
+        FROM student_default_task_dates
+        WHERE user_id='$user_id' AND task_date='$date' AND default_id='d1'
+        LIMIT 1
+    ");
+    if ($wakeOverrideCheck && ($wakeRow = mysqli_fetch_assoc($wakeOverrideCheck))) {
+        $todayWakeExplicit = true;
+        if ((int)$wakeRow['is_active'] !== 1) {
+            unset($serverDefaults['d1']);
+        }
+    }
+
+    $wakeDeletedCheck = mysqli_query($conn, "
+        SELECT 1
+        FROM skilllab_deleted_default_tasks
+        WHERE user_id='$user_id' AND task_date='$date' AND default_id='d1'
+        LIMIT 1
+    ");
+    $todayWakeDeleted = $wakeDeletedCheck && mysqli_fetch_assoc($wakeDeletedCheck);
+    if ($todayWakeDeleted) {
+        $todayWakeDeleted = true;
+        unset($serverDefaults['d1']);
+    } else {
+        $todayWakeDeleted = false;
+    }
+
+    if (!$todayWakeExplicit && !$todayWakeDeleted) {
+        $previousDate = date('Y-m-d', strtotime($date . ' -1 day'));
+
+        $previousSleep = null;
+
+        $prevSleepOverride = mysqli_query($conn, "
+            SELECT task_title, from_time, to_time, next_day, is_active
+            FROM student_default_task_dates
+            WHERE user_id='$user_id' AND task_date='$previousDate' AND default_id='d5'
+            LIMIT 1
+        ");
+
+        if ($prevSleepOverride && ($prevRow = mysqli_fetch_assoc($prevSleepOverride))) {
+            if ((int)$prevRow['is_active'] === 1) {
+                $previousSleep = $prevRow;
+            }
+        } else {
+            $previousSleep = $serverDefaults['d5'] ?? null;
+
+            // A date-specific student edit may be stored in the mapped task.
+            $prevTask = mysqli_query($conn, "
+                SELECT t.from_time, t.to_time
+                FROM skilllab_task_default_map m
+                INNER JOIN tasks t ON t.id=m.task_id AND t.user_id=m.user_id
+                WHERE m.user_id='$user_id'
+                  AND m.task_date='$previousDate'
+                  AND m.default_id='d5'
+                LIMIT 1
+            ");
+            if ($prevTask && ($prevTaskRow = mysqli_fetch_assoc($prevTask))) {
+                $previousSleep = array_merge($previousSleep ?: [], [
+                    'from_time' => $prevTaskRow['from_time'],
+                    'to_time' => $prevTaskRow['to_time']
+                ]);
+            }
+        }
+
+        $prevSleepDeleted = mysqli_query($conn, "
+            SELECT 1
+            FROM skilllab_deleted_default_tasks
+            WHERE user_id='$user_id' AND task_date='$previousDate' AND default_id='d5'
+            LIMIT 1
+        ");
+
+        if ($prevSleepDeleted && mysqli_fetch_assoc($prevSleepDeleted)) {
+            $previousSleep = null;
+        }
+
+        if (
+            $previousSleep &&
+            !empty($previousSleep['from_time']) &&
+            !empty($previousSleep['to_time'])
+        ) {
+            $prevFromMin = ((int)substr($previousSleep['from_time'], 0, 2) * 60)
+                + (int)substr($previousSleep['from_time'], 3, 2);
+            $prevToMin = ((int)substr($previousSleep['to_time'], 0, 2) * 60)
+                + (int)substr($previousSleep['to_time'], 3, 2);
+
+            if ($prevToMin <= $prevFromMin) {
+                $serverDefaults['d1'] = [
+                    'default_id' => 'd1',
+                    'title' => 'Wake Up',
+                    'from' => $previousSleep['to_time'],
+                    'to' => '',
+                    'next_day' => 0
+                ];
+            }
+        }
+    }
+
+    $mergedDefaults = [];
+    foreach ($defaultTasks as $task) {
+        $id = trim((string)($task['default_id'] ?? $task['defaultId'] ?? ''));
+        if ($id !== '') $mergedDefaults[$id] = $task;
+    }
+    foreach ($serverDefaults as $id => $serverTask) {
+        $mergedDefaults[$id] = array_merge($mergedDefaults[$id] ?? [], $serverTask);
+    }
+    $defaultTasks = array_values($mergedDefaults);
+
+    foreach ($defaultTasks as $task) {
+
+        $defaultId = trim((string)($task['default_id'] ?? $task['defaultId'] ?? ''));
+
+        $titleRaw = trim((string)($task['title'] ?? ''));
+        $fromRaw  = trim((string)($task['from'] ?? ''));
+        $toRaw    = trim((string)($task['to'] ?? ''));
+
+        if (!$defaultId || !$titleRaw || !$fromRaw) {
+            continue;
+        }
+
+        $defaultIdEsc = mysqli_real_escape_string($conn, $defaultId);
+        $title = mysqli_real_escape_string($conn, $titleRaw);
+        $from  = mysqli_real_escape_string($conn, $fromRaw);
+        $to    = mysqli_real_escape_string($conn, $toRaw);
+
+        /* Deleted for this exact user/date -> NEVER recreate. */
+        $deletedCheck = mysqli_query($conn, "
+            SELECT 1
+            FROM skilllab_deleted_default_tasks
+            WHERE user_id='$user_id'
+              AND task_date='$date'
+              AND default_id='$defaultIdEsc'
+            LIMIT 1
+        ");
+
+        if ($deletedCheck && mysqli_fetch_assoc($deletedCheck)) {
+            continue;
+        }
+
+        /* First find the existing default row by its permanent identity. */
+        $mapResult = mysqli_query($conn, "
+            SELECT task_id
+            FROM skilllab_task_default_map
+            WHERE user_id='$user_id'
+              AND task_date='$date'
+              AND default_id='$defaultIdEsc'
+            LIMIT 1
+        ");
+
+        $mapped = $mapResult ? mysqli_fetch_assoc($mapResult) : null;
+
+        if ($mapped) {
+
+            $taskId = (int)$mapped['task_id'];
+
+            mysqli_query($conn, "
+                UPDATE tasks
+                SET task_name='$title',
+                    from_time='$from',
+                    to_time='$to'
+                WHERE id='$taskId'
+                  AND user_id='$user_id'
+                LIMIT 1
+            ");
+
+            continue;
+        }
+
+        /*
+         * Backward compatibility:
+         * Older rows may not have a mapping. Match the original
+         * built-in title once, then permanently map that row.
+         */
+        $oldTitle = [
+            'd1' => 'Wake Up',
+            'd2' => 'Study MERN',
+            'd3' => 'Practice English',
+            'd4' => 'Workout',
+            'd5' => 'Sleep'
+        ];
+
+        $oldTitleRaw = $oldTitle[$defaultId] ?? '';
+        $oldTitleEsc = mysqli_real_escape_string($conn, $oldTitleRaw);
+
+        $legacyResult = false;
+
+        if ($oldTitleRaw !== '') {
+            $legacyResult = mysqli_query($conn, "
+                SELECT id
+                FROM tasks
+                WHERE user_id='$user_id'
+                  AND task_date='$date'
+                  AND task_name='$oldTitleEsc'
+                LIMIT 1
+            ");
+        }
+
+        $legacy = $legacyResult ? mysqli_fetch_assoc($legacyResult) : null;
+
+        if ($legacy) {
+
+            $taskId = (int)$legacy['id'];
+
+            mysqli_query($conn, "
+                UPDATE tasks
+                SET task_name='$title',
+                    from_time='$from',
+                    to_time='$to'
+                WHERE id='$taskId'
+                  AND user_id='$user_id'
+                LIMIT 1
+            ");
+
+            mysqli_query($conn, "
+                INSERT INTO skilllab_task_default_map
+                    (task_id, user_id, task_date, default_id)
+                VALUES
+                    ('$taskId', '$user_id', '$date', '$defaultIdEsc')
+                ON DUPLICATE KEY UPDATE
+                    user_id=VALUES(user_id),
+                    task_date=VALUES(task_date),
+                    default_id=VALUES(default_id)
+            ");
+
+            continue;
+        }
+
+        /* Create the default row only when it has not been deleted. */
+        $insertSql = "
+            INSERT INTO tasks
+            (
+                user_id,
+                task_name,
+                task_date,
+                from_time,
+                to_time,
+                status,
+                task_percentage
+            )
+            VALUES
+            (
+                '$user_id',
+                '$title',
+                '$date',
+                '$from',
+                '$to',
+                0,
+                0
+            )
+        ";
+
+        if (mysqli_query($conn, $insertSql)) {
+
+            $taskId = (int)mysqli_insert_id($conn);
+
+            mysqli_query($conn, "
+                INSERT INTO skilllab_task_default_map
+                    (task_id, user_id, task_date, default_id)
+                VALUES
+                    ('$taskId', '$user_id', '$date', '$defaultIdEsc')
+                ON DUPLICATE KEY UPDATE
+                    task_id=VALUES(task_id)
+            ");
+        }
+    }
+
+    echo json_encode([
+        "success" => true
+    ]);
+    exit;
+}
+
+
+/* =========================================
+   REMOVE TASK IMAGE
+========================================= */
+
+
+if ($action === "remove_image") {
+
+    $id = mysqli_real_escape_string($conn, $data['id'] ?? '');
+
+    if (!$id) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Task ID is required"
+        ]);
+        exit;
+    }
+
+    $checkSql = "
+        SELECT icon_image
+        FROM tasks
+        WHERE id='$id'
+        AND user_id='$user_id'
+        LIMIT 1
+    ";
+
+    $checkResult = mysqli_query($conn, $checkSql);
+
+    if (!$checkResult || !($checkRow = mysqli_fetch_assoc($checkResult))) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Task not found"
+        ]);
+        exit;
+    }
+
+    $oldImage = $checkRow['icon_image'] ?? '';
+
+    $sql = "
+        UPDATE tasks
+        SET icon_image=NULL
+        WHERE id='$id'
+        AND user_id='$user_id'
+    ";
+
+    if (mysqli_query($conn, $sql)) {
+        if ($oldImage && strpos($oldImage, $imageBaseUrl) === 0) {
+            $oldFile = $imageUploadDir . basename(parse_url($oldImage, PHP_URL_PATH));
+            if (is_file($oldFile)) {
+                @unlink($oldFile);
+            }
+        }
+
+        echo json_encode([
+            "success" => true,
+            "icon_image" => null
+        ]);
+    } else {
+        echo json_encode([
+            "success" => false,
+            "message" => "Unable to update task",
+            "error" => mysqli_error($conn)
+        ]);
+    }
+
+    exit;
+}
+
+
+/* =========================================
+   SAVE TASK IMAGE ONLY
+   Used for built-in/default task edits.
+========================================= */
+
+if ($action === "save_image") {
+
+    $id = mysqli_real_escape_string($conn, $data['id'] ?? '');
+
+    if (!$id || !isset($_FILES['image'])) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Task ID and image are required"
+        ]);
+        exit;
+    }
+
+    $checkSql = "
+        SELECT icon_image
+        FROM tasks
+        WHERE id='$id'
+        AND user_id='$user_id'
+        LIMIT 1
+    ";
+
+    $checkResult = mysqli_query($conn, $checkSql);
+
+    if (!$checkResult || !($checkRow = mysqli_fetch_assoc($checkResult))) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Task not found"
+        ]);
+        exit;
+    }
+
+    $upload = saveTaskImage($_FILES['image'], $imageUploadDir, $imageBaseUrl);
+
+    if (!$upload["success"]) {
+        echo json_encode($upload);
+        exit;
+    }
+
+    $newImage = mysqli_real_escape_string($conn, $upload["url"]);
+
+    $sql = "
+        UPDATE tasks
+        SET icon_image='$newImage'
+        WHERE id='$id'
+        AND user_id='$user_id'
+    ";
+
+    if (mysqli_query($conn, $sql)) {
+
+        $oldUrl = $checkRow['icon_image'] ?? '';
+
+        if ($oldUrl && strpos($oldUrl, $imageBaseUrl) === 0) {
+            $oldFile = $imageUploadDir . basename(parse_url($oldUrl, PHP_URL_PATH));
+
+            if (is_file($oldFile)) {
+                @unlink($oldFile);
+            }
+        }
+
+        echo json_encode([
+            "success" => true,
+            "icon_image" => $upload["url"]
+        ]);
+    } else {
+        @unlink($imageUploadDir . $upload["filename"]);
+
+        echo json_encode([
+            "success" => false,
+            "error" => mysqli_error($conn)
+        ]);
+    }
+
+    exit;
+}
+
+
+
+/* =========================================
+   TASK TIME CONFLICT HELPERS
+   -----------------------------------------
+   One real-world time slot can belong to only
+   one task for a student.
+
+   Important date rule:
+   - A normal task belongs entirely to task_date.
+   - An overnight task (example 10:30 PM -> 5:00 AM)
+     belongs to task_date from 10:30 PM -> midnight,
+     and to the NEXT calendar date from midnight -> 5:00 AM.
+   - Therefore a task on 30-Sep at 2:00 AM must also
+     be checked against a 29-Sep overnight Sleep.
+========================================= */
+
+function dbTimeToMinutes($value)
+{
+    if ($value === null) return null;
+
+    $value = trim((string)$value);
+
+    if ($value === '') return null;
+
+    /*
+     * Always normalize first.
+     * This supports BOTH:
+     *   22:00:00 / 06:00:00
+     *   10:00 PM / 06:00 AM
+     *
+     * This is important because conflict checking must understand
+     * the AM/PM part. For example:
+     *   1:00 PM = 13:00 = 780 minutes
+     *   4:00 PM = 16:00 = 960 minutes
+     *
+     * Treating "1:00 PM" as just "1:00" would incorrectly make it
+     * 1:00 AM and could falsely conflict with an overnight Sleep.
+     */
+    $normalized = normalizeDbTime($value);
+
+    if ($normalized === null) {
+        return null;
+    }
+
+    $parts = explode(':', $normalized);
+
+    if (count($parts) < 2) return null;
+
+    return ((int)$parts[0] * 60) + (int)$parts[1];
+}
+
+function taskRangesForSameDate($fromDb, $toDb)
+{
+    $from = dbTimeToMinutes($fromDb);
+
+    if ($from === null) {
+        return [];
+    }
+
+    // Point-time task.
+    if ($toDb === null || $toDb === "") {
+        return [
+            ["start" => $from, "end" => $from]
+        ];
+    }
+
+    $to = dbTimeToMinutes($toDb);
+
+    if ($to === null) {
+        return [];
+    }
+
+    // Same-day task.
+    if ($to > $from) {
+        return [
+            ["start" => $from, "end" => $to]
+        ];
+    }
+
+    // Overnight task: only the portion before midnight
+    // belongs to its own task_date.
+    return [
+        ["start" => $from, "end" => 1440]
+    ];
+}
+
+function taskRangesForPreviousDateTail($fromDb, $toDb)
+{
+    $from = dbTimeToMinutes($fromDb);
+    $to = dbTimeToMinutes($toDb);
+
+    if ($from === null || $to === null) {
+        return [];
+    }
+
+    // Only an overnight task has a portion on the next date.
+    if ($to > $from) {
+        return [];
+    }
+
+    return [
+        ["start" => 0, "end" => $to]
+    ];
+}
+
+function taskRangesOverlap($a, $b)
+{
+    $aPoint = $a["start"] === $a["end"];
+    $bPoint = $b["start"] === $b["end"];
+
+    // Two point-time tasks at exactly the same time are a conflict.
+    if ($aPoint && $bPoint) {
+        return $a["start"] === $b["start"];
+    }
+
+    // Point task against interval.
+    if ($aPoint) {
+        return $b["start"] <= $a["start"]
+            && $a["start"] < $b["end"];
+    }
+
+    if ($bPoint) {
+        return $a["start"] <= $b["start"]
+            && $b["start"] < $a["end"];
+    }
+
+    return (
+        $a["start"] < $b["end"] &&
+        $b["start"] < $a["end"]
+    );
+}
+
+/*
+ * Check the complete real-world time interval against:
+ *   1. Other tasks on the same task_date.
+ *   2. Previous-date overnight tasks.
+ *   3. Next-date tasks when the candidate itself is overnight.
+ *
+ * $excludeId is used while editing so the task does not conflict
+ * with itself.
+ */
+function findTaskTimeConflict(
+    $conn,
+    $userId,
+    $taskDate,
+    $fromDb,
+    $toDb,
+    $excludeId = null,
+    $ignoreNextDayWakeUp = false,
+    $candidateTitle = ""
+) {
+    $candidateFrom = dbTimeToMinutes($fromDb);
+    $candidateTo = dbTimeToMinutes($toDb);
+
+    if ($candidateFrom === null) {
+        return null;
+    }
+
+    $candidateIsPoint =
+        ($toDb === null || $toDb === "");
+
+    $candidateOvernight =
+        !$candidateIsPoint &&
+        $candidateTo <= $candidateFrom;
+
+    $candidateSameDateRanges = taskRangesForSameDate(
+        $fromDb,
+        $toDb
+    );
+
+    /*
+     * ---------------------------------------------------------
+     * 1. SAME DATE
+     * ---------------------------------------------------------
+     */
+    $dateEsc = mysqli_real_escape_string(
+        $conn,
+        $taskDate
+    );
+
+    $excludeSql = "";
+
+    if ($excludeId !== null && (int)$excludeId > 0) {
+        $excludeSql =
+            " AND t.id != " . (int)$excludeId;
+    }
+
+    $sameDateSql = "
+        SELECT
+            t.id,
+            t.task_name,
+            t.from_time,
+            t.to_time
+        FROM tasks t
+        WHERE t.user_id=" . (int)$userId . "
+          AND t.task_date='$dateEsc'
+          $excludeSql
+        ORDER BY t.from_time ASC, t.id ASC
+    ";
+
+    $sameDateResult = mysqli_query(
+        $conn,
+        $sameDateSql
+    );
+
+    if ($sameDateResult) {
+        while ($existing = mysqli_fetch_assoc($sameDateResult)) {
+            $existingRanges = taskRangesForSameDate(
+                $existing["from_time"],
+                $existing["to_time"]
+            );
+
+            foreach ($candidateSameDateRanges as $candidateRange) {
+                foreach ($existingRanges as $existingRange) {
+                    $candidatePoint =
+                        $candidateRange["start"] === $candidateRange["end"];
+
+                    $existingPoint =
+                        $existingRange["start"] === $existingRange["end"];
+
+                    $existingIsWakeUp =
+                        strtolower(trim((string)($existing["task_name"] ?? ""))) === "wake up";
+
+                    $candidateIsWakeUp =
+                        strtolower(trim((string)$candidateTitle)) === "wake up";
+
+                    // Wake Up is a point marker. It may share the exact
+                    // start boundary of a duration task.
+                    if (
+                        $existingIsWakeUp &&
+                        $existingPoint &&
+                        !$candidatePoint &&
+                        $candidateRange["start"] === $existingRange["start"]
+                    ) {
+                        continue;
+                    }
+
+                    if (
+                        $candidateIsWakeUp &&
+                        $candidatePoint &&
+                        !$existingPoint &&
+                        $candidateRange["start"] === $existingRange["start"]
+                    ) {
+                        continue;
+                    }
+
+                    if (taskRangesOverlap(
+                        $candidateRange,
+                        $existingRange
+                    )) {
+                        return $existing;
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+     * ---------------------------------------------------------
+     * 2. PREVIOUS DATE -> CURRENT DATE
+     *
+     * Example:
+     * 29-Sep Sleep 10:30 PM -> 5:00 AM
+     * 30-Sep task 2:00 AM -> 3:00 AM
+     *
+     * This MUST be rejected.
+     *
+     * 30-Sep Wake Up 5:00 AM is allowed because Sleep ends
+     * exactly at 5:00 AM.
+     * ---------------------------------------------------------
+     */
+    $previousDate = date(
+        "Y-m-d",
+        strtotime($taskDate . " -1 day")
+    );
+
+    $previousDateEsc = mysqli_real_escape_string(
+        $conn,
+        $previousDate
+    );
+
+    $previousSql = "
+        SELECT
+            t.id,
+            t.task_name,
+            t.from_time,
+            t.to_time
+        FROM tasks t
+        WHERE t.user_id=" . (int)$userId . "
+          AND t.task_date='$previousDateEsc'
+          AND t.to_time IS NOT NULL
+          AND t.to_time <> ''
+          AND t.to_time <= t.from_time
+        ORDER BY t.from_time ASC, t.id ASC
+    ";
+
+    if ($excludeId !== null && (int)$excludeId > 0) {
+        $previousSql =
+            str_replace(
+                "ORDER BY t.from_time ASC, t.id ASC",
+                "AND t.id != " . (int)$excludeId . "
+                 ORDER BY t.from_time ASC, t.id ASC",
+                $previousSql
+            );
+    }
+
+    $previousResult = mysqli_query(
+        $conn,
+        $previousSql
+    );
+
+    if ($previousResult) {
+        while ($previousTask = mysqli_fetch_assoc($previousResult)) {
+            $previousRanges =
+                taskRangesForPreviousDateTail(
+                    $previousTask["from_time"],
+                    $previousTask["to_time"]
+                );
+
+            foreach ($candidateSameDateRanges as $candidateRange) {
+                foreach ($previousRanges as $previousRange) {
+                    if (taskRangesOverlap(
+                        $candidateRange,
+                        $previousRange
+                    )) {
+                        return $previousTask;
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+     * ---------------------------------------------------------
+     * 3. CURRENT DATE OVERNIGHT -> NEXT DATE
+     *
+     * Example:
+     * 29-Sep Sleep 10:30 PM -> 5:00 AM
+     * 30-Sep task 2:00 AM -> 3:00 AM
+     *
+     * This is checked when the overnight task itself is being
+     * added/edited.
+     * ---------------------------------------------------------
+     */
+    if ($candidateOvernight) {
+        $nextDate = date(
+            "Y-m-d",
+            strtotime($taskDate . " +1 day")
+        );
+
+        $nextDateEsc = mysqli_real_escape_string(
+            $conn,
+            $nextDate
+        );
+
+        $nextSql = "
+            SELECT
+                t.id,
+                t.task_name,
+                t.from_time,
+                t.to_time
+            FROM tasks t
+            WHERE t.user_id=" . (int)$userId . "
+              AND t.task_date='$nextDateEsc'
+        ";
+
+        // When editing overnight Sleep, the inherited next-day Wake Up is
+        // updated to Sleep's new end time, so it must not block the edit.
+        // Other next-day tasks remain real conflicts.
+        if ($ignoreNextDayWakeUp) {
+            $nextSql .= "
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM skilllab_task_default_map wm
+                  WHERE wm.task_id=t.id
+                    AND wm.user_id=t.user_id
+                    AND wm.task_date=t.task_date
+                    AND wm.default_id='d1'
+              )
+            ";
+        }
+
+        $nextSql .= "
+            ORDER BY t.from_time ASC, t.id ASC
+        ";
+
+        if ($excludeId !== null && (int)$excludeId > 0) {
+            $nextSql =
+                str_replace(
+                    "ORDER BY t.from_time ASC, t.id ASC",
+                    "AND t.id != " . (int)$excludeId . "
+                     ORDER BY t.from_time ASC, t.id ASC",
+                    $nextSql
+                );
+        }
+
+        $nextResult = mysqli_query(
+            $conn,
+            $nextSql
+        );
+
+        if ($nextResult) {
+            $candidateNextDateRange = [
+                "start" => 0,
+                "end" => $candidateTo
+            ];
+
+            while ($nextTask = mysqli_fetch_assoc($nextResult)) {
+                $nextRanges = taskRangesForSameDate(
+                    $nextTask["from_time"],
+                    $nextTask["to_time"]
+                );
+
+                foreach ($nextRanges as $nextRange) {
+                    if (taskRangesOverlap(
+                        $candidateNextDateRange,
+                        $nextRange
+                    )) {
+                        return $nextTask;
+                    }
+                }
+            }
+        }
+    }
+
+    return null;
+}
+
+function sendTaskTimeConflict($existingTask)
+{
+    $existingFrom = $existingTask["from_time"] ?? "";
+    $existingTo = $existingTask["to_time"] ?? "";
+
+    $existingTime = $existingTo
+        ? $existingFrom . " - " . $existingTo
+        : $existingFrom;
+
+    echo json_encode([
+        "success" => false,
+        "message" =>
+            "This time cannot be scheduled.\n\n" .
+            ($existingTask["task_name"] ?? "Another task") .
+            " is already scheduled for " .
+            $existingTime .
+            ".\n\nPlease choose another time."
+    ]);
+
+    exit;
+}
+
+
+/* =========================================
+   ADD TASK
+========================================= */
+
+if ($action === "add") {
+
+    $title = mysqli_real_escape_string(
+        $conn,
+        $data['title'] ?? ''
+    );
+
+    $fromRaw = trim((string)($data['from'] ?? ''));
+    $toRaw   = trim((string)($data['to'] ?? ''));
+
+    $fromDb = normalizeDbTime($fromRaw);
+    $toDb   = normalizeDbTime($toRaw);
+
+    if ($fromDb === null) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Invalid From Time: " . $fromRaw
+        ]);
+        exit;
+    }
+
+    if ($toRaw !== '' && $toDb === null) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Invalid To Time: " . $toRaw
+        ]);
+        exit;
+    }
+
+    /* Student-added task may cross midnight. */
+    $nextDay = 0;
+    if ($toDb !== null && $toDb !== '') {
+        $nextDay = ($toDb <= $fromDb) ? 1 : 0;
+    }
+
+    $from = mysqli_real_escape_string($conn, $fromDb);
+    $to   = mysqli_real_escape_string($conn, $toDb ?? '');
+
+    $date = mysqli_real_escape_string(
+        $conn,
+        $data['task_date'] ?? ''
+    );
+
+    /* Previous day tasks cannot be added */
+    if ($date < $today) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Previous day tasks cannot be added."
+        ]);
+
+        exit;
+    }
+
+
+    if (!$title || !$from || !$date) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Missing fields"
+        ]);
+
+        exit;
+    }
+
+    /* Same From/To is never a valid task interval. */
+    if ($toDb !== null && $toDb === $fromDb) {
+        echo json_encode([
+            "success" => false,
+            "message" => "This time cannot be scheduled. From Time and To Time cannot be the same."
+        ]);
+        exit;
+    }
+
+    /*
+     * IMPORTANT:
+     * A student-added task cannot overlap ANY existing task,
+     * including Admin/default tasks.
+     *
+     * This also checks the previous date's overnight task.
+     * Example:
+     * 29-Sep Sleep 10:30 PM -> 5:00 AM
+     * 30-Sep 2:00 AM -> 3:00 AM  => BLOCKED
+     */
+    $conflictTask = findTaskTimeConflict(
+        $conn,
+        $user_id,
+        $date,
+        $fromDb,
+        $toDb,
+        null,
+        false,
+        $data['title'] ?? ''
+    );
+
+    if ($conflictTask) {
+        sendTaskTimeConflict($conflictTask);
+    }
+
+
+    $uploadedImageUrl = "";
+
+    if (isset($_FILES['image'])) {
+        $upload = saveTaskImage($_FILES['image'], $imageUploadDir, $imageBaseUrl);
+
+        if (!$upload["success"]) {
+            echo json_encode($upload);
+            exit;
+        }
+
+        $uploadedImageUrl = mysqli_real_escape_string(
+            $conn,
+            $upload["url"]
+        );
+    }
+
+    $imageSql = $uploadedImageUrl ? "'$uploadedImageUrl'" : "NULL";
+
+    $sql = "
+        INSERT INTO tasks
+        (
+            user_id,
+            task_name,
+            task_date,
+            from_time,
+            to_time,
+            status,
+            task_percentage,
+            icon_image
+        )
+        VALUES
+        (
+            '$user_id',
+            '$title',
+            '$date',
+            '$from',
+            '$to',
+            0,
+            0,
+            $imageSql
+        )
+    ";
+
+    if (mysqli_query($conn, $sql)) {
+
+        $newTaskId = (int)mysqli_insert_id($conn);
+
+        /* =====================================================
+           STUDENT ADDED TASK = DATE-WISE DEFAULT OVERRIDE
+           -----------------------------------------------------
+           A task added by the student must appear in Admin's
+           Default Tasks page for THIS DATE only. It must not
+           become a recurring Admin default.
+        ===================================================== */
+        $customDefaultId = "c_task_" . $newTaskId;
+
+        // Determine whether this student-added task crosses midnight.
+        $nextDay = (
+            $toDb !== null &&
+            $fromDb !== null &&
+            $toDb <= $fromDb
+        ) ? 1 : 0;
+
+        $addOverride = $conn->prepare("
+            INSERT INTO student_default_task_dates
+                (user_id, task_date, default_id, task_title, from_time, to_time, icon, color, next_day, is_active, source)
+            VALUES (?, ?, ?, ?, ?, ?, 'clock', NULL, ?, 1, 'student')
+            ON DUPLICATE KEY UPDATE
+                task_title=VALUES(task_title),
+                from_time=VALUES(from_time),
+                to_time=VALUES(to_time),
+                next_day=VALUES(next_day),
+                is_active=1,
+                source='student'
+        ");
+        $addOverride->bind_param(
+            "isssssi",
+            $user_id,
+            $date,
+            $customDefaultId,
+            $data['title'],
+            $fromDb,
+            $toDb,
+            $nextDay
+        );
+        $addOverride->execute();
+        $addOverride->close();
+
+        $addMap = $conn->prepare("
+            INSERT INTO skilllab_task_default_map
+                (task_id, user_id, task_date, default_id)
+            VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE default_id=VALUES(default_id)
+        ");
+        $addMap->bind_param("iiss", $newTaskId, $user_id, $date, $customDefaultId);
+        $addMap->execute();
+        $addMap->close();
+
+        echo json_encode([
+            "success" => true,
+            "id" => $newTaskId,
+            "default_id" => $customDefaultId,
+            "icon_image" => $uploadedImageUrl
+        ]);
+
+    } else {
+
+        if ($uploadedImageUrl) {
+            @unlink(
+                $imageUploadDir .
+                basename(parse_url($uploadedImageUrl, PHP_URL_PATH))
+            );
+        }
+
+        echo json_encode([
+            "success" => false,
+            "error" => mysqli_error($conn)
+        ]);
+    }
+
+    exit;
+}
+
+
+/* =========================================
+   GET TASKS
+========================================= */
+
+if ($action === "get") {
+
+    $dateRaw = trim($data['task_date'] ?? '');
+
+    if (!$dateRaw) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Date missing"
+        ]);
+        exit;
+    }
+
+    $date = mysqli_real_escape_string($conn, $dateRaw);
+
+    /*
+     * ADMIN VIEW
+     * -----------
+     * Admin/student viewing is read-only here.
+     *
+     * IMPORTANT:
+     * Do NOT create the five hard-coded defaults merely because Admin
+     * opened a student's task page. Admin defaults are created only by the
+     * Admin Default Tasks editor for the selected student/date.
+     *
+     * This keeps:
+     *   Admin default -> student can edit/delete/add
+     *   Student change -> Admin sees the same date-specific result
+     *   Other dates -> unchanged
+     *
+     * The normal SELECT below is the single source for the actual tasks.
+     */
+    $sql = "
+        SELECT
+            t.*,
+            m.default_id AS mapped_default_id
+        FROM tasks t
+        LEFT JOIN skilllab_task_default_map m
+          ON m.task_id = t.id
+         AND m.user_id = t.user_id
+         AND m.task_date = t.task_date
+        WHERE t.user_id='$user_id'
+          AND t.task_date='$date'
+        ORDER BY t.from_time ASC
+    ";
+
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+
+        echo json_encode([
+            "success" => false,
+            "error" => mysqli_error($conn)
+        ]);
+
+        exit;
+    }
+
+    $tasks = [];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+
+        $tasks[] = [
+
+            "id" =>
+                (int)$row['id'],
+
+            "title" =>
+                $row['task_name'],
+
+            "from" =>
+                $row['from_time'],
+
+            "to" =>
+                $row['to_time'],
+
+            "completed" =>
+                ((int)$row['status'] === 1),
+
+            "percentage" =>
+                max(0, min(100, (int)($row['task_percentage'] ?? 0))),
+
+            "default_id" =>
+                $row['mapped_default_id'] ?? null,
+
+            "icon_image" =>
+                $row['icon_image'] ?? null
+        ];
+    }
+
+    echo json_encode([
+        "success" => true,
+        "tasks" => $tasks
+    ]);
+
+    exit;
+}
+
+
+/* =========================================
+   SYNC NEXT-DAY WAKE UP
+   Sleep on one date can create a Wake Up
+   override on the following date.
+   A student's existing edit/delete on that
+   following date always wins.
+========================================= */
+
+if ($action === "sync_default_wakeup") {
+
+    $syncDate = trim((string)($data["task_date"] ?? ""));
+    $timeRaw = trim((string)($data["time"] ?? ""));
+    $wakeDb = normalizeDbTime($timeRaw);
+
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $syncDate)) {
+        echo json_encode(["success"=>false,"message"=>"Invalid task date"]);
+        exit;
+    }
+
+    if ($wakeDb === null) {
+        echo json_encode(["success"=>false,"message"=>"Invalid Wake Up time"]);
+        exit;
+    }
+
+    // Existing date-specific state belongs to the student.
+    $existing = $conn->prepare("
+        SELECT is_active, source
+        FROM student_default_task_dates
+        WHERE user_id=? AND task_date=? AND default_id='d1'
+        LIMIT 1
+    ");
+    $existing->bind_param("is", $user_id, $syncDate);
+    $existing->execute();
+    $existingRow = $existing->get_result()->fetch_assoc();
+    $existing->close();
+
+    $existingIsStudentEdited = $existingRow
+        && (int)($existingRow['is_active'] ?? 0) === 1
+        && (($existingRow['source'] ?? 'admin') === 'student');
+
+    if ($existingIsStudentEdited) {
+        echo json_encode([
+            "success"=>true,
+            "message"=>"Student-edited Wake Up state preserved",
+            "task_date"=>$syncDate
+        ]);
+        exit;
+    }
+
+    $deletedWake = $conn->prepare("
+        SELECT 1
+        FROM skilllab_deleted_default_tasks
+        WHERE user_id=? AND task_date=? AND default_id='d1'
+        LIMIT 1
+    ");
+    $deletedWake->bind_param("is", $user_id, $syncDate);
+    $deletedWake->execute();
+    $hasDeletedWake = $deletedWake->get_result()->num_rows > 0;
+    $deletedWake->close();
+
+    if ($hasDeletedWake) {
+        echo json_encode([
+            "success"=>true,
+            "message"=>"Wake Up was deleted for this date; state preserved",
+            "task_date"=>$syncDate
+        ]);
+        exit;
+    }
+
+    $wakeTitle = "Wake Up";
+    $wakeIcon = "sun";
+    $wakeColor = "linear-gradient(135deg, #f6d365, #fda085)";
+    $wakeNextDay = 0;
+
+    $wakeOverride = $conn->prepare("
+        INSERT INTO student_default_task_dates
+            (user_id, task_date, default_id, task_title, from_time, to_time, icon, color, next_day, is_active, source)
+        VALUES (?, ?, 'd1', ?, ?, NULL, ?, ?, ?, 1, 'admin')
+        ON DUPLICATE KEY UPDATE
+            task_title=VALUES(task_title),
+            from_time=VALUES(from_time),
+            to_time=NULL,
+            icon=VALUES(icon),
+            color=VALUES(color),
+            next_day=0,
+            is_active=1
+    ");
+    $wakeOverride->bind_param(
+        "isssssi",
+        $user_id,
+        $syncDate,
+        $wakeTitle,
+        $wakeDb,
+        $wakeIcon,
+        $wakeColor,
+        $wakeNextDay
+    );
+
+    if (!$wakeOverride->execute()) {
+        $err = $conn->error;
+        $wakeOverride->close();
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Could not save next-day Wake Up",
+            "error"=>$err
+        ]);
+        exit;
+    }
+    $wakeOverride->close();
+
+    $wakeMap = $conn->prepare("
+        SELECT task_id
+        FROM skilllab_task_default_map
+        WHERE user_id=? AND task_date=? AND default_id='d1'
+        LIMIT 1
+    ");
+    $wakeMap->bind_param("is", $user_id, $syncDate);
+    $wakeMap->execute();
+    $wakeMapRow = $wakeMap->get_result()->fetch_assoc();
+    $wakeMap->close();
+
+    if ($wakeMapRow) {
+        $wakeTaskId = (int)$wakeMapRow["task_id"];
+        $wakeUpdate = $conn->prepare("
+            UPDATE tasks
+            SET task_name='Wake Up', from_time=?, to_time=NULL
+            WHERE id=? AND user_id=?
+            LIMIT 1
+        ");
+        $wakeUpdate->bind_param("sii", $wakeDb, $wakeTaskId, $user_id);
+        $wakeUpdate->execute();
+        $wakeUpdate->close();
+    } else {
+        $wakeInsert = $conn->prepare("
+            INSERT INTO tasks
+                (user_id, task_name, task_date, from_time, to_time, status, task_percentage)
+            VALUES (?, 'Wake Up', ?, ?, NULL, 0, 0)
+        ");
+        $wakeInsert->bind_param("iss", $user_id, $syncDate, $wakeDb);
+
+        if ($wakeInsert->execute()) {
+            $wakeTaskId = (int)$wakeInsert->insert_id;
+
+            $wakeMapInsert = $conn->prepare("
+                INSERT INTO skilllab_task_default_map
+                    (task_id, user_id, task_date, default_id)
+                VALUES (?, ?, ?, 'd1')
+                ON DUPLICATE KEY UPDATE task_id=VALUES(task_id)
+            ");
+            $wakeMapInsert->bind_param("iis", $wakeTaskId, $user_id, $syncDate);
+            $wakeMapInsert->execute();
+            $wakeMapInsert->close();
+        }
+        $wakeInsert->close();
+    }
+
+    echo json_encode([
+        "success"=>true,
+        "message"=>"Next-day Wake Up synchronized",
+        "task_date"=>$syncDate,
+        "time"=>$wakeDb
+    ]);
+    exit;
+}
+
+/* =========================================
+   SYNC PREVIOUS-DAY SLEEP END
+   Wake Up on a date is the end time of the
+   previous date's overnight Sleep task.
+========================================= */
+
+if ($action === "sync_previous_sleep") {
+
+    $wakeDate = trim((string)($data["wake_date"] ?? ""));
+    $sleepDate = trim((string)($data["sleep_date"] ?? ""));
+    $timeRaw = trim((string)($data["time"] ?? ""));
+    $sleepEndDb = normalizeDbTime($timeRaw);
+
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $wakeDate) ||
+        !preg_match('/^\d{4}-\d{2}-\d{2}$/', $sleepDate)) {
+        echo json_encode(["success"=>false,"message"=>"Invalid sync date"]);
+        exit;
+    }
+
+    $expectedPrevious = date('Y-m-d', strtotime($wakeDate . ' -1 day'));
+    if ($sleepDate !== $expectedPrevious) {
+        $sleepDate = $expectedPrevious;
+    }
+
+    if ($sleepEndDb === null) {
+        echo json_encode(["success"=>false,"message"=>"Invalid Sleep end time"]);
+        exit;
+    }
+
+    /* If Sleep was explicitly deleted for the previous date, keep it deleted. */
+    $deletedSleep = $conn->prepare("
+        SELECT 1
+        FROM skilllab_deleted_default_tasks
+        WHERE user_id=? AND task_date=? AND default_id='d5'
+        LIMIT 1
+    ");
+    $deletedSleep->bind_param("is", $user_id, $sleepDate);
+    $deletedSleep->execute();
+    $sleepWasDeleted = $deletedSleep->get_result()->num_rows > 0;
+    $deletedSleep->close();
+
+    if ($sleepWasDeleted) {
+        echo json_encode([
+            "success"=>true,
+            "message"=>"Previous-day Sleep was deleted; state preserved",
+            "sleep_date"=>$sleepDate,
+            "time"=>$sleepEndDb
+        ]);
+        exit;
+    }
+
+    /* Get the recurring Sleep definition so only the end time changes. */
+    $baseSleep = $conn->prepare("
+        SELECT task_title, from_time, icon, color
+        FROM student_default_tasks
+        WHERE user_id=? AND default_id='d5'
+        LIMIT 1
+    ");
+    $baseSleep->bind_param("i", $user_id);
+    $baseSleep->execute();
+    $baseSleepRow = $baseSleep->get_result()->fetch_assoc();
+    $baseSleep->close();
+
+    $sleepTitle = $baseSleepRow['task_title'] ?? 'Sleep';
+    $sleepFrom = $baseSleepRow['from_time'] ?? '22:00:00';
+    $sleepIcon = $baseSleepRow['icon'] ?? 'moon';
+    $sleepColor = $baseSleepRow['color'] ?? 'linear-gradient(135deg, #141e30, #243b55)';
+    $sleepNextDay = 1;
+
+    /* Save the exact previous-date override for Admin Default Tasks. */
+    $sleepOverride = $conn->prepare("
+        INSERT INTO student_default_task_dates
+            (user_id, task_date, default_id, task_title, from_time, to_time, icon, color, next_day, is_active, source)
+        VALUES (?, ?, 'd5', ?, ?, ?, ?, ?, ?, 1, 'student')
+        ON DUPLICATE KEY UPDATE
+            task_title=VALUES(task_title),
+            from_time=VALUES(from_time),
+            to_time=VALUES(to_time),
+            icon=VALUES(icon),
+            color=VALUES(color),
+            next_day=1,
+            is_active=1,
+            source='student'
+    ");
+    $sleepOverride->bind_param(
+        "issssssi",
+        $user_id,
+        $sleepDate,
+        $sleepTitle,
+        $sleepFrom,
+        $sleepEndDb,
+        $sleepIcon,
+        $sleepColor,
+        $sleepNextDay
+    );
+
+    if (!$sleepOverride->execute()) {
+        $err = $conn->error;
+        $sleepOverride->close();
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Could not save previous-day Sleep",
+            "error"=>$err
+        ]);
+        exit;
+    }
+    $sleepOverride->close();
+
+    /* Update the actual Sleep task for that exact date. */
+    $sleepMap = $conn->prepare("
+        SELECT task_id
+        FROM skilllab_task_default_map
+        WHERE user_id=? AND task_date=? AND default_id='d5'
+        LIMIT 1
+    ");
+    $sleepMap->bind_param("is", $user_id, $sleepDate);
+    $sleepMap->execute();
+    $sleepMapRow = $sleepMap->get_result()->fetch_assoc();
+    $sleepMap->close();
+
+    if ($sleepMapRow) {
+        $sleepTaskId = (int)$sleepMapRow['task_id'];
+        $sleepUpdate = $conn->prepare("
+            UPDATE tasks
+            SET task_name=?, from_time=?, to_time=?
+            WHERE id=? AND user_id=?
+            LIMIT 1
+        ");
+        $sleepUpdate->bind_param(
+            "sssii",
+            $sleepTitle,
+            $sleepFrom,
+            $sleepEndDb,
+            $sleepTaskId,
+            $user_id
+        );
+        $sleepUpdate->execute();
+        $sleepUpdate->close();
+    }
+
+    echo json_encode([
+        "success"=>true,
+        "message"=>"Previous-day Sleep synchronized",
+        "sleep_date"=>$sleepDate,
+        "time"=>$sleepEndDb
+    ]);
+    exit;
+}
+
+/* =========================================
+   UPDATE TASK
+========================================= */
+
+
+if ($action === "update") {
+
+    $id = mysqli_real_escape_string(
+        $conn,
+        $data['id'] ?? ''
+    );
+
+    $title = mysqli_real_escape_string(
+        $conn,
+        $data['title'] ?? ''
+    );
+
+    /* Normalize UI time before writing to MySQL TIME columns. */
+    $fromRawUpdate = trim((string)($data['from'] ?? ''));
+    $toRawUpdate   = trim((string)($data['to'] ?? ''));
+
+    $fromDb = normalizeDbTime($fromRawUpdate);
+    $toDb   = normalizeDbTime($toRawUpdate);
+
+    if ($fromDb === null) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Invalid From Time: " . $fromRawUpdate
+        ]);
+        exit;
+    }
+
+    if ($toRawUpdate !== '' && $toDb === null) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Invalid To Time: " . $toRawUpdate
+        ]);
+        exit;
+    }
+
+    $from = mysqli_real_escape_string($conn, $fromDb);
+    $to   = mysqli_real_escape_string($conn, $toDb ?? '');
+
+    $defaultIdRaw = trim((string)($data['default_id'] ?? $data['defaultId'] ?? ''));
+    $defaultIdEsc = mysqli_real_escape_string($conn, $defaultIdRaw);
+
+
+    if (!$id) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "ID missing"
+        ]);
+
+        exit;
+    }
+
+
+    /* Check original task date */
+    $checkSql = "
+        SELECT task_date
+        FROM tasks
+        WHERE id='$id'
+        AND user_id='$user_id'
+        LIMIT 1
+    ";
+
+    $checkResult = mysqli_query($conn, $checkSql);
+
+    if (
+        !$checkResult ||
+        !($checkRow = mysqli_fetch_assoc($checkResult))
+    ) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Task not found"
+        ]);
+
+        exit;
+    }
+
+
+    $taskDate = $checkRow['task_date'];
+
+
+    /* Previous day cannot be edited */
+    if ($taskDate < $today) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Previous day tasks cannot be edited."
+        ]);
+
+        exit;
+    }
+
+    /* Same From/To is never a valid task interval. */
+    if ($toDb !== null && $toDb === $fromDb) {
+        echo json_encode([
+            "success" => false,
+            "message" => "This time cannot be scheduled. From Time and To Time cannot be the same."
+        ]);
+        exit;
+    }
+
+    /*
+     * Check the edited task against every other task.
+     * The current task ID is excluded so an unchanged edit is allowed.
+     */
+    $ignoreNextDayWakeUp =
+        $defaultIdRaw === "d5" &&
+        $toDb !== null &&
+        $toDb <= $fromDb;
+
+    $conflictTask = findTaskTimeConflict(
+        $conn,
+        $user_id,
+        $taskDate,
+        $fromDb,
+        $toDb,
+        (int)$id,
+        $ignoreNextDayWakeUp,
+        $data['title'] ?? ''
+    );
+
+    if ($conflictTask) {
+        sendTaskTimeConflict($conflictTask);
+    }
+
+
+    $oldImage = "";
+    $uploadedImageUrl = "";
+    $removeExistingImage = (($data['remove_image'] ?? '') === '1');
+
+    $oldImageSql = "
+        SELECT icon_image
+        FROM tasks
+        WHERE id='$id'
+        AND user_id='$user_id'
+        LIMIT 1
+    ";
+
+    $oldImageResult = mysqli_query($conn, $oldImageSql);
+
+    if ($oldImageResult && ($oldImageRow = mysqli_fetch_assoc($oldImageResult))) {
+        $oldImage = $oldImageRow['icon_image'] ?? "";
+    }
+
+    // A newly selected file takes priority over removal.
+    if (isset($_FILES['image'])) {
+
+        $upload = saveTaskImage($_FILES['image'], $imageUploadDir, $imageBaseUrl);
+
+        if (!$upload["success"]) {
+            echo json_encode($upload);
+            exit;
+        }
+
+        $uploadedImageUrl = mysqli_real_escape_string(
+            $conn,
+            $upload["url"]
+        );
+
+        $imageSql = ", icon_image='$uploadedImageUrl'";
+    } elseif ($removeExistingImage) {
+        $imageSql = ", icon_image=NULL";
+    } else {
+        // No new file and no removal request = keep the existing image.
+        $imageSql = "";
+    }
+
+    $sql = "
+        UPDATE tasks
+        SET
+            task_name='$title',
+            from_time='$from',
+            to_time='$to'
+            $imageSql
+        WHERE id='$id'
+        AND user_id='$user_id'
+    ";
+
+    if (mysqli_query($conn, $sql)) {
+
+        if ($defaultIdRaw !== '') {
+            mysqli_query($conn, "
+                INSERT INTO skilllab_task_default_map
+                    (task_id, user_id, task_date, default_id)
+                SELECT
+                    id,
+                    user_id,
+                    task_date,
+                    '$defaultIdEsc'
+                FROM tasks
+                WHERE id='$id'
+                  AND user_id='$user_id'
+                LIMIT 1
+                ON DUPLICATE KEY UPDATE
+                    user_id=VALUES(user_id),
+                    task_date=VALUES(task_date),
+                    default_id=VALUES(default_id)
+            ");
+        }
+
+        /* =====================================================
+           STUDENT EDITED DEFAULT TASK
+           Save the edited value only for this exact date.
+           Admin loads this same date-specific row.
+        ===================================================== */
+        if ($defaultIdRaw !== '') {
+
+            $overrideStmt = $conn->prepare("
+                INSERT INTO student_default_task_dates
+                    (user_id, task_date, default_id, task_title, from_time, to_time, icon, next_day, is_active, source)
+                VALUES (?, ?, ?, ?, ?, ?, 'clock', ?, 1, 'student')
+                ON DUPLICATE KEY UPDATE
+                    task_title=VALUES(task_title),
+                    from_time=VALUES(from_time),
+                    to_time=VALUES(to_time),
+                    next_day=VALUES(next_day),
+                    is_active=1,
+                    source='student'
+            ");
+
+            $nextDayOverride = (
+                $defaultIdRaw === "d5" &&
+                $toDb !== null &&
+                $toDb <= $fromDb
+            ) ? 1 : 0;
+
+            $overrideTitle = trim((string)($data['title'] ?? ''));
+
+            $overrideStmt->bind_param(
+                "isssssi",
+                $user_id,
+                $taskDate,
+                $defaultIdRaw,
+                $overrideTitle,
+                $fromDb,
+                $toDb,
+                $nextDayOverride
+            );
+
+            $overrideStmt->execute();
+            $overrideStmt->close();
+
+            /* Student edited it again, so remove any old date-wise delete marker. */
+            $clearDeleted = $conn->prepare("
+                DELETE FROM skilllab_deleted_default_tasks
+                WHERE user_id=? AND task_date=? AND default_id=?
+            ");
+            $clearDeleted->bind_param("iss", $user_id, $taskDate, $defaultIdRaw);
+            $clearDeleted->execute();
+            $clearDeleted->close();
+        }
+
+        // =====================================================
+        // SLEEP -> NEXT DAY WAKE UP
+        // An overnight Sleep ending at 06:00 AM makes the next
+        // day's Wake Up exactly 06:00 AM.
+        // =====================================================
+        if ($defaultIdRaw === "d5" && $toDb !== null && $toDb <= $fromDb) {
+            $nextWakeDate = date('Y-m-d', strtotime($taskDate . ' +1 day'));
+
+            $wakeState = $conn->prepare("
+                SELECT is_active, source
+                FROM student_default_task_dates
+                WHERE user_id=? AND task_date=? AND default_id='d1'
+                LIMIT 1
+            ");
+            $wakeState->bind_param("is", $user_id, $nextWakeDate);
+            $wakeState->execute();
+            $wakeStateRow = $wakeState->get_result()->fetch_assoc();
+            $wakeState->close();
+
+            $wakeWasStudentEdited =
+                $wakeStateRow &&
+                (int)($wakeStateRow['is_active'] ?? 0) === 1 &&
+                (($wakeStateRow['source'] ?? '') === 'student');
+
+            if (!$wakeWasStudentEdited) {
+                $wakeTitle = 'Wake Up';
+                $wakeIcon = 'sun';
+                $wakeColor = 'linear-gradient(135deg, #f6d365, #fda085)';
+
+                $wakeStmt = $conn->prepare("
+                    INSERT INTO student_default_task_dates
+                        (user_id, task_date, default_id, task_title, from_time, to_time, icon, color, next_day, is_active, source)
+                    VALUES (?, ?, 'd1', ?, ?, NULL, ?, ?, 0, 1, 'admin')
+                    ON DUPLICATE KEY UPDATE
+                        task_title=VALUES(task_title),
+                        from_time=VALUES(from_time),
+                        to_time=NULL,
+                        icon=VALUES(icon),
+                        color=VALUES(color),
+                        next_day=0,
+                        is_active=1,
+                        source='admin'
+                ");
+                $wakeStmt->bind_param('isssss', $user_id, $nextWakeDate, $wakeTitle, $toDb, $wakeIcon, $wakeColor);
+                $wakeStmt->execute();
+                $wakeStmt->close();
+
+                $wakeMap = $conn->prepare("
+                    SELECT task_id
+                    FROM skilllab_task_default_map
+                    WHERE user_id=? AND task_date=? AND default_id='d1'
+                    LIMIT 1
+                ");
+                $wakeMap->bind_param('is', $user_id, $nextWakeDate);
+                $wakeMap->execute();
+                $wakeMapRow = $wakeMap->get_result()->fetch_assoc();
+                $wakeMap->close();
+
+                if ($wakeMapRow) {
+                    $wakeTaskId = (int)$wakeMapRow['task_id'];
+                    $wakeUpdate = $conn->prepare("
+                        UPDATE tasks
+                        SET task_name='Wake Up', from_time=?, to_time=NULL
+                        WHERE id=? AND user_id=?
+                        LIMIT 1
+                    ");
+                    $wakeUpdate->bind_param('sii', $toDb, $wakeTaskId, $user_id);
+                    $wakeUpdate->execute();
+                    $wakeUpdate->close();
+                } else {
+                    $wakeInsert = $conn->prepare("
+                        INSERT INTO tasks
+                            (user_id, task_name, task_date, from_time, to_time, status, task_percentage)
+                        VALUES (?, 'Wake Up', ?, ?, NULL, 0, 0)
+                    ");
+                    $wakeInsert->bind_param('iss', $user_id, $nextWakeDate, $toDb);
+                    if ($wakeInsert->execute()) {
+                        $wakeTaskId = (int)$wakeInsert->insert_id;
+                        $wakeMapInsert = $conn->prepare("
+                            INSERT INTO skilllab_task_default_map
+                                (task_id, user_id, task_date, default_id)
+                            VALUES (?, ?, ?, 'd1')
+                            ON DUPLICATE KEY UPDATE task_id=VALUES(task_id)
+                        ");
+                        $wakeMapInsert->bind_param('iis', $wakeTaskId, $user_id, $nextWakeDate);
+                        $wakeMapInsert->execute();
+                        $wakeMapInsert->close();
+                    }
+                    $wakeInsert->close();
+                }
+            }
+        }
+
+        if (($uploadedImageUrl || $removeExistingImage) && $oldImage && strpos($oldImage, $imageBaseUrl) === 0) {
+            $oldFile = $imageUploadDir . basename(parse_url($oldImage, PHP_URL_PATH));
+
+            if (is_file($oldFile)) {
+                @unlink($oldFile);
+            }
+        }
+
+        echo json_encode([
+            "success" => true,
+            "icon_image" => $uploadedImageUrl ?: ($removeExistingImage ? null : $oldImage)
+        ]);
+
+    } else {
+
+        if ($uploadedImageUrl) {
+            @unlink(
+                $imageUploadDir .
+                basename(parse_url($uploadedImageUrl, PHP_URL_PATH))
+            );
+        }
+
+        echo json_encode([
+            "success" => false,
+            "error" => mysqli_error($conn)
+        ]);
+    }
+
+    exit;
+}
+
+
+/* =========================================
+   UPDATE TASK PERCENTAGE
+========================================= */
+
+if ($action === "percentage") {
+
+    $id = mysqli_real_escape_string(
+        $conn,
+        $data['id'] ?? ''
+    );
+
+    $percentage = (int)($data['percentage'] ?? 0);
+    $percentage = max(0, min(100, $percentage));
+
+    if (!$id) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "ID missing"
+        ]);
+
+        exit;
+    }
+
+    /* Check original task date */
+    $checkSql = "
+        SELECT task_date
+        FROM tasks
+        WHERE id='$id'
+        AND user_id='$user_id'
+        LIMIT 1
+    ";
+
+    $checkResult = mysqli_query($conn, $checkSql);
+
+    if (
+        !$checkResult ||
+        !($checkRow = mysqli_fetch_assoc($checkResult))
+    ) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Task not found"
+        ]);
+
+        exit;
+    }
+
+    $taskDate = $checkRow['task_date'];
+
+    /* Previous day percentage cannot be changed */
+    if ($taskDate < $today) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Previous day task percentage cannot be changed."
+        ]);
+
+        exit;
+    }
+
+    $sql = "
+        UPDATE tasks
+        SET task_percentage='$percentage'
+        WHERE id='$id'
+        AND user_id='$user_id'
+    ";
+
+    if (mysqli_query($conn, $sql)) {
+
+        echo json_encode([
+            "success" => true,
+            "percentage" => $percentage
+        ]);
+
+    } else {
+
+        echo json_encode([
+            "success" => false,
+            "error" => mysqli_error($conn)
+        ]);
+    }
+
+    exit;
+}
+
+
+/* =========================================
+   DELETE TASK
+========================================= */
+
+if ($action === "delete") {
+
+    $id = mysqli_real_escape_string(
+        $conn,
+        $data['id'] ?? ''
+    );
+
+    $defaultIdRaw = trim((string)($data['default_id'] ?? $data['defaultId'] ?? ''));
+    $deleteDateRaw = trim((string)($data['task_date'] ?? $data['date'] ?? ''));
+    $defaultIdEsc = mysqli_real_escape_string($conn, $defaultIdRaw);
+    $deleteDateEsc = mysqli_real_escape_string(
+        $conn,
+        $deleteDateRaw ?: $today
+    );
+
+
+    if (!$id) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "ID missing"
+        ]);
+
+        exit;
+    }
+
+
+    /* Check original task date */
+    $checkSql = "
+        SELECT task_date
+        FROM tasks
+        WHERE id='$id'
+        AND user_id='$user_id'
+        LIMIT 1
+    ";
+
+    $checkResult = mysqli_query($conn, $checkSql);
+
+    if (
+        !$checkResult ||
+        !($checkRow = mysqli_fetch_assoc($checkResult))
+    ) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Task not found"
+        ]);
+
+        exit;
+    }
+
+
+    $taskDate = $checkRow['task_date'];
+
+
+    /* Previous day cannot be deleted */
+    if ($taskDate < $today) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Previous day tasks cannot be deleted."
+        ]);
+
+        exit;
+    }
+
+
+    /*
+     * EVERY deleted task gets a date-wise state. Older student-created
+     * tasks may not have a default_id, so infer the mapping or create a
+     * stable custom id from the task id.
+     */
+    if ($defaultIdRaw === '') {
+        $mapStmt = $conn->prepare("
+            SELECT default_id
+            FROM skilllab_task_default_map
+            WHERE task_id=? AND user_id=?
+            LIMIT 1
+        ");
+        $taskIdInt = (int)$id;
+        $mapStmt->bind_param("ii", $taskIdInt, $user_id);
+        $mapStmt->execute();
+        $mapRow = $mapStmt->get_result()->fetch_assoc();
+        $mapStmt->close();
+
+        $defaultIdRaw = ($mapRow && !empty($mapRow['default_id']))
+            ? (string)$mapRow['default_id']
+            : ('c_task_' . $taskIdInt);
+        $defaultIdEsc = mysqli_real_escape_string($conn, $defaultIdRaw);
+    }
+
+    // Always use the task's real date for the date-wise state.
+    // A delete on 29-Sep must never affect another date.
+    $effectiveDeleteDate = $taskDate;
+
+    $deleteMarkerSql = "
+        INSERT INTO skilllab_deleted_default_tasks
+            (user_id, task_date, default_id)
+        VALUES
+            ('$user_id', '$effectiveDeleteDate', '$defaultIdEsc')
+        ON DUPLICATE KEY UPDATE created_at=CURRENT_TIMESTAMP
+    ";
+
+    if (!mysqli_query($conn, $deleteMarkerSql)) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Could not save date-wise delete state",
+            "error" => mysqli_error($conn)
+        ]);
+        exit;
+    }
+
+    /* Keep task -> default identity for this exact date. */
+    $mapDeleteSql = "
+        INSERT INTO skilllab_task_default_map
+            (task_id, user_id, task_date, default_id)
+        VALUES
+            ('$id', '$user_id', '$effectiveDeleteDate', '$defaultIdEsc')
+        ON DUPLICATE KEY UPDATE
+            task_date=VALUES(task_date),
+            default_id=VALUES(default_id)
+    ";
+
+    if (!mysqli_query($conn, $mapDeleteSql)) {
+        echo json_encode([
+            "success" => false,
+            "message" => "Could not save task mapping",
+            "error" => mysqli_error($conn)
+        ]);
+        exit;
+    }
+
+    /* Date-wise inactive override. */
+    $deleteOverride = $conn->prepare("
+        INSERT INTO student_default_task_dates
+            (user_id, task_date, default_id, task_title, from_time, to_time, is_active, source)
+        VALUES (?, ?, ?, '', NULL, NULL, 0, 'student_deleted')
+        ON DUPLICATE KEY UPDATE is_active=0, source='student_deleted'
+    ");
+    $deleteOverride->bind_param("iss", $user_id, $effectiveDeleteDate, $defaultIdRaw);
+
+    if (!$deleteOverride->execute()) {
+        $err = $conn->error;
+        $deleteOverride->close();
+        echo json_encode([
+            "success" => false,
+            "message" => "Could not save inactive date override",
+            "error" => $err
+        ]);
+        exit;
+    }
+    $deleteOverride->close();
+
+    $sql = "
+        DELETE FROM tasks
+        WHERE id='$id'
+        AND user_id='$user_id'
+    ";
+
+
+    if (mysqli_query($conn, $sql)) {
+
+        echo json_encode([
+            "success" => true
+        ]);
+
+    } else {
+
+        echo json_encode([
+            "success" => false,
+            "error" => mysqli_error($conn)
+        ]);
+    }
+
+    exit;
+}
+
+
+/* =========================================
+   TOGGLE TASK
+========================================= */
+
+if ($action === "toggle") {
+
+    $id = mysqli_real_escape_string(
+        $conn,
+        $data['id'] ?? ''
+    );
+
+    $status = mysqli_real_escape_string(
+        $conn,
+        $data['status'] ?? 0
+    );
+
+
+    if (!$id) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "ID missing"
+        ]);
+
+        exit;
+    }
+
+
+    /* Check original task date + start time */
+    $checkSql = "
+        SELECT task_date, from_time
+        FROM tasks
+        WHERE id='$id'
+        AND user_id='$user_id'
+        LIMIT 1
+    ";
+
+    $checkResult = mysqli_query($conn, $checkSql);
+
+    if (
+        !$checkResult ||
+        !($checkRow = mysqli_fetch_assoc($checkResult))
+    ) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Task not found"
+        ]);
+
+        exit;
+    }
+
+
+    $taskDate = $checkRow['task_date'];
+    $fromTime = $checkRow['from_time'] ?? '';
+
+
+    /* ONLY TODAY can be ticked */
+    if ($taskDate !== $today) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Only today's tasks can be completed."
+        ]);
+
+        exit;
+    }
+
+
+    /* =========================================================
+       TASK ACCURACY
+       ---------------------------------------------------------
+       Tick within 15 minutes  -> 100%
+       Tick within 1 hour      -> 50%
+       Tick after 1 hour       -> 30%
+
+       0% is only the unticked/default state.
+       ========================================================= */
+
+    $taskAccuracy = 0;
+
+    /* Only calculate accuracy when task is being ticked. */
+    if ((int)$status === 1 && $fromTime !== '') {
+
+        $fromTimestamp = strtotime($fromTime);
+        $nowTimestamp  = time();
+
+        if ($fromTimestamp !== false) {
+
+            $elapsedMinutes = floor(
+                ($nowTimestamp - $fromTimestamp) / 60
+            );
+
+            /*
+             * If the task is ticked before its start time,
+             * do not allow a negative elapsed value.
+             */
+            $elapsedMinutes = max(0, $elapsedMinutes);
+
+
+            if ($elapsedMinutes <= 15) {
+
+                $taskAccuracy = 100;
+
+            } elseif ($elapsedMinutes <= 60) {
+
+                $taskAccuracy = 50;
+
+            } else {
+
+                $taskAccuracy = 30;
+            }
+        }
+    }
+
+
+    /* =========================================================
+       SAVE STATUS + TASK ACCURACY
+       ========================================================= */
+
+    $sql = "
+        UPDATE tasks
+        SET
+            status='$status',
+            task_accuracy_percentage='$taskAccuracy'
+        WHERE id='$id'
+        AND user_id='$user_id'
+    ";
+
+
+    if (mysqli_query($conn, $sql)) {
+
+        echo json_encode([
+            "success" => true,
+            "task_accuracy_percentage" => $taskAccuracy,
+            "performance_time" => $taskAccuracy
+        ]);
+
+    } else {
+
+        echo json_encode([
+            "success" => false,
+            "error" => mysqli_error($conn)
+        ]);
+    }
+
+    exit;
+}
+
+
+/* =========================================
+   DASHBOARD
+========================================= */
+
+if ($action === "dashboard") {
+
+    $selectedDate =
+        $data['date'] ?? date("Y-m-d");
+
+
+    /* ===============================
+       DATE OBJECT
+    =============================== */
+
+    $dateObj = DateTime::createFromFormat(
+        "Y-m-d",
+        $selectedDate
+    );
+
+
+    if (!$dateObj) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Invalid date"
+        ]);
+
+        exit;
+    }
+
+
+    /* ===============================
+       WEEK
+    =============================== */
+
+    $weekStart = clone $dateObj;
+
+    $weekStart->modify(
+        "monday this week"
+    );
+
+
+    $weekEnd = clone $weekStart;
+
+    $weekEnd->modify("+6 days");
+
+
+    /* ===============================
+       MONTH
+    =============================== */
+
+    $monthStart = clone $dateObj;
+
+    $monthStart->modify(
+        "first day of this month"
+    );
+
+
+    $monthEnd = clone $dateObj;
+
+    $monthEnd->modify(
+        "last day of this month"
+    );
+
+
+    $weekStartStr =
+        $weekStart->format("Y-m-d");
+
+    $weekEndStr =
+        $weekEnd->format("Y-m-d");
+
+    $monthStartStr =
+        $monthStart->format("Y-m-d");
+
+    $monthEndStr =
+        $monthEnd->format("Y-m-d");
+
+
+    /* ===============================
+       GET MONTH TASKS
+    =============================== */
+
+    $sql = "
+        SELECT
+            id,
+            task_name,
+            task_date,
+            from_time,
+            to_time,
+            status,
+            task_percentage
+        FROM tasks
+        WHERE user_id='$user_id'
+        AND task_date BETWEEN
+            '$monthStartStr'
+            AND
+            '$monthEndStr'
+        ORDER BY
+            task_date ASC,
+            from_time ASC
+    ";
+
+
+    $result = mysqli_query(
+        $conn,
+        $sql
+    );
+
+
+    if (!$result) {
+
+        echo json_encode([
+            "success" => false,
+            "message" =>
+                mysqli_error($conn)
+        ]);
+
+        exit;
+    }
+
+
+    $allTasks = [];
+
+
+    while ($row = mysqli_fetch_assoc($result)) {
+
+        $row['id'] =
+            (int)$row['id'];
+
+        $row['status'] =
+            (int)$row['status'];
+
+
+        $row['task_status'] =
+            getTaskStatus(
+                $row,
+                $selectedDate
+            );
+
+
+        $allTasks[] = $row;
+    }
+
+
+    /* ===============================
+       FILTER
+    =============================== */
+
+    $todayTasks = [];
+
+    $weekTasks = [];
+
+
+    foreach ($allTasks as $task) {
+
+        if (
+            $task['task_date'] ===
+            $selectedDate
+        ) {
+            $todayTasks[] = $task;
+        }
+
+
+        if (
+            $task['task_date'] >=
+                $weekStartStr
+            &&
+            $task['task_date'] <=
+                $weekEndStr
+        ) {
+            $weekTasks[] = $task;
+        }
+    }
+
+
+    /* ===============================
+       TODAY STATS
+    =============================== */
+
+    $todayTotal =
+        count($todayTasks);
+
+    $todayCompleted = 0;
+    $todayInProgress = 0;
+    $todayPending = 0;
+    $todayNotStarted = 0;
+
+
+    foreach ($todayTasks as $task) {
+
+        switch (
+            $task['task_status']
+        ) {
+
+            case "completed":
+
+                $todayCompleted++;
+
+                break;
+
+
+            case "in_progress":
+
+                $todayInProgress++;
+
+                break;
+
+
+            case "pending":
+
+                $todayPending++;
+
+                break;
+
+
+            case "not_started":
+
+                $todayNotStarted++;
+
+                break;
+        }
+    }
+
+
+    /* ===============================
+       WEEK STATS
+    =============================== */
+
+    $weekTotal =
+        count($weekTasks);
+
+    $weekCompleted = 0;
+
+
+    foreach ($weekTasks as $task) {
+
+        if (
+            $task['task_status'] ===
+            "completed"
+        ) {
+
+            $weekCompleted++;
+        }
+    }
+
+
+    /* ===============================
+       MONTH STATS
+    =============================== */
+
+    $monthTotal =
+        count($allTasks);
+
+    $monthCompleted = 0;
+
+
+    foreach ($allTasks as $task) {
+
+        if (
+            $task['task_status'] ===
+            "completed"
+        ) {
+
+            $monthCompleted++;
+        }
+    }
+
+
+    /* ===============================
+       STUDY HOURS
+    =============================== */
+
+    $studyMinutes = 0;
+
+
+    foreach ($weekTasks as $task) {
+
+        if (
+            !$task['from_time'] ||
+            !$task['to_time']
+        ) {
+            continue;
+        }
+
+
+        $from =
+            strtotime($task['from_time']);
+
+        $to =
+            strtotime($task['to_time']);
+
+
+        if (!$from || !$to) {
+            continue;
+        }
+
+
+        $minutes =
+            ($to - $from) / 60;
+
+
+        if ($minutes < 0) {
+            $minutes += 1440;
+        }
+
+
+        if ($minutes > 0) {
+            $studyMinutes += $minutes;
+        }
+    }
+
+
+    $studyHours =
+        floor($studyMinutes / 60);
+
+    $studyRemainingMinutes =
+        $studyMinutes % 60;
+
+
+    /* ===============================
+       FORMAT TODAY TASKS
+    =============================== */
+
+    $formattedTasks = [];
+
+
+    foreach ($todayTasks as $task) {
+
+        $formattedTasks[] = [
+
+            "id" =>
+                $task['id'],
+
+            "title" =>
+                $task['task_name'],
+
+            "from" =>
+                $task['from_time'],
+
+            "to" =>
+                $task['to_time'],
+
+            "completed" =>
+                ((int)$task['status'] === 1),
+
+            "percentage" =>
+                max(0, min(100, (int)($task['task_percentage'] ?? 0))),
+
+            "taskStatus" =>
+                $task['task_status']
+        ];
+    }
+
+
+    /* ===============================
+       DASHBOARD RESPONSE
+    =============================== */
+
+    echo json_encode([
+
+        "success" => true,
+
+        "date" =>
+            $selectedDate,
+
+
+        /* TODAY */
+
+        "today" => [
+
+            "total" =>
+                $todayTotal,
+
+            "completed" =>
+                $todayCompleted,
+
+            "inProgress" =>
+                $todayInProgress,
+
+            "pending" =>
+                $todayPending,
+
+            "notStarted" =>
+                $todayNotStarted,
+
+            "percentage" =>
+                percentage(
+                    $todayCompleted,
+                    $todayTotal
+                )
+        ],
+
+
+        /* WEEK */
+
+        "week" => [
+
+            "total" =>
+                $weekTotal,
+
+            "completed" =>
+                $weekCompleted,
+
+            "percentage" =>
+                percentage(
+                    $weekCompleted,
+                    $weekTotal
+                )
+        ],
+
+
+        /* MONTH */
+
+        "month" => [
+
+            "total" =>
+                $monthTotal,
+
+            "completed" =>
+                $monthCompleted,
+
+            "percentage" =>
+                percentage(
+                    $monthCompleted,
+                    $monthTotal
+                )
+        ],
+
+
+        /* STUDY HOURS */
+
+        "studyHours" => [
+
+            "hours" =>
+                $studyHours,
+
+            "minutes" =>
+                $studyRemainingMinutes
+        ],
+
+
+        /* TODAY TASKS */
+
+        "tasks" =>
+            $formattedTasks
+    ]);
+
+    exit;
+}
+
+
+/* =========================================
+   INVALID ACTION
+========================================= */
+
+echo json_encode([
+
+    "success" => false,
+
+    "message" =>
+        "Invalid action"
+]);
+
+?>
