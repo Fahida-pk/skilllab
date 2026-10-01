@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   FaCreditCard,
-  FaSave,
+  FaFloppyDisk,
   FaRotate,
   FaShieldHalved,
   FaCircleCheck,
