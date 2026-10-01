@@ -20,7 +20,7 @@ import ParentLogin
 import ParentDashboard
   from "./pages/parentdasboard/Parentdashboard.jsx";
 
-
+import Payment from "./pages/payment/payment.jsx";
 /* =====================================================
    ADMIN PROTECTED ROUTE
 ===================================================== */
@@ -208,7 +208,18 @@ function App() {
           </AdminProtectedRoute>
         }
       />
+{/* =================================================
+    ADMIN → PAYMENT GATEWAY
+================================================= */}
 
+<Route
+  path="/admin/payment"
+  element={
+    <AdminProtectedRoute>
+      <Payment />
+    </AdminProtectedRoute>
+  }
+/>
 
       {/* =================================================
           PARENT LOGIN

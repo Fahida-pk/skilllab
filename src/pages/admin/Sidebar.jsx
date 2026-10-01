@@ -400,18 +400,26 @@ export default function Sidebar() {
 
           <div className="admin-nav-group">
 
-            <button
-              type="button"
-              className="admin-nav-item"
-            >
+         <button
+  type="button"
+  className={`admin-nav-item ${
+    location.pathname === "/admin/payment"
+      ? "active"
+      : ""
+  }`}
+  onClick={() => {
+    navigate("/admin/payment");
+    setStudentsOpen(false);
+    setParentsOpen(false);
+    setMobileOpen(false);
+  }}
+>
+  <FaCreditCard />
 
-              <FaCreditCard />
-
-              <span>
-                Payment Gateway
-              </span>
-
-            </button>
+  <span>
+    Payment Gateway
+  </span>
+</button>
 
           </div>
 

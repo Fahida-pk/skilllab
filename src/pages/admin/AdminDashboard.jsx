@@ -1371,21 +1371,30 @@ const openStudentDashboard = (student) => {
 
 
 
-          {/* PAYMENT */}
+         <div className="admin-nav-group">
 
-          <div className="admin-nav-group">
+  <button
+    type="button"
+    className={`admin-nav-item ${
+      location.pathname === "/admin/payment"
+        ? "active"
+        : ""
+    }`}
+    onClick={() => {
+      navigate("/admin/payment");
+      setStudentsOpen(false);
+      setParentsMenuOpen(false);
+      setMobileOpen(false);
+    }}
+  >
+    <FaCreditCard />
 
-            <button
-              className="admin-nav-item"
-            >
-              <FaCreditCard />
+    <span>
+      Payment Gateway
+    </span>
+  </button>
 
-              <span>
-                Payment Gateway
-              </span>
-            </button>
-
-          </div>
+</div>
 
           
 
