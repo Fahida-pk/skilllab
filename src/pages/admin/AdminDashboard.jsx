@@ -806,13 +806,20 @@ function AdminDashboard() {
       return `${h}:${String(m).padStart(2, "0")} ${ampm}`;
     };
 
+    // IMPORTANT: This validation is for the SELECTED calendar date only.
+    // An overnight Sleep such as Oct-01 10:00 PM -> Oct-02 8:00 AM
+    // occupies only 10:00 PM -> midnight on Oct-01.
+    // The 12:00 AM -> 8:00 AM portion belongs to Oct-02 and is validated
+    // separately by the PHP backend against Oct-02 tasks.
+    //
+    // Therefore Oct-01 Wake Up at 5:00 AM does NOT conflict with
+    // Oct-01 Sleep 10:00 PM -> Oct-02 8:00 AM.
     const makeRanges = (from, to) => {
       if (to == null) return [[from, from]];
       if (to > from) return [[from, to]];
-      return [
-        [from, 1440],
-        [0, to],
-      ];
+
+      // Overnight: only this selected date's evening portion.
+      return [[from, 1440]];
     };
 
     const rangesOverlap = (a, b) => {
