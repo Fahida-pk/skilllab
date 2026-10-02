@@ -19,8 +19,14 @@ import ParentLogin
 
 import ParentDashboard
   from "./pages/parentdasboard/Parentdashboard.jsx";
-import Subscription from "./pages/payment/subscription.jsx";
-import Payment from "./pages/payment/payment.jsx";
+
+import Subscription
+  from "./pages/payment/subscription.jsx";
+
+import Payment
+  from "./pages/payment/payment.jsx";
+
+
 /* =====================================================
    ADMIN PROTECTED ROUTE
 ===================================================== */
@@ -112,27 +118,40 @@ function App() {
 
 
       {/* =================================================
-          NORMAL STUDENT ROUTES
+          STUDENT SUBSCRIPTION
+
+          IMPORTANT:
+          Subscription page itself should NOT be inside
+          subscription ProtectedRoute.
+
+          Expired users must be able to open this page.
       ================================================= */}
 
-     <Route element={<ProtectedRoute />}>
+      <Route
+        path="/subscription"
+        element={<Subscription />}
+      />
 
-  <Route
-    path="/dashboard"
-    element={<Dashboard />}
-  />
 
-  <Route
-    path="/task"
-    element={<Task />}
-  />
+      {/* =================================================
+          ACTIVE SUBSCRIPTION REQUIRED
 
-  <Route
-    path="/subscription"
-    element={<Subscription />}
-  />
+          Dashboard + Task only
+      ================================================= */}
 
-</Route>
+      <Route element={<ProtectedRoute />}>
+
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
+
+        <Route
+          path="/task"
+          element={<Task />}
+        />
+
+      </Route>
 
 
       {/* =================================================
@@ -213,18 +232,21 @@ function App() {
           </AdminProtectedRoute>
         }
       />
-{/* =================================================
-    ADMIN → PAYMENT GATEWAY
-================================================= */}
 
-<Route
-  path="/admin/payment"
-  element={
-    <AdminProtectedRoute>
-      <Payment />
-    </AdminProtectedRoute>
-  }
-/>
+
+      {/* =================================================
+          ADMIN → PAYMENT GATEWAY
+      ================================================= */}
+
+      <Route
+        path="/admin/payment"
+        element={
+          <AdminProtectedRoute>
+            <Payment />
+          </AdminProtectedRoute>
+        }
+      />
+
 
       {/* =================================================
           PARENT LOGIN

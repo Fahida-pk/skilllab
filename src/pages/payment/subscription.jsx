@@ -1387,23 +1387,19 @@ function Subscription() {
 
         <div className="header-left">
 
-          <button
+     {String(subscription?.status || "").toLowerCase() === "active" && (
+  <button
+    type="button"
+    className="back-button"
+    onClick={() =>
+      navigate("/dashboard")
+    }
+  >
+    <FaArrowLeft />
+  </button>
+)}
 
-            type="button"
-
-            className="back-button"
-
-            onClick={() =>
-
-              navigate("/dashboard")
-
-            }
-
-          >
-
-            <FaArrowLeft />
-
-          </button>
+          
 
           <div className="header-icon">
 
