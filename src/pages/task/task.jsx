@@ -48,9 +48,57 @@ function Task({ adminView = false, parentView = false }) {
 
   const [date, setDate] = useState(new Date());
   const user = JSON.parse(localStorage.getItem("user") || "null");
-const firstLoginDate = user?.created_at
-  ? String(user.created_at).slice(0, 10)
+const getTodayKey = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+const firstLoginStorageKey = user?.email
+  ? `skilllab_first_login_date_${user.email}`
   : null;
+
+// First-login date is kept per student in localStorage.
+// If the API already provides created_at, use that value.
+// For a new student without created_at, save today's date once.
+const [firstLoginDate, setFirstLoginDate] = useState(() => {
+  if (user?.created_at) {
+    return String(user.created_at).slice(0, 10);
+  }
+
+  if (firstLoginStorageKey) {
+    const saved = localStorage.getItem(firstLoginStorageKey);
+    if (saved) return saved;
+  }
+
+  return user?.email ? getTodayKey() : null;
+});
+
+useEffect(() => {
+  if (adminView || parentView) return;
+  if (!user?.email) return;
+
+  const key = `skilllab_first_login_date_${user.email}`;
+
+  // Never overwrite an already saved first-login date.
+  const saved = localStorage.getItem(key);
+
+  if (saved) {
+    setFirstLoginDate(saved);
+    return;
+  }
+
+  // If the user object contains created_at, keep the database date.
+  const loginDate = user?.created_at
+    ? String(user.created_at).slice(0, 10)
+    : getTodayKey();
+
+  localStorage.setItem(key, loginDate);
+  setFirstLoginDate(loginDate);
+}, [user?.email, user?.created_at, adminView, parentView]);
   /* =====================================================
      ADMIN STUDENT VIEW
      Admin can VIEW tasks only.
