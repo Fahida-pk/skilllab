@@ -353,6 +353,14 @@ const [, setTimeTick] = useState(0);
      DEFAULT TASKS
   ===================================================== */
 
+  /*
+   * SYSTEM DEFAULTS
+   * Only Wake Up and Sleep are permanent system defaults.
+   *
+   * Admin-saved date schedules are the source of truth for every
+   * other task. Old built-in tasks such as Study MERN, Practice
+   * English and Workout are intentionally not part of this list.
+   */
   const DEFAULT_TASKS = [
     {
       id: "d1",
@@ -364,45 +372,11 @@ const [, setTimeTick] = useState(0);
       completed: false,
       isWakeUp: true,
     },
-
-    {
-      id: "d2",
-      title: "Study MERN",
-      from: "5:00 AM",
-      to: "10:00 AM",
-      icon: "book",
-      color:
-        "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-      completed: false,
-    },
-
-    {
-      id: "d3",
-      title: "Practice English",
-      from: "1:00 PM",
-      to: "4:00 PM",
-      icon: "language",
-      color:
-        "linear-gradient(135deg, #84fab0, #8fd3f4)",
-      completed: false,
-    },
-
-    {
-      id: "d4",
-      title: "Workout",
-      from: "6:00 PM",
-      to: "7:00 PM",
-      icon: "dumbbell",
-      color:
-        "linear-gradient(135deg, #fccb90, #d57eeb)",
-      completed: false,
-    },
-
     {
       id: "d5",
       title: "Sleep",
       from: "10:00 PM",
-      to: "8:00 AM",
+      to: "5:00 AM",
       icon: "moon",
       color:
         "linear-gradient(135deg, #141e30, #243b55)",
@@ -987,9 +961,6 @@ const getBuiltInDefaultId = (task, dateKey) => {
 
   const defaultIdMap = {
     "wake up": "d1",
-    "study mern": "d2",
-    "practice english": "d3",
-    "workout": "d4",
     "sleep": "d5",
   };
 
@@ -1027,92 +998,44 @@ const getBuiltInDefaultId = (task, dateKey) => {
   /* =====================================================
      MERGE DATABASE + DEFAULT TASKS
   ===================================================== */
-const mergeDashboardTasks = (
-  apiTasks,
-  dateKey
-) => {
-  /*
-   * =====================================================
-   * DATE-WISE TASK FILTER
-   * =====================================================
-   *
-   * Only show tasks belonging to selected date.
-   */
+ const mergeDashboardTasks = (
+    apiTasks,
+    dateKey
+  ) => {
+    /*
+     * =====================================================
+     * SERVER TASK LIST IS THE ONLY SOURCE OF TRUTH
+     * =====================================================
+     *
+     * Dashboard must show exactly the same tasks returned by
+     * task.php. Do not add old local defaults, and do not apply
+     * stale localStorage schedules/deletions over the server list.
+     *
+     * Admin -> Student -> Dashboard therefore stays identical.
+     */
+    const sourceTasks = Array.isArray(apiTasks)
+      ? apiTasks
+      : [];
 
-  const localChanges = getLocalDefaultChanges(dateKey);
+    const seenDefaultIds = new Map();
+    const merged = [];
 
-const deletedDefaultIds = new Set(
-  (localChanges.deleted || []).map(String)
-);
-
-// Get titles of deleted default tasks for fallback matching.
-// This is important for older database rows where default_id
-// may not be available.
-const deletedDefaultTitles = new Set();
-
-const definitions = getSavedDefaultDefinitions();
-
-definitions.forEach((defaultTask) => {
-  const defaultId = String(defaultTask.id);
-
-  if (!deletedDefaultIds.has(defaultId)) return;
-
-  const schedule =
-    localChanges.schedules?.[defaultId] || {};
-
-  const title =
-    schedule.title ||
-    defaultTask.title ||
-    "";
-
-  if (title) {
-    deletedDefaultTitles.add(
-      String(title).trim().toLowerCase()
-    );
-  }
-});
-
-const customTasks = Array.isArray(apiTasks)
-  ? apiTasks
-      .filter((task) => {
-        const taskDefaultId =
-          getBuiltInDefaultId(task, dateKey);
-
-        if (
-          taskDefaultId &&
-          deletedDefaultIds.has(taskDefaultId)
-        ) {
-          return false;
-        }
-
-        const taskTitle = String(
-          task.title ||
-          task.task_name ||
-          ""
-        ).trim().toLowerCase();
-
-        if (
-          !taskDefaultId &&
-          taskTitle &&
-          deletedDefaultTitles.has(taskTitle)
-        ) {
-          return false;
-        }
-
-        return true;
-      })
-      .map((task) => ({
+    sourceTasks.forEach((task) => {
+      const normalized = {
         ...task,
         id: task.id,
         title:
           task.title ||
-          task.task_name,
+          task.task_name ||
+          "",
         from:
           task.from ||
-          task.from_time,
+          task.from_time ||
+          "",
         to:
           task.to ||
-          task.to_time,
+          task.to_time ||
+          "",
         completed:
           task.completed === true ||
           task.completed === 1 ||
@@ -1133,153 +1056,98 @@ const customTasks = Array.isArray(apiTasks)
           task.taskStatus ||
           task.task_status ||
           getTaskStatus(task),
-      }))
-  : [];
+      };
 
-/*
- * =====================================================
- * APPLY DATE-WISE DEFAULT SCHEDULE + DEDUPE
- * =====================================================
- *
- * A renamed built-in task can leave the original DB row
- * alongside the renamed row. Both rows represent one
- * built-in task on the Tasks page, so Dashboard must count
- * them only once.
- */
-const seenBuiltIns = new Map();
-const merged = [];
+      const defaultId =
+        task.default_id !== undefined &&
+        task.default_id !== null &&
+        String(task.default_id).trim() !== ""
+          ? String(task.default_id)
+          : null;
 
-customTasks.forEach((task) => {
-  const builtInId =
-    getBuiltInDefaultId(task, dateKey);
+      if (!defaultId) {
+        merged.push(normalized);
+        return;
+      }
 
-  if (!builtInId) {
-    merged.push(task);
-    return;
-  }
+      if (!seenDefaultIds.has(defaultId)) {
+        seenDefaultIds.set(
+          defaultId,
+          merged.length
+        );
+        merged.push({
+          ...normalized,
+          default_id: defaultId,
+        });
+        return;
+      }
 
-  const schedule =
-    getLocalDefaultChanges(dateKey).schedules?.[
-      String(builtInId)
-    ] || {};
+      /*
+       * If an old duplicate row exists, keep the completed row.
+       * Never add a second copy of the same Admin default.
+       */
+      const existingIndex =
+        seenDefaultIds.get(defaultId);
 
-  const normalizedTask = {
-    ...task,
+      if (
+        normalized.completed &&
+        !merged[existingIndex].completed
+      ) {
+        merged[existingIndex] = {
+          ...normalized,
+          default_id: defaultId,
+        };
+      }
+    });
 
-    title:
-      schedule.title ||
-      task.title,
+    return merged.sort((a, b) => {
+      const aTitle = String(
+        a.title || ""
+      ).trim().toLowerCase();
 
-    from:
-      schedule.from !== undefined
-        ? schedule.from
-        : builtInId === "d1"
-        ? undefined
-        : task.from,
+      const bTitle = String(
+        b.title || ""
+      ).trim().toLowerCase();
 
-    time:
-      schedule.time !== undefined
-        ? schedule.time
-        : builtInId === "d1"
-        ? task.from
-        : undefined,
+      if (
+        aTitle === "wake up" &&
+        bTitle !== "wake up"
+      ) {
+        return -1;
+      }
 
-    to:
-      schedule.to !== undefined
-        ? schedule.to
-        : builtInId === "d1"
-        ? undefined
-        : task.to,
+      if (
+        bTitle === "wake up" &&
+        aTitle !== "wake up"
+      ) {
+        return 1;
+      }
 
-    nextDay:
-      schedule.nextDay !== undefined
-        ? Boolean(schedule.nextDay)
-        : Boolean(task.nextDay),
+      if (
+        aTitle === "sleep" &&
+        bTitle !== "sleep"
+      ) {
+        return 1;
+      }
 
-    default_id: builtInId,
+      if (
+        bTitle === "sleep" &&
+        aTitle !== "sleep"
+      ) {
+        return -1;
+      }
+
+      return (
+        getSortMinutes(
+          a.from || a.time
+        ) -
+        getSortMinutes(
+          b.from || b.time
+        )
+      );
+    });
   };
 
-  if (!seenBuiltIns.has(builtInId)) {
-    seenBuiltIns.set(
-      builtInId,
-      merged.length
-    );
-
-    merged.push(normalizedTask);
-    return;
-  }
-
-  const existingIndex =
-    seenBuiltIns.get(builtInId);
-
-  const existing =
-    merged[existingIndex];
-
-  if (
-    normalizedTask.completed &&
-    !existing.completed
-  ) {
-    merged[existingIndex] =
-      normalizedTask;
-  }
-});
-
-  /*
-   * =====================================================
-   * SORT TASKS
-   * =====================================================
-   */
-
-  return merged.sort((a, b) => {
-    const aTitle = String(a.title || "")
-      .trim()
-      .toLowerCase();
-
-    const bTitle = String(b.title || "")
-      .trim()
-      .toLowerCase();
-
-    // Wake Up always FIRST
-    if (
-      aTitle === "wake up" &&
-      bTitle !== "wake up"
-    ) {
-      return -1;
-    }
-
-    if (
-      bTitle === "wake up" &&
-      aTitle !== "wake up"
-    ) {
-      return 1;
-    }
-
-    // Sleep always LAST
-    const aIsSleep =
-      a.nextDay === true ||
-      a.isSleep === true ||
-      aTitle === "sleep";
-
-    const bIsSleep =
-      b.nextDay === true ||
-      b.isSleep === true ||
-      bTitle === "sleep";
-
-    if (aIsSleep && !bIsSleep) {
-      return 1;
-    }
-
-    if (!aIsSleep && bIsSleep) {
-      return -1;
-    }
-
-    // Other tasks -> time order
-    return (
-      getSortMinutes(a.from || a.time) -
-      getSortMinutes(b.from || b.time)
-    );
-  });
-};
   /* =====================================================
      PERIOD STATS
      Use the same visible-task rules as the Tasks page.
@@ -1583,48 +1451,15 @@ customTasks.forEach((task) => {
          visible task count.
       ===================================================== */
 
-      const deletedRaw =
-        adminView || parentView
-          ? null
-          : localStorage.getItem(
-              getDeletedDefaultKey(date)
-            );
-
-      let deletedIds = [];
-
-      try {
-        deletedIds = deletedRaw
-          ? JSON.parse(deletedRaw)
-          : [];
-      } catch (error) {
-        deletedIds = [];
-      }
-
-      const deletedDefaultTitles =
-        adminView || parentView
-          ? []
-          : getTodayDefaultTasks(date)
-              .filter((task) =>
-                deletedIds.includes(String(task.id))
-              )
-              .map((task) =>
-                String(task.title || '')
-                  .trim()
-                  .toLowerCase()
-              );
-
+      /*
+       * task.php is the authoritative task list.
+       * It already applies Admin date-wise schedules and
+       * Student date-specific changes/deletions.
+       *
+       * Do not filter this list with stale localStorage data.
+       */
       const visiblePercentageTasks =
-        percentageTasks.filter((task) => {
-          const title = String(
-            task.title ||
-            task.task_name ||
-            ''
-          )
-            .trim()
-            .toLowerCase();
-
-          return !deletedDefaultTitles.includes(title);
-        });
+        percentageTasks;
 
       const tasksWithPercentages =
         visiblePercentageTasks.map((task) => {
