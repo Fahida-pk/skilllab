@@ -5,6 +5,7 @@ import {
   FaSignOutAlt,
   FaBars,
   FaArrowLeft,
+  FaCreditCard,
 } from "react-icons/fa";
 
 import { useState } from "react";
@@ -180,7 +181,11 @@ function Sidebar({
       return;
     }
 
+const handleSubscription = () => {
+  setOpen(false);
 
+  navigate("/subscription");
+};
     /* ================= ADMIN STUDENT ================= */
 
     if (isAdminStudentView && studentId) {
@@ -314,7 +319,8 @@ function Sidebar({
       : location.pathname === "/task" ||
         location.pathname === "/tasks";
 
-
+const isSubscriptionActive =
+  location.pathname === "/subscription";
   /* =====================================================
      BUTTON TEXT
   ===================================================== */
@@ -459,7 +465,29 @@ function Sidebar({
 
         </nav>
 
+{/* =================================================
+    SUBSCRIPTION
+================================================= */}
 
+{!currentAdminView && !currentParentView && (
+  <button
+    type="button"
+    className={
+      isSubscriptionActive
+        ? "sidebar-menu-item active"
+        : "sidebar-menu-item"
+    }
+    onClick={handleSubscription}
+  >
+    <FaCreditCard
+      className="sidebar-menu-icon"
+    />
+
+    <span>
+      Subscription
+    </span>
+  </button>
+)}
         {/* =================================================
             PROFILE
         ================================================= */}

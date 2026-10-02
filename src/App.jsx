@@ -19,7 +19,7 @@ import ParentLogin
 
 import ParentDashboard
   from "./pages/parentdasboard/Parentdashboard.jsx";
-
+import Subscription from "./pages/payment/subscription.jsx";
 import Payment from "./pages/payment/payment.jsx";
 /* =====================================================
    ADMIN PROTECTED ROUTE
@@ -115,19 +115,24 @@ function App() {
           NORMAL STUDENT ROUTES
       ================================================= */}
 
-      <Route element={<ProtectedRoute />}>
+     <Route element={<ProtectedRoute />}>
 
-        <Route
-          path="/dashboard"
-          element={<Dashboard />}
-        />
+  <Route
+    path="/dashboard"
+    element={<Dashboard />}
+  />
 
-        <Route
-          path="/task"
-          element={<Task />}
-        />
+  <Route
+    path="/task"
+    element={<Task />}
+  />
 
-      </Route>
+  <Route
+    path="/subscription"
+    element={<Subscription />}
+  />
+
+</Route>
 
 
       {/* =================================================
