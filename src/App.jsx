@@ -26,7 +26,8 @@ import Subscription
 import Payment
   from "./pages/payment/payment.jsx";
 
-
+import PaymentHistory
+  from "./pages/PaymentHistory/PaymentHistory.jsx";
 /* =====================================================
    ADMIN PROTECTED ROUTE
 ===================================================== */
@@ -132,7 +133,16 @@ function App() {
         element={<Subscription />}
       />
 
+{/* =================================================
+    PAYMENT HISTORY
 
+    Logged-in student's own payment history
+================================================= */}
+
+<Route
+  path="/payment-history"
+  element={<PaymentHistory />}
+/>
       {/* =================================================
           ACTIVE SUBSCRIPTION REQUIRED
 

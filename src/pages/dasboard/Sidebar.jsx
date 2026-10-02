@@ -6,12 +6,14 @@ import {
   FaBars,
   FaArrowLeft,
   FaCreditCard,
+  FaReceipt,
 } from "react-icons/fa";
 
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import "./sidebar.css";
+
 
 function Sidebar({
   adminView = false,
@@ -20,24 +22,36 @@ function Sidebar({
   studentEmail = "",
   studentId = null,
 }) {
+
   const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
+
+  // =====================================================
+  // CURRENT USER
+  // =====================================================
+
   const user = JSON.parse(
     localStorage.getItem("user") || "null"
   );
 
-  /* =====================================================
-     VIEW DETECTION
-  ===================================================== */
+
+  // =====================================================
+  // VIEW DETECTION
+  // =====================================================
 
   const isAdminStudentView =
-    location.pathname.startsWith("/admin/students/");
+    location.pathname.startsWith(
+      "/admin/students/"
+    );
 
   const isParentStudentView =
-    location.pathname.startsWith("/parent/students/");
+    location.pathname.startsWith(
+      "/parent/students/"
+    );
+
 
   /*
    * URL detection is given priority.
@@ -52,9 +66,9 @@ function Sidebar({
     isParentStudentView || parentView;
 
 
-  /* =====================================================
-     DISPLAY USER
-  ===================================================== */
+  // =====================================================
+  // DISPLAY USER
+  // =====================================================
 
   const displayName =
     currentAdminView || currentParentView
@@ -72,16 +86,22 @@ function Sidebar({
       : user?.picture || "";
 
 
-  /* =====================================================
-     DASHBOARD
-  ===================================================== */
+  // =====================================================
+  // DASHBOARD
+  // =====================================================
 
   const handleDashboard = () => {
+
     setOpen(false);
 
-    /* ================= PARENT STUDENT ================= */
 
-    if (isParentStudentView && studentId) {
+    // ================= PARENT STUDENT =================
+
+    if (
+      isParentStudentView &&
+      studentId
+    ) {
+
       navigate(
         `/parent/students/${studentId}/dashboard`,
         {
@@ -98,9 +118,13 @@ function Sidebar({
     }
 
 
-    /* ================= ADMIN STUDENT ================= */
+    // ================= ADMIN STUDENT =================
 
-    if (isAdminStudentView && studentId) {
+    if (
+      isAdminStudentView &&
+      studentId
+    ) {
+
       navigate(
         `/admin/students/${studentId}/dashboard`,
         {
@@ -116,44 +140,58 @@ function Sidebar({
     }
 
 
-    /* ================= PARENT VIEW ================= */
+    // ================= PARENT VIEW =================
 
     if (currentParentView) {
-      navigate("/parent/dashboard", {
-        replace: true,
-      });
+
+      navigate(
+        "/parent/dashboard",
+        {
+          replace: true,
+        }
+      );
 
       return;
     }
 
 
-    /* ================= ADMIN VIEW ================= */
+    // ================= ADMIN VIEW =================
 
     if (currentAdminView) {
-      navigate("/AdminDashboard", {
-        replace: true,
-      });
+
+      navigate(
+        "/AdminDashboard",
+        {
+          replace: true,
+        }
+      );
 
       return;
     }
 
 
-    /* ================= NORMAL STUDENT ================= */
+    // ================= NORMAL STUDENT =================
 
     navigate("/dashboard");
   };
 
 
-  /* =====================================================
-     TASKS
-  ===================================================== */
+  // =====================================================
+  // TASKS
+  // =====================================================
 
   const handleTasks = () => {
+
     setOpen(false);
 
-    /* ================= PARENT STUDENT ================= */
 
-    if (isParentStudentView && studentId) {
+    // ================= PARENT STUDENT =================
+
+    if (
+      isParentStudentView &&
+      studentId
+    ) {
+
       navigate(
         `/parent/students/${studentId}/tasks`,
         {
@@ -170,9 +208,13 @@ function Sidebar({
     }
 
 
-    /* ================= ADMIN STUDENT ================= */
+    // ================= ADMIN STUDENT =================
 
-    if (isAdminStudentView && studentId) {
+    if (
+      isAdminStudentView &&
+      studentId
+    ) {
+
       navigate(
         `/admin/students/${studentId}/tasks`,
         {
@@ -188,99 +230,132 @@ function Sidebar({
     }
 
 
-    /* ================= NORMAL STUDENT ================= */
+    // ================= NORMAL STUDENT =================
 
     navigate("/task");
   };
 
 
-  /* =====================================================
-     SUBSCRIPTION
-  ===================================================== */
+  // =====================================================
+  // SUBSCRIPTION
+  // =====================================================
 
   const handleSubscription = () => {
+
     setOpen(false);
 
     navigate("/subscription");
   };
 
 
-  /* =====================================================
-     BACK / LOGOUT
-  ===================================================== */
+  // =====================================================
+  // PAYMENT HISTORY
+  // =====================================================
+
+  const handlePaymentHistory = () => {
+
+    setOpen(false);
+
+    navigate("/payment-history");
+  };
+
+
+  // =====================================================
+  // BACK / LOGOUT
+  // =====================================================
 
   const handleLogout = () => {
+
     setOpen(false);
 
 
-    /* =================================================
-       PARENT → STUDENT VIEW
-    ================================================= */
+    // =================================================
+    // PARENT → STUDENT VIEW
+    // =================================================
 
     if (isParentStudentView) {
-      navigate("/parent/dashboard", {
-        replace: true,
-      });
+
+      navigate(
+        "/parent/dashboard",
+        {
+          replace: true,
+        }
+      );
 
       return;
     }
 
 
-    /* =================================================
-       ADMIN → STUDENT VIEW
-    ================================================= */
+    // =================================================
+    // ADMIN → STUDENT VIEW
+    // =================================================
 
     if (isAdminStudentView) {
-      navigate("/AdminDashboard", {
-        replace: true,
-      });
+
+      navigate(
+        "/AdminDashboard",
+        {
+          replace: true,
+        }
+      );
 
       return;
     }
 
 
-    /* =================================================
-       PARENT VIEW
-    ================================================= */
+    // =================================================
+    // PARENT VIEW
+    // =================================================
 
     if (currentParentView) {
-      navigate("/parent/dashboard", {
-        replace: true,
-      });
+
+      navigate(
+        "/parent/dashboard",
+        {
+          replace: true,
+        }
+      );
 
       return;
     }
 
 
-    /* =================================================
-       ADMIN VIEW
-    ================================================= */
+    // =================================================
+    // ADMIN VIEW
+    // =================================================
 
     if (currentAdminView) {
-      navigate("/AdminDashboard", {
-        replace: true,
-      });
+
+      navigate(
+        "/AdminDashboard",
+        {
+          replace: true,
+        }
+      );
 
       return;
     }
 
 
-    /* =================================================
-       NORMAL STUDENT LOGOUT
-    ================================================= */
+    // =================================================
+    // NORMAL STUDENT LOGOUT
+    // =================================================
 
     localStorage.removeItem("user");
     localStorage.removeItem("token");
 
-    navigate("/login", {
-      replace: true,
-    });
+    navigate(
+      "/login",
+      {
+        replace: true,
+      }
+    );
   };
 
 
-  /* =====================================================
-     ACTIVE STATES
-  ===================================================== */
+  // =====================================================
+  // ACTIVE STATES
+  // =====================================================
 
   const isDashboardActive =
     isParentStudentView
@@ -311,9 +386,13 @@ function Sidebar({
     location.pathname === "/subscription";
 
 
-  /* =====================================================
-     BUTTON TEXT
-  ===================================================== */
+  const isPaymentHistoryActive =
+    location.pathname === "/payment-history";
+
+
+  // =====================================================
+  // BUTTON TEXT
+  // =====================================================
 
   const bottomButtonText =
     isParentStudentView
@@ -327,9 +406,9 @@ function Sidebar({
       : "Logout";
 
 
-  /* =====================================================
-     BUTTON ICON
-  ===================================================== */
+  // =====================================================
+  // BUTTON ICON
+  // =====================================================
 
   const showBackIcon =
     isParentStudentView ||
@@ -338,25 +417,30 @@ function Sidebar({
     currentAdminView;
 
 
-  /* =====================================================
-     RETURN
-  ===================================================== */
+  // =====================================================
+  // RETURN
+  // =====================================================
 
   return (
     <>
+
       {/* =================================================
           MOBILE HEADER
       ================================================= */}
 
       <div className="mobile-navbar">
+
         <FaBars
           className="mobile-menu-icon"
-          onClick={() => setOpen(!open)}
+          onClick={() =>
+            setOpen(!open)
+          }
         />
 
         <h2>
           SKILL LAB
         </h2>
+
       </div>
 
 
@@ -367,7 +451,9 @@ function Sidebar({
       {open && (
         <div
           className="sidebar-overlay"
-          onClick={() => setOpen(false)}
+          onClick={() =>
+            setOpen(false)
+          }
         />
       )}
 
@@ -381,6 +467,7 @@ function Sidebar({
           open ? "show" : ""
         }`}
       >
+
 
         {/* =================================================
             LOGO
@@ -397,6 +484,7 @@ function Sidebar({
 
         <nav className="sidebar-menu">
 
+
           {/* =================================================
               DASHBOARD
           ================================================= */}
@@ -410,6 +498,7 @@ function Sidebar({
             }
             onClick={handleDashboard}
           >
+
             <FaThLarge
               className="sidebar-menu-icon"
             />
@@ -417,6 +506,7 @@ function Sidebar({
             <span>
               Dashboard
             </span>
+
           </button>
 
 
@@ -433,6 +523,7 @@ function Sidebar({
             }
             onClick={handleTasks}
           >
+
             <FaTasks
               className="sidebar-menu-icon"
             />
@@ -440,6 +531,7 @@ function Sidebar({
             <span>
               Tasks
             </span>
+
           </button>
 
 
@@ -449,6 +541,7 @@ function Sidebar({
 
           {!currentAdminView &&
             !currentParentView && (
+
               <button
                 type="button"
                 className={
@@ -456,8 +549,11 @@ function Sidebar({
                     ? "sidebar-menu-item active"
                     : "sidebar-menu-item"
                 }
-                onClick={handleSubscription}
+                onClick={
+                  handleSubscription
+                }
               >
+
                 <FaCreditCard
                   className="sidebar-menu-icon"
                 />
@@ -465,7 +561,41 @@ function Sidebar({
                 <span>
                   Subscription
                 </span>
+
               </button>
+
+            )}
+
+
+          {/* =================================================
+              PAYMENT HISTORY
+          ================================================= */}
+
+          {!currentAdminView &&
+            !currentParentView && (
+
+              <button
+                type="button"
+                className={
+                  isPaymentHistoryActive
+                    ? "sidebar-menu-item active"
+                    : "sidebar-menu-item"
+                }
+                onClick={
+                  handlePaymentHistory
+                }
+              >
+
+                <FaReceipt
+                  className="sidebar-menu-icon"
+                />
+
+                <span>
+                  Payment History
+                </span>
+
+              </button>
+
             )}
 
         </nav>
@@ -477,20 +607,25 @@ function Sidebar({
 
         <div className="sidebar-profile">
 
+
           {/* =================================================
               PROFILE IMAGE
           ================================================= */}
 
           {displayPicture ? (
+
             <img
               src={displayPicture}
               alt="Profile"
               className="sidebar-profile-image"
             />
+
           ) : (
+
             <FaUserCircle
               className="sidebar-profile-icon"
             />
+
           )}
 
 
@@ -537,8 +672,10 @@ function Sidebar({
         </div>
 
       </aside>
+
     </>
   );
 }
+
 
 export default Sidebar;
