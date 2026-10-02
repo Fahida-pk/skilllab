@@ -349,68 +349,7 @@ const [, setTimeTick] = useState(0);
     }
   };
 
-  /* =====================================================
-     DEFAULT TASKS
-  ===================================================== */
-
-  const DEFAULT_TASKS = [
-    {
-      id: "d1",
-      title: "Wake Up",
-      time: "5:00 AM",
-      icon: "sun",
-      color:
-        "linear-gradient(135deg, #f6d365, #fda085)",
-      completed: false,
-      isWakeUp: true,
-    },
-
-    {
-      id: "d2",
-      title: "Study MERN",
-      from: "5:00 AM",
-      to: "10:00 AM",
-      icon: "book",
-      color:
-        "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-      completed: false,
-    },
-
-    {
-      id: "d3",
-      title: "Practice English",
-      from: "1:00 PM",
-      to: "4:00 PM",
-      icon: "language",
-      color:
-        "linear-gradient(135deg, #84fab0, #8fd3f4)",
-      completed: false,
-    },
-
-    {
-      id: "d4",
-      title: "Workout",
-      from: "6:00 PM",
-      to: "7:00 PM",
-      icon: "dumbbell",
-      color:
-        "linear-gradient(135deg, #fccb90, #d57eeb)",
-      completed: false,
-    },
-
-    {
-      id: "d5",
-      title: "Sleep",
-      from: "10:00 PM",
-      to: "8:00 AM",
-      icon: "moon",
-      color:
-        "linear-gradient(135deg, #141e30, #243b55)",
-      completed: false,
-      nextDay: true,
-      isSleep: true,
-    },
-  ];
+ 
 
   /* =====================================================
      STORAGE KEYS
