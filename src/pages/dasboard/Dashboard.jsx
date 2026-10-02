@@ -1574,8 +1574,60 @@ customTasks.forEach((task) => {
        *
        * Combine both without changing the task count.
        */
+      /* =====================================================
+         MATCH THE TASK PAGE EXACTLY
+         -----------------------------------------------------
+         Task.jsx first removes date-wise deleted defaults and
+         then keeps only one row for each built-in default ID.
+         Dashboard must do the same before calculating the
+         visible task count.
+      ===================================================== */
+
+      const deletedRaw =
+        adminView || parentView
+          ? null
+          : localStorage.getItem(
+              getDeletedDefaultKey(date)
+            );
+
+      let deletedIds = [];
+
+      try {
+        deletedIds = deletedRaw
+          ? JSON.parse(deletedRaw)
+          : [];
+      } catch (error) {
+        deletedIds = [];
+      }
+
+      const deletedDefaultTitles =
+        adminView || parentView
+          ? []
+          : getTodayDefaultTasks(date)
+              .filter((task) =>
+                deletedIds.includes(String(task.id))
+              )
+              .map((task) =>
+                String(task.title || '')
+                  .trim()
+                  .toLowerCase()
+              );
+
+      const visiblePercentageTasks =
+        percentageTasks.filter((task) => {
+          const title = String(
+            task.title ||
+            task.task_name ||
+            ''
+          )
+            .trim()
+            .toLowerCase();
+
+          return !deletedDefaultTitles.includes(title);
+        });
+
       const tasksWithPercentages =
-        percentageTasks.map((task) => {
+        visiblePercentageTasks.map((task) => {
           const taskId = String(task.id);
 
           const taskTitle = String(
@@ -1651,17 +1703,29 @@ customTasks.forEach((task) => {
           };
         });
 
-      /*
-       * IMPORTANT:
-       * Do NOT call mergeDashboardTasks() here.
-       *
-       * mergeDashboardTasks() can recreate browser-side
-       * default tasks that are not present on the Tasks page.
-       *
-       * task.php is the final source of truth for the visible
-       * task list, so the Dashboard must use exactly that list.
-       */
-      const mergedTasks = tasksWithPercentages;
+      /* =====================================================
+         DEDUPE BUILT-IN TASKS EXACTLY LIKE TASK.JSX
+         -----------------------------------------------------
+         If the database contains the original default row and
+         an edited/renamed mapped row, only one should appear.
+      ===================================================== */
+
+      const seenBuiltIns = new Set();
+
+      const mergedTasks =
+        tasksWithPercentages.filter((task) => {
+          const builtInId =
+            getBuiltInDefaultId(task, date);
+
+          if (!builtInId) return true;
+
+          if (seenBuiltIns.has(builtInId)) {
+            return false;
+          }
+
+          seenBuiltIns.add(builtInId);
+          return true;
+        });
 
       /*
        * Recalculate TODAY using the
