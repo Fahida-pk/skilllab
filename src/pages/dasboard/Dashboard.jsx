@@ -1537,55 +1537,109 @@ customTasks.forEach((task) => {
           ),
         ])
       );
+/* =====================================================
+   USE TASK PAGE API AS SINGLE SOURCE OF TRUTH
+   -----------------------------------------------------
+   The Tasks page and Dashboard must show exactly the
+   same tasks for the selected date.
 
-      const tasksWithPercentages =
-        (Array.isArray(data.tasks) ? data.tasks : []).map(
-          (task) => {
-            const idPercentage =
-              percentageById.get(String(task.id));
+   task.php -> actual visible student tasks
+   dashboard.php -> statistics / weekly / monthly data
+===================================================== */
 
-            const titlePercentage =
-              percentageByTitle.get(
-                String(
-                  task.title ||
-                  task.task_name ||
-                  ""
-                )
-                  .trim()
-                  .toLowerCase()
-              );
+const taskSource = percentageTasks;
 
-            return {
-              ...task,
-              percentage:
-                idPercentage !== undefined
-                  ? idPercentage
-                  : titlePercentage !== undefined
-                  ? titlePercentage
-                  : Math.max(
-                      0,
-                      Math.min(
-                        100,
-                        Number(task.percentage ?? 0)
-                      )
-                    ),
-            };
-          }
-        );
+const dashboardTaskById = new Map(
+  (Array.isArray(data.tasks) ? data.tasks : []).map((task) => [
+    String(task.id),
+    task,
+  ])
+);
 
-      /*
-       * The Dashboard API now returns the complete server-side task list,
-       * including default tasks, edited defaults and date-wise deletions.
-       * Admin must never merge its own browser localStorage with the
-       * selected student's task data.
-       */
-      const mergedTasks = adminView
-        ? tasksWithPercentages
-        : mergeDashboardTasks(
-            tasksWithPercentages,
-            date
-          );
+const dashboardTaskByTitle = new Map(
+  (Array.isArray(data.tasks) ? data.tasks : []).map((task) => [
+    String(
+      task.title ||
+      task.task_name ||
+      ""
+    )
+      .trim()
+      .toLowerCase(),
+    task,
+  ])
+);
 
+const tasksWithPercentages = taskSource.map((task) => {
+  const idKey = String(task.id);
+
+  const titleKey = String(
+    task.title ||
+    task.task_name ||
+    ""
+  )
+    .trim()
+    .toLowerCase();
+
+  const dashboardTask =
+    dashboardTaskById.get(idKey) ||
+    dashboardTaskByTitle.get(titleKey) ||
+    {};
+
+  return {
+    ...dashboardTask,
+    ...task,
+
+    title:
+      task.title ||
+      task.task_name ||
+      dashboardTask.title ||
+      dashboardTask.task_name ||
+      "",
+
+    from:
+      task.from ||
+      task.from_time ||
+      dashboardTask.from ||
+      dashboardTask.from_time,
+
+    to:
+      task.to ||
+      task.to_time ||
+      dashboardTask.to ||
+      dashboardTask.to_time,
+
+    completed:
+      task.completed === true ||
+      task.completed === 1 ||
+      task.completed === "1" ||
+      task.completed === "true",
+
+    percentage: Math.max(
+      0,
+      Math.min(
+        100,
+        Number(
+          task.percentage ??
+          task.task_percentage ??
+          dashboardTask.percentage ??
+          dashboardTask.task_percentage ??
+          0
+        )
+      )
+    ),
+  };
+});
+
+/* =====================================================
+   FINAL VISIBLE TASK LIST
+===================================================== */
+
+const mergedTasks = adminView
+  ? tasksWithPercentages
+  : mergeDashboardTasks(
+      tasksWithPercentages,
+      date
+    );
       /*
        * Recalculate TODAY using the
        * actual visible task list.
