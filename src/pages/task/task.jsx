@@ -48,57 +48,7 @@ function Task({ adminView = false, parentView = false }) {
 
   const [date, setDate] = useState(new Date());
   const user = JSON.parse(localStorage.getItem("user") || "null");
-const getTodayKey = () => {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
 
-  return `${year}-${month}-${day}`;
-};
-
-const firstLoginStorageKey = user?.email
-  ? `skilllab_first_login_date_${user.email}`
-  : null;
-
-// First-login date is kept per student in localStorage.
-// If the API already provides created_at, use that value.
-// For a new student without created_at, save today's date once.
-const [firstLoginDate, setFirstLoginDate] = useState(() => {
-  if (user?.created_at) {
-    return String(user.created_at).slice(0, 10);
-  }
-
-  if (firstLoginStorageKey) {
-    const saved = localStorage.getItem(firstLoginStorageKey);
-    if (saved) return saved;
-  }
-
-  return user?.email ? getTodayKey() : null;
-});
-
-useEffect(() => {
-  if (adminView || parentView) return;
-  if (!user?.email) return;
-
-  const key = `skilllab_first_login_date_${user.email}`;
-
-  // Never overwrite an already saved first-login date.
-  const saved = localStorage.getItem(key);
-
-  if (saved) {
-    setFirstLoginDate(saved);
-    return;
-  }
-
-  // If the user object contains created_at, keep the database date.
-  const loginDate = user?.created_at
-    ? String(user.created_at).slice(0, 10)
-    : getTodayKey();
-
-  localStorage.setItem(key, loginDate);
-  setFirstLoginDate(loginDate);
-}, [user?.email, user?.created_at, adminView, parentView]);
   /* =====================================================
      ADMIN STUDENT VIEW
      Admin can VIEW tasks only.
@@ -1123,31 +1073,13 @@ useEffect(() => {
       return "";
     }
   };
-const isFirstLoginDate =
-  !adminView &&
-  !parentView &&
-  firstLoginDate &&
-  currentKey <= firstLoginDate;
-const changeDate = (type) => {
-  // First-time student → Previous Day അനുവദിക്കരുത്
-  if (
-    !adminView &&
-    !parentView &&
-    type === "prev" &&
-    firstLoginDate &&
-    currentKey <= firstLoginDate
-  ) {
-    return;
-  }
 
-  const newDate = new Date(date);
+  const changeDate = (type) => {
+    const newDate = new Date(date);
+    newDate.setDate(date.getDate() + (type === "prev" ? -1 : 1));
+    setDate(newDate);
+  };
 
-  newDate.setDate(
-    date.getDate() + (type === "prev" ? -1 : 1)
-  );
-
-  setDate(newDate);
-};
   const resetModal = () => {
     setShowModal(false);
     setEditTask(null);
@@ -3056,29 +2988,17 @@ const taskAccuracyPercentage =
 />
       <div className="main">
         {/* DATE BAR */}
-   <div className="date-bar">
+        <div className="date-bar">
+          <button onClick={() => changeDate("prev")} type="button">
+            <FaChevronLeft />
+          </button>
 
-  {/* PREVIOUS DAY */}
-  {!isFirstLoginDate && (
-    <button
-      onClick={() => changeDate("prev")}
-      type="button"
-    >
-      <FaChevronLeft />
-    </button>
-  )}
+          <span>{date.toDateString()}</span>
 
-  <span>{date.toDateString()}</span>
-
-  {/* NEXT DAY */}
-  <button
-    onClick={() => changeDate("next")}
-    type="button"
-  >
-    <FaChevronRight />
-  </button>
-
-</div>
+          <button onClick={() => changeDate("next")} type="button">
+            <FaChevronRight />
+          </button>
+        </div>
 
         <div className="task-wrapper task-page-scroll">
           {/* =========================
