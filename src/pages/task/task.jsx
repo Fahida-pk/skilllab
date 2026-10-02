@@ -3020,18 +3020,9 @@ const taskAccuracyPercentage =
 
           <span>{date.toDateString()}</span>
 
-      <button
-  onClick={() => changeDate("prev")}
-  type="button"
-  disabled={
-    !adminView &&
-    !parentView &&
-    firstLoginDate &&
-    currentKey <= firstLoginDate
-  }
->
-  <FaChevronLeft />
-</button>
+          <button onClick={() => changeDate("next")} type="button">
+            <FaChevronRight />
+          </button>
         </div>
 
         <div className="task-wrapper task-page-scroll">
