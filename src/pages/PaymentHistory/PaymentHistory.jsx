@@ -379,15 +379,13 @@ function PaymentHistory() {
 
         <div className="payment-header-left">
 
-          <button
-            type="button"
-            className="payment-back-button"
-            onClick={() =>
-              navigate("/subscription")
-            }
-          >
-            <FaArrowLeft />
-          </button>
+      <button
+  type="button"
+  className="payment-back-button"
+  onClick={() => navigate("/dashboard")}
+>
+  <FaArrowLeft />
+</button>
 
           <div className="payment-header-icon">
             <FaReceipt />
