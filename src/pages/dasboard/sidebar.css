@@ -128,10 +128,15 @@
    DESKTOP CENTER POSITION
 ========================================= */
 
+/* =========================================
+   MENU
+   DESKTOP — MOVED SLIGHTLY UP
+========================================= */
+
 .sidebar-menu {
   position: absolute;
 
-  top: 50%;
+  top: 40%;
   left: 0;
 
   width: 100%;
@@ -146,7 +151,6 @@
 
   transform: translateY(-50%);
 }
-
 
 /* =========================================
    MENU BUTTON
