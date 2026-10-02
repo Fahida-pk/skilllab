@@ -48,7 +48,9 @@ function Task({ adminView = false, parentView = false }) {
 
   const [date, setDate] = useState(new Date());
   const user = JSON.parse(localStorage.getItem("user") || "null");
-
+const firstLoginDate = user?.created_at
+  ? String(user.created_at).slice(0, 10)
+  : null;
   /* =====================================================
      ADMIN STUDENT VIEW
      Admin can VIEW tasks only.
@@ -1074,11 +1076,30 @@ useEffect(() => {
     }
   };
 
-  const changeDate = (type) => {
-    const newDate = new Date(date);
-    newDate.setDate(date.getDate() + (type === "prev" ? -1 : 1));
-    setDate(newDate);
-  };
+const changeDate = (type) => {
+  const newDate = new Date(date);
+
+  newDate.setDate(
+    date.getDate() + (type === "prev" ? -1 : 1)
+  );
+
+  // First-time student:
+  // first login/created date-nu munpulla dates kaanikkaruthu
+  if (
+    !adminView &&
+    !parentView &&
+    type === "prev" &&
+    firstLoginDate
+  ) {
+    const newDateKey = getDateKey(newDate);
+
+    if (newDateKey < firstLoginDate) {
+      return;
+    }
+  }
+
+  setDate(newDate);
+};
 
   const resetModal = () => {
     setShowModal(false);
