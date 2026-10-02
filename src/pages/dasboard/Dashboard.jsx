@@ -1458,8 +1458,18 @@ const getBuiltInDefaultId = (task, dateKey) => {
        *
        * Do not filter this list with stale localStorage data.
        */
+      /* =====================================================
+         DASHBOARD TASK SOURCE
+         -----------------------------------------------------
+         Prefer task.php because the Tasks page uses the same
+         endpoint. If that request temporarily returns an empty
+         list, fall back to dashboard.php tasks so the Dashboard
+         does not show 0 tasks while real tasks exist.
+      ===================================================== */
       const visiblePercentageTasks =
-        percentageTasks;
+        percentageTasks.length > 0
+          ? percentageTasks
+          : dashboardTasks;
 
       const tasksWithPercentages =
         visiblePercentageTasks.map((task) => {
