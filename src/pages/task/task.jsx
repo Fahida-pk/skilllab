@@ -1077,30 +1077,25 @@ useEffect(() => {
   };
 
 const changeDate = (type) => {
+  // First-time student → Previous Day അനുവദിക്കരുത്
+  if (
+    !adminView &&
+    !parentView &&
+    type === "prev" &&
+    firstLoginDate &&
+    currentKey <= firstLoginDate
+  ) {
+    return;
+  }
+
   const newDate = new Date(date);
 
   newDate.setDate(
     date.getDate() + (type === "prev" ? -1 : 1)
   );
 
-  // First-time student:
-  // first login/created date-nu munpulla dates kaanikkaruthu
-  if (
-    !adminView &&
-    !parentView &&
-    type === "prev" &&
-    firstLoginDate
-  ) {
-    const newDateKey = getDateKey(newDate);
-
-    if (newDateKey < firstLoginDate) {
-      return;
-    }
-  }
-
   setDate(newDate);
 };
-
   const resetModal = () => {
     setShowModal(false);
     setEditTask(null);
