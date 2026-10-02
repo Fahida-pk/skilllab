@@ -554,3 +554,205 @@
     z-index: 10500;
   }
 }
+/* =====================================================
+   DESKTOP SIDEBAR
+   ===================================================== */
+
+@media (min-width: 901px) {
+
+  .sidebar {
+    width: 270px;
+    min-width: 270px;
+    height: 100vh;
+
+    padding: 28px 18px 22px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+  }
+
+  /* -------------------------------
+     LOGO
+     ------------------------------- */
+
+  .sidebar-logo {
+    font-size: 28px;
+    font-weight: 800;
+
+    text-align: center;
+
+    margin-bottom: 55px;
+
+    letter-spacing: -0.5px;
+  }
+
+  /* -------------------------------
+     MENU
+     ------------------------------- */
+
+  .sidebar-menu {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    width: 100%;
+  }
+
+  .sidebar-menu-item {
+    width: 100%;
+    min-height: 58px;
+
+    padding: 0 22px;
+
+    border: none;
+    border-radius: 15px;
+
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    font-size: 17px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+      transform 0.2s ease,
+      background 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .sidebar-menu-item:hover {
+    transform: translateX(3px);
+  }
+
+  .sidebar-menu-item.active {
+    box-shadow:
+      0 8px 25px rgba(255, 255, 255, 0.12);
+  }
+
+  .sidebar-menu-icon {
+    width: 23px;
+    min-width: 23px;
+
+    font-size: 22px;
+  }
+
+  /* -------------------------------
+     PROFILE
+     ------------------------------- */
+
+  .sidebar-profile {
+    margin-top: auto;
+
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding-top: 25px;
+  }
+
+  .sidebar-profile-icon,
+  .sidebar-profile-image {
+    width: 76px;
+    height: 76px;
+
+    margin-bottom: 14px;
+
+    border-radius: 50%;
+  }
+
+  .sidebar-profile-icon {
+    font-size: 76px;
+  }
+
+  .sidebar-profile-image {
+    object-fit: cover;
+  }
+
+  .sidebar-user-name {
+    max-width: 100%;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    text-align: center;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar-user-email {
+    max-width: 100%;
+
+    margin-top: 7px;
+
+    font-size: 13px;
+    font-weight: 400;
+
+    text-align: center;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* -------------------------------
+     LOGOUT
+     ------------------------------- */
+
+  .sidebar-logout {
+    width: 100%;
+
+    min-height: 55px;
+
+    margin-top: 24px;
+
+    border: none;
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+      transform 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .sidebar-logout:hover {
+    transform: translateY(-2px);
+  }
+
+  .sidebar-logout svg {
+    font-size: 19px;
+  }
+}
+
+
+/* =====================================================
+   MAIN CONTENT OFFSET - DESKTOP
+   ===================================================== */
+
+@media (min-width: 901px) {
+
+  .sidebar + * {
+    margin-left: 270px;
+  }
+
+}
