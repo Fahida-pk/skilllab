@@ -1301,6 +1301,10 @@ const getBuiltInDefaultId = (task, dateKey) => {
     let taskData = null;
 
     try {
+      /*
+       * Admin / Parent must see the selected student's real task list.
+       * First use the admin/parent read-only request.
+       */
       const taskResponse = await fetch(TASK_API_URL, {
         method: "POST",
         headers: {
@@ -1309,14 +1313,72 @@ const getBuiltInDefaultId = (task, dateKey) => {
         body: JSON.stringify({
           action: "get",
           email,
+          student_id: currentStudentId || undefined,
           task_date: date,
-          admin_view: adminView ? 1 : 0,
+          admin_view: adminView || parentView ? 1 : 0,
         }),
       });
 
       taskData = await taskResponse.json();
 
       console.log("DASHBOARD TASK API:", taskData);
+
+      /*
+       * IMPORTANT FALLBACK
+       * -----------------------------------------------------
+       * Some older task.php versions do not return tasks when
+       * admin_view=1 even though the same student's tasks are
+       * available to the normal student request.
+       *
+       * If the admin/parent request returns zero tasks, retry
+       * using the selected student's email without the admin flag.
+       * This does NOT log the admin in as the student and does not
+       * change anything in the database; it is only a read request.
+       *
+       * This is what fixes:
+       *
+       * Student login  -> tasks visible
+       * Admin view     -> 0 tasks
+       *
+       * Admin view will now use the same date-wise task list.
+       */
+      if (
+        (adminView || parentView) &&
+        (!Array.isArray(taskData?.tasks) ||
+          taskData.tasks.length === 0) &&
+        email
+      ) {
+        try {
+          const fallbackResponse = await fetch(TASK_API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "get",
+              email,
+              task_date: date,
+              admin_view: 0,
+            }),
+          });
+
+          const fallbackData = await fallbackResponse.json();
+
+          console.log(
+            "DASHBOARD TASK API FALLBACK:",
+            fallbackData
+          );
+
+          if (Array.isArray(fallbackData?.tasks)) {
+            taskData = fallbackData;
+          }
+        } catch (fallbackError) {
+          console.error(
+            "Dashboard task API fallback error:",
+            fallbackError
+          );
+        }
+      }
     } catch (taskError) {
       console.error(
         "Dashboard task API error:",
