@@ -689,92 +689,10 @@ function Payment() {
 
           </div>
 
-        </div>
+</div>
+</div>
 
-
-        {/* =================================================
-            INFO CARD
-        ================================================= */}
-
-        <div className="payment-side">
-
-          <div className="payment-info-card">
-
-            <div className="info-card-icon">
-              <FaShieldHalved />
-            </div>
-
-            <h2>
-              Secure Payment Setup
-            </h2>
-
-            <p>
-              SkillLab keeps Razorpay payment credentials
-              on the server. Students only receive the
-              public Key ID required to open Razorpay Checkout.
-            </p>
-
-            <div className="info-list">
-
-              <div>
-                <FaCircleCheck />
-                <span>
-                  Server-side payment order creation
-                </span>
-              </div>
-
-              <div>
-                <FaCircleCheck />
-                <span>
-                  Razorpay signature verification
-                </span>
-              </div>
-
-              <div>
-                <FaCircleCheck />
-                <span>
-                  Subscription expiry update after payment
-                </span>
-              </div>
-
-              <div>
-                <FaCircleCheck />
-                <span>
-                  Transaction history stored in SkillLab
-                </span>
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div className="payment-mode-card">
-
-            <div className="mode-card-icon">
-              <FaGlobe />
-            </div>
-
-            <div>
-
-              <span>
-                Current Mode
-              </span>
-
-              <strong>
-                {Number(gateway.is_live) === 1
-                  ? "Live Production"
-                  : "Test Mode"}
-              </strong>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
+     
 
       {/* =================================================
           INLINE CSS
