@@ -470,12 +470,12 @@ function AdminDashboard() {
       // The other built-in student schedule tasks are automatic student
       // tasks and must not appear as pre-created Admin defaults.
       // Custom tasks that Admin has already created remain visible/editable.
-      const adminDefaults = loadedDefaults.filter((task) => {
-        const id = String(task?.default_id || task?.id || "");
-        return !["d2", "d3", "d4"].includes(id);
-      });
-
-      setStudentDefaults(adminDefaults);
+      /*
+       * The API already returns the effective Admin + Student schedule.
+       * Do not hide d2/d3/d4 here: if Admin configured one of them, or
+       * the Student edited one after the Admin baseline, it must be shown.
+       */
+      setStudentDefaults(loadedDefaults);
     } catch (error) {
       console.error("Student defaults load error:", error);
       alert(error.message || "Unable to load student default tasks");
@@ -513,12 +513,12 @@ function AdminDashboard() {
 
       // Keep Admin's pre-created list limited to Wake Up + Sleep.
       // Existing custom Admin-created defaults are still retained.
-      const adminDefaults = loadedDefaults.filter((task) => {
-        const id = String(task?.default_id || task?.id || "");
-        return !["d2", "d3", "d4"].includes(id);
-      });
-
-      setStudentDefaults(adminDefaults);
+      /*
+       * The API already returns the effective Admin + Student schedule.
+       * Do not hide d2/d3/d4 here: if Admin configured one of them, or
+       * the Student edited one after the Admin baseline, it must be shown.
+       */
+      setStudentDefaults(loadedDefaults);
       setEditingDefaultId(null);
     } catch (error) {
       console.error("Date defaults load error:", error);

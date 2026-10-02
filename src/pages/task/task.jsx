@@ -2472,6 +2472,26 @@ useEffect(() => {
         currentKey
       );
 
+      /*
+       * Keep the default identity for Student edits.
+       * The server uses this identity to make the edit effective from
+       * this date onward and to show the same result in Admin.
+       */
+      if (editTask) {
+        const editDefaultId =
+          editTask?.default_id ||
+          editTask?.defaultId ||
+          getBuiltInDefaultId(editTask) ||
+          "";
+
+        if (editDefaultId) {
+          formData.append(
+            "default_id",
+            String(editDefaultId)
+          );
+        }
+      }
+
       formData.append(
         "nextDay",
         nextDay ? "1" : "0"
