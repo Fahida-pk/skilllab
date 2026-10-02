@@ -3005,9 +3005,18 @@ const taskAccuracyPercentage =
       <div className="main">
         {/* DATE BAR */}
         <div className="date-bar">
-          <button onClick={() => changeDate("prev")} type="button">
-            <FaChevronLeft />
-          </button>
+         <button
+  onClick={() => changeDate("prev")}
+  type="button"
+  disabled={
+    !adminView &&
+    !parentView &&
+    firstLoginDate &&
+    currentKey <= firstLoginDate
+  }
+>
+  <FaChevronLeft />
+</button>
 
           <span>{date.toDateString()}</span>
 
