@@ -1075,7 +1075,11 @@ useEffect(() => {
       return "";
     }
   };
-
+const isFirstLoginDate =
+  !adminView &&
+  !parentView &&
+  firstLoginDate &&
+  currentKey <= firstLoginDate;
 const changeDate = (type) => {
   // First-time student → Previous Day അനുവദിക്കരുത്
   if (
@@ -3004,26 +3008,29 @@ const taskAccuracyPercentage =
 />
       <div className="main">
         {/* DATE BAR */}
-        <div className="date-bar">
-         <button
-  onClick={() => changeDate("prev")}
-  type="button"
-  disabled={
-    !adminView &&
-    !parentView &&
-    firstLoginDate &&
-    currentKey <= firstLoginDate
-  }
->
-  <FaChevronLeft />
-</button>
+   <div className="date-bar">
 
-          <span>{date.toDateString()}</span>
+  {/* PREVIOUS DAY */}
+  {!isFirstLoginDate && (
+    <button
+      onClick={() => changeDate("prev")}
+      type="button"
+    >
+      <FaChevronLeft />
+    </button>
+  )}
 
-          <button onClick={() => changeDate("next")} type="button">
-            <FaChevronRight />
-          </button>
-        </div>
+  <span>{date.toDateString()}</span>
+
+  {/* NEXT DAY */}
+  <button
+    onClick={() => changeDate("next")}
+    type="button"
+  >
+    <FaChevronRight />
+  </button>
+
+</div>
 
         <div className="task-wrapper task-page-scroll">
           {/* =========================
