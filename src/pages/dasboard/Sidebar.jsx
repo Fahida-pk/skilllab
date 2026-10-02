@@ -61,12 +61,10 @@ function Sidebar({
       ? studentName || "Student"
       : user?.name || "User";
 
-
   const displayEmail =
     currentAdminView || currentParentView
       ? studentEmail || ""
       : user?.email || "";
-
 
   const displayPicture =
     currentAdminView || currentParentView
@@ -79,14 +77,11 @@ function Sidebar({
   ===================================================== */
 
   const handleDashboard = () => {
-
     setOpen(false);
-
 
     /* ================= PARENT STUDENT ================= */
 
     if (isParentStudentView && studentId) {
-
       navigate(
         `/parent/students/${studentId}/dashboard`,
         {
@@ -106,7 +101,6 @@ function Sidebar({
     /* ================= ADMIN STUDENT ================= */
 
     if (isAdminStudentView && studentId) {
-
       navigate(
         `/admin/students/${studentId}/dashboard`,
         {
@@ -125,7 +119,6 @@ function Sidebar({
     /* ================= PARENT VIEW ================= */
 
     if (currentParentView) {
-
       navigate("/parent/dashboard", {
         replace: true,
       });
@@ -137,7 +130,6 @@ function Sidebar({
     /* ================= ADMIN VIEW ================= */
 
     if (currentAdminView) {
-
       navigate("/AdminDashboard", {
         replace: true,
       });
@@ -149,7 +141,6 @@ function Sidebar({
     /* ================= NORMAL STUDENT ================= */
 
     navigate("/dashboard");
-
   };
 
 
@@ -158,14 +149,11 @@ function Sidebar({
   ===================================================== */
 
   const handleTasks = () => {
-
     setOpen(false);
-
 
     /* ================= PARENT STUDENT ================= */
 
     if (isParentStudentView && studentId) {
-
       navigate(
         `/parent/students/${studentId}/tasks`,
         {
@@ -181,15 +169,10 @@ function Sidebar({
       return;
     }
 
-const handleSubscription = () => {
-  setOpen(false);
 
-  navigate("/subscription");
-};
     /* ================= ADMIN STUDENT ================= */
 
     if (isAdminStudentView && studentId) {
-
       navigate(
         `/admin/students/${studentId}/tasks`,
         {
@@ -208,7 +191,17 @@ const handleSubscription = () => {
     /* ================= NORMAL STUDENT ================= */
 
     navigate("/task");
+  };
 
+
+  /* =====================================================
+     SUBSCRIPTION
+  ===================================================== */
+
+  const handleSubscription = () => {
+    setOpen(false);
+
+    navigate("/subscription");
   };
 
 
@@ -217,7 +210,6 @@ const handleSubscription = () => {
   ===================================================== */
 
   const handleLogout = () => {
-
     setOpen(false);
 
 
@@ -226,7 +218,6 @@ const handleSubscription = () => {
     ================================================= */
 
     if (isParentStudentView) {
-
       navigate("/parent/dashboard", {
         replace: true,
       });
@@ -240,7 +231,6 @@ const handleSubscription = () => {
     ================================================= */
 
     if (isAdminStudentView) {
-
       navigate("/AdminDashboard", {
         replace: true,
       });
@@ -254,7 +244,6 @@ const handleSubscription = () => {
     ================================================= */
 
     if (currentParentView) {
-
       navigate("/parent/dashboard", {
         replace: true,
       });
@@ -268,7 +257,6 @@ const handleSubscription = () => {
     ================================================= */
 
     if (currentAdminView) {
-
       navigate("/AdminDashboard", {
         replace: true,
       });
@@ -287,7 +275,6 @@ const handleSubscription = () => {
     navigate("/login", {
       replace: true,
     });
-
   };
 
 
@@ -319,8 +306,11 @@ const handleSubscription = () => {
       : location.pathname === "/task" ||
         location.pathname === "/tasks";
 
-const isSubscriptionActive =
-  location.pathname === "/subscription";
+
+  const isSubscriptionActive =
+    location.pathname === "/subscription";
+
+
   /* =====================================================
      BUTTON TEXT
   ===================================================== */
@@ -359,18 +349,14 @@ const isSubscriptionActive =
       ================================================= */}
 
       <div className="mobile-navbar">
-
         <FaBars
           className="mobile-menu-icon"
-          onClick={() =>
-            setOpen(!open)
-          }
+          onClick={() => setOpen(!open)}
         />
 
         <h2>
           SKILL LAB
         </h2>
-
       </div>
 
 
@@ -381,9 +367,7 @@ const isSubscriptionActive =
       {open && (
         <div
           className="sidebar-overlay"
-          onClick={() =>
-            setOpen(false)
-          }
+          onClick={() => setOpen(false)}
         />
       )}
 
@@ -413,7 +397,6 @@ const isSubscriptionActive =
 
         <nav className="sidebar-menu">
 
-
           {/* =================================================
               DASHBOARD
           ================================================= */}
@@ -427,7 +410,6 @@ const isSubscriptionActive =
             }
             onClick={handleDashboard}
           >
-
             <FaThLarge
               className="sidebar-menu-icon"
             />
@@ -435,7 +417,6 @@ const isSubscriptionActive =
             <span>
               Dashboard
             </span>
-
           </button>
 
 
@@ -452,7 +433,6 @@ const isSubscriptionActive =
             }
             onClick={handleTasks}
           >
-
             <FaTasks
               className="sidebar-menu-icon"
             />
@@ -460,59 +440,57 @@ const isSubscriptionActive =
             <span>
               Tasks
             </span>
-
           </button>
+
+
+          {/* =================================================
+              SUBSCRIPTION
+          ================================================= */}
+
+          {!currentAdminView &&
+            !currentParentView && (
+              <button
+                type="button"
+                className={
+                  isSubscriptionActive
+                    ? "sidebar-menu-item active"
+                    : "sidebar-menu-item"
+                }
+                onClick={handleSubscription}
+              >
+                <FaCreditCard
+                  className="sidebar-menu-icon"
+                />
+
+                <span>
+                  Subscription
+                </span>
+              </button>
+            )}
 
         </nav>
 
-{/* =================================================
-    SUBSCRIPTION
-================================================= */}
 
-{!currentAdminView && !currentParentView && (
-  <button
-    type="button"
-    className={
-      isSubscriptionActive
-        ? "sidebar-menu-item active"
-        : "sidebar-menu-item"
-    }
-    onClick={handleSubscription}
-  >
-    <FaCreditCard
-      className="sidebar-menu-icon"
-    />
-
-    <span>
-      Subscription
-    </span>
-  </button>
-)}
         {/* =================================================
             PROFILE
         ================================================= */}
 
         <div className="sidebar-profile">
 
-
           {/* =================================================
               PROFILE IMAGE
           ================================================= */}
 
           {displayPicture ? (
-
             <img
               src={displayPicture}
               alt="Profile"
               className="sidebar-profile-image"
             />
-
           ) : (
-
             <FaUserCircle
               className="sidebar-profile-icon"
             />
-
           )}
 
 
@@ -550,7 +528,6 @@ const isSubscriptionActive =
               <FaSignOutAlt />
             )}
 
-
             <span>
               {bottomButtonText}
             </span>
@@ -563,6 +540,5 @@ const isSubscriptionActive =
     </>
   );
 }
-
 
 export default Sidebar;
