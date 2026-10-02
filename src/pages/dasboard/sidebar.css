@@ -9,9 +9,9 @@
   box-sizing: border-box;
 }
 
+
 /* =========================================
    DESKTOP SIDEBAR
-   LOGIN PAGE COLOR THEME
 ========================================= */
 
 .sidebar {
@@ -24,11 +24,7 @@
   width: 265px;
   height: 100vh;
 
-  /* =========================================
-     LOGIN PAGE BLUE → PURPLE → PINK
-  ========================================= */
-
-   background:
+  background:
     radial-gradient(
       circle at 0% 20%,
       rgba(82, 151, 255, 0.75),
@@ -56,7 +52,6 @@
       #f36bc9 100%
     );
 
-
   color: white;
 
   z-index: 10000;
@@ -66,6 +61,7 @@
 
   overflow: hidden;
 }
+
 
 /* =========================================
    SUBTLE GLASS LIGHT
@@ -90,12 +86,16 @@
   z-index: 0;
 }
 
-/* Keep sidebar content above glow */
+
+/* =========================================
+   KEEP CONTENT ABOVE GLOW
+========================================= */
 
 .sidebar > * {
   position: relative;
   z-index: 1;
 }
+
 
 /* =========================================
    LOGO
@@ -109,6 +109,7 @@
   text-align: center;
 
   font-size: 26px;
+
   font-weight: 800;
 
   color: white;
@@ -117,16 +118,23 @@
 
   text-shadow:
     0 2px 8px rgba(70, 40, 150, 0.20);
+
+  flex-shrink: 0;
 }
+
 
 /* =========================================
    MENU
+   DESKTOP CENTER POSITION
 ========================================= */
 
 .sidebar-menu {
-  width: 100%;
+  position: absolute;
 
-  margin-top: 190px;
+  top: 50%;
+  left: 0;
+
+  width: 100%;
 
   padding: 0 20px;
 
@@ -135,7 +143,10 @@
   flex-direction: column;
 
   gap: 10px;
+
+  transform: translateY(-50%);
 }
+
 
 /* =========================================
    MENU BUTTON
@@ -143,6 +154,7 @@
 
 .sidebar-menu-item {
   width: 100%;
+
   height: 52px;
 
   border: none;
@@ -176,11 +188,13 @@
 
   transition:
     background 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
+
 /* =========================================
-   ICON
+   MENU ICON
 ========================================= */
 
 .sidebar-menu-icon {
@@ -189,65 +203,32 @@
   min-width: 20px;
 
   font-size: 19px;
+
+  flex-shrink: 0;
 }
 
-/* =========================================
-   HOVER
-========================================= */
 
-.sidebar-menu-item:hover {
-  background: rgba(255, 255, 255, 0.18);
-
-  transform: translateX(2px);
-}
 /* =========================================
-   SIDEBAR MENU HOVER
+   MENU HOVER
 ========================================= */
 
 .sidebar-menu-item:hover {
   background: rgba(255, 255, 255, 0.22);
+
   color: #ffffff;
+
   transform: translateX(3px);
-  transition: all 0.2s ease;
 }
 
 
 /* =========================================
-   SIDEBAR ACTIVE
+   ACTIVE MENU
 ========================================= */
 
 .sidebar-menu-item.active {
   background: rgba(255, 255, 255, 0.28);
+
   color: #ffffff;
-}
-
-
-/* =========================================
-   LOGOUT / BACK BUTTON HOVER
-========================================= */
-
-.sidebar-logout:hover {
-  background: rgba(255, 255, 255, 0.30);
-  color: #8b5cf6;
-  transform: translateY(-2px);
-  transition: all 0.2s ease;
-}
-
-
-/* =========================================
-   BUTTON TRANSITION
-========================================= */
-
-.sidebar-menu-item,
-.sidebar-logout {
-  transition: all 0.2s ease;
-}
-/* =========================================
-   ACTIVE
-========================================= */
-
-.sidebar-menu-item.active {
-  background: rgba(255, 255, 255, 0.24);
 
   font-weight: 700;
 
@@ -257,8 +238,10 @@
   backdrop-filter: blur(6px);
 }
 
+
 /* =========================================
    PROFILE
+   ALWAYS BOTTOM
 ========================================= */
 
 .sidebar-profile {
@@ -275,7 +258,10 @@
   align-items: center;
 
   text-align: center;
+
+  flex-shrink: 0;
 }
+
 
 /* =========================================
    PROFILE IMAGE
@@ -294,6 +280,7 @@
   margin-bottom: 12px;
 }
 
+
 /* =========================================
    DEFAULT PROFILE ICON
 ========================================= */
@@ -308,6 +295,7 @@
       0 5px 12px rgba(80, 40, 150, 0.20)
     );
 }
+
 
 /* =========================================
    NAME
@@ -334,6 +322,7 @@
     0 2px 6px rgba(70, 30, 140, 0.15);
 }
 
+
 /* =========================================
    EMAIL
 ========================================= */
@@ -354,8 +343,9 @@
   text-overflow: ellipsis;
 }
 
+
 /* =========================================
-   LOGOUT
+   LOGOUT / BACK BUTTON
 ========================================= */
 
 .sidebar-logout {
@@ -389,20 +379,25 @@
 
   transition:
     background 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    color 0.2s ease;
 
   backdrop-filter: blur(6px);
 }
+
 
 /* =========================================
    LOGOUT HOVER
 ========================================= */
 
 .sidebar-logout:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.30);
 
-  transform: translateY(-1px);
+  color: #8b5cf6;
+
+  transform: translateY(-2px);
 }
+
 
 /* =========================================
    MOBILE NAVBAR
@@ -412,6 +407,7 @@
   display: none;
 }
 
+
 /* =========================================
    OVERLAY
 ========================================= */
@@ -419,6 +415,7 @@
 .sidebar-overlay {
   display: none;
 }
+
 
 /* =========================================
    MOBILE
@@ -433,6 +430,7 @@
   .sidebar {
     display: none;
   }
+
 
   /* =========================================
      MOBILE TOP BAR
@@ -462,6 +460,7 @@
     z-index: 9000;
   }
 
+
   .mobile-navbar h2 {
     margin: 0;
 
@@ -472,6 +471,7 @@
     font-weight: 800;
   }
 
+
   .mobile-menu-icon {
     font-size: 22px;
 
@@ -479,6 +479,7 @@
 
     cursor: pointer;
   }
+
 
   /* =========================================
      MOBILE OPEN SIDEBAR
@@ -530,16 +531,44 @@
       );
   }
 
+
   /* =========================================
-     MOBILE MENU POSITION
+     MOBILE MENU
+     DO NOT USE DESKTOP CENTER POSITION
   ========================================= */
 
   .sidebar.show .sidebar-menu {
+    position: static;
+
+    width: 100%;
+
     margin-top: 100px;
+
+    padding: 0 20px;
+
+    transform: none;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
   }
 
+
   /* =========================================
-     OVERLAY
+     MOBILE PROFILE
+  ========================================= */
+
+  .sidebar.show .sidebar-profile {
+    margin-top: auto;
+
+    padding-bottom: 25px;
+  }
+
+
+  /* =========================================
+     MOBILE OVERLAY
   ========================================= */
 
   .sidebar-overlay {
@@ -553,4 +582,5 @@
 
     z-index: 10500;
   }
+
 }
