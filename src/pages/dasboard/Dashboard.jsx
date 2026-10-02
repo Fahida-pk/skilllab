@@ -1259,387 +1259,356 @@ const getBuiltInDefaultId = (task, dateKey) => {
  const loadDashboard = async (
   date = selectedDate
 ) => {
-
-  // Normal student
-  if (
-    !adminView &&
-    !parentView &&
-    !user?.email
-  ) {
+  // =====================================================
+  // VALIDATION
+  // =====================================================
+  if (!adminView && !parentView && !user?.email) {
     navigate("/login");
     return;
   }
 
-  // Admin viewing student
-  if (
-    adminView &&
-    !dashboardEmail
-  ) {
+  if ((adminView || parentView) && !dashboardEmail) {
     console.error(
-      "Admin view: student email not found"
+      adminView
+        ? "Admin view: student email not found"
+        : "Parent view: student email not found"
     );
     return;
   }
 
-  // Parent viewing student
-  if (
-    parentView &&
-    !dashboardEmail
-  ) {
-    console.error(
-      "Parent view: student email not found"
-    );
-    return;
-  }
+  const email = dashboardEmail || user?.email || "";
 
   try {
     setLoading(true);
 
-    // existing fetch code...
+    /* =====================================================
+       IMPORTANT FIX
+       -----------------------------------------------------
+       The Tasks page gets the real date-wise task list from
+       task.php?action=get.
 
-      const response =
-        await fetch(
-          API_URL,
-          {
-            method: "POST",
+       Dashboard must fetch that list independently FIRST.
+       It must NOT depend on dashboard.php returning tasks.
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+       This fixes the situation:
 
-            body: JSON.stringify({
-              action:
-                "dashboard",
+         Tasks page   = 15 tasks
+         Dashboard    = 0 tasks
 
-              email:
-                dashboardEmail,
+       dashboard.php is used only for dashboard statistics.
+    ===================================================== */
 
-              date,
+    let taskData = null;
 
-              adminView:
-                adminView ? 1 : 0,
-            }),
-          }
-        );
-
-      const data =
-        await response.json();
-
-      console.log(
-        "DASHBOARD API:",
-        data
-      );
-
-      if (!data.success) {
-        console.error(
-          "Dashboard error:",
-          data.message
-        );
-
-        return;
-      }
-
-      /*
-       * Get the same task percentages used by the Tasks page.
-       * This prevents Today's Performance from falling back to
-       * the simple completed/total percentage.
-       */
-      let taskPercentageData = null;
-
-      try {
-        const taskResponse = await fetch(
-          TASK_API_URL,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              action: "get",
-              email: dashboardEmail,
-              task_date: date,
-              admin_view: adminView ? 1 : 0,
-            }),
-          }
-        );
-
-        taskPercentageData =
-          await taskResponse.json();
-      } catch (percentageError) {
-        console.error(
-          "Task percentage API error:",
-          percentageError
-        );
-      }
-
-      const percentageTasks =
-        Array.isArray(taskPercentageData?.tasks)
-          ? taskPercentageData.tasks
-          : [];
-
-      /*
-       * =====================================================
-       * SINGLE SOURCE OF TRUTH FOR TODAY'S TASK LIST
-       * =====================================================
-       *
-       * The Tasks page gets the student's real task list from
-       * task.php -> action: "get".
-       *
-       * dashboard.php can contain an additional default row
-       * because it also synchronizes built-in defaults.
-       *
-       * Therefore Dashboard MUST NOT build today's visible
-       * task list from data.tasks.
-       *
-       * Use task.php tasks as the base list and only take
-       * status / percentage information from dashboard.php
-       * where available.
-       *
-       * This keeps:
-       *
-       * Tasks page  = 5
-       * Dashboard   = 5
-       *
-       * instead of:
-       *
-       * Tasks page  = 5
-       * Dashboard   = 6
-       */
-
-      const dashboardTasks =
-        Array.isArray(data.tasks)
-          ? data.tasks
-          : [];
-
-      const dashboardById = new Map(
-        dashboardTasks.map((task) => [
-          String(task.id),
-          task,
-        ])
-      );
-
-      const dashboardByTitle = new Map(
-        dashboardTasks.map((task) => [
-          String(
-            task.title ||
-            task.task_name ||
-            ""
-          )
-            .trim()
-            .toLowerCase(),
-          task,
-        ])
-      );
-
-      /*
-       * task.php currently returns:
-       * id, title, from, to, completed
-       *
-       * dashboard.php returns:
-       * id, title, from, to, taskStatus,
-       * completed, percentage
-       *
-       * Combine both without changing the task count.
-       */
-      /* =====================================================
-         MATCH THE TASK PAGE EXACTLY
-         -----------------------------------------------------
-         Task.jsx first removes date-wise deleted defaults and
-         then keeps only one row for each built-in default ID.
-         Dashboard must do the same before calculating the
-         visible task count.
-      ===================================================== */
-
-      /*
-       * task.php is the authoritative task list.
-       * It already applies Admin date-wise schedules and
-       * Student date-specific changes/deletions.
-       *
-       * Do not filter this list with stale localStorage data.
-       */
-      /* =====================================================
-         DASHBOARD TASK SOURCE
-         -----------------------------------------------------
-         Prefer task.php because the Tasks page uses the same
-         endpoint. If that request temporarily returns an empty
-         list, fall back to dashboard.php tasks so the Dashboard
-         does not show 0 tasks while real tasks exist.
-      ===================================================== */
-      const visiblePercentageTasks =
-        percentageTasks.length > 0
-          ? percentageTasks
-          : dashboardTasks;
-
-      const tasksWithPercentages =
-        visiblePercentageTasks.map((task) => {
-          const taskId = String(task.id);
-
-          const taskTitle = String(
-            task.title ||
-            task.task_name ||
-            ""
-          )
-            .trim()
-            .toLowerCase();
-
-          const dashboardTask =
-            dashboardById.get(taskId) ||
-            dashboardByTitle.get(taskTitle) ||
-            {};
-
-          const dashboardPercentage =
-            Number(
-              dashboardTask.percentage ??
-              dashboardTask.task_percentage ??
-              0
-            );
-
-          return {
-            ...dashboardTask,
-            ...task,
-
-            id:
-              task.id ??
-              dashboardTask.id,
-
-            title:
-              task.title ||
-              task.task_name ||
-              dashboardTask.title ||
-              dashboardTask.task_name ||
-              "",
-
-            from:
-              task.from ||
-              task.from_time ||
-              dashboardTask.from ||
-              dashboardTask.from_time ||
-              "",
-
-            to:
-              task.to ||
-              task.to_time ||
-              dashboardTask.to ||
-              dashboardTask.to_time ||
-              "",
-
-            completed:
-              task.completed === true ||
-              task.completed === 1 ||
-              task.completed === "1" ||
-              task.completed === "true",
-
-            percentage:
-              Math.max(
-                0,
-                Math.min(
-                  100,
-                  Number.isFinite(dashboardPercentage)
-                    ? dashboardPercentage
-                    : 0
-                )
-              ),
-
-            taskStatus:
-              dashboardTask.taskStatus ||
-              dashboardTask.task_status ||
-              undefined,
-          };
-        });
-
-      /* =====================================================
-         DEDUPE BUILT-IN TASKS EXACTLY LIKE TASK.JSX
-         -----------------------------------------------------
-         If the database contains the original default row and
-         an edited/renamed mapped row, only one should appear.
-      ===================================================== */
-
-      /*
-       * IMPORTANT FIX:
-       * The server task list is authoritative. Do NOT merge old local
-       * DEFAULT_TASKS (Study MERN / Practice English / Workout) back into
-       * the Dashboard. Admin Save owns the selected date's schedule.
-       * Only dedupe when the server provides the same default_id.
-       */
-      const seenServerDefaults = new Set();
-
-      const mergedTasks =
-        tasksWithPercentages.filter((task) => {
-          const serverDefaultId =
-            task.default_id !== undefined &&
-            task.default_id !== null &&
-            String(task.default_id).trim() !== ''
-              ? String(task.default_id)
-              : null;
-
-          if (!serverDefaultId) return true;
-
-          if (seenServerDefaults.has(serverDefaultId)) {
-            return false;
-          }
-
-          seenServerDefaults.add(serverDefaultId);
-          return true;
-        });
-
-      /*
-       * Recalculate TODAY using the
-       * actual visible task list.
-       */
-      const fixedToday =
-        getTodayStats(
-          mergedTasks
-        );
-
-      const fixedWeek =
-        calculatePeriodStats(
-          data.weekTasks || []
-        );
-
-      const fixedMonth =
-        calculatePeriodStats(
-          data.monthTasks || []
-        );
-
-      setDashboard({
-        ...data,
-
-        tasks:
-          mergedTasks,
-
-        today: {
-          ...data.today,
-          ...fixedToday,
+    try {
+      const taskResponse = await fetch(TASK_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-
-        week: {
-          ...data.week,
-          total: fixedWeek.total,
-          completed: fixedWeek.completed,
-          percentage: fixedWeek.percentage,
-          performancePercentage:
-            fixedWeek.performancePercentage,
-        },
-
-        month: {
-          ...data.month,
-          total: fixedMonth.total,
-          completed: fixedMonth.completed,
-          percentage: fixedMonth.percentage,
-          performancePercentage:
-            fixedMonth.performancePercentage,
-        },
+        body: JSON.stringify({
+          action: "get",
+          email,
+          task_date: date,
+          admin_view: adminView ? 1 : 0,
+        }),
       });
-    } catch (error) {
+
+      taskData = await taskResponse.json();
+
+      console.log("DASHBOARD TASK API:", taskData);
+    } catch (taskError) {
       console.error(
-        "Dashboard API error:",
-        error
+        "Dashboard task API error:",
+        taskError
       );
-    } finally {
-      setLoading(false);
     }
-  };
+
+    /* =====================================================
+       BUILD TODAY'S TASK LIST DIRECTLY FROM task.php
+    ===================================================== */
+
+    const apiTasks =
+      Array.isArray(taskData?.tasks)
+        ? taskData.tasks
+        : [];
+
+    const normalizedTasks = apiTasks.map((task) => {
+      const completed =
+        task.completed === true ||
+        task.completed === 1 ||
+        task.completed === "1" ||
+        task.completed === "true";
+
+      return {
+        ...task,
+
+        id: task.id,
+
+        title:
+          task.title ||
+          task.task_name ||
+          "",
+
+        from:
+          task.from ||
+          task.from_time ||
+          "",
+
+        to:
+          task.to ||
+          task.to_time ||
+          "",
+
+        completed,
+
+        percentage: completed
+          ? Math.max(
+              0,
+              Math.min(
+                100,
+                Number(task.percentage ?? 0)
+              )
+            )
+          : 0,
+
+        accuracy: Math.max(
+          0,
+          Math.min(
+            100,
+            Number(
+              task.accuracy ??
+              task.task_accuracy_percentage ??
+              0
+            )
+          )
+        ),
+
+        performanceTime: Math.max(
+          0,
+          Math.min(
+            100,
+            Number(
+              task.performanceTime ??
+              task.task_accuracy_percentage ??
+              0
+            )
+          )
+        ),
+
+        default_id:
+          task.default_id ??
+          task.defaultId ??
+          null,
+
+        taskStatus:
+          task.taskStatus ||
+          task.task_status ||
+          undefined,
+
+        iconImage:
+          task.icon_image ||
+          task.iconImage ||
+          null,
+      };
+    });
+
+    /* =====================================================
+       DEDUPE ONLY BY SERVER default_id
+       -----------------------------------------------------
+       Do not use old localStorage defaults here.
+       Do not add Wake Up / Sleep manually.
+       task.php already contains the correct date-wise list.
+    ===================================================== */
+
+    const seenDefaultIds = new Set();
+
+    const mergedTasks = normalizedTasks.filter((task) => {
+      const defaultId =
+        task.default_id !== null &&
+        task.default_id !== undefined &&
+        String(task.default_id).trim() !== ""
+          ? String(task.default_id)
+          : null;
+
+      if (!defaultId) {
+        return true;
+      }
+
+      if (seenDefaultIds.has(defaultId)) {
+        return false;
+      }
+
+      seenDefaultIds.add(defaultId);
+      return true;
+    });
+
+    /* =====================================================
+       SORT SAME AS TASK PAGE
+       Wake Up first, Sleep last, others by start time.
+    ===================================================== */
+
+    mergedTasks.sort((a, b) => {
+      const aTitle = String(a.title || "")
+        .trim()
+        .toLowerCase();
+
+      const bTitle = String(b.title || "")
+        .trim()
+        .toLowerCase();
+
+      if (
+        aTitle === "wake up" &&
+        bTitle !== "wake up"
+      ) {
+        return -1;
+      }
+
+      if (
+        bTitle === "wake up" &&
+        aTitle !== "wake up"
+      ) {
+        return 1;
+      }
+
+      if (
+        aTitle === "sleep" &&
+        bTitle !== "sleep"
+      ) {
+        return 1;
+      }
+
+      if (
+        bTitle === "sleep" &&
+        aTitle !== "sleep"
+      ) {
+        return -1;
+      }
+
+      return (
+        getSortMinutes(a.from || a.time) -
+        getSortMinutes(b.from || b.time)
+      );
+    });
+
+    /* =====================================================
+       SET TASKS IMMEDIATELY
+       -----------------------------------------------------
+       Even if dashboard.php fails, the 15 tasks remain visible.
+    ===================================================== */
+
+    const fixedToday = getTodayStats(mergedTasks);
+
+    setDashboard((previous) => ({
+      ...previous,
+
+      tasks: mergedTasks,
+
+      today: {
+        ...previous.today,
+        ...fixedToday,
+      },
+    }));
+
+    /* =====================================================
+       DASHBOARD STATISTICS API
+       -----------------------------------------------------
+       This is now independent from the task list.
+    ===================================================== */
+
+    let data = null;
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "dashboard",
+          email,
+          date,
+          adminView: adminView ? 1 : 0,
+        }),
+      });
+
+      data = await response.json();
+
+      console.log("DASHBOARD API:", data);
+    } catch (dashboardError) {
+      console.error(
+        "Dashboard statistics API error:",
+        dashboardError
+      );
+    }
+
+    /*
+     * If dashboard.php failed, keep the task list that was already
+     * loaded from task.php. Do not replace it with an empty array.
+     */
+    if (!data?.success) {
+      console.warn(
+        "Dashboard statistics unavailable; task list kept from task.php"
+      );
+      return;
+    }
+
+    const fixedWeek = calculatePeriodStats(
+      data.weekTasks || []
+    );
+
+    const fixedMonth = calculatePeriodStats(
+      data.monthTasks || []
+    );
+
+    /* =====================================================
+       FINAL DASHBOARD STATE
+    ===================================================== */
+
+    setDashboard({
+      ...data,
+
+      // CRITICAL: never use data.tasks here.
+      // task.php is the source of truth for today's tasks.
+      tasks: mergedTasks,
+
+      today: {
+        ...data.today,
+        ...fixedToday,
+      },
+
+      week: {
+        ...data.week,
+        total: fixedWeek.total,
+        completed: fixedWeek.completed,
+        percentage: fixedWeek.percentage,
+        performancePercentage:
+          fixedWeek.performancePercentage,
+      },
+
+      month: {
+        ...data.month,
+        total: fixedMonth.total,
+        completed: fixedMonth.completed,
+        percentage: fixedMonth.percentage,
+        performancePercentage:
+          fixedMonth.performancePercentage,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Dashboard API error:",
+      error
+    );
+
+    /*
+     * Never clear dashboard.tasks here.
+     * If task.php already returned the 15 tasks, keep them visible.
+     */
+  } finally {
+    setLoading(false);
+  }
+};
 useEffect(() => {
   const timer = setInterval(() => {
     setTimeTick((value) => value + 1);
