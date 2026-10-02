@@ -1,2645 +1,3073 @@
 import { useEffect, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import {
-  FaCheck,
-  FaCrown,
-  FaCreditCard,
-  FaArrowLeft,
-  FaRotate,
-  FaCircleCheck,
-  FaShieldHalved,
-  FaCalendarDays,
-  FaStar,
-  FaCircleExclamation,
+
+  FaCheck,
+
+  FaCrown,
+
+  FaCreditCard,
+
+  FaArrowLeft,
+
+  FaRotate,
+
+  FaCircleCheck,
+
+  FaShieldHalved,
+
+  FaCalendarDays,
+
+  FaStar,
+
+  FaCircleExclamation,
+
 } from "react-icons/fa6";
 
-
 // =====================================================
+
 // API URLS
+
 // =====================================================
 
 const PLANS_API =
-  "https://zyntaweb.com/skilllab/plans.php";
+
+  "https://zyntaweb.com/skilllab/plans.php";
 
 const CREATE_ORDER_API =
-  "https://zyntaweb.com/skilllab/create-razorpay-order.php";
+
+  "https://zyntaweb.com/skilllab/create-razorpay-order.php";
 
 const VERIFY_PAYMENT_API =
-  "https://zyntaweb.com/skilllab/verify-razorpay-payment.php";
+
+  "https://zyntaweb.com/skilllab/verify-razorpay-payment.php";
 
 const SUBSCRIPTION_API =
-  "https://zyntaweb.com/skilllab/student-subscription.php";
 
+  "https://zyntaweb.com/skilllab/student-subscription.php";
 
 // =====================================================
+
 // RAZORPAY SCRIPT
+
 // =====================================================
 
 const RAZORPAY_SCRIPT =
-  "https://checkout.razorpay.com/v1/checkout.js";
 
+  "https://checkout.razorpay.com/v1/checkout.js";
 
 // =====================================================
+
 // LOAD RAZORPAY SCRIPT
+
 // =====================================================
 
 function loadRazorpayScript() {
-  return new Promise((resolve) => {
 
-    // Already loaded
-    if (window.Razorpay) {
-      resolve(true);
-      return;
-    }
+  return new Promise((resolve) => {
 
-    const existingScript =
-      document.querySelector(
-        `script[src="${RAZORPAY_SCRIPT}"]`
-      );
+    // Already loaded
 
-    if (existingScript) {
+    if (window.Razorpay) {
 
-      existingScript.onload = () =>
-        resolve(true);
+      resolve(true);
 
-      existingScript.onerror = () =>
-        resolve(false);
+      return;
 
-      return;
-    }
+    }
 
-    const script =
-      document.createElement("script");
+    const existingScript =
 
-    script.src = RAZORPAY_SCRIPT;
-    script.async = true;
+      document.querySelector(
 
-    script.onload = () =>
-      resolve(true);
+        `script[src="${RAZORPAY_SCRIPT}"]`
 
-    script.onerror = () =>
-      resolve(false);
+      );
 
-    document.body.appendChild(script);
-  });
+    if (existingScript) {
+
+      existingScript.onload = () =>
+
+        resolve(true);
+
+      existingScript.onerror = () =>
+
+        resolve(false);
+
+      return;
+
+    }
+
+    const script =
+
+      document.createElement("script");
+
+    script.src = RAZORPAY_SCRIPT;
+
+    script.async = true;
+
+    script.onload = () =>
+
+      resolve(true);
+
+    script.onerror = () =>
+
+      resolve(false);
+
+    document.body.appendChild(script);
+
+  });
+
 }
 
-
 // =====================================================
+
 // GET LOGGED-IN USER
+
 // =====================================================
 
 function getLoggedInUser() {
 
-  try {
+  try {
 
-    const userString =
-      localStorage.getItem("user");
+    const userString =
 
-    if (!userString) {
-      return null;
-    }
+      localStorage.getItem("user");
 
-    const user =
-      JSON.parse(userString);
+    if (!userString) {
 
-    return user;
+      return null;
 
-  } catch (error) {
+    }
 
-    console.error(
-      "Unable to read logged-in user:",
-      error
-    );
+    const user =
 
-    return null;
-  }
+      JSON.parse(userString);
+
+    return user;
+
+  } catch (error) {
+
+    console.error(
+
+      "Unable to read logged-in user:",
+
+      error
+
+    );
+
+    return null;
+
+  }
+
 }
 
-
 // =====================================================
+
 // COMPONENT
+
 // =====================================================
 
 function Subscription() {
 
-  const navigate = useNavigate();
+  const navigate = useNavigate();
 
+  // ===================================================
 
-  // ===================================================
-  // STATE
-  // ===================================================
+  // STATE
 
-  const [user, setUser] =
-    useState(null);
+  // ===================================================
 
-  const [plans, setPlans] =
-    useState([]);
+  const [user, setUser] =
 
-  const [subscription, setSubscription] =
-    useState(null);
+    useState(null);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [plans, setPlans] =
 
-  const [paymentLoading, setPaymentLoading] =
-    useState(false);
+    useState([]);
 
-  const [selectedPlanId, setSelectedPlanId] =
-    useState(null);
+  const [subscription, setSubscription] =
 
-  const [message, setMessage] =
-    useState("");
+    useState(null);
 
-  const [messageType, setMessageType] =
-    useState("");
+  const [loading, setLoading] =
 
+    useState(true);
 
+  const [paymentLoading, setPaymentLoading] =
 
-  // ===================================================
-  // LOAD USER
-  // ===================================================
+    useState(false);
 
-  useEffect(() => {
+  const [selectedPlanId, setSelectedPlanId] =
 
-    const loggedUser =
-      getLoggedInUser();
+    useState(null);
 
-    if (!loggedUser) {
+  const [message, setMessage] =
 
-      navigate(
-        "/login",
-        {
-          replace: true,
-        }
-      );
+    useState("");
 
-      return;
-    }
+  const [messageType, setMessageType] =
 
-    setUser(loggedUser);
+    useState("");
 
-  }, [navigate]);
+  // ===================================================
 
+  // LOAD USER
 
+  // ===================================================
 
-  // ===================================================
-  // LOAD PLANS
-  // ===================================================
+  useEffect(() => {
 
-  const loadPlans = async () => {
+    const loggedUser =
 
-    try {
+      getLoggedInUser();
 
-      const response =
-        await fetch(
-          PLANS_API,
-          {
-            method: "GET",
-            headers: {
-              Accept:
-                "application/json",
-            },
-          }
-        );
+    if (!loggedUser) {
 
-      if (!response.ok) {
+      navigate(
 
-        throw new Error(
-          `Plans API error: ${response.status}`
-        );
-      }
+        "/login",
 
-      const data =
-        await response.json();
+        {
 
-      console.log(
-        "SKILL LAB PLANS:",
-        data
-      );
+          replace: true,
 
+        }
 
-      if (!data.success) {
+      );
 
-        throw new Error(
-          data.message ||
-            "Unable to load plans"
-        );
-      }
+      return;
 
+    }
 
-      const activePlans =
-        Array.isArray(data.plans)
-          ? data.plans.filter(
-              (plan) =>
-                Number(
-                  plan.is_active ?? 1
-                ) === 1
-            )
-          : [];
+    setUser(loggedUser);
 
+  }, [navigate]);
 
-      setPlans(activePlans);
+  // ===================================================
 
-    } catch (error) {
+  // LOAD PLANS
 
-      console.error(
-        "Load plans error:",
-        error
-      );
+  // ===================================================
 
-      setMessage(
-        error.message ||
-          "Unable to load subscription plans."
-      );
+  const loadPlans = async () => {
 
-      setMessageType("error");
+    try {
 
-    }
+      const response =
 
-  };
+        await fetch(
 
+          PLANS_API,
 
+          {
 
-  // ===================================================
-  // LOAD CURRENT SUBSCRIPTION
-  // ===================================================
+            method: "GET",
 
-  const loadSubscription = async (
-    userId
-  ) => {
+            headers: {
 
-    try {
+              Accept:
 
-      const response =
-        await fetch(
-          `${SUBSCRIPTION_API}?user_id=${encodeURIComponent(
-            userId
-          )}`,
-          {
-            method: "GET",
-            headers: {
-              Accept:
-                "application/json",
-            },
-          }
-        );
+                "application/json",
 
-      if (!response.ok) {
+            },
 
-        throw new Error(
-          `Subscription API error: ${response.status}`
-        );
-      }
+          }
 
-      const data =
-        await response.json();
+        );
 
-      console.log(
-        "CURRENT SUBSCRIPTION:",
-        data
-      );
+      if (!response.ok) {
 
+        throw new Error(
 
-      if (
-        data.success &&
-        data.has_subscription &&
-        data.subscription
-      ) {
+          `Plans API error: ${response.status}`
 
-        setSubscription(
-          data.subscription
-        );
+        );
 
-      } else {
+      }
 
-        setSubscription(null);
+      const data =
 
-      }
+        await response.json();
 
-    } catch (error) {
+      console.log(
 
-      console.error(
-        "Load subscription error:",
-        error
-      );
+        "SKILL LAB PLANS:",
 
-      // Don't block payment page
-      setSubscription(null);
+        data
 
-    }
+      );
 
-  };
+      if (!data.success) {
 
+        throw new Error(
 
+          data.message ||
 
-  // ===================================================
-  // INITIAL LOAD
-  // ===================================================
+            "Unable to load plans"
 
-  useEffect(() => {
+        );
 
-    if (!user) {
-      return;
-    }
+      }
 
-    const initialize =
-      async () => {
+      const activePlans =
 
-        try {
+        Array.isArray(data.plans)
 
-          setLoading(true);
+          ? data.plans.filter(
 
-          await Promise.all([
-            loadPlans(),
-            loadSubscription(
-              getUserId(user)
-            ),
-          ]);
+              (plan) =>
 
-        } finally {
+                Number(
 
-          setLoading(false);
+                  plan.is_active ?? 1
 
-        }
+                ) === 1
 
-      };
+            )
 
-    initialize();
+          : [];
 
-  }, [user]);
+      setPlans(activePlans);
 
+    } catch (error) {
 
+      console.error(
 
-  // ===================================================
-  // GET USER ID
-  // ===================================================
+        "Load plans error:",
 
-  const getUserId = (currentUser) => {
+        error
 
-    if (!currentUser) {
-      return 0;
-    }
+      );
 
-    return Number(
-      currentUser.id ??
-      currentUser.user_id ??
-      currentUser.userId ??
-      0
-    );
+      setMessage(
 
-  };
+        error.message ||
 
+          "Unable to load subscription plans."
 
+      );
 
-  // ===================================================
-  // FORMAT PRICE
-  // ===================================================
+      setMessageType("error");
 
-  const formatPrice = (price) => {
+    }
 
-    const amount =
-      Number(price || 0);
+  };
 
-    return amount.toLocaleString(
-      "en-IN",
-      {
-        maximumFractionDigits: 2,
-      }
-    );
+  // ===================================================
 
-  };
+  // LOAD CURRENT SUBSCRIPTION
 
+  // ===================================================
 
+  const loadSubscription = async (
 
-  // ===================================================
-  // FORMAT BILLING CYCLE
-  // ===================================================
+    userId
 
-  const formatCycle = (cycle) => {
+  ) => {
 
-    if (!cycle) {
-      return "";
-    }
+    try {
 
-    const value =
-      String(cycle)
-        .toLowerCase();
+      const response =
 
-    if (value === "monthly") {
-      return "month";
-    }
+        await fetch(
 
-    if (value === "quarterly") {
-      return "3 months";
-    }
+          `${SUBSCRIPTION_API}?user_id=${encodeURIComponent(
 
-    if (value === "yearly") {
-      return "year";
-    }
+            userId
 
-    return value;
+          )}`,
 
-  };
+          {
 
+            method: "GET",
 
+            headers: {
 
-  // ===================================================
-  // GET PLAN DURATION TEXT
-  // ===================================================
+              Accept:
 
-  const getDurationText = (
-    billingCycle
-  ) => {
+                "application/json",
 
-    const cycle =
-      String(
-        billingCycle || ""
-      ).toLowerCase();
+            },
 
-    if (cycle === "monthly") {
-      return "30 days";
-    }
+          }
 
-    if (cycle === "quarterly") {
-      return "3 months";
-    }
+        );
 
-    if (cycle === "yearly") {
-      return "1 year";
-    }
+      if (!response.ok) {
 
-    return billingCycle || "";
+        throw new Error(
 
-  };
+          `Subscription API error: ${response.status}`
 
+        );
 
+      }
 
-  // ===================================================
-  // GET PLAN ICON
-  // ===================================================
+      const data =
 
-  const getPlanIcon = (
-    billingCycle
-  ) => {
+        await response.json();
 
-    const cycle =
-      String(
-        billingCycle || ""
-      ).toLowerCase();
+      console.log(
 
-    if (cycle === "yearly") {
-      return (
-        <FaCrown />
-      );
-    }
+        "CURRENT SUBSCRIPTION:",
 
-    if (cycle === "quarterly") {
-      return (
-        <FaStar />
-      );
-    }
+        data
 
-    return (
-      <FaCalendarDays />
-    );
+      );
 
-  };
+      if (
 
+        data.success &&
 
+        data.has_subscription &&
 
-  // ===================================================
-  // START PAYMENT
-  // ===================================================
+        data.subscription
 
-  const handleSubscribe = async (
-    plan
-  ) => {
+      ) {
 
-    if (paymentLoading) {
-      return;
-    }
+        setSubscription(
 
+          data.subscription
 
-    // -----------------------------------------------
-    // USER
-    // -----------------------------------------------
+        );
 
-    const currentUser =
-      user || getLoggedInUser();
+      } else {
 
-    const userId =
-      getUserId(currentUser);
+        setSubscription(null);
 
+      }
 
-    if (userId <= 0) {
+    } catch (error) {
 
-      setMessage(
-        "User information not found. Please login again."
-      );
+      console.error(
 
-      setMessageType("error");
+        "Load subscription error:",
 
-      return;
-    }
+        error
 
+      );
 
-    // -----------------------------------------------
-    // PLAN
-    // -----------------------------------------------
+      // Don't block payment page
 
-    const planId =
-      Number(plan.id);
+      setSubscription(null);
 
+    }
 
-    if (planId <= 0) {
+  };
 
-      setMessage(
-        "Invalid subscription plan."
-      );
+  // ===================================================
 
-      setMessageType("error");
+  // INITIAL LOAD
 
-      return;
-    }
+  // ===================================================
 
+  useEffect(() => {
 
-    // -----------------------------------------------
-    // CONFIRM
-    // -----------------------------------------------
+    if (!user) {
 
-    const confirmed =
-      window.confirm(
-        `Continue with ${plan.name} plan for ₹${formatPrice(
-          plan.price
-        )}?`
-      );
+      return;
 
+    }
 
-    if (!confirmed) {
-      return;
-    }
+    const initialize =
 
+      async () => {
 
-    try {
+        try {
 
-      setPaymentLoading(true);
+          setLoading(true);
 
-      setSelectedPlanId(
-        planId
-      );
+          await Promise.all([
 
-      setMessage("");
+            loadPlans(),
 
+            loadSubscription(
 
-      // =================================================
-      // LOAD RAZORPAY
-      // =================================================
+              getUserId(user)
 
-      const razorpayLoaded =
-        await loadRazorpayScript();
+            ),
 
+          ]);
 
-      if (!razorpayLoaded) {
+        } finally {
 
-        throw new Error(
-          "Razorpay Checkout could not be loaded. Please check your internet connection."
-        );
+          setLoading(false);
 
-      }
+        }
 
+      };
 
-      // =================================================
-      // CREATE ORDER
-      // =================================================
+    initialize();
 
-      const orderResponse =
-        await fetch(
-          CREATE_ORDER_API,
-          {
-            method: "POST",
+  }, [user]);
 
-            headers: {
-              "Content-Type":
-                "application/json",
+  // ===================================================
 
-              Accept:
-                "application/json",
-            },
+  // GET USER ID
 
-            body: JSON.stringify({
-              user_id: userId,
-              plan_id: planId,
-            }),
-          }
-        );
+  // ===================================================
 
+  const getUserId = (currentUser) => {
 
-      if (!orderResponse.ok) {
+    if (!currentUser) {
 
-        throw new Error(
-          `Order API error: ${orderResponse.status}`
-        );
+      return 0;
 
-      }
+    }
 
+    return Number(
 
-      const orderData =
-        await orderResponse.json();
+      currentUser.id ??
 
+      currentUser.user_id ??
 
-      console.log(
-        "RAZORPAY ORDER:",
-        orderData
-      );
+      currentUser.userId ??
 
+      0
 
-      if (!orderData.success) {
+    );
 
-        throw new Error(
-          orderData.message ||
-            "Unable to create Razorpay order."
-        );
+  };
 
-      }
+  // ===================================================
 
+  // FORMAT PRICE
 
-      if (!orderData.order_id) {
+  // ===================================================
 
-        throw new Error(
-          "Razorpay order ID was not received."
-        );
+  const formatPrice = (price) => {
 
-      }
+    const amount =
 
+      Number(price || 0);
 
-      if (!orderData.key_id) {
+    return amount.toLocaleString(
 
-        throw new Error(
-          "Razorpay Key ID was not received."
-        );
+      "en-IN",
 
-      }
+      {
 
+        maximumFractionDigits: 2,
 
-      // =================================================
-      // RAZORPAY CHECKOUT OPTIONS
-      // =================================================
+      }
 
-      const options = {
+    );
 
-        key:
-          orderData.key_id,
+  };
 
-        amount:
-          Number(orderData.amount),
+  // ===================================================
 
-        currency:
-          orderData.currency ||
-          "INR",
+  // FORMAT BILLING CYCLE
 
-        name:
-          "SkillLab",
+  // ===================================================
 
-        description:
-          `${plan.name} Subscription`,
+  const formatCycle = (cycle) => {
 
-        order_id:
-          orderData.order_id,
+    if (!cycle) {
 
+      return "";
 
-        // ---------------------------------------------
-        // PREFILL
-        // ---------------------------------------------
+    }
 
-        prefill: {
+    const value =
 
-          name:
-            currentUser.name ||
-            currentUser.full_name ||
-            "",
+      String(cycle)
 
-          email:
-            currentUser.email ||
-            "",
+        .toLowerCase();
 
-          contact:
-            currentUser.phone ||
-            currentUser.mobile ||
-            "",
-        },
+    if (value === "monthly") {
 
+      return "month";
 
-        // ---------------------------------------------
-        // THEME
-        // ---------------------------------------------
+    }
 
-        theme: {
+    if (value === "quarterly") {
 
-          color:
-            "#6d28d9",
+      return "3 months";
 
-        },
+    }
 
+    if (value === "yearly") {
 
-        // ---------------------------------------------
-        // MODAL
-        // ---------------------------------------------
+      return "year";
 
-        modal: {
+    }
 
-          ondismiss: () => {
+    return value;
 
-            console.log(
-              "Razorpay checkout closed"
-            );
+  };
 
-            setPaymentLoading(false);
+  // ===================================================
 
-            setSelectedPlanId(null);
+  // GET PLAN DURATION TEXT
 
-          },
+  // ===================================================
 
-        },
+  const getDurationText = (
 
+    billingCycle
 
-        // ---------------------------------------------
-        // PAYMENT HANDLER
-        // ---------------------------------------------
+  ) => {
 
-        handler:
-          async (
-            razorpayResponse
-          ) => {
+    const cycle =
 
-            await verifyPayment(
-              razorpayResponse,
-              userId
-            );
+      String(
 
-          },
+        billingCycle || ""
 
-      };
+      ).toLowerCase();
 
+    if (cycle === "monthly") {
 
-      // =================================================
-      // OPEN RAZORPAY
-      // =================================================
+      return "30 days";
 
-      const razorpay =
-        new window.Razorpay(
-          options
-        );
+    }
 
+    if (cycle === "quarterly") {
 
-      // -----------------------------------------------
-      // PAYMENT FAILED
-      // -----------------------------------------------
+      return "3 months";
 
-      razorpay.on(
-        "payment.failed",
-        (response) => {
+    }
 
-          console.error(
-            "Razorpay payment failed:",
-            response
-          );
+    if (cycle === "yearly") {
 
+      return "1 year";
 
-          setMessage(
-            response?.error?.description ||
-              "Payment failed. Please try again."
-          );
+    }
 
-          setMessageType("error");
+    return billingCycle || "";
 
-          setPaymentLoading(false);
+  };
 
-          setSelectedPlanId(null);
+  // ===================================================
 
-        }
-      );
+  // GET PLAN ICON
 
+  // ===================================================
 
-      razorpay.open();
+  const getPlanIcon = (
 
+    billingCycle
 
-    } catch (error) {
+  ) => {
 
-      console.error(
-        "Subscription payment error:",
-        error
-      );
+    const cycle =
 
+      String(
 
-      setMessage(
-        error.message ||
-          "Unable to start payment."
-      );
+        billingCycle || ""
 
-      setMessageType("error");
+      ).toLowerCase();
 
-      setPaymentLoading(false);
+    if (cycle === "yearly") {
 
-      setSelectedPlanId(null);
+      return (
 
-    }
+        <FaCrown />
 
-  };
+      );
 
+    }
 
+    if (cycle === "quarterly") {
 
-  // ===================================================
-  // VERIFY PAYMENT
-  // ===================================================
+      return (
 
-  const verifyPayment = async (
-    razorpayResponse,
-    userId
-  ) => {
+        <FaStar />
 
-    try {
+      );
 
-      setMessage(
-        "Verifying payment..."
-      );
+    }
 
-      setMessageType("success");
+    return (
 
+      <FaCalendarDays />
 
-      // =================================================
-      // SEND TO BACKEND
-      // =================================================
+    );
 
-      const response =
-        await fetch(
-          VERIFY_PAYMENT_API,
-          {
-            method: "POST",
+  };
 
-            headers: {
-              "Content-Type":
-                "application/json",
+  // ===================================================
 
-              Accept:
-                "application/json",
-            },
+  // START PAYMENT
 
-            body: JSON.stringify({
+  // ===================================================
 
-              user_id:
-                userId,
+  const handleSubscribe = async (
 
-              razorpay_payment_id:
-                razorpayResponse.razorpay_payment_id,
+    plan
 
-              razorpay_order_id:
-                razorpayResponse.razorpay_order_id,
+  ) => {
 
-              razorpay_signature:
-                razorpayResponse.razorpay_signature,
+    if (paymentLoading) {
 
-            }),
+      return;
 
-          }
-        );
+    }
 
+    // -----------------------------------------------
 
-      if (!response.ok) {
+    // USER
 
-        throw new Error(
-          `Payment verification error: ${response.status}`
-        );
+    // -----------------------------------------------
 
-      }
+    const currentUser =
 
+      user || getLoggedInUser();
 
-      const data =
-        await response.json();
+    const userId =
 
+      getUserId(currentUser);
 
-      console.log(
-        "PAYMENT VERIFICATION:",
-        data
-      );
+    if (userId <= 0) {
 
+      setMessage(
 
-      // =================================================
-      // SUCCESS
-      // =================================================
+        "User information not found. Please login again."
 
-      if (!data.success) {
+      );
 
-        throw new Error(
-          data.message ||
-            "Payment verification failed."
-        );
+      setMessageType("error");
 
-      }
+      return;
 
+    }
 
-      setMessage(
-        data.message ||
-          "Payment successful! Your subscription is active."
-      );
+    // -----------------------------------------------
 
-      setMessageType("success");
+    // PLAN
 
+    // -----------------------------------------------
 
-      // =================================================
-      // RELOAD SUBSCRIPTION
-      // =================================================
+    const planId =
 
-      await loadSubscription(
-        userId
-      );
+      Number(plan.id);
 
+    if (planId <= 0) {
 
-      setPaymentLoading(false);
+      setMessage(
 
-      setSelectedPlanId(null);
+        "Invalid subscription plan."
 
+      );
 
-      // =================================================
-      // GO TO DASHBOARD AFTER SUCCESS
-      // =================================================
+      setMessageType("error");
 
-      setTimeout(() => {
+      return;
 
-        navigate(
-          "/dashboard",
-          {
-            replace: true,
-          }
-        );
+    }
 
-      }, 1800);
+    // -----------------------------------------------
 
+    // CONFIRM
 
-    } catch (error) {
+    // -----------------------------------------------
 
-      console.error(
-        "Payment verification error:",
-        error
-      );
+    const confirmed =
 
+      window.confirm(
 
-      setMessage(
-        error.message ||
-          "Payment verification failed."
-      );
+        `Continue with ${plan.name} plan for ₹${formatPrice(
 
-      setMessageType("error");
+          plan.price
 
-      setPaymentLoading(false);
+        )}?`
 
-      setSelectedPlanId(null);
+      );
 
-    }
+    if (!confirmed) {
 
-  };
+      return;
 
+    }
 
+    try {
 
-  // ===================================================
-  // LOADING
-  // ===================================================
+      setPaymentLoading(true);
 
-  if (loading) {
+      setSelectedPlanId(
 
-    return (
+        planId
 
-      <div className="subscription-page">
+      );
 
-        <div className="subscription-loading">
+      setMessage("");
 
-          <FaRotate
-            className="loading-icon"
-          />
+      // =================================================
 
-          <h2>
-            Loading Subscription Plans
-          </h2>
+      // LOAD RAZORPAY
 
-          <p>
-            Please wait...
-          </p>
+      // =================================================
 
-        </div>
+      const razorpayLoaded =
 
+        await loadRazorpayScript();
 
-        <style>{subscriptionStyles}</style>
+      if (!razorpayLoaded) {
 
-      </div>
+        throw new Error(
 
-    );
+          "Razorpay Checkout could not be loaded. Please check your internet connection."
 
-  }
+        );
 
+      }
 
+      // =================================================
 
-  // ===================================================
-  // PAGE
-  // ===================================================
+      // CREATE ORDER
 
-  return (
+      // =================================================
 
-    <div className="subscription-page">
+      const orderResponse =
 
+        await fetch(
 
-      {/* =================================================
-          BACKGROUND
-      ================================================= */}
+          CREATE_ORDER_API,
 
-      <div className="subscription-glow glow-one" />
+          {
 
-      <div className="subscription-glow glow-two" />
+            method: "POST",
 
+            headers: {
 
-      {/* =================================================
-          HEADER
-      ================================================= */}
+              "Content-Type":
 
-      <div className="subscription-header">
+                "application/json",
 
-        <div className="header-left">
+              Accept:
 
-          <button
-            type="button"
-            className="back-button"
-            onClick={() =>
-              navigate("/dashboard")
-            }
-          >
+                "application/json",
 
-            <FaArrowLeft />
+            },
 
-          </button>
+            body: JSON.stringify({
 
+              user_id: userId,
 
-          <div className="header-icon">
+              plan_id: planId,
 
-            <FaCreditCard />
+            }),
 
-          </div>
+          }
 
+        );
 
-          <div>
+      if (!orderResponse.ok) {
 
-            <h1>
-              SkillLab Subscription
-            </h1>
+        throw new Error(
 
-            <p>
-              Choose a plan and continue your learning journey.
-            </p>
+          `Order API error: ${orderResponse.status}`
 
-          </div>
+        );
 
-        </div>
+      }
 
+      const orderData =
 
-        <div className="secure-badge">
+        await orderResponse.json();
 
-          <FaShieldHalved />
+      console.log(
 
-          <span>
-            Secure Payment
-          </span>
+        "RAZORPAY ORDER:",
 
-        </div>
+        orderData
 
-      </div>
+      );
 
+      if (!orderData.success) {
 
+        throw new Error(
 
-      {/* =================================================
-          MESSAGE
-      ================================================= */}
+          orderData.message ||
 
-      {message && (
+            "Unable to create Razorpay order."
 
-        <div
-          className={`subscription-message ${
-            messageType === "success"
-              ? "success"
-              : "error"
-          }`}
-        >
+        );
 
-          {messageType === "success" ? (
+      }
 
-            <FaCircleCheck />
+      if (!orderData.order_id) {
 
-          ) : (
+        throw new Error(
 
-            <FaCircleExclamation />
+          "Razorpay order ID was not received."
 
-          )}
+        );
 
-          <span>
-            {message}
-          </span>
+      }
 
-        </div>
+      if (!orderData.key_id) {
 
-      )}
+        throw new Error(
 
+          "Razorpay Key ID was not received."
 
+        );
 
-      {/* =================================================
-          CURRENT SUBSCRIPTION
-      ================================================= */}
+      }
 
-      {subscription && (
+      // =================================================
 
-        <div className="current-subscription">
+      // RAZORPAY CHECKOUT OPTIONS
 
-          <div className="current-icon">
+      // =================================================
 
-            <FaCircleCheck />
+      const options = {
 
-          </div>
+        key:
 
+          orderData.key_id,
 
-          <div className="current-content">
+        amount:
 
-            <div className="current-top">
+          Number(orderData.amount),
 
-              <span className="current-label">
-                Current Subscription
-              </span>
+        currency:
 
-              <span className="active-badge">
-                {String(
-                  subscription.status ||
-                    "active"
-                ).toUpperCase()}
-              </span>
+          orderData.currency ||
 
-            </div>
+          "INR",
 
+        name:
 
-            <h3>
-              {subscription.plan_name ||
-                subscription.name ||
-                "Active Plan"}
-            </h3>
+          "SkillLab",
 
+        description:
 
-            <p>
+          `${plan.name} Subscription`,
 
-              ₹
-              {formatPrice(
-                subscription.amount
-              )}
+        order_id:
 
-              {" • "}
+          orderData.order_id,
 
-              {subscription.billing_cycle ||
-                "Subscription"}
+        // ---------------------------------------------
 
-              {subscription.end_date
-                ? ` • Valid until ${subscription.end_date}`
-                : ""}
+        // PREFILL
 
-            </p>
+        // ---------------------------------------------
 
-          </div>
+        prefill: {
 
-        </div>
+          name:
 
-      )}
+            currentUser.name ||
 
+            currentUser.full_name ||
 
+            "",
 
-      {/* =================================================
-          TITLE
-      ================================================= */}
+          email:
 
-      <div className="plans-heading">
+            currentUser.email ||
 
-        <span className="eyebrow">
-          SUBSCRIPTION PLANS
-        </span>
+            "",
 
-        <h2>
-          Choose the right plan for you
-        </h2>
+          contact:
 
-        <p>
-          Select a subscription plan to continue using SkillLab learning features.
-        </p>
+            currentUser.phone ||
 
-      </div>
+            currentUser.mobile ||
 
+            "",
 
+        },
 
-      {/* =================================================
-          PLANS
-      ================================================= */}
+        // ---------------------------------------------
 
-      {plans.length === 0 ? (
+        // THEME
 
-        <div className="no-plans">
+        // ---------------------------------------------
 
-          <FaCircleExclamation />
+        theme: {
 
-          <h3>
-            No subscription plans available
-          </h3>
+          color:
 
-          <p>
-            Please contact the administrator.
-          </p>
+            "#6d28d9",
 
-        </div>
+        },
 
-      ) : (
+        // ---------------------------------------------
 
-        <div className="plans-grid">
+        // MODAL
 
-          {plans.map(
-            (plan, index) => {
+        // ---------------------------------------------
 
-              const isYearly =
-                String(
-                  plan.billing_cycle
-                ).toLowerCase() ===
-                "yearly";
+        modal: {
 
+          ondismiss: () => {
 
-              const isQuarterly =
-                String(
-                  plan.billing_cycle
-                ).toLowerCase() ===
-                "quarterly";
+            console.log(
 
+              "Razorpay checkout closed"
 
-              const isSelected =
-                Number(
-                  selectedPlanId
-                ) === Number(plan.id);
+            );
 
+            setPaymentLoading(false);
 
-              return (
+            setSelectedPlanId(null);
 
-                <div
-                  key={plan.id}
-                  className={`plan-card ${
-                    isYearly
-                      ? "featured"
-                      : ""
-                  }`}
-                >
+          },
 
+        },
 
-                  {/* ---------------------------------------
-                      POPULAR
-                  --------------------------------------- */}
+        // ---------------------------------------------
 
-                  {isYearly && (
+        // PAYMENT HANDLER
 
-                    <div className="popular-badge">
+        // ---------------------------------------------
 
-                      <FaCrown />
+        handler:
 
-                      Most Popular
+          async (
 
-                    </div>
+            razorpayResponse
 
-                  )}
+          ) => {
 
+            await verifyPayment(
 
-                  {/* ---------------------------------------
-                      PLAN ICON
-                  --------------------------------------- */}
+              razorpayResponse,
 
-                  <div
-                    className={`plan-icon ${
-                      isYearly
-                        ? "purple"
-                        : isQuarterly
-                        ? "blue"
-                        : "green"
-                    }`}
-                  >
+              userId
 
-                    {getPlanIcon(
-                      plan.billing_cycle
-                    )}
+            );
 
-                  </div>
+          },
 
+      };
 
-                  {/* ---------------------------------------
-                      PLAN NAME
-                  --------------------------------------- */}
+      // =================================================
 
-                  <h3>
-                    {plan.name}
-                  </h3>
+      // OPEN RAZORPAY
 
+      // =================================================
 
-                  {/* ---------------------------------------
-                      DESCRIPTION
-                  --------------------------------------- */}
+      const razorpay =
 
-                  <p className="plan-description">
+        new window.Razorpay(
 
-                    {plan.description ||
-                      `SkillLab ${plan.name} Plan`}
+          options
 
-                  </p>
+        );
 
+      // -----------------------------------------------
 
-                  {/* ---------------------------------------
-                      PRICE
-                  --------------------------------------- */}
+      // PAYMENT FAILED
 
-                  <div className="plan-price">
+      // -----------------------------------------------
 
-                    <span className="currency">
-                      ₹
-                    </span>
+      razorpay.on(
 
-                    <span className="amount">
-                      {formatPrice(
-                        plan.price
-                      )}
-                    </span>
+        "payment.failed",
 
-                  </div>
+        (response) => {
 
+          console.error(
 
-                  <div className="billing-text">
+            "Razorpay payment failed:",
 
-                    per{" "}
+            response
 
-                    {formatCycle(
-                      plan.billing_cycle
-                    )}
+          );
 
-                  </div>
+          setMessage(
 
+            response?.error?.description ||
 
-                  {/* ---------------------------------------
-                      FEATURES
-                  --------------------------------------- */}
+              "Payment failed. Please try again."
 
-                  <div className="plan-features">
+          );
 
-                    <div>
-                      <FaCheck />
-                      <span>
-                        Full SkillLab access
-                      </span>
-                    </div>
+          setMessageType("error");
 
-                    <div>
-                      <FaCheck />
-                      <span>
-                        Student task tracking
-                      </span>
-                    </div>
+          setPaymentLoading(false);
 
-                    <div>
-                      <FaCheck />
-                      <span>
-                        Performance monitoring
-                      </span>
-                    </div>
+          setSelectedPlanId(null);
 
-                    <div>
-                      <FaCheck />
-                      <span>
-                        {getDurationText(
-                          plan.billing_cycle
-                        )} subscription
-                      </span>
-                    </div>
+        }
 
-                  </div>
+      );
 
+      razorpay.open();
 
-                  {/* ---------------------------------------
-                      BUTTON
-                  --------------------------------------- */}
+    } catch (error) {
 
-                  <button
-                    type="button"
-                    className={`subscribe-button ${
-                      isYearly
-                        ? "primary"
-                        : ""
-                    }`}
-                    disabled={
-                      paymentLoading
-                    }
-                    onClick={() =>
-                      handleSubscribe(
-                        plan
-                      )
-                    }
-                  >
+      console.error(
 
-                    {isSelected &&
-                    paymentLoading ? (
+        "Subscription payment error:",
 
-                      <>
+        error
 
-                        <FaRotate className="spin" />
+      );
 
-                        Processing...
+      setMessage(
 
-                      </>
+        error.message ||
 
-                    ) : (
+          "Unable to start payment."
 
-                      <>
+      );
 
-                        <FaCreditCard />
+      setMessageType("error");
 
-                        {subscription
-                          ? "Renew / Continue"
-                          : "Subscribe Now"}
+      setPaymentLoading(false);
 
-                      </>
+      setSelectedPlanId(null);
 
-                    )}
+    }
 
-                  </button>
+  };
 
+  // ===================================================
 
-                  <div className="secure-text">
+  // VERIFY PAYMENT
 
-                    <FaShieldHalved />
+  // ===================================================
 
-                    Secure Razorpay payment
+  const verifyPayment = async (
 
-                  </div>
+    razorpayResponse,
 
-                </div>
+    userId
 
-              );
+  ) => {
 
-            }
-          )}
+    try {
 
-        </div>
+      setMessage(
 
-      )}
+        "Verifying payment..."
 
+      );
 
+      setMessageType("success");
 
-      {/* =================================================
-          FOOTER NOTE
-      ================================================= */}
+      // =================================================
 
-      <div className="payment-note">
+      // SEND TO BACKEND
 
-        <FaShieldHalved />
+      // =================================================
 
-        <div>
+      const response =
 
-          <strong>
-            Secure online payment
-          </strong>
+        await fetch(
 
-          <p>
-            Your payment is processed securely through Razorpay.
-            SkillLab does not store your card or UPI payment details.
-          </p>
+          VERIFY_PAYMENT_API,
 
-        </div>
+          {
 
-      </div>
+            method: "POST",
 
+            headers: {
 
-      {/* =================================================
-          INLINE CSS
-      ================================================= */}
+              "Content-Type":
 
-      <style>{subscriptionStyles}</style>
+                "application/json",
 
-    </div>
+              Accept:
 
-  );
+                "application/json",
+
+            },
+
+            body: JSON.stringify({
+
+              user_id:
+
+                userId,
+
+              razorpay_payment_id:
+
+                razorpayResponse.razorpay_payment_id,
+
+              razorpay_order_id:
+
+                razorpayResponse.razorpay_order_id,
+
+              razorpay_signature:
+
+                razorpayResponse.razorpay_signature,
+
+            }),
+
+          }
+
+        );
+
+      if (!response.ok) {
+
+        throw new Error(
+
+          `Payment verification error: ${response.status}`
+
+        );
+
+      }
+
+      const data =
+
+        await response.json();
+
+      console.log(
+
+        "PAYMENT VERIFICATION:",
+
+        data
+
+      );
+
+      // =================================================
+
+      // SUCCESS
+
+      // =================================================
+
+      if (!data.success) {
+
+        throw new Error(
+
+          data.message ||
+
+            "Payment verification failed."
+
+        );
+
+      }
+
+      setMessage(
+
+        data.message ||
+
+          "Payment successful! Your subscription is active."
+
+      );
+
+      setMessageType("success");
+
+      // =================================================
+
+      // RELOAD SUBSCRIPTION
+
+      // =================================================
+
+      await loadSubscription(
+
+        userId
+
+      );
+
+      setPaymentLoading(false);
+
+      setSelectedPlanId(null);
+
+      // =================================================
+
+      // GO TO DASHBOARD AFTER SUCCESS
+
+      // =================================================
+
+      setTimeout(() => {
+
+        navigate(
+
+          "/dashboard",
+
+          {
+
+            replace: true,
+
+          }
+
+        );
+
+      }, 1800);
+
+    } catch (error) {
+
+      console.error(
+
+        "Payment verification error:",
+
+        error
+
+      );
+
+      setMessage(
+
+        error.message ||
+
+          "Payment verification failed."
+
+      );
+
+      setMessageType("error");
+
+      setPaymentLoading(false);
+
+      setSelectedPlanId(null);
+
+    }
+
+  };
+
+  // ===================================================
+
+  // LOADING
+
+  // ===================================================
+
+  if (loading) {
+
+    return (
+
+      <div className="subscription-page">
+
+        <div className="subscription-loading">
+
+          <FaRotate
+
+            className="loading-icon"
+
+          />
+
+          <h2>
+
+            Loading Subscription Plans
+
+          </h2>
+
+          <p>
+
+            Please wait...
+
+          </p>
+
+        </div>
+
+        <style>{subscriptionStyles}</style>
+
+      </div>
+
+    );
+
+  }
+
+  // ===================================================
+
+  // PAGE
+
+  // ===================================================
+
+  return (
+
+    <div className="subscription-page">
+
+      {/* =================================================
+
+          BACKGROUND
+
+      ================================================= */}
+
+      <div className="subscription-glow glow-one" />
+
+      <div className="subscription-glow glow-two" />
+
+      {/* =================================================
+
+          HEADER
+
+      ================================================= */}
+
+      <div className="subscription-header">
+
+        <div className="header-left">
+
+          <button
+
+            type="button"
+
+            className="back-button"
+
+            onClick={() =>
+
+              navigate("/dashboard")
+
+            }
+
+          >
+
+            <FaArrowLeft />
+
+          </button>
+
+          <div className="header-icon">
+
+            <FaCreditCard />
+
+          </div>
+
+          <div>
+
+            <h1>
+
+              SkillLab Subscription
+
+            </h1>
+
+            <p>
+
+              Choose a plan and continue your learning journey.
+
+            </p>
+
+          </div>
+
+        </div>
+
+        <div className="secure-badge">
+
+          <FaShieldHalved />
+
+          <span>
+
+            Secure Payment
+
+          </span>
+
+        </div>
+
+      </div>
+
+      {/* =================================================
+
+          MESSAGE
+
+      ================================================= */}
+
+      {message && (
+
+        <div
+
+          className={`subscription-message ${
+
+            messageType === "success"
+
+              ? "success"
+
+              : "error"
+
+          }`}
+
+        >
+
+          {messageType === "success" ? (
+
+            <FaCircleCheck />
+
+          ) : (
+
+            <FaCircleExclamation />
+
+          )}
+
+          <span>
+
+            {message}
+
+          </span>
+
+        </div>
+
+      )}
+
+      {/* =================================================
+
+          CURRENT SUBSCRIPTION
+
+      ================================================= */}
+
+      {subscription && (
+
+        <div className="current-subscription">
+
+          <div className="current-icon">
+
+            <FaCircleCheck />
+
+          </div>
+
+          <div className="current-content">
+
+            <div className="current-top">
+
+              <span className="current-label">
+
+                Current Subscription
+
+              </span>
+
+              <span className="active-badge">
+
+                {String(
+
+                  subscription.status ||
+
+                    "active"
+
+                ).toUpperCase()}
+
+              </span>
+
+            </div>
+
+            <h3>
+
+              {subscription.plan_name ||
+
+                subscription.name ||
+
+                "Active Plan"}
+
+            </h3>
+
+            <p>
+
+              ₹
+
+              {formatPrice(
+
+                subscription.amount
+
+              )}
+
+              {" • "}
+
+              {subscription.billing_cycle ||
+
+                "Subscription"}
+
+              {subscription.end_date
+
+                ? ` • Valid until ${subscription.end_date}`
+
+                : ""}
+
+            </p>
+
+          </div>
+
+        </div>
+
+      )}
+
+      {/* =================================================
+
+          TITLE
+
+      ================================================= */}
+
+      <div className="plans-heading">
+
+        <span className="eyebrow">
+
+          SUBSCRIPTION PLANS
+
+        </span>
+
+        <h2>
+
+          Choose the right plan for you
+
+        </h2>
+
+        <p>
+
+          Select a subscription plan to continue using SkillLab learning features.
+
+        </p>
+
+      </div>
+
+      {/* =================================================
+
+          PLANS
+
+      ================================================= */}
+
+      {plans.length === 0 ? (
+
+        <div className="no-plans">
+
+          <FaCircleExclamation />
+
+          <h3>
+
+            No subscription plans available
+
+          </h3>
+
+          <p>
+
+            Please contact the administrator.
+
+          </p>
+
+        </div>
+
+      ) : (
+
+        <div className="plans-grid">
+
+          {plans.map(
+
+            (plan, index) => {
+
+              const isYearly =
+
+                String(
+
+                  plan.billing_cycle
+
+                ).toLowerCase() ===
+
+                "yearly";
+
+              const isQuarterly =
+
+                String(
+
+                  plan.billing_cycle
+
+                ).toLowerCase() ===
+
+                "quarterly";
+
+              const isSelected =
+
+                Number(
+
+                  selectedPlanId
+
+                ) === Number(plan.id);
+
+              return (
+
+                <div
+
+                  key={plan.id}
+
+                  className={`plan-card ${
+
+                    isYearly
+
+                      ? "featured"
+
+                      : ""
+
+                  }`}
+
+                >
+
+                  {/* ---------------------------------------
+
+                      POPULAR
+
+                  --------------------------------------- */}
+
+                  {isYearly && (
+
+                    <div className="popular-badge">
+
+                      <FaCrown />
+
+                      Most Popular
+
+                    </div>
+
+                  )}
+
+                  {/* ---------------------------------------
+
+                      PLAN ICON
+
+                  --------------------------------------- */}
+
+                  <div
+
+                    className={`plan-icon ${
+
+                      isYearly
+
+                        ? "purple"
+
+                        : isQuarterly
+
+                        ? "blue"
+
+                        : "green"
+
+                    }`}
+
+                  >
+
+                    {getPlanIcon(
+
+                      plan.billing_cycle
+
+                    )}
+
+                  </div>
+
+                  {/* ---------------------------------------
+
+                      PLAN NAME
+
+                  --------------------------------------- */}
+
+                  <h3>
+
+                    {plan.name}
+
+                  </h3>
+
+                  {/* ---------------------------------------
+
+                      DESCRIPTION
+
+                  --------------------------------------- */}
+
+                  <p className="plan-description">
+
+                    {plan.description ||
+
+                      `SkillLab ${plan.name} Plan`}
+
+                  </p>
+
+                  {/* ---------------------------------------
+
+                      PRICE
+
+                  --------------------------------------- */}
+
+                  <div className="plan-price">
+
+                    <span className="currency">
+
+                      ₹
+
+                    </span>
+
+                    <span className="amount">
+
+                      {formatPrice(
+
+                        plan.price
+
+                      )}
+
+                    </span>
+
+                  </div>
+
+                  <div className="billing-text">
+
+                    per{" "}
+
+                    {formatCycle(
+
+                      plan.billing_cycle
+
+                    )}
+
+                  </div>
+
+                  {/* ---------------------------------------
+
+                      FEATURES
+
+                  --------------------------------------- */}
+
+                  <div className="plan-features">
+
+                    <div>
+
+                      <FaCheck />
+
+                      <span>
+
+                        Full SkillLab access
+
+                      </span>
+
+                    </div>
+
+                    <div>
+
+                      <FaCheck />
+
+                      <span>
+
+                        Student task tracking
+
+                      </span>
+
+                    </div>
+
+                    <div>
+
+                      <FaCheck />
+
+                      <span>
+
+                        Performance monitoring
+
+                      </span>
+
+                    </div>
+
+                    <div>
+
+                      <FaCheck />
+
+                      <span>
+
+                        {getDurationText(
+
+                          plan.billing_cycle
+
+                        )} subscription
+
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                  {/* ---------------------------------------
+
+                      BUTTON
+
+                  --------------------------------------- */}
+
+                  <button
+
+                    type="button"
+
+                    className={`subscribe-button ${
+
+                      isYearly
+
+                        ? "primary"
+
+                        : ""
+
+                    }`}
+
+                    disabled={
+
+                      paymentLoading
+
+                    }
+
+                    onClick={() =>
+
+                      handleSubscribe(
+
+                        plan
+
+                      )
+
+                    }
+
+                  >
+
+                    {isSelected &&
+
+                    paymentLoading ? (
+
+                      <>
+
+                        <FaRotate className="spin" />
+
+                        Processing...
+
+                      </>
+
+                    ) : (
+
+                      <>
+
+                        <FaCreditCard />
+
+                        {subscription
+
+                          ? "Renew / Continue"
+
+                          : "Subscribe Now"}
+
+                      </>
+
+                    )}
+
+                  </button>
+
+                  <div className="secure-text">
+
+                    <FaShieldHalved />
+
+                    Secure Razorpay payment
+
+                  </div>
+
+                </div>
+
+              );
+
+            }
+
+          )}
+
+        </div>
+
+      )}
+
+      {/* =================================================
+
+          FOOTER NOTE
+
+      ================================================= */}
+
+      <div className="payment-note">
+
+        <FaShieldHalved />
+
+        <div>
+
+          <strong>
+
+            Secure online payment
+
+          </strong>
+
+          <p>
+
+            Your payment is processed securely through Razorpay.
+
+            SkillLab does not store your card or UPI payment details.
+
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* =================================================
+
+          INLINE CSS
+
+      ================================================= */}
+
+      <style>{subscriptionStyles}</style>
+
+    </div>
+
+  );
 
 }
 
-
 // =====================================================
+
 // STYLES
+
 // =====================================================
 
 const subscriptionStyles = `
 
 * {
-  box-sizing: border-box;
+
+  box-sizing: border-box;
+
 }
 
 .subscription-page {
 
-  min-height: 100vh;
+  min-height: 100vh;
 
-  padding: 28px;
+  padding: 28px;
 
-  position: relative;
+  position: relative;
 
-  overflow-x: hidden;
+  overflow-x: hidden;
 
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(124,58,237,.12),
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at bottom left,
-      rgba(59,130,246,.08),
-      transparent 32%
-    ),
-    #f7f8fc;
+  background:
 
-  color: #172033;
+    radial-gradient(
+
+      circle at top right,
+
+      rgba(124,58,237,.12),
+
+      transparent 34%
+
+    ),
+
+    radial-gradient(
+
+      circle at bottom left,
+
+      rgba(59,130,246,.08),
+
+      transparent 32%
+
+    ),
+
+    #f7f8fc;
+
+  color: #172033;
 
 }
-
 
 .subscription-glow {
 
-  position: fixed;
+  position: fixed;
 
-  width: 300px;
+  width: 300px;
 
-  height: 300px;
+  height: 300px;
 
-  border-radius: 50%;
+  border-radius: 50%;
 
-  filter: blur(80px);
+  filter: blur(80px);
 
-  pointer-events: none;
+  pointer-events: none;
 
-  opacity: .35;
+  opacity: .35;
 
 }
-
 
 .glow-one {
 
-  top: 80px;
+  top: 80px;
 
-  right: -120px;
+  right: -120px;
 
-  background: #c4b5fd;
+  background: #c4b5fd;
 
 }
-
 
 .glow-two {
 
-  bottom: -120px;
+  bottom: -120px;
 
-  left: -100px;
+  left: -100px;
 
-  background: #bfdbfe;
+  background: #bfdbfe;
 
 }
-
 
 .subscription-header {
 
-  position: relative;
+  position: relative;
 
-  z-index: 2;
+  z-index: 2;
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  justify-content: space-between;
+  justify-content: space-between;
 
-  gap: 20px;
+  gap: 20px;
 
-  padding: 22px 26px;
+  padding: 22px 26px;
 
-  margin-bottom: 24px;
+  margin-bottom: 24px;
 
-  border: 1px solid #ebe8f5;
+  border: 1px solid #ebe8f5;
 
-  border-radius: 22px;
+  border-radius: 22px;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,.96),
-      rgba(248,247,255,.96)
-    );
+  background:
 
-  box-shadow:
-    0 12px 40px rgba(40,32,80,.07);
+    linear-gradient(
+
+      135deg,
+
+      rgba(255,255,255,.96),
+
+      rgba(248,247,255,.96)
+
+    );
+
+  box-shadow:
+
+    0 12px 40px rgba(40,32,80,.07);
 
 }
-
 
 .header-left {
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  gap: 15px;
+  gap: 15px;
 
 }
-
 
 .back-button {
 
-  width: 42px;
+  width: 42px;
 
-  height: 42px;
+  height: 42px;
 
-  border: 1px solid #e4e0ef;
+  border: 1px solid #e4e0ef;
 
-  border-radius: 12px;
+  border-radius: 12px;
 
-  background: #fff;
+  background: #fff;
 
-  color: #5b21b6;
+  color: #5b21b6;
 
-  cursor: pointer;
+  cursor: pointer;
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  justify-content: center;
+  justify-content: center;
 
-  font-size: 16px;
+  font-size: 16px;
 
 }
-
 
 .back-button:hover {
 
-  background: #f5f1ff;
+  background: #f5f1ff;
 
 }
-
 
 .header-icon {
 
-  width: 56px;
+  width: 56px;
 
-  height: 56px;
+  height: 56px;
 
-  border-radius: 16px;
+  border-radius: 16px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #5b21b6,
-      #7c3aed
-    );
+  background:
 
-  color: #fff;
+    linear-gradient(
 
-  display: flex;
+      135deg,
 
-  align-items: center;
+      #5b21b6,
 
-  justify-content: center;
+      #7c3aed
 
-  font-size: 22px;
+    );
 
-  box-shadow:
-    0 9px 22px rgba(91,33,182,.23);
+  color: #fff;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 22px;
+
+  box-shadow:
+
+    0 9px 22px rgba(91,33,182,.23);
 
 }
-
 
 .subscription-header h1 {
 
-  margin: 0;
+  margin: 0;
 
-  font-size: 25px;
+  font-size: 25px;
 
-  font-weight: 800;
+  font-weight: 800;
 
 }
-
 
 .subscription-header p {
 
-  margin: 5px 0 0;
+  margin: 5px 0 0;
 
-  color: #77728a;
+  color: #77728a;
 
-  font-size: 14px;
+  font-size: 14px;
 
 }
-
 
 .secure-badge {
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  gap: 8px;
+  gap: 8px;
 
-  padding: 10px 14px;
+  padding: 10px 14px;
 
-  border-radius: 30px;
+  border-radius: 30px;
 
-  background: #ecfdf5;
+  background: #ecfdf5;
 
-  color: #047857;
+  color: #047857;
 
-  font-size: 12px;
+  font-size: 12px;
 
-  font-weight: 700;
+  font-weight: 700;
 
 }
-
 
 .subscription-message {
 
-  position: relative;
+  position: relative;
 
-  z-index: 2;
+  z-index: 2;
 
-  max-width: 1100px;
+  max-width: 1100px;
 
-  margin: 0 auto 20px;
+  margin: 0 auto 20px;
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  gap: 10px;
+  gap: 10px;
 
-  padding: 14px 17px;
+  padding: 14px 17px;
 
-  border-radius: 13px;
+  border-radius: 13px;
 
-  font-size: 14px;
+  font-size: 14px;
 
-  font-weight: 600;
+  font-weight: 600;
 
 }
-
 
 .subscription-message.success {
 
-  background: #ecfdf5;
+  background: #ecfdf5;
 
-  border: 1px solid #a7f3d0;
+  border: 1px solid #a7f3d0;
 
-  color: #047857;
+  color: #047857;
 
 }
-
 
 .subscription-message.error {
 
-  background: #fef2f2;
+  background: #fef2f2;
 
-  border: 1px solid #fecaca;
+  border: 1px solid #fecaca;
 
-  color: #b91c1c;
+  color: #b91c1c;
 
 }
-
 
 .current-subscription {
 
-  position: relative;
+  position: relative;
 
-  z-index: 2;
+  z-index: 2;
 
-  max-width: 1100px;
+  max-width: 1100px;
 
-  margin: 0 auto 28px;
+  margin: 0 auto 28px;
 
-  padding: 18px 20px;
+  padding: 18px 20px;
 
-  border: 1px solid #c7f1dd;
+  border: 1px solid #c7f1dd;
 
-  border-radius: 17px;
+  border-radius: 17px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #f0fdf7,
-      #ffffff
-    );
+  background:
 
-  display: flex;
+    linear-gradient(
 
-  align-items: center;
+      135deg,
 
-  gap: 15px;
+      #f0fdf7,
+
+      #ffffff
+
+    );
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
 
 }
-
 
 .current-icon {
 
-  width: 45px;
+  width: 45px;
 
-  height: 45px;
+  height: 45px;
 
-  flex-shrink: 0;
+  flex-shrink: 0;
 
-  border-radius: 13px;
+  border-radius: 13px;
 
-  background: #d1fae5;
+  background: #d1fae5;
 
-  color: #059669;
+  color: #059669;
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  justify-content: center;
+  justify-content: center;
 
 }
-
 
 .current-content {
 
-  min-width: 0;
+  min-width: 0;
 
-  flex: 1;
+  flex: 1;
 
 }
-
 
 .current-top {
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  gap: 9px;
+  gap: 9px;
 
-  margin-bottom: 4px;
+  margin-bottom: 4px;
 
 }
-
 
 .current-label {
 
-  color: #047857;
+  color: #047857;
 
-  font-size: 11px;
+  font-size: 11px;
 
-  font-weight: 800;
+  font-weight: 800;
 
-  text-transform: uppercase;
+  text-transform: uppercase;
 
-  letter-spacing: .5px;
+  letter-spacing: .5px;
 
 }
-
 
 .active-badge {
 
-  padding: 3px 8px;
+  padding: 3px 8px;
 
-  border-radius: 20px;
+  border-radius: 20px;
 
-  background: #10b981;
+  background: #10b981;
 
-  color: #fff;
+  color: #fff;
 
-  font-size: 9px;
+  font-size: 9px;
 
-  font-weight: 800;
+  font-weight: 800;
 
 }
-
 
 .current-content h3 {
 
-  margin: 0;
+  margin: 0;
 
-  font-size: 17px;
+  font-size: 17px;
 
-  font-weight: 800;
+  font-weight: 800;
 
 }
-
 
 .current-content p {
 
-  margin: 4px 0 0;
+  margin: 4px 0 0;
 
-  color: #6b7280;
+  color: #6b7280;
 
-  font-size: 12px;
+  font-size: 12px;
 
 }
-
 
 .plans-heading {
 
-  position: relative;
+  position: relative;
 
-  z-index: 2;
+  z-index: 2;
 
-  text-align: center;
+  text-align: center;
 
-  max-width: 700px;
+  max-width: 700px;
 
-  margin: 0 auto 30px;
+  margin: 0 auto 30px;
 
 }
-
 
 .eyebrow {
 
-  display: inline-block;
+  display: inline-block;
 
-  margin-bottom: 7px;
+  margin-bottom: 7px;
 
-  color: #7c3aed;
+  color: #7c3aed;
 
-  font-size: 11px;
+  font-size: 11px;
 
-  font-weight: 800;
+  font-weight: 800;
 
-  letter-spacing: 1.2px;
+  letter-spacing: 1.2px;
 
 }
-
 
 .plans-heading h2 {
 
-  margin: 0;
+  margin: 0;
 
-  font-size: 28px;
+  font-size: 28px;
 
-  font-weight: 850;
+  font-weight: 850;
 
-  color: #172033;
+  color: #172033;
 
 }
-
 
 .plans-heading p {
 
-  margin: 8px 0 0;
+  margin: 8px 0 0;
 
-  color: #77728a;
+  color: #77728a;
 
-  font-size: 14px;
+  font-size: 14px;
 
-  line-height: 1.6;
+  line-height: 1.6;
 
 }
-
 
 .plans-grid {
 
-  position: relative;
+  position: relative;
 
-  z-index: 2;
+  z-index: 2;
 
-  max-width: 1100px;
+  max-width: 1100px;
 
-  margin: 0 auto;
+  margin: 0 auto;
 
-  display: grid;
+  display: grid;
 
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns:
 
-  gap: 20px;
+    repeat(3, minmax(0, 1fr));
+
+  gap: 20px;
 
 }
-
 
 .plan-card {
 
-  position: relative;
+  position: relative;
 
-  padding: 28px 24px 23px;
+  padding: 28px 24px 23px;
 
-  border: 1px solid #ebe8f5;
+  border: 1px solid #ebe8f5;
 
-  border-radius: 22px;
+  border-radius: 22px;
 
-  background: rgba(255,255,255,.96);
+  background: rgba(255,255,255,.96);
 
-  box-shadow:
-    0 12px 35px rgba(40,32,80,.06);
+  box-shadow:
 
-  text-align: center;
+    0 12px 35px rgba(40,32,80,.06);
 
-  transition:
-    transform .2s ease,
-    box-shadow .2s ease;
+  text-align: center;
+
+  transition:
+
+    transform .2s ease,
+
+    box-shadow .2s ease;
 
 }
-
 
 .plan-card:hover {
 
-  transform: translateY(-5px);
+  transform: translateY(-5px);
 
-  box-shadow:
-    0 18px 45px rgba(40,32,80,.11);
+  box-shadow:
+
+    0 18px 45px rgba(40,32,80,.11);
 
 }
-
 
 .plan-card.featured {
 
-  border:
-    2px solid #7c3aed;
+  border:
 
-  box-shadow:
-    0 15px 45px rgba(124,58,237,.15);
+    2px solid #7c3aed;
+
+  box-shadow:
+
+    0 15px 45px rgba(124,58,237,.15);
 
 }
-
 
 .popular-badge {
 
-  position: absolute;
+  position: absolute;
 
-  top: -12px;
+  top: -12px;
 
-  left: 50%;
+  left: 50%;
 
-  transform: translateX(-50%);
+  transform: translateX(-50%);
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  gap: 6px;
+  gap: 6px;
 
-  padding: 7px 13px;
+  padding: 7px 13px;
 
-  border-radius: 30px;
+  border-radius: 30px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #6d28d9,
-      #8b5cf6
-    );
+  background:
 
-  color: #fff;
+    linear-gradient(
 
-  font-size: 10px;
+      135deg,
 
-  font-weight: 800;
+      #6d28d9,
 
-  white-space: nowrap;
+      #8b5cf6
+
+    );
+
+  color: #fff;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
 
 }
-
 
 .plan-icon {
 
-  width: 58px;
+  width: 58px;
 
-  height: 58px;
+  height: 58px;
 
-  margin: 5px auto 17px;
+  margin: 5px auto 17px;
 
-  border-radius: 17px;
+  border-radius: 17px;
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  justify-content: center;
+  justify-content: center;
 
-  font-size: 21px;
+  font-size: 21px;
 
 }
-
 
 .plan-icon.green {
 
-  background: #ecfdf5;
+  background: #ecfdf5;
 
-  color: #059669;
+  color: #059669;
 
 }
-
 
 .plan-icon.blue {
 
-  background: #eff6ff;
+  background: #eff6ff;
 
-  color: #2563eb;
+  color: #2563eb;
 
 }
-
 
 .plan-icon.purple {
 
-  background: #f3e8ff;
+  background: #f3e8ff;
 
-  color: #7c3aed;
+  color: #7c3aed;
 
 }
-
 
 .plan-card h3 {
 
-  margin: 0;
+  margin: 0;
 
-  font-size: 20px;
+  font-size: 20px;
 
-  font-weight: 800;
+  font-weight: 800;
 
 }
-
 
 .plan-description {
 
-  min-height: 40px;
+  min-height: 40px;
 
-  margin: 7px 0 14px;
+  margin: 7px 0 14px;
 
-  color: #858092;
+  color: #858092;
 
-  font-size: 12px;
+  font-size: 12px;
 
-  line-height: 1.5;
+  line-height: 1.5;
 
 }
-
 
 .plan-price {
 
-  display: flex;
+  display: flex;
 
-  align-items: baseline;
+  align-items: baseline;
 
-  justify-content: center;
+  justify-content: center;
 
-  color: #172033;
+  color: #172033;
 
 }
-
 
 .currency {
 
-  margin-right: 2px;
+  margin-right: 2px;
 
-  font-size: 18px;
+  font-size: 18px;
 
-  font-weight: 800;
+  font-weight: 800;
 
 }
-
 
 .amount {
 
-  font-size: 38px;
+  font-size: 38px;
 
-  font-weight: 850;
+  font-weight: 850;
 
-  letter-spacing: -1.5px;
+  letter-spacing: -1.5px;
 
 }
-
 
 .billing-text {
 
-  margin-top: 1px;
+  margin-top: 1px;
 
-  color: #8a8497;
+  color: #8a8497;
 
-  font-size: 12px;
+  font-size: 12px;
 
 }
-
 
 .plan-features {
 
-  margin: 23px 0;
+  margin: 23px 0;
 
-  padding: 17px 0;
+  padding: 17px 0;
 
-  border-top: 1px solid #eeeaf5;
+  border-top: 1px solid #eeeaf5;
 
-  border-bottom: 1px solid #eeeaf5;
+  border-bottom: 1px solid #eeeaf5;
 
-  display: flex;
+  display: flex;
 
-  flex-direction: column;
+  flex-direction: column;
 
-  gap: 11px;
+  gap: 11px;
 
-  text-align: left;
+  text-align: left;
 
 }
-
 
 .plan-features div {
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  gap: 9px;
+  gap: 9px;
 
-  color: #514b5d;
+  color: #514b5d;
 
-  font-size: 12px;
+  font-size: 12px;
 
 }
-
 
 .plan-features svg {
 
-  flex-shrink: 0;
+  flex-shrink: 0;
 
-  color: #10b981;
+  color: #10b981;
 
-  font-size: 12px;
+  font-size: 12px;
 
 }
-
 
 .subscribe-button {
 
-  width: 100%;
+  width: 100%;
 
-  height: 47px;
+  height: 47px;
 
-  border: 1px solid #ddd6fe;
+  border: 1px solid #ddd6fe;
 
-  border-radius: 12px;
+  border-radius: 12px;
 
-  background: #fff;
+  background: #fff;
 
-  color: #6d28d9;
+  color: #6d28d9;
 
-  font-size: 13px;
+  font-size: 13px;
 
-  font-weight: 800;
+  font-weight: 800;
 
-  cursor: pointer;
+  cursor: pointer;
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  justify-content: center;
+  justify-content: center;
 
-  gap: 8px;
+  gap: 8px;
 
-  transition: .2s;
+  transition: .2s;
 
 }
-
 
 .subscribe-button:hover {
 
-  background: #f5f3ff;
+  background: #f5f3ff;
 
 }
-
 
 .subscribe-button.primary {
 
-  border: 0;
+  border: 0;
 
-  background:
-    linear-gradient(
-      135deg,
-      #5b21b6,
-      #7c3aed
-    );
+  background:
 
-  color: #fff;
+    linear-gradient(
 
-  box-shadow:
-    0 8px 20px rgba(91,33,182,.2);
+      135deg,
+
+      #5b21b6,
+
+      #7c3aed
+
+    );
+
+  color: #fff;
+
+  box-shadow:
+
+    0 8px 20px rgba(91,33,182,.2);
 
 }
-
 
 .subscribe-button.primary:hover {
 
-  opacity: .94;
+  opacity: .94;
 
 }
-
 
 .subscribe-button:disabled {
 
-  opacity: .55;
+  opacity: .55;
 
-  cursor: not-allowed;
+  cursor: not-allowed;
 
 }
-
 
 .secure-text {
 
-  margin-top: 12px;
+  margin-top: 12px;
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  justify-content: center;
+  justify-content: center;
 
-  gap: 5px;
+  gap: 5px;
 
-  color: #9a94a6;
+  color: #9a94a6;
 
-  font-size: 10px;
+  font-size: 10px;
 
 }
-
 
 .secure-text svg {
 
-  color: #059669;
+  color: #059669;
 
 }
-
 
 .payment-note {
 
-  position: relative;
+  position: relative;
 
-  z-index: 2;
+  z-index: 2;
 
-  max-width: 1100px;
+  max-width: 1100px;
 
-  margin: 25px auto 0;
+  margin: 25px auto 0;
 
-  padding: 17px 20px;
+  padding: 17px 20px;
 
-  border: 1px solid #e8e4f1;
+  border: 1px solid #e8e4f1;
 
-  border-radius: 15px;
+  border-radius: 15px;
 
-  background: rgba(255,255,255,.78);
+  background: rgba(255,255,255,.78);
 
-  display: flex;
+  display: flex;
 
-  align-items: flex-start;
+  align-items: flex-start;
 
-  gap: 12px;
+  gap: 12px;
 
 }
-
 
 .payment-note > svg {
 
-  margin-top: 2px;
+  margin-top: 2px;
 
-  color: #059669;
+  color: #059669;
 
 }
-
 
 .payment-note strong {
 
-  display: block;
+  display: block;
 
-  font-size: 12px;
+  font-size: 12px;
 
 }
-
 
 .payment-note p {
 
-  margin: 4px 0 0;
+  margin: 4px 0 0;
 
-  color: #858092;
+  color: #858092;
 
-  font-size: 11px;
+  font-size: 11px;
 
-  line-height: 1.5;
+  line-height: 1.5;
 
 }
-
 
 .subscription-loading {
 
-  min-height: 80vh;
+  min-height: 80vh;
 
-  display: flex;
+  display: flex;
 
-  align-items: center;
+  align-items: center;
 
-  justify-content: center;
+  justify-content: center;
 
-  flex-direction: column;
+  flex-direction: column;
 
-  color: #6d28d9;
+  color: #6d28d9;
 
 }
-
 
 .loading-icon {
 
-  font-size: 32px;
+  font-size: 32px;
 
-  animation:
-    subscription-spin 1s linear infinite;
+  animation:
+
+    subscription-spin 1s linear infinite;
 
 }
-
 
 .subscription-loading h2 {
 
-  margin: 15px 0 4px;
+  margin: 15px 0 4px;
 
-  font-size: 19px;
+  font-size: 19px;
 
 }
-
 
 .subscription-loading p {
 
-  margin: 0;
+  margin: 0;
 
-  color: #888;
+  color: #888;
 
-  font-size: 13px;
+  font-size: 13px;
 
 }
-
 
 .no-plans {
 
-  max-width: 500px;
+  max-width: 500px;
 
-  margin: 40px auto;
+  margin: 40px auto;
 
-  padding: 45px 25px;
+  padding: 45px 25px;
 
-  border: 1px solid #ebe8f5;
+  border: 1px solid #ebe8f5;
 
-  border-radius: 20px;
+  border-radius: 20px;
 
-  background: #fff;
+  background: #fff;
 
-  text-align: center;
+  text-align: center;
 
-  color: #777;
+  color: #777;
 
 }
-
 
 .no-plans > svg {
 
-  color: #f59e0b;
+  color: #f59e0b;
 
-  font-size: 35px;
+  font-size: 35px;
 
 }
-
 
 .no-plans h3 {
 
-  margin: 15px 0 5px;
+  margin: 15px 0 5px;
 
-  color: #252033;
+  color: #252033;
 
 }
-
 
 .no-plans p {
 
-  margin: 0;
+  margin: 0;
 
-  font-size: 13px;
+  font-size: 13px;
 
 }
-
 
 .spin {
 
-  animation:
-    subscription-spin 1s linear infinite;
+  animation:
+
+    subscription-spin 1s linear infinite;
 
 }
-
 
 @keyframes subscription-spin {
 
-  to {
+  to {
 
-    transform: rotate(360deg);
+    transform: rotate(360deg);
 
-  }
+  }
 
 }
-
 
 @media (max-width: 850px) {
 
-  .plans-grid {
+  .plans-grid {
 
-    grid-template-columns:
-      1fr;
+    grid-template-columns:
 
-    max-width: 550px;
+      1fr;
 
-  }
+    max-width: 550px;
+
+  }
 
 }
 
-
 @media (max-width: 650px) {
 
-  .subscription-page {
+  .subscription-page {
 
-    padding: 14px;
+    padding: 14px;
 
-  }
+  }
 
+  .subscription-header {
 
-  .subscription-header {
+    padding: 17px;
 
-    padding: 17px;
+    align-items: flex-start;
 
-    align-items: flex-start;
+  }
 
-  }
+  .secure-badge {
 
+    display: none;
 
-  .secure-badge {
+  }
 
-    display: none;
+  .subscription-header h1 {
 
-  }
+    font-size: 20px;
 
+  }
 
-  .subscription-header h1 {
+  .subscription-header p {
 
-    font-size: 20px;
+    font-size: 12px;
 
-  }
+  }
 
+  .current-subscription {
 
-  .subscription-header p {
+    align-items: flex-start;
 
-    font-size: 12px;
+  }
 
-  }
+  .plans-heading h2 {
 
+    font-size: 23px;
 
-  .current-subscription {
+  }
 
-    align-items: flex-start;
+  .plans-heading p {
 
-  }
+    font-size: 12px;
 
+  }
 
-  .plans-heading h2 {
+  .plan-card {
 
-    font-size: 23px;
+    padding: 25px 20px 21px;
 
-  }
+  }
 
+  .payment-note {
 
-  .plans-heading p {
+    padding: 14px;
 
-    font-size: 12px;
-
-  }
-
-
-  .plan-card {
-
-    padding: 25px 20px 21px;
-
-  }
-
-
-  .payment-note {
-
-    padding: 14px;
-
-  }
+  }
 
 }
 
 `;
 
-
 // =====================================================
+
 // EXPORT
+
 // =====================================================
 
 export default Subscription;
