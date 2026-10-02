@@ -597,32 +597,124 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     },
     {
       id: "d2",
-      title: "Study MERN",
+      title: "Study English",
       from: "5:00 AM",
-      to: "10:00 AM",
-      icon: "book",
-      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
-      completed: false,
-    },
-    {
-      id: "d3",
-      title: "Practice English",
-      from: "1:00 PM",
-      to: "4:00 PM",
+      to: "6:00 AM",
       icon: "language",
       color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
       completed: false,
     },
     {
-      id: "d4",
+      id: "d3",
       title: "Workout",
-      from: "6:00 PM",
-      to: "7:00 PM",
+      from: "6:00 AM",
+      to: "7:00 AM",
       icon: "dumbbell",
       color: "linear-gradient(135deg, #fccb90, #d57eeb)",
       completed: false,
     },
     {
+      id: "d4",
+      title: "News Paper Reading",
+      from: "7:00 AM",
+      to: "8:00 AM",
+      icon: "book",
+      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+      completed: false,
+    },
+    {
+      id: "d6",
+      title: "Break Fast",
+      from: "8:00 AM",
+      to: "8:30 AM",
+      icon: "coffee",
+      color: "linear-gradient(135deg, #f6d365, #fda085)",
+      completed: false,
+    },
+    {
+      id: "d7",
+      title: "School Ready Time",
+      from: "8:30 AM",
+      to: "9:30 AM",
+      icon: "work",
+      color: "linear-gradient(135deg, #43e97b, #38f9d7)",
+      completed: false,
+    },
+    {
+      id: "d8",
+      title: "School Time",
+      from: "9:30 AM",
+      to: "4:30 PM",
+      icon: "work",
+      color: "linear-gradient(135deg, #30cfd0, #330867)",
+      completed: false,
+    },
+    {
+      id: "d9",
+      title: "Mobile Watching",
+      from: "4:30 PM",
+      to: "5:00 PM",
+      icon: "laptop",
+      color: "linear-gradient(135deg, #fa709a, #fee140)",
+      completed: false,
+    },
+    {
+      id: "d10",
+      title: "Other Activities",
+      from: "5:00 PM",
+      to: "6:00 PM",
+      icon: "running",
+      color: "linear-gradient(135deg, #56ccf2, #2f80ed)",
+      completed: false,
+    },
+    {
+      id: "d11",
+      title: "Tuition",
+      from: "6:00 PM",
+      to: "7:00 PM",
+      icon: "book",
+      color: "linear-gradient(135deg, #667eea, #764ba2)",
+      completed: false,
+    },
+    {
+      id: "d12",
+      title: "Home Work",
+      from: "7:00 PM",
+      to: "8:00 PM",
+      icon: "write",
+      color: "linear-gradient(135deg, #f093fb, #f5576c)",
+      completed: false,
+    },
+    {
+      id: "d13",
+      title: "Study",
+      from: "8:00 PM",
+      to: "9:00 PM",
+      icon: "book",
+      color: "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+      completed: false,
+    },
+    {
+      id: "d14",
+      title: "Food Time",
+      from: "9:00 PM",
+      to: "9:30 PM",
+      icon: "food",
+      color: "linear-gradient(135deg, #f6d365, #fda085)",
+      completed: false,
+    },
+    {
+      id: "d15",
+      title: "Reading English",
+      from: "9:30 PM",
+      to: "10:00 PM",
+      icon: "language",
+      color: "linear-gradient(135deg, #84fab0, #8fd3f4)",
+      completed: false,
+    },
+    {
+      // Keep d5 because the existing Sleep -> next-day Wake Up logic
+      // depends on d5. It is intentionally placed last in the schedule.
       id: "d5",
       title: "Sleep",
       from: "10:00 PM",
@@ -633,6 +725,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       nextDay: true,
     },
   ];
+
 
   const [defaultTasks, setDefaultTasks] = useState(() => {
     try {
@@ -645,9 +738,16 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
         Array.isArray(parsed) ? parsed.map((task) => [String(task.id), task]) : []
       );
 
+      // d2/d3/d4 were the old built-in tasks. Do not restore those
+      // old localStorage values, otherwise the new student schedule
+      // would immediately change back to the old defaults.
+      const oldBuiltInIds = new Set(["d2", "d3", "d4"]);
+
       return DEFAULT_TASKS.map((baseTask) => ({
         ...baseTask,
-        ...(savedById.get(String(baseTask.id)) || {}),
+        ...(oldBuiltInIds.has(String(baseTask.id))
+          ? {}
+          : savedById.get(String(baseTask.id)) || {}),
         completed: false,
       }));
     } catch (error) {
@@ -826,8 +926,8 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
     localStorage.setItem("defaultTasks", JSON.stringify(cleanTasks));
   }, [defaultTasks]);
 
-  // Make sure the built-in tasks (Wake Up, Study MERN, etc.) are also
-  // stored in the database for the selected calendar date.
+  // Make sure the built-in student schedule is also stored in the
+  // database for the selected calendar date.
   const ensureDefaultTasksInDatabase = async () => {
     if (!user?.email) return;
 
@@ -1189,10 +1289,24 @@ useEffect(() => {
     const titleKey = String(task?.title || "").trim().toLowerCase();
     const defaultIdMap = {
       "wake up": "d1",
-      "study mern": "d2",
-      "practice english": "d3",
-      "workout": "d4",
+      "study english": "d2",
+      "workout": "d3",
+      "news paper reading": "d4",
       "sleep": "d5",
+      "break fast": "d6",
+      "school ready time": "d7",
+      "school time": "d8",
+      "mobile watching": "d9",
+      "other activities": "d10",
+      "tuition": "d11",
+      "home work": "d12",
+      "study": "d13",
+      "food time": "d14",
+      "reading english": "d15",
+      // Legacy names are kept only so old database rows can still
+      // be recognized as default rows during migration.
+      "study mern": "d2",
+      "practice english": "d2",
     };
 
     if (defaultIdMap[titleKey]) {
@@ -1210,7 +1324,23 @@ useEffect(() => {
     //      - ensure_defaults will not recreate it on that date
     const schedules = getDateDefaultSchedules(currentKey);
 
-    for (const defaultId of ["d1", "d2", "d3", "d4", "d5"]) {
+    for (const defaultId of [
+      "d1",
+      "d2",
+      "d3",
+      "d4",
+      "d5",
+      "d6",
+      "d7",
+      "d8",
+      "d9",
+      "d10",
+      "d11",
+      "d12",
+      "d13",
+      "d14",
+      "d15",
+    ]) {
       const schedule = schedules[String(defaultId)];
       if (!schedule) continue;
 

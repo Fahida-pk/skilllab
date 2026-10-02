@@ -462,7 +462,20 @@ function AdminDashboard() {
       const data = await response.json();
       if (!data.success) throw new Error(data.message || "Unable to load defaults");
 
-      setStudentDefaults(Array.isArray(data.defaults) ? data.defaults : []);
+      const loadedDefaults = Array.isArray(data.defaults)
+        ? data.defaults
+        : [];
+
+      // Admin should start with ONLY Wake Up + Sleep.
+      // The other built-in student schedule tasks are automatic student
+      // tasks and must not appear as pre-created Admin defaults.
+      // Custom tasks that Admin has already created remain visible/editable.
+      const adminDefaults = loadedDefaults.filter((task) => {
+        const id = String(task?.default_id || task?.id || "");
+        return !["d2", "d3", "d4"].includes(id);
+      });
+
+      setStudentDefaults(adminDefaults);
     } catch (error) {
       console.error("Student defaults load error:", error);
       alert(error.message || "Unable to load student default tasks");
@@ -494,7 +507,18 @@ function AdminDashboard() {
 
       const data = await response.json();
       if (!data.success) throw new Error(data.message || "Unable to load defaults");
-      setStudentDefaults(Array.isArray(data.defaults) ? data.defaults : []);
+      const loadedDefaults = Array.isArray(data.defaults)
+        ? data.defaults
+        : [];
+
+      // Keep Admin's pre-created list limited to Wake Up + Sleep.
+      // Existing custom Admin-created defaults are still retained.
+      const adminDefaults = loadedDefaults.filter((task) => {
+        const id = String(task?.default_id || task?.id || "");
+        return !["d2", "d3", "d4"].includes(id);
+      });
+
+      setStudentDefaults(adminDefaults);
       setEditingDefaultId(null);
     } catch (error) {
       console.error("Date defaults load error:", error);
