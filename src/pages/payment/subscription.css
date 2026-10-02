@@ -487,11 +487,16 @@ textarea {
 
 }
 
-.plans-grid {
+/* =========================================
+   PLANS GRID — CENTERED
+========================================= */
 
+.plans-grid {
   position: relative;
 
   z-index: 2;
+
+  width: 100%;
 
   max-width: 1100px;
 
@@ -500,11 +505,13 @@ textarea {
   display: grid;
 
   grid-template-columns:
+    repeat(auto-fit, minmax(360px, 392px));
 
-    repeat(3, minmax(0, 1fr));
+  justify-content: center;
 
-  gap: 20px;
+  align-items: stretch;
 
+  gap: 24px;
 }
 
 .plan-card {
