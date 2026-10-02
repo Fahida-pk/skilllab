@@ -1510,136 +1510,159 @@ customTasks.forEach((task) => {
           ? taskPercentageData.tasks
           : [];
 
-      const percentageById = new Map(
-        percentageTasks.map((task) => [
+      /*
+       * =====================================================
+       * SINGLE SOURCE OF TRUTH FOR TODAY'S TASK LIST
+       * =====================================================
+       *
+       * The Tasks page gets the student's real task list from
+       * task.php -> action: "get".
+       *
+       * dashboard.php can contain an additional default row
+       * because it also synchronizes built-in defaults.
+       *
+       * Therefore Dashboard MUST NOT build today's visible
+       * task list from data.tasks.
+       *
+       * Use task.php tasks as the base list and only take
+       * status / percentage information from dashboard.php
+       * where available.
+       *
+       * This keeps:
+       *
+       * Tasks page  = 5
+       * Dashboard   = 5
+       *
+       * instead of:
+       *
+       * Tasks page  = 5
+       * Dashboard   = 6
+       */
+
+      const dashboardTasks =
+        Array.isArray(data.tasks)
+          ? data.tasks
+          : [];
+
+      const dashboardById = new Map(
+        dashboardTasks.map((task) => [
           String(task.id),
-          Math.max(
-            0,
-            Math.min(
-              100,
-              Number(task.percentage ?? 0)
-            )
-          ),
+          task,
         ])
       );
 
-      const percentageByTitle = new Map(
-        percentageTasks.map((task) => [
-          String(task.title || "")
+      const dashboardByTitle = new Map(
+        dashboardTasks.map((task) => [
+          String(
+            task.title ||
+            task.task_name ||
+            ""
+          )
             .trim()
             .toLowerCase(),
-          Math.max(
-            0,
-            Math.min(
-              100,
-              Number(task.percentage ?? 0)
-            )
-          ),
+          task,
         ])
       );
-/* =====================================================
-   USE TASK PAGE API AS SINGLE SOURCE OF TRUTH
-   -----------------------------------------------------
-   The Tasks page and Dashboard must show exactly the
-   same tasks for the selected date.
 
-   task.php -> actual visible student tasks
-   dashboard.php -> statistics / weekly / monthly data
-===================================================== */
+      /*
+       * task.php currently returns:
+       * id, title, from, to, completed
+       *
+       * dashboard.php returns:
+       * id, title, from, to, taskStatus,
+       * completed, percentage
+       *
+       * Combine both without changing the task count.
+       */
+      const tasksWithPercentages =
+        percentageTasks.map((task) => {
+          const taskId = String(task.id);
 
-const taskSource = percentageTasks;
+          const taskTitle = String(
+            task.title ||
+            task.task_name ||
+            ""
+          )
+            .trim()
+            .toLowerCase();
 
-const dashboardTaskById = new Map(
-  (Array.isArray(data.tasks) ? data.tasks : []).map((task) => [
-    String(task.id),
-    task,
-  ])
-);
+          const dashboardTask =
+            dashboardById.get(taskId) ||
+            dashboardByTitle.get(taskTitle) ||
+            {};
 
-const dashboardTaskByTitle = new Map(
-  (Array.isArray(data.tasks) ? data.tasks : []).map((task) => [
-    String(
-      task.title ||
-      task.task_name ||
-      ""
-    )
-      .trim()
-      .toLowerCase(),
-    task,
-  ])
-);
+          const dashboardPercentage =
+            Number(
+              dashboardTask.percentage ??
+              dashboardTask.task_percentage ??
+              0
+            );
 
-const tasksWithPercentages = taskSource.map((task) => {
-  const idKey = String(task.id);
+          return {
+            ...dashboardTask,
+            ...task,
 
-  const titleKey = String(
-    task.title ||
-    task.task_name ||
-    ""
-  )
-    .trim()
-    .toLowerCase();
+            id:
+              task.id ??
+              dashboardTask.id,
 
-  const dashboardTask =
-    dashboardTaskById.get(idKey) ||
-    dashboardTaskByTitle.get(titleKey) ||
-    {};
+            title:
+              task.title ||
+              task.task_name ||
+              dashboardTask.title ||
+              dashboardTask.task_name ||
+              "",
 
-  return {
-    ...dashboardTask,
-    ...task,
+            from:
+              task.from ||
+              task.from_time ||
+              dashboardTask.from ||
+              dashboardTask.from_time ||
+              "",
 
-    title:
-      task.title ||
-      task.task_name ||
-      dashboardTask.title ||
-      dashboardTask.task_name ||
-      "",
+            to:
+              task.to ||
+              task.to_time ||
+              dashboardTask.to ||
+              dashboardTask.to_time ||
+              "",
 
-    from:
-      task.from ||
-      task.from_time ||
-      dashboardTask.from ||
-      dashboardTask.from_time,
+            completed:
+              task.completed === true ||
+              task.completed === 1 ||
+              task.completed === "1" ||
+              task.completed === "true",
 
-    to:
-      task.to ||
-      task.to_time ||
-      dashboardTask.to ||
-      dashboardTask.to_time,
+            percentage:
+              Math.max(
+                0,
+                Math.min(
+                  100,
+                  Number.isFinite(dashboardPercentage)
+                    ? dashboardPercentage
+                    : 0
+                )
+              ),
 
-    completed:
-      task.completed === true ||
-      task.completed === 1 ||
-      task.completed === "1" ||
-      task.completed === "true",
+            taskStatus:
+              dashboardTask.taskStatus ||
+              dashboardTask.task_status ||
+              undefined,
+          };
+        });
 
-    percentage: Math.max(
-      0,
-      Math.min(
-        100,
-        Number(
-          task.percentage ??
-          task.task_percentage ??
-          dashboardTask.percentage ??
-          dashboardTask.task_percentage ??
-          0
-        )
-      )
-    ),
-  };
-});
+      /*
+       * IMPORTANT:
+       * Do NOT call mergeDashboardTasks() here.
+       *
+       * mergeDashboardTasks() can recreate browser-side
+       * default tasks that are not present on the Tasks page.
+       *
+       * task.php is the final source of truth for the visible
+       * task list, so the Dashboard must use exactly that list.
+       */
+      const mergedTasks = tasksWithPercentages;
 
-/* =====================================================
-   FINAL VISIBLE TASK LIST
-===================================================== */
-
-const mergedTasks = adminView
-  ? tasksWithPercentages
-  : mergeDashboardTasks(
-      tasksWithPercentages,
-      date
-    );
       /*
        * Recalculate TODAY using the
        * actual visible task list.
