@@ -2383,11 +2383,6 @@ const openStudentDashboard = (student) => {
                       String(task.title || "").trim().toLowerCase() ===
                         "sleep";
 
-                    // This Wake Up is inherited from the previous date's
-                    // Sleep end time. It must not be edited independently.
-                    const isInheritedWake =
-                      isWakeUp && String(task.source || "") === "inherited";
-
                     const isEditing =
                       String(editingDefaultId) ===
                       String(task.default_id);
@@ -2530,19 +2525,12 @@ const openStudentDashboard = (student) => {
                           >
                             <button
                               type="button"
-                              title={
-                                isInheritedWake
-                                  ? "Wake Up comes from the previous day's Sleep end time"
-                                  : isEditing
-                                  ? "Done editing"
-                                  : "Edit task"
-                              }
-                              onClick={() => {
-                                if (isInheritedWake) return;
+                              title={isEditing ? "Done editing" : "Edit task"}
+                              onClick={() =>
                                 setEditingDefaultId(
                                   isEditing ? null : task.default_id
-                                );
-                              }}
+                                )
+                              }
                               style={{
                                 width: "40px",
                                 height: "40px",
@@ -2551,8 +2539,7 @@ const openStudentDashboard = (student) => {
                                   "1px solid rgba(255,255,255,.48)",
                                 background: "rgba(255,255,255,.16)",
                                 color: "#fff",
-                                cursor: isInheritedWake ? "not-allowed" : "pointer",
-                                opacity: isInheritedWake ? 0.55 : 1,
+                                cursor: "pointer",
                                 display: "grid",
                                 placeItems: "center",
                                 fontSize: "17px",
@@ -2738,9 +2725,8 @@ const openStudentDashboard = (student) => {
                                   opacity: 0.9,
                                 }}
                               >
-                                {isInheritedWake
-                                  ? "Wake Up is taken from the previous day's Sleep end time."
-                                  : "Wake Up uses one time only — there is no To Time."}
+                                Wake Up uses one time only — there is no
+                                To Time.
                               </div>
                             )}
                           </div>
