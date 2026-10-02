@@ -203,6 +203,50 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const currentKey = getDateKey(date);
 
+  // =========================================================
+  // FIRST LOGIN DATE
+  // A student cannot move to a previous date before the date
+  // on which the student first logged in.
+  // Admin / Parent student views are not restricted by this.
+  // =========================================================
+  const firstLoginStorageKey = user?.email
+    ? `skilllab_first_login_date_${user.email}`
+    : null;
+
+  const [firstLoginDate, setFirstLoginDate] = useState(() => {
+    if (user?.created_at) {
+      return String(user.created_at).slice(0, 10);
+    }
+
+    if (firstLoginStorageKey) {
+      const saved = localStorage.getItem(firstLoginStorageKey);
+      if (saved) return saved;
+    }
+
+    return user?.email ? getDateKey(new Date()) : null;
+  });
+
+  useEffect(() => {
+    if (adminView || parentView) return;
+    if (!user?.email) return;
+
+    const key = `skilllab_first_login_date_${user.email}`;
+    const saved = localStorage.getItem(key);
+
+    // Never overwrite an already saved first-login date.
+    if (saved) {
+      setFirstLoginDate(saved);
+      return;
+    }
+
+    const loginDate = user?.created_at
+      ? String(user.created_at).slice(0, 10)
+      : getDateKey(new Date());
+
+    localStorage.setItem(key, loginDate);
+    setFirstLoginDate(loginDate);
+  }, [user?.email, user?.created_at, adminView, parentView]);
+
   // Performance time is the actual elapsed time (in minutes)
   // from the task start time until the moment the task is ticked.
   // It is kept in localStorage so no extra database column is required.
@@ -1075,6 +1119,18 @@ useEffect(() => {
   };
 
   const changeDate = (type) => {
+    // Normal students cannot go before their first-login date.
+    // Admin / Parent student views keep the existing date navigation.
+    if (
+      type === "prev" &&
+      !adminView &&
+      !parentView &&
+      firstLoginDate &&
+      currentKey <= firstLoginDate
+    ) {
+      return;
+    }
+
     const newDate = new Date(date);
     newDate.setDate(date.getDate() + (type === "prev" ? -1 : 1));
     setDate(newDate);
@@ -2989,9 +3045,14 @@ const taskAccuracyPercentage =
       <div className="main">
         {/* DATE BAR */}
         <div className="date-bar">
-          <button onClick={() => changeDate("prev")} type="button">
-            <FaChevronLeft />
-          </button>
+          {(adminView ||
+            parentView ||
+            !firstLoginDate ||
+            currentKey > firstLoginDate) && (
+            <button onClick={() => changeDate("prev")} type="button">
+              <FaChevronLeft />
+            </button>
+          )}
 
           <span>{date.toDateString()}</span>
 
