@@ -2002,14 +2002,10 @@ const openStudentDashboard = (student) => {
                 "active";
 
               return (
-
-                <div
-                  className="student-card"
-                  key={student.id}
-                  onClick={() =>
-                    openStudentDashboard(student)
-                  }
-                >
+<div
+  className="student-card"
+  key={student.id}
+>
 
                   {/* TOP */}
 
