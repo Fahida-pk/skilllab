@@ -40,7 +40,7 @@ import {
 
    API
 
-\========================================================= */
+========================================================= */
 
 const PLANS_API =
 
@@ -66,7 +66,7 @@ const RAZORPAY_SCRIPT =
 
    RAZORPAY SCRIPT
 
-\========================================================= */
+========================================================= */
 
 function loadRazorpayScript() {
 
@@ -116,7 +116,7 @@ function loadRazorpayScript() {
 
    PARENT HELPERS
 
-\========================================================= */
+========================================================= */
 
 function getLoggedInParent() {
 
@@ -234,7 +234,7 @@ function getParentPhone(parent) {
 
    COMPONENT
 
-\========================================================= */
+========================================================= */
 
 function ParentSubscription() {
 
@@ -498,9 +498,9 @@ function ParentSubscription() {
 
       /*
 
-       \* If the selected student no longer exists,
+       * If the selected student no longer exists,
 
-       \* clear the selection.
+       * clear the selection.
 
        */
 
@@ -1325,7 +1325,9 @@ function ParentSubscription() {
               razorpayResponse,
 
               studentId,
+
               planId
+
             );
 
           },
@@ -1415,7 +1417,9 @@ function ParentSubscription() {
     razorpayResponse,
 
     studentId,
+
     planId
+
   ) => {
 
     try {
@@ -1463,7 +1467,9 @@ function ParentSubscription() {
               parent_id:
 
                 getParentId(parent),
+
               plan_id:
+
                 Number(planId),
 
               razorpay_payment_id:
@@ -1546,9 +1552,9 @@ function ParentSubscription() {
 
       /*
 
-       \* Keep the user on the payment page for a moment
+       * Keep the user on the payment page for a moment
 
-       \* so they can see the ACTIVE status.
+       * so they can see the ACTIVE status.
 
        */
 
