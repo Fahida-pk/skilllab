@@ -33,10 +33,11 @@ const STUDENT_PAYMENTS_API =
 const CREATE_ORDER_API =
   "https://zyntaweb.com/skilllab/create-razorpay-order.php";
 
-
 const VERIFY_PAYMENT_API =
+  "https://zyntaweb.com/skilllab/verify-razorpay-payment.php";
 
-  "https://zyntaweb.com/skilllab/verify-razorpay-payment.php";
+const RAZORPAY_SCRIPT =
+  "https://checkout.razorpay.com/v1/checkout.js";
 /* =========================================================
    RAZORPAY SCRIPT
 ========================================================= */
