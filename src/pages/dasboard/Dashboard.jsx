@@ -1829,23 +1829,22 @@ const getBuiltInDefaultId = (task, dateKey) => {
         task.task_date <= monthEndKey
     );
 
- const fixedWeek = {
-  total: Number(data.week?.total || 0),
-  completed: Number(data.week?.completed || 0),
-  percentage: Number(data.week?.percentage || 0),
-  performancePercentage: Number(
-    data.week?.performancePercentage || 0
-  ),
-};
+    /*
+     * IMPORTANT:
+     * Week / Month must be calculated from the SAME task.php
+     * task list fetched above, not from dashboard.php week/month.
+     *
+     * Today -> Tasks page data
+     * Week  -> Tasks page data for Monday-Sunday
+     * Month -> Tasks page data for 1st-last day of month
+     */
+    const fixedWeek = calculatePeriodStats(
+      weekTasksFromTaskPage
+    );
 
-const fixedMonth = {
-  total: Number(data.month?.total || 0),
-  completed: Number(data.month?.completed || 0),
-  percentage: Number(data.month?.percentage || 0),
-  performancePercentage: Number(
-    data.month?.performancePercentage || 0
-  ),
-};
+    const fixedMonth = calculatePeriodStats(
+      monthTasksFromTaskPage
+    );
 
     /* =====================================================
        FINAL DASHBOARD STATE
