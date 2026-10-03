@@ -34,6 +34,9 @@ const CREATE_ORDER_API =
   "https://zyntaweb.com/skilllab/create-razorpay-order.php";
 
 
+const VERIFY_PAYMENT_API =
+
+  "https://zyntaweb.com/skilllab/verify-razorpay-payment.php";
 /* =========================================================
    RAZORPAY SCRIPT
 ========================================================= */
