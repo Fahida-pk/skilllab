@@ -1118,9 +1118,7 @@ function ParentSubscription() {
           </h3>
 
           <p>
-            Payments are made by this parent
-            account, but each subscription is
-            linked to the selected student account.
+           Subscribe to unlock more learning benefits for your child and help them stay consistent, improve their performance, and achieve their learning goals.
           </p>
 
         </div>
