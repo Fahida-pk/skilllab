@@ -1723,9 +1723,23 @@ const getBuiltInDefaultId = (task, dateKey) => {
      */
     if (!data?.success) {
       console.warn(
-        "Dashboard statistics unavailable; task list kept from task.php"
+        "Dashboard statistics unavailable; continuing with task.php data"
       );
-      return;
+
+      /*
+       * IMPORTANT:
+       * Do NOT return here.
+       *
+       * Week / Month statistics are calculated below directly from
+       * task.php date-wise task data. If dashboard.php is unavailable,
+       * we still need to continue with those calculations.
+       */
+      data = {
+        success: false,
+        today: {},
+        week: {},
+        month: {},
+      };
     }
 
     /* =====================================================
