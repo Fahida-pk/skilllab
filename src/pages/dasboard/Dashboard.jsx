@@ -1829,13 +1829,23 @@ const getBuiltInDefaultId = (task, dateKey) => {
         task.task_date <= monthEndKey
     );
 
-    const fixedWeek = calculatePeriodStats(
-      weekTasksFromTaskPage
-    );
+ const fixedWeek = {
+  total: Number(data.week?.total || 0),
+  completed: Number(data.week?.completed || 0),
+  percentage: Number(data.week?.percentage || 0),
+  performancePercentage: Number(
+    data.week?.performancePercentage || 0
+  ),
+};
 
-    const fixedMonth = calculatePeriodStats(
-      monthTasksFromTaskPage
-    );
+const fixedMonth = {
+  total: Number(data.month?.total || 0),
+  completed: Number(data.month?.completed || 0),
+  percentage: Number(data.month?.percentage || 0),
+  performancePercentage: Number(
+    data.month?.performancePercentage || 0
+  ),
+};
 
     /* =====================================================
        FINAL DASHBOARD STATE
