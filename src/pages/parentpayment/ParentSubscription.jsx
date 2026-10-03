@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-
+import { useEffect, useState } from "react";
 import {
   FaCreditCard,
   FaShieldHalved,
@@ -9,7 +8,7 @@ import {
   FaCrown,
   FaStar,
   FaCalendarDays,
-  FaXmark,
+  FaClock,
 } from "react-icons/fa6";
 
 import "./parentsubscription.css";
@@ -18,20 +17,31 @@ import "./parentsubscription.css";
    API
 ========================================================= */
 
-const PARENT_DASHBOARD_API =
-  "https://zyntaweb.com/skilllab/parent-dashboard.php";
+const PARENT_SUBSCRIPTION_API =
+  "https://zyntaweb.com/skilllab/parent-subscription.php";
 
 const PLANS_API =
   "https://zyntaweb.com/skilllab/plans.php";
 
-const SUBSCRIPTION_API =
-  "https://zyntaweb.com/skilllab/student-subscription.php";
+const FREE_TRIAL_API =
+  "https://zyntaweb.com/skilllab/parent-free-trial.php";
+
+/*
+  IMPORTANT:
+  Use the GENERIC account-type endpoints.
+
+  Do NOT use:
+  parent-create-razorpay-order.php
+  parent-verify-razorpay-payment.php
+
+  Those were being used for student-wise payment.
+*/
 
 const CREATE_ORDER_API =
-  "https://zyntaweb.com/skilllab/parent-create-razorpay-order.php";
+  "https://zyntaweb.com/skilllab/create-razorpay-order-parent.php";
 
 const VERIFY_PAYMENT_API =
-  "https://zyntaweb.com/skilllab/parent-verify-razorpay-payment.php";
+  "https://zyntaweb.com/skilllab/verify-razorpay-payment-parent.php";
 
 const RAZORPAY_SCRIPT =
   "https://checkout.razorpay.com/v1/checkout.js";
@@ -70,17 +80,14 @@ function loadRazorpayScript() {
 }
 
 /* =========================================================
-   FORMAT PRICE
+   HELPERS
 ========================================================= */
 
-const formatPrice = (value) =>
-  Number(value || 0).toLocaleString("en-IN", {
+const formatPrice = (value) => {
+  return Number(value || 0).toLocaleString("en-IN", {
     maximumFractionDigits: 2,
   });
-
-/* =========================================================
-   FORMAT DATE
-========================================================= */
+};
 
 const formatDate = (value) => {
   if (!value) return "—";
@@ -98,31 +105,15 @@ const formatDate = (value) => {
   });
 };
 
-/* =========================================================
-   BILLING CYCLE
-========================================================= */
-
 const cycleText = (cycle) => {
   const value = String(cycle || "").toLowerCase();
 
-  if (value === "monthly") {
-    return "month";
-  }
-
-  if (value === "quarterly") {
-    return "3 months";
-  }
-
-  if (value === "yearly") {
-    return "year";
-  }
+  if (value === "monthly") return "month";
+  if (value === "quarterly") return "3 months";
+  if (value === "yearly") return "year";
 
   return value;
 };
-
-/* =========================================================
-   PLAN ICON
-========================================================= */
 
 const planIcon = (cycle) => {
   const value = String(cycle || "").toLowerCase();
@@ -142,163 +133,95 @@ const planIcon = (cycle) => {
    COMPONENT
 ========================================================= */
 
-export default function ParentPayments({
-  parent,
-  students = [],
-}) {
+export default function ParentSubscription({ parent }) {
   /* =======================================================
      STATE
   ======================================================= */
 
   const [plans, setPlans] = useState([]);
 
-  const [loadedStudents, setLoadedStudents] = useState([]);
+  const [subscription, setSubscription] =
+    useState(null);
 
-  const [subscriptions, setSubscriptions] = useState({});
+  const [hasSubscription, setHasSubscription] =
+    useState(false);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
+
+  const [trialLoading, setTrialLoading] =
+    useState(false);
 
   const [paymentLoading, setPaymentLoading] =
     useState(false);
 
-  const [selectedStudent, setSelectedStudent] =
-    useState(null);
-
-  const [message, setMessage] = useState("");
+  const [message, setMessage] =
+    useState("");
 
   const [messageType, setMessageType] =
     useState("");
 
   /* =======================================================
-     STUDENTS
-
-     IMPORTANT:
-     Do NOT depend only on students prop.
-
-     We load all students directly using parent_id.
+     PARENT ID
   ======================================================= */
 
-  const studentList = useMemo(() => {
-    const source =
-      Array.isArray(loadedStudents) &&
-      loadedStudents.length > 0
-        ? loadedStudents
-        : Array.isArray(students)
-        ? students
-        : [];
-
-    const uniqueStudents = [];
-    const usedIds = new Set();
-
-    source.forEach((student) => {
-      const id = Number(student?.id);
-
-      if (id <= 0) {
-        return;
-      }
-
-      if (usedIds.has(id)) {
-        return;
-      }
-
-      usedIds.add(id);
-
-      uniqueStudents.push({
-        ...student,
-        id,
-      });
-    });
-
-    return uniqueStudents;
-  }, [loadedStudents, students]);
+  const parentId = Number(parent?.id || 0);
 
   /* =======================================================
-     LOAD ALL ASSIGNED STUDENTS
-
-     parent_id
-        ↓
-     parent-dashboard.php
-        ↓
-     overview.students
+     LOAD PARENT SUBSCRIPTION
   ======================================================= */
 
-  const loadAssignedStudents = async () => {
-    const parentId = Number(parent?.id);
-
+  const loadSubscription = async () => {
     if (parentId <= 0) {
-      setLoadedStudents([]);
+      setSubscription(null);
+      setHasSubscription(false);
       return;
     }
 
     try {
       const response = await fetch(
-        PARENT_DASHBOARD_API,
+        `${PARENT_SUBSCRIPTION_API}?parent_id=${encodeURIComponent(
+          parentId
+        )}`,
         {
-          method: "POST",
-
+          method: "GET",
           headers: {
-            "Content-Type":
-              "application/json",
-
             Accept: "application/json",
           },
-
-          body: JSON.stringify({
-            action: "parent_overview",
-
-            parent_id: parentId,
-          }),
-
           cache: "no-store",
         }
       );
 
       const data = await response.json();
 
-      if (
-        !response.ok ||
-        !data.success
-      ) {
+      if (!response.ok || !data.success) {
         throw new Error(
           data.message ||
-            "Unable to load assigned students."
+            "Unable to load parent subscription."
         );
       }
 
-      const apiStudents =
-        Array.isArray(
-          data?.overview?.students
-        )
-          ? data.overview.students
-          : [];
-
-      const validStudents =
-        apiStudents.filter(
-          (student) =>
-            Number(student?.id) > 0
-        );
-
-      setLoadedStudents(
-        validStudents
+      setHasSubscription(
+        Boolean(data.has_subscription)
       );
 
-      console.log(
-        "PARENT PAYMENT ASSIGNED STUDENTS:",
-        validStudents
+      setSubscription(
+        data.has_subscription
+          ? data.subscription
+          : null
       );
     } catch (error) {
       console.error(
-        "Load assigned students error:",
+        "Parent subscription load error:",
         error
       );
 
-      /*
-       * Do not immediately show an error.
-       *
-       * If parent dashboard already passed students,
-       * use that as fallback.
-       */
-      setLoadedStudents([]);
+      setMessage(
+        error.message ||
+          "Unable to load subscription."
+      );
+
+      setMessageType("error");
     }
   };
 
@@ -307,122 +230,52 @@ export default function ParentPayments({
   ======================================================= */
 
   const loadPlans = async () => {
-    const response = await fetch(
-      PLANS_API,
-      {
-        method: "GET",
-
-        headers: {
-          Accept: "application/json",
-        },
-
-        cache: "no-store",
-      }
-    );
-
-    const data =
-      await response.json();
-
-    if (
-      !response.ok ||
-      !data.success
-    ) {
-      throw new Error(
-        data.message ||
-          "Unable to load subscription plans."
+    try {
+      const response = await fetch(
+        PLANS_API,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+          cache: "no-store",
+        }
       );
-    }
 
-    const activePlans =
-      Array.isArray(data.plans)
-        ? data.plans.filter(
-            (plan) =>
-              Number(
-                plan.is_active ?? 1
-              ) === 1
-          )
-        : [];
+      const data = await response.json();
 
-    setPlans(activePlans);
-  };
-
-  /* =======================================================
-     LOAD EACH STUDENT SUBSCRIPTION
-  ======================================================= */
-
-  const loadStudentSubscriptions =
-    async (studentArray = studentList) => {
-      if (
-        !Array.isArray(studentArray) ||
-        studentArray.length === 0
-      ) {
-        setSubscriptions({});
-        return;
-      }
-
-      const entries =
-        await Promise.all(
-          studentArray.map(
-            async (student) => {
-              const studentId =
-                Number(student?.id);
-
-              if (studentId <= 0) {
-                return [
-                  studentId,
-                  null,
-                ];
-              }
-
-              try {
-                const response =
-                  await fetch(
-                    `${SUBSCRIPTION_API}?user_id=${encodeURIComponent(
-                      studentId
-                    )}`,
-                    {
-                      method: "GET",
-
-                      headers: {
-                        Accept:
-                          "application/json",
-                      },
-
-                      cache:
-                        "no-store",
-                    }
-                  );
-
-                const data =
-                  await response.json();
-
-                return [
-                  studentId,
-
-                  data.success &&
-                  data.has_subscription
-                    ? data.subscription
-                    : null,
-                ];
-              } catch (error) {
-                console.error(
-                  `Subscription load failed for student ${studentId}:`,
-                  error
-                );
-
-                return [
-                  studentId,
-                  null,
-                ];
-              }
-            }
-          )
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Unable to load plans."
         );
+      }
 
-      setSubscriptions(
-        Object.fromEntries(entries)
+      const activePlans =
+        Array.isArray(data.plans)
+          ? data.plans.filter(
+              (plan) =>
+                Number(
+                  plan.is_active ?? 1
+                ) === 1
+            )
+          : [];
+
+      setPlans(activePlans);
+    } catch (error) {
+      console.error(
+        "Plan loading error:",
+        error
       );
-    };
+
+      setMessage(
+        error.message ||
+          "Unable to load plans."
+      );
+
+      setMessageType("error");
+    }
+  };
 
   /* =======================================================
      INITIAL LOAD
@@ -431,159 +284,149 @@ export default function ParentPayments({
   useEffect(() => {
     let cancelled = false;
 
-    const initialize =
-      async () => {
-        if (!parent?.id) {
-          return;
+    const initialize = async () => {
+      if (parentId <= 0) {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        await Promise.all([
+          loadSubscription(),
+          loadPlans(),
+        ]);
+      } catch (error) {
+        if (!cancelled) {
+          console.error(error);
         }
-
-        setLoading(true);
-
-        try {
-          /*
-           * FIRST:
-           * Load all students assigned
-           * to this parent.
-           */
-          await loadAssignedStudents();
-
-          /*
-           * Load plans.
-           */
-          await loadPlans();
-        } catch (error) {
-          if (!cancelled) {
-            console.error(
-              "Parent payment initialization error:",
-              error
-            );
-
-            setMessage(
-              error.message ||
-                "Unable to load payment details."
-            );
-
-            setMessageType("error");
-          }
-        } finally {
-          if (!cancelled) {
-            setLoading(false);
-          }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
         }
-      };
+      }
+    };
 
     initialize();
 
     return () => {
       cancelled = true;
     };
-  }, [parent?.id]);
+  }, [parentId]);
 
   /* =======================================================
-     LOAD SUBSCRIPTIONS AFTER STUDENTS LOAD
+     START 7 DAY FREE TRIAL
   ======================================================= */
 
-  useEffect(() => {
-    if (!parent?.id) {
+  const startFreeTrial = async () => {
+    if (parentId <= 0) {
+      setMessage("Parent information is missing.");
+      setMessageType("error");
       return;
     }
 
-    if (
-      !Array.isArray(studentList) ||
-      studentList.length === 0
-    ) {
-      setSubscriptions({});
+    if (trialLoading || paymentLoading) {
       return;
     }
 
-    loadStudentSubscriptions(
-      studentList
-    );
-  }, [
-    parent?.id,
-    studentList,
-  ]);
+    try {
+      setTrialLoading(true);
+      setMessage("");
+      setMessageType("");
 
-  /* =======================================================
-     OPEN PLAN MODAL
-  ======================================================= */
+      const response = await fetch(
+        FREE_TRIAL_API,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+            Accept:
+              "application/json",
+          },
+          body: JSON.stringify({
+            parent_id: parentId,
+          }),
+        }
+      );
 
-  const openPlans = (student) => {
-    setMessage("");
-    setMessageType("");
+      const data = await response.json();
 
-    setSelectedStudent(
-      student
-    );
-  };
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Unable to start free trial."
+        );
+      }
 
-  /* =======================================================
-     CLOSE PLAN MODAL
-  ======================================================= */
+      setSubscription(
+        data.subscription || null
+      );
 
-  const closePlans = () => {
-    if (paymentLoading) {
-      return;
+      setHasSubscription(true);
+
+      setMessage(
+        "Your 7-day free trial has started."
+      );
+
+      setMessageType("success");
+    } catch (error) {
+      console.error(
+        "Free trial error:",
+        error
+      );
+
+      setMessage(
+        error.message ||
+          "Unable to start free trial."
+      );
+
+      setMessageType("error");
+    } finally {
+      setTrialLoading(false);
     }
-
-    setSelectedStudent(null);
-
-    setMessage("");
-    setMessageType("");
   };
 
   /* =======================================================
      PAYMENT
+     
+     IMPORTANT:
+     Parent only.
+     NO student_id.
   ======================================================= */
 
-  const handlePayment = async (
-    student,
-    plan
-  ) => {
+  const handlePayment = async (plan) => {
     if (paymentLoading) {
       return;
     }
 
-    const parentId =
-      Number(parent?.id);
-
-    const studentId =
-      Number(student?.id);
-
-    const planId =
-      Number(plan?.id);
-
-    /* -----------------------------------------------------
-       VALIDATION
-    ----------------------------------------------------- */
-
-    if (
-      parentId <= 0 ||
-      studentId <= 0 ||
-      planId <= 0
-    ) {
-      setMessage(
-        "Parent, student or plan information is missing."
-      );
-
+    if (parentId <= 0) {
+      setMessage("Parent information is missing.");
       setMessageType("error");
-
       return;
     }
 
-    /* -----------------------------------------------------
-       CONFIRM
-    ----------------------------------------------------- */
+    const planId = Number(plan?.id || 0);
 
-    const confirmed =
-      window.confirm(
-        `Continue with ${plan.name} for ${
-          student.name ||
-          "this student"
-        } for ₹${formatPrice(
-          plan.price
-        )}?`
-      );
+    if (planId <= 0) {
+      setMessage("Invalid plan.");
+      setMessageType("error");
+      return;
+    }
+
+    const planName =
+      plan?.name || "selected plan";
+
+    const amount = Number(
+      plan?.price || 0
+    );
+
+    const confirmed = window.confirm(
+      `Continue with ${planName} for ₹${formatPrice(
+        amount
+      )}?\n\nThis payment is for the parent account and covers all students assigned to this parent.`
+    );
 
     if (!confirmed) {
       return;
@@ -591,14 +434,12 @@ export default function ParentPayments({
 
     try {
       setPaymentLoading(true);
-
       setMessage("");
-
       setMessageType("");
 
-      /* ---------------------------------------------------
+      /* ==========================================
          LOAD RAZORPAY
-      --------------------------------------------------- */
+      ========================================== */
 
       const loaded =
         await loadRazorpayScript();
@@ -609,12 +450,11 @@ export default function ParentPayments({
         );
       }
 
-      /* ---------------------------------------------------
-         CREATE ORDER
-
-         IMPORTANT:
-         Payment belongs to selected STUDENT.
-      --------------------------------------------------- */
+      /* ==========================================
+         CREATE PARENT ORDER
+         
+         NO student_id
+      ========================================== */
 
       const orderResponse =
         await fetch(
@@ -631,14 +471,9 @@ export default function ParentPayments({
             },
 
             body: JSON.stringify({
-              parent_id:
-                parentId,
-
-              student_id:
-                studentId,
-
-              plan_id:
-                planId,
+              account_type: "parent",
+              parent_id: parentId,
+              plan_id: planId,
             }),
           }
         );
@@ -656,31 +491,24 @@ export default function ParentPayments({
         );
       }
 
-      /* ---------------------------------------------------
+      /* ==========================================
          RAZORPAY OPTIONS
-      --------------------------------------------------- */
+      ========================================== */
 
       const options = {
-        key:
-          orderData.key_id,
+        key: orderData.key_id,
 
-        amount:
-          Number(
-            orderData.amount
-          ),
+        amount: Number(
+          orderData.amount
+        ),
 
         currency:
-          orderData.currency ||
-          "INR",
+          orderData.currency || "INR",
 
-        name:
-          "SkillLab",
+        name: "SkillLab",
 
         description:
-          `${plan.name} Subscription for ${
-            student.name ||
-            "Student"
-          }`,
+          `${planName} Parent Subscription`,
 
         order_id:
           orderData.order_id,
@@ -701,38 +529,30 @@ export default function ParentPayments({
         },
 
         notes: {
+          account_type: "parent",
           parent_id:
             String(parentId),
 
-          student_id:
-            String(studentId),
-
-          student_name:
-            student?.name ||
-            "",
+          plan_id:
+            String(planId),
         },
 
         theme: {
-          color:
-            "#6d28d9",
+          color: "#6d28d9",
         },
 
         modal: {
           ondismiss: () => {
-            setPaymentLoading(
-              false
-            );
+            setPaymentLoading(false);
           },
         },
 
-        /* -------------------------------------------------
+        /* ======================================
            PAYMENT SUCCESS
-        ------------------------------------------------- */
+        ====================================== */
 
         handler:
-          async (
-            razorpayResponse
-          ) => {
+          async (razorpayResponse) => {
             try {
               setMessage(
                 "Verifying payment..."
@@ -742,16 +562,17 @@ export default function ParentPayments({
                 "success"
               );
 
-              /* -------------------------------------------
-                 VERIFY PAYMENT
-              ------------------------------------------- */
+              /* ================================
+                 VERIFY PARENT PAYMENT
+
+                 NO student_id
+              ================================= */
 
               const verifyResponse =
                 await fetch(
                   VERIFY_PAYMENT_API,
                   {
-                    method:
-                      "POST",
+                    method: "POST",
 
                     headers: {
                       "Content-Type":
@@ -761,24 +582,22 @@ export default function ParentPayments({
                         "application/json",
                     },
 
-                    body: JSON.stringify(
-                      {
-                        parent_id:
-                          parentId,
+                    body: JSON.stringify({
+                      account_type:
+                        "parent",
 
-                        student_id:
-                          studentId,
+                      parent_id:
+                        parentId,
 
-                        razorpay_payment_id:
-                          razorpayResponse.razorpay_payment_id,
+                      razorpay_payment_id:
+                        razorpayResponse.razorpay_payment_id,
 
-                        razorpay_order_id:
-                          razorpayResponse.razorpay_order_id,
+                      razorpay_order_id:
+                        razorpayResponse.razorpay_order_id,
 
-                        razorpay_signature:
-                          razorpayResponse.razorpay_signature,
-                      }
-                    ),
+                      razorpay_signature:
+                        razorpayResponse.razorpay_signature,
+                    }),
                   }
                 );
 
@@ -795,49 +614,35 @@ export default function ParentPayments({
                 );
               }
 
-              /* -------------------------------------------
+              /* ================================
                  UPDATE LOCAL SUBSCRIPTION
-              ------------------------------------------- */
+              ================================= */
 
-              setSubscriptions(
-                (previous) => ({
-                  ...previous,
+              if (
+                verifyData.subscription
+              ) {
+                setSubscription(
+                  verifyData.subscription
+                );
 
-                  [studentId]:
-                    verifyData.subscription ||
-                    {
-                      status:
-                        "active",
-                    },
-                })
-              );
-
-              /* -------------------------------------------
-                 SUCCESS MESSAGE
-              ------------------------------------------- */
+                setHasSubscription(
+                  true
+                );
+              }
 
               setMessage(
-                `Payment successful. ${
-                  student?.name ||
-                  "Student"
-                }'s subscription is active.`
+                "Payment successful. Parent subscription is now active."
               );
 
               setMessageType(
                 "success"
               );
 
-              setSelectedStudent(
-                null
-              );
+              /* ================================
+                 REFRESH
+              ================================= */
 
-              /* -------------------------------------------
-                 REFRESH STUDENT SUBSCRIPTIONS
-              ------------------------------------------- */
-
-              await loadStudentSubscriptions(
-                studentList
-              );
+              await loadSubscription();
             } catch (error) {
               console.error(
                 "Parent payment verification error:",
@@ -853,25 +658,23 @@ export default function ParentPayments({
                 "error"
               );
             } finally {
-              setPaymentLoading(
-                false
-              );
+              setPaymentLoading(false);
             }
           },
       };
 
-      /* ---------------------------------------------------
+      /* ==========================================
          OPEN RAZORPAY
-      --------------------------------------------------- */
+      ========================================== */
 
       const razorpay =
         new window.Razorpay(
           options
         );
 
-      /* ---------------------------------------------------
+      /* ==========================================
          PAYMENT FAILED
-      --------------------------------------------------- */
+      ========================================== */
 
       razorpay.on(
         "payment.failed",
@@ -882,13 +685,9 @@ export default function ParentPayments({
               "Payment failed. Please try again."
           );
 
-          setMessageType(
-            "error"
-          );
+          setMessageType("error");
 
-          setPaymentLoading(
-            false
-          );
+          setPaymentLoading(false);
         }
       );
 
@@ -904,143 +703,83 @@ export default function ParentPayments({
           "Unable to start payment."
       );
 
-      setMessageType(
-        "error"
-      );
+      setMessageType("error");
 
-      setPaymentLoading(
-        false
-      );
+      setPaymentLoading(false);
     }
   };
 
   /* =======================================================
-     REFRESH BUTTON
+     REFRESH
   ======================================================= */
 
-  const refreshPayments = async () => {
-    if (paymentLoading) {
+  const refresh = async () => {
+    if (loading || paymentLoading) {
       return;
     }
 
+    setLoading(true);
+    setMessage("");
+    setMessageType("");
+
     try {
-      setLoading(true);
-
-      await loadAssignedStudents();
-
-      await loadPlans();
-
-      /*
-       * Small delay because
-       * loadedStudents state update is async.
-       */
-      const parentId =
-        Number(parent?.id);
-
-      if (parentId > 0) {
-        const response =
-          await fetch(
-            PARENT_DASHBOARD_API,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-
-                Accept:
-                  "application/json",
-              },
-
-              body: JSON.stringify({
-                action:
-                  "parent_overview",
-
-                parent_id:
-                  parentId,
-              }),
-
-              cache:
-                "no-store",
-            }
-          );
-
-        const data =
-          await response.json();
-
-        const freshStudents =
-          Array.isArray(
-            data?.overview
-              ?.students
-          )
-            ? data.overview.students
-            : [];
-
-        const validStudents =
-          freshStudents.filter(
-            (student) =>
-              Number(
-                student?.id
-              ) > 0
-          );
-
-        setLoadedStudents(
-          validStudents
-        );
-
-        await loadStudentSubscriptions(
-          validStudents
-        );
-      }
-    } catch (error) {
-      console.error(
-        "Refresh payment data error:",
-        error
-      );
-
-      setMessage(
-        error.message ||
-          "Unable to refresh payment details."
-      );
-
-      setMessageType(
-        "error"
-      );
+      await Promise.all([
+        loadSubscription(),
+        loadPlans(),
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
   /* =======================================================
+     STATUS
+  ======================================================= */
+
+  const isActive =
+    String(
+      subscription?.status || ""
+    ).toLowerCase() === "active";
+
+  const isTrial =
+    Number(
+      subscription?.free_trial || 0
+    ) === 1 ||
+    String(
+      subscription?.billing_cycle || ""
+    ).toLowerCase() === "trial";
+
+  /* =======================================================
      RENDER
   ======================================================= */
 
   return (
-    <section className="parent-payment-section">
+    <section className="parent-subscription-page">
 
-      {/* ===================================================
+      {/* ================================================
           HEADER
-      =================================================== */}
+      ================================================= */}
 
-      <div className="parent-payment-header">
+      <div className="parent-subscription-header">
 
         <div>
-          <span className="section-kicker">
-            STUDENT SUBSCRIPTIONS
+          <span className="parent-subscription-kicker">
+            PARENT SUBSCRIPTION
           </span>
 
-          <h2>
+          <h1>
             Payments & Subscription
-          </h2>
+          </h1>
 
           <p>
-            Manage subscription payments
-            separately for each student
-            assigned to this parent account.
+            Manage one subscription for this
+            parent account. The subscription
+            covers all students assigned to
+            this parent.
           </p>
         </div>
 
-        <div className="parent-payment-secure">
+        <div className="parent-subscription-secure">
           <FaShieldHalved />
 
           <span>
@@ -1049,25 +788,12 @@ export default function ParentPayments({
 
           <button
             type="button"
-            onClick={refreshPayments}
+            onClick={refresh}
             disabled={
               loading ||
               paymentLoading
             }
-            title="Refresh students"
-            style={{
-              marginLeft: "12px",
-              border: "none",
-              background:
-                "transparent",
-              cursor:
-                loading ||
-                paymentLoading
-                  ? "not-allowed"
-                  : "pointer",
-              color:
-                "inherit",
-            }}
+            title="Refresh subscription"
           >
             <FaRotate
               className={
@@ -1078,18 +804,15 @@ export default function ParentPayments({
             />
           </button>
         </div>
-
       </div>
 
-      {/* ===================================================
+      {/* ================================================
           MESSAGE
-      =================================================== */}
+      ================================================= */}
 
       {message && (
         <div
-          className={`parent-payment-message ${
-            messageType
-          }`}
+          className={`parent-subscription-message ${messageType}`}
         >
           {messageType ===
           "success" ? (
@@ -1098,277 +821,193 @@ export default function ParentPayments({
             <FaCircleExclamation />
           )}
 
-          <span>
-            {message}
-          </span>
+          <span>{message}</span>
         </div>
       )}
 
-      {/* ===================================================
+      {/* ================================================
           LOADING
-      =================================================== */}
+      ================================================= */}
 
       {loading ? (
-        <div className="parent-payment-loading">
-
+        <div className="parent-subscription-loading">
           <FaRotate className="spin" />
 
           <span>
-            Loading students and
-            subscription details...
+            Loading parent subscription...
           </span>
-
-        </div>
-      ) : studentList.length ===
-        0 ? (
-        /* =================================================
-           NO STUDENTS
-        ================================================= */
-
-        <div className="parent-payment-empty">
-
-          <FaCircleExclamation />
-
-          <h3>
-            No assigned students
-          </h3>
-
-          <p>
-            No students are currently
-            assigned to this parent
-            account.
-          </p>
-
         </div>
       ) : (
-        /* =================================================
-           STUDENT CARDS
-        ================================================= */
+        <>
+          {/* ============================================
+              CURRENT SUBSCRIPTION
+          ============================================= */}
 
-        <div className="parent-payment-student-grid">
+          {hasSubscription &&
+          subscription ? (
+            <div className="parent-current-subscription">
 
-          {studentList.map(
-            (student) => {
-              const studentId =
-                Number(
-                  student.id
-                );
+              <div className="parent-current-left">
 
-              const subscription =
-                subscriptions[
-                  studentId
-                ];
+                <div className="parent-current-icon">
+                  {isTrial ? (
+                    <FaClock />
+                  ) : (
+                    <FaCreditCard />
+                  )}
+                </div>
 
-              const active =
-                String(
-                  subscription?.status ||
-                    ""
-                ).toLowerCase() ===
-                "active";
+                <div>
+                  <span className="current-label">
+                    CURRENT SUBSCRIPTION
+                  </span>
 
-              return (
-                <article
-                  className="parent-payment-student-card"
-                  key={
-                    studentId
+                  <h2>
+                    {isTrial
+                      ? "7-Day Free Trial"
+                      : subscription.plan_name ||
+                        subscription.name ||
+                        "Active Plan"}
+                  </h2>
+
+                  <p>
+                    {isTrial
+                      ? "Your parent trial is active."
+                      : "Your parent subscription is active."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="parent-current-right">
+
+                <span
+                  className={
+                    isActive
+                      ? "subscription-active"
+                      : "subscription-expired"
                   }
                 >
-
-                  {/* =======================================
-                      STUDENT HEADER
-                  ======================================= */}
-
-                  <div className="parent-payment-student-top">
-
-                    <div className="parent-payment-avatar">
-                      {(
-                        student.name ||
-                        "S"
-                      )
-                        .trim()
-                        .slice(
-                          0,
-                          2
-                        )
-                        .toUpperCase()}
-                    </div>
-
-                    <div>
-
-                      <h3>
-                        {student.name ||
-                          "Unnamed Student"}
-                      </h3>
-
-                      <span>
-                        Student ID #
-                        {studentId}
-                      </span>
-
-                    </div>
-
-                  </div>
-
-                  {/* =======================================
-                      EMAIL
-                  ======================================= */}
-
-                  <div className="parent-payment-email">
-                    {student.email ||
-                      "No email available"}
-                  </div>
-
-                  {/* =======================================
-                      SUBSCRIPTION STATUS
-                  ======================================= */}
-
-                  <div className="parent-payment-status">
-
-                    <span
-                      className={
-                        active
-                          ? "active"
-                          : "inactive"
-                      }
-                    >
-
-                      {active ? (
-                        <FaCircleCheck />
-                      ) : (
-                        <FaCircleExclamation />
-                      )}
-
-                      {active
-                        ? "Subscription Active"
-                        : "No Active Subscription"}
-
-                    </span>
-
-                    {active && (
-                      <small>
-
-                        {subscription.plan_name ||
-                          subscription.name ||
-                          "Current Plan"}
-
-                        {" · "}
-
-                        Until{" "}
-
-                        {formatDate(
-                          subscription.end_date
-                        )}
-
-                      </small>
-                    )}
-
-                  </div>
-
-                  {/* =======================================
-                      PAYMENT BUTTON
-                  ======================================= */}
-
-                  <button
-                    type="button"
-                    className="parent-pay-button"
-                    onClick={() =>
-                      openPlans(
-                        student
-                      )
-                    }
-                  >
-
-                    <FaCreditCard />
-
-                    {active
-                      ? "Renew / Change Plan"
-                      : "Pay Subscription"}
-
-                  </button>
-
-                </article>
-              );
-            }
-          )}
-
-        </div>
-      )}
-
-      {/* ===================================================
-          PLAN MODAL
-      =================================================== */}
-
-      {selectedStudent && (
-        <div
-          className="parent-payment-modal-backdrop"
-
-          onMouseDown={(event) => {
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              closePlans();
-            }
-          }}
-        >
-
-          <div className="parent-payment-modal">
-
-            {/* =============================================
-                MODAL HEADER
-            ============================================= */}
-
-            <div className="parent-payment-modal-head">
-
-              <div>
-
-                <span className="section-kicker">
-                  STUDENT SUBSCRIPTION
+                  {isActive ? (
+                    <>
+                      <FaCircleCheck />
+                      Active
+                    </>
+                  ) : (
+                    <>
+                      <FaCircleExclamation />
+                      Expired
+                    </>
+                  )}
                 </span>
 
-                <h3>
-                  {selectedStudent.name ||
-                    "Student"}
-                </h3>
+                <div className="subscription-date">
+                  <span>
+                    Valid until
+                  </span>
+
+                  <strong>
+                    {formatDate(
+                      subscription.end_date
+                    )}
+                  </strong>
+                </div>
+
+                {Number(
+                  subscription.days_left
+                ) > 0 && (
+                  <div className="subscription-days">
+                    {subscription.days_left}{" "}
+                    days remaining
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* ==========================================
+               NO SUBSCRIPTION
+            ========================================== */
+
+            <div className="parent-trial-card">
+
+              <div className="parent-trial-icon">
+                <FaStar />
+              </div>
+
+              <div className="parent-trial-content">
+                <span>
+                  START WITH SKILL LAB
+                </span>
+
+                <h2>
+                  7-Day Free Trial
+                </h2>
 
                 <p>
-                  Student ID #
-                  {selectedStudent.id}
-
-                  {" · "}
-
-                  Select a subscription
-                  plan
+                  Get full SkillLab access for
+                  7 days. After the trial ends,
+                  choose a parent subscription
+                  plan.
                 </p>
-
               </div>
 
               <button
                 type="button"
-                className="parent-payment-close"
                 onClick={
-                  closePlans
+                  startFreeTrial
                 }
                 disabled={
-                  paymentLoading
+                  trialLoading
                 }
-                aria-label="Close"
               >
-                <FaXmark />
+                {trialLoading ? (
+                  <>
+                    <FaRotate className="spin" />
+                    Starting...
+                  </>
+                ) : (
+                  <>
+                    <FaStar />
+                    Start Free Trial
+                  </>
+                )}
               </button>
+            </div>
+          )}
 
+          {/* ============================================
+              PLANS
+          ============================================= */}
+
+          <div className="parent-plans-section">
+
+            <div className="parent-plans-heading">
+
+              <div>
+                <span>
+                  SUBSCRIPTION PLANS
+                </span>
+
+                <h2>
+                  Choose Your Plan
+                </h2>
+
+                <p>
+                  One payment for the parent
+                  account covers all assigned
+                  students.
+                </p>
+              </div>
+
+              <div className="parent-plan-note">
+                <FaShieldHalved />
+                Parent account billing
+              </div>
             </div>
 
-            {/* =============================================
-                PLANS
-            ============================================= */}
+            <div className="parent-plan-grid">
 
-            <div className="parent-payment-plan-grid">
-
-              {plans.length ===
-              0 ? (
-                <div className="parent-payment-empty">
-
+              {plans.length === 0 ? (
+                <div className="parent-no-plans">
                   <FaCircleExclamation />
 
                   <h3>
@@ -1376,168 +1015,145 @@ export default function ParentPayments({
                   </h3>
 
                   <p>
-                    Please contact
-                    the administrator.
+                    Please contact the
+                    administrator.
                   </p>
-
                 </div>
               ) : (
-                plans.map(
-                  (plan) => {
-                    const current =
-                      subscriptions[
-                        Number(
-                          selectedStudent.id
-                        )
-                      ];
+                plans.map((plan) => {
 
-                    const isCurrent =
-                      Number(
-                        current?.plan_id
-                      ) ===
-                      Number(
-                        plan.id
-                      );
+                  const currentPlan =
+                    Number(
+                      subscription?.plan_id
+                    ) ===
+                    Number(plan.id);
 
-                    return (
-                      <article
-                        className={`parent-plan-card ${
-                          isCurrent
-                            ? "current"
-                            : ""
-                        }`}
-                        key={
-                          plan.id
+                  return (
+                    <article
+                      key={plan.id}
+                      className={`parent-plan-card ${
+                        currentPlan
+                          ? "current"
+                          : ""
+                      }`}
+                    >
+
+                      {currentPlan && (
+                        <span className="parent-current-badge">
+                          Current Plan
+                        </span>
+                      )}
+
+                      <div className="parent-plan-icon">
+                        {planIcon(
+                          plan.billing_cycle
+                        )}
+                      </div>
+
+                      <h3>
+                        {plan.name}
+                      </h3>
+
+                      <div className="parent-plan-price">
+                        ₹
+                        {formatPrice(
+                          plan.price
+                        )}
+                      </div>
+
+                      <span className="parent-plan-cycle">
+                        /{" "}
+                        {cycleText(
+                          plan.billing_cycle
+                        )}
+                      </span>
+
+                      <p>
+                        {plan.description ||
+                          "SkillLab parent subscription"}
+                      </p>
+
+                      <ul>
+                        <li>
+                          <FaCircleCheck />
+                          Full SkillLab access
+                        </li>
+
+                        <li>
+                          <FaCircleCheck />
+                          All assigned students
+                        </li>
+
+                        <li>
+                          <FaCircleCheck />
+                          Student task tracking
+                        </li>
+
+                        <li>
+                          <FaCircleCheck />
+                          Performance monitoring
+                        </li>
+                      </ul>
+
+                      <button
+                        type="button"
+                        className="parent-plan-pay-button"
+                        disabled={
+                          paymentLoading
+                        }
+                        onClick={() =>
+                          handlePayment(
+                            plan
+                          )
                         }
                       >
-
-                        {/* =================================
-                            CURRENT BADGE
-                        ================================= */}
-
-                        {isCurrent && (
-                          <span className="current-plan-badge">
-                            Current Plan
-                          </span>
+                        {paymentLoading ? (
+                          <>
+                            <FaRotate className="spin" />
+                            Processing...
+                          </>
+                        ) : currentPlan ? (
+                          <>
+                            <FaRotate />
+                            Renew Plan
+                          </>
+                        ) : (
+                          <>
+                            <FaCreditCard />
+                            Subscribe Now
+                          </>
                         )}
-
-                        {/* =================================
-                            ICON
-                        ================================= */}
-
-                        <div className="parent-plan-icon">
-
-                          {planIcon(
-                            plan.billing_cycle
-                          )}
-
-                        </div>
-
-                        {/* =================================
-                            NAME
-                        ================================= */}
-
-                        <h4>
-                          {plan.name}
-                        </h4>
-
-                        {/* =================================
-                            PRICE
-                        ================================= */}
-
-                        <div className="parent-plan-price">
-
-                          ₹
-                          {formatPrice(
-                            plan.price
-                          )}
-
-                        </div>
-
-                        <span className="parent-plan-cycle">
-                          /
-                          {" "}
-                          {cycleText(
-                            plan.billing_cycle
-                          )}
-                        </span>
-
-                        {/* =================================
-                            DESCRIPTION
-                        ================================= */}
-
-                        <p>
-                          {plan.description ||
-                            "SkillLab learning subscription"}
-                        </p>
-
-                        {/* =================================
-                            PAYMENT
-                        ================================= */}
-
-                        <button
-                          type="button"
-                          className="parent-plan-pay-button"
-                          disabled={
-                            paymentLoading
-                          }
-                          onClick={() =>
-                            handlePayment(
-                              selectedStudent,
-                              plan
-                            )
-                          }
-                        >
-
-                          {paymentLoading ? (
-                            <>
-                              <FaRotate className="spin" />
-
-                              Processing...
-                            </>
-                          ) : (
-                            <>
-                              <FaCreditCard />
-
-                              {isCurrent
-                                ? "Renew Plan"
-                                : "Pay Now"}
-                            </>
-                          )}
-
-                        </button>
-
-                      </article>
-                    );
-                  }
-                )
+                      </button>
+                    </article>
+                  );
+                })
               )}
-
             </div>
-
-            {/* =============================================
-                PAYMENT NOTE
-            ============================================= */}
-
-            <div className="parent-payment-note">
-
-              <FaShieldHalved />
-
-              <span>
-                Payment is processed
-                securely through Razorpay.
-                The subscription is saved
-                against the selected student,
-                not the parent account.
-              </span>
-
-            </div>
-
           </div>
 
-        </div>
-      )}
+          {/* ============================================
+              IMPORTANT NOTE
+          ============================================= */}
 
+          <div className="parent-subscription-note">
+
+            <FaShieldHalved />
+
+            <div>
+              <strong>
+                Parent-level subscription
+              </strong>
+
+              <span>
+                Payment and renewal are saved
+                against the parent account.
+                Student IDs are not used for
+                subscription or renewal.
+              </span>
+            </div>
+          </div>
+        </>
+      )}
     </section>
   );
 }
