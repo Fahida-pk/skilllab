@@ -1696,19 +1696,26 @@ useEffect(() => {
     }
   };
 
+const handlePercentageChange = (task, value) => {
+  if (adminView || parentView || isPreviousDay) return;
 
-  const handlePercentageChange = (task, value) => {
-    if (adminView || parentView || isPreviousDay) return;
+  const percentage = Math.max(
+    0,
+    Math.min(100, Number(value) || 0)
+  );
 
-    const percentage = Math.max(0, Math.min(100, Number(value)));
-
-    // Update only the UI while dragging.
-    setTasks((prev) =>
-      prev.map((t) =>
-        String(t.id) === String(task.id) ? { ...t, percentage } : t
-      )
-    );
-  };
+  // Slider move ചെയ്യുമ്പോൾ UI മാത്രം update ചെയ്യുക.
+  setTasks((prev) =>
+    prev.map((t) =>
+      String(t.id) === String(task.id)
+        ? {
+            ...t,
+            percentage,
+          }
+        : t
+    )
+  );
+};
 
   const saveTaskPercentage = async (task, value) => {
     if (adminView || parentView || isPreviousDay) return;
@@ -3534,49 +3541,106 @@ const taskAccuracyPercentage =
                           )}
                       </div>
                     )}
+<div className="task-progress-inline">
+  <input
+    className="task-percentage-range"
+    type="range"
+    min="0"
+    max="100"
+    step="1"
+    value={Math.max(
+      0,
+      Math.min(100, Number(task.percentage ?? 0))
+    )}
+    disabled={adminView || parentView || isPreviousDay}
 
-                    <div className="task-progress-inline">
-                      <input
-                        className="task-percentage-range"
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="1"
-                        value={Math.max(
-                          0,
-                          Math.min(100, Number(task.percentage ?? 0))
-                        )}
-                        disabled={adminView || parentView || isPreviousDay}
-                        onPointerDown={() => {
-                          if (adminView || parentView || isPreviousDay) return;
-                          isPercentageDraggingRef.current = true;
-                        }}
-                        onChange={(e) => {
-                          if (adminView || parentView || isPreviousDay) return;
-                          handlePercentageChange(task, e.target.value);
-                        }}
-                        onPointerUp={async (e) => {
-                          if (adminView || parentView || isPreviousDay) return;
+    onPointerDown={(e) => {
+      if (adminView || parentView || isPreviousDay) return;
 
-                          const value = Number(e.currentTarget.value);
-                          isPercentageDraggingRef.current = false;
+      isPercentageDraggingRef.current = true;
 
-                          await saveTaskPercentage(task, value);
-                        }}
-                        onPointerCancel={() => {
-                          isPercentageDraggingRef.current = false;
-                        }}
-                        aria-label={`Progress percentage for ${task.title}`}
-                      />
+      // Mouse/finger slider വിട്ട് പുറത്തുപോയാലും
+      // pointer events ഈ input-ന് തന്നെ കിട്ടാൻ.
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch (error) {
+        console.warn("Pointer capture failed:", error);
+      }
+    }}
 
-                      <strong className="task-progress-percent">
-                        {Math.max(
-                          0,
-                          Math.min(100, Number(task.percentage ?? 0))
-                        )}
-                        %
-                      </strong>
-                    </div>
+    onInput={(e) => {
+      if (adminView || parentView || isPreviousDay) return;
+
+      handlePercentageChange(
+        task,
+        e.currentTarget.value
+      );
+    }}
+
+    onChange={(e) => {
+      if (adminView || parentView || isPreviousDay) return;
+
+      handlePercentageChange(
+        task,
+        e.currentTarget.value
+      );
+    }}
+
+    onPointerUp={async (e) => {
+      if (adminView || parentView || isPreviousDay) return;
+
+      const value = Number(e.currentTarget.value);
+
+      isPercentageDraggingRef.current = false;
+
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch (error) {
+        // Pointer already released/captured elsewhere
+      }
+
+      // Final percentage database-ലേക്ക് save ചെയ്യുക
+      await saveTaskPercentage(task, value);
+    }}
+
+    onPointerCancel={(e) => {
+      isPercentageDraggingRef.current = false;
+
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch (error) {
+        // Ignore
+      }
+    }}
+
+    onBlur={async (e) => {
+      // Mouse പുറത്തേക്ക് പോയി pointerUp miss ആയാലും
+      // value save ചെയ്യാനുള്ള fallback.
+      if (
+        adminView ||
+        parentView ||
+        isPreviousDay ||
+        isPercentageDraggingRef.current
+      ) {
+        return;
+      }
+
+      const value = Number(e.currentTarget.value);
+
+      await saveTaskPercentage(task, value);
+    }}
+
+    aria-label={`Progress percentage for ${task.title}`}
+  />
+
+  <strong className="task-progress-percent">
+    {Math.max(
+      0,
+      Math.min(100, Number(task.percentage ?? 0))
+    )}
+    %
+  </strong>
+</div>
                   </div>
                 </div>
               ))

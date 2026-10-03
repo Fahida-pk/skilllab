@@ -761,7 +761,132 @@ body,
   margin-bottom: 14px;
 }
 
+/* =====================================================
+   TASK PERCENTAGE SLIDER
+   Smooth + easy dragging
+===================================================== */
 
+.card.task-modern-card .task-progress-inline {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.card.task-modern-card
+  .task-progress-inline
+  .task-percentage-range {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-width: 40px !important;
+  height: 8px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  cursor: grab !important;
+
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
+  background: rgba(255, 255, 255, 0.45) !important;
+
+  border-radius: 999px !important;
+
+  outline: none !important;
+
+  touch-action: none !important;
+}
+
+/* Chrome / Edge / Safari track */
+.card.task-modern-card
+  .task-percentage-range::-webkit-slider-runnable-track {
+  height: 8px !important;
+
+  background: rgba(255, 255, 255, 0.45) !important;
+
+  border-radius: 999px !important;
+}
+
+/* Chrome / Edge / Safari knob */
+.card.task-modern-card
+  .task-percentage-range::-webkit-slider-thumb {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
+  width: 17px !important;
+  height: 17px !important;
+
+  margin-top: -4.5px !important;
+
+  border: 3px solid #ffffff !important;
+  border-radius: 50% !important;
+
+  background: #ffffff !important;
+
+  cursor: grab !important;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* Firefox track */
+.card.task-modern-card
+  .task-percentage-range::-moz-range-track {
+  height: 8px !important;
+
+  background: rgba(255, 255, 255, 0.45) !important;
+
+  border-radius: 999px !important;
+}
+
+/* Firefox knob */
+.card.task-modern-card
+  .task-percentage-range::-moz-range-thumb {
+  width: 17px !important;
+  height: 17px !important;
+
+  border: 3px solid #ffffff !important;
+  border-radius: 50% !important;
+
+  background: #ffffff !important;
+
+  cursor: grab !important;
+}
+
+/* While dragging */
+.card.task-modern-card
+  .task-percentage-range:active {
+  cursor: grabbing !important;
+}
+
+.card.task-modern-card
+  .task-percentage-range:active::-webkit-slider-thumb {
+  cursor: grabbing !important;
+
+  transform: scale(1.08);
+}
+
+.card.task-modern-card
+  .task-percentage-range:focus {
+  outline: none !important;
+}
+
+/* Percentage text */
+.card.task-modern-card
+  .task-progress-percent {
+  flex: 0 0 38px !important;
+  width: 38px !important;
+  min-width: 38px !important;
+
+  text-align: right !important;
+
+  font-size: 13px !important;
+  font-weight: 700 !important;
+
+  color: #ffffff !important;
+
+  user-select: none !important;
+}
 /* =========================================
    PROGRESS CIRCLE
 ========================================= */
