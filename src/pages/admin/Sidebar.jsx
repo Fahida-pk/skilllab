@@ -423,7 +423,6 @@ export default function Sidebar() {
 
           </div>
 
-        </div>
 
 {/* =================================================
     PAYMENT HISTORY
@@ -434,26 +433,36 @@ export default function Sidebar() {
   <button
     type="button"
     className={`admin-nav-item ${
-      location.pathname === "/admin/payment-history"
+      location.pathname === "/AdminPaymentHistory"
         ? "active"
         : ""
     }`}
     onClick={() => {
-      navigate("/AdminPaymentHistory");
+
+      navigate(
+        "/AdminPaymentHistory"
+      );
 
       setStudentsOpen(false);
+
       setParentsOpen(false);
+
       setMobileOpen(false);
+
     }}
   >
+
     <FaCreditCard />
 
     <span>
       Payment History
     </span>
+
   </button>
 
 </div>
+        </div>
+
         {/* =================================================
             LOGOUT
         ================================================= */}
