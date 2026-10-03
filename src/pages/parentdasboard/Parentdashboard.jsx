@@ -1,1543 +1,3223 @@
+
+import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 
+
 import {
-  FaCreditCard,
-  FaShieldHalved,
+  FaGaugeHigh,
+  FaUserGraduate,
+  FaListCheck,
   FaCircleCheck,
-  FaCircleExclamation,
-  FaRotate,
-  FaCrown,
-  FaStar,
+  FaClock,
+  FaTrophy,
+  FaChartLine,
   FaCalendarDays,
+  FaArrowRightFromBracket,
+  FaBars,
   FaXmark,
+  FaMagnifyingGlass,
+  FaArrowRight,
+  FaUser,
+  FaCreditCard,
+  FaArrowTrendUp,
+  FaChartPie,
+  FaRotate,
+  FaBullseye,
 } from "react-icons/fa6";
 
-import "./parent-payments.css";
+import "./parent-dashboard.css";
 
-/* =========================================================
-   API
-========================================================= */
-
-const PARENT_DASHBOARD_API =
+const API_URL =
   "https://zyntaweb.com/skilllab/parent-dashboard.php";
 
-const PLANS_API =
-  "https://zyntaweb.com/skilllab/plans.php";
+const clamp = (value) =>
+  Math.max(0, Math.min(100, Number(value) || 0));
 
-const SUBSCRIPTION_API =
-  "https://zyntaweb.com/skilllab/student-subscription.php";
+function ParentDashboard() {
+  const navigate = useNavigate();
 
-const CREATE_ORDER_API =
-  "https://zyntaweb.com/skilllab/parent-create-razorpay-order.php";
-
-const VERIFY_PAYMENT_API =
-  "https://zyntaweb.com/skilllab/parent-verify-razorpay-payment.php";
-
-const RAZORPAY_SCRIPT =
-  "https://checkout.razorpay.com/v1/checkout.js";
-
-/* =========================================================
-   RAZORPAY SCRIPT
-========================================================= */
-
-function loadRazorpayScript() {
-  return new Promise((resolve) => {
-    if (window.Razorpay) {
-      resolve(true);
-      return;
-    }
-
-    const existing = document.querySelector(
-      `script[src="${RAZORPAY_SCRIPT}"]`
-    );
-
-    if (existing) {
-      existing.onload = () => resolve(true);
-      existing.onerror = () => resolve(false);
-      return;
-    }
-
-    const script = document.createElement("script");
-
-    script.src = RAZORPAY_SCRIPT;
-    script.async = true;
-
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-
-    document.body.appendChild(script);
-  });
-}
-
-/* =========================================================
-   FORMAT PRICE
-========================================================= */
-
-const formatPrice = (value) =>
-  Number(value || 0).toLocaleString("en-IN", {
-    maximumFractionDigits: 2,
-  });
-
-/* =========================================================
-   FORMAT DATE
-========================================================= */
-
-const formatDate = (value) => {
-  if (!value) return "—";
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-};
-
-/* =========================================================
-   BILLING CYCLE
-========================================================= */
-
-const cycleText = (cycle) => {
-  const value = String(cycle || "").toLowerCase();
-
-  if (value === "monthly") {
-    return "month";
-  }
-
-  if (value === "quarterly") {
-    return "3 months";
-  }
-
-  if (value === "yearly") {
-    return "year";
-  }
-
-  return value;
-};
-
-/* =========================================================
-   PLAN ICON
-========================================================= */
-
-const planIcon = (cycle) => {
-  const value = String(cycle || "").toLowerCase();
-
-  if (value === "yearly") {
-    return <FaCrown />;
-  }
-
-  if (value === "quarterly") {
-    return <FaStar />;
-  }
-
-  return <FaCalendarDays />;
-};
-
-/* =========================================================
-   COMPONENT
-========================================================= */
-
-export default function ParentPayments({
-  parent,
-  students = [],
-}) {
-  /* =======================================================
-     STATE
-  ======================================================= */
-
-  const [plans, setPlans] = useState([]);
-
-  const [loadedStudents, setLoadedStudents] = useState([]);
-
-  const [subscriptions, setSubscriptions] = useState({});
-
+  const [parent, setParent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [activePage, setActivePage] = useState("dashboard");
+  const [search, setSearch] = useState("");
 
-  const [paymentLoading, setPaymentLoading] =
-    useState(false);
+  const [dashboard, setDashboard] = useState({
+    students: [],
+    totalStudents: 0,
 
-  const [selectedStudent, setSelectedStudent] =
-    useState(null);
+    totalTasks: 0,
+    completedTasks: 0,
+    pendingTasks: 0,
 
-  const [message, setMessage] = useState("");
+    overallPerformance: 0,
 
-  const [messageType, setMessageType] =
-    useState("");
+    todayPerformance: 0,
+    weeklyPerformance: 0,
+    monthlyPerformance: 0,
 
-  /* =======================================================
-     STUDENTS
+    todayTaskProgress: 0,
+    weeklyTaskProgress: 0,
+    monthlyTaskProgress: 0,
 
-     IMPORTANT:
-     Do NOT depend only on students prop.
+    todayAccuracy: 0,
+    weeklyAccuracy: 0,
+    monthlyAccuracy: 0,
 
-     We load all students directly using parent_id.
-  ======================================================= */
+    todayCompleted: 0,
+    todayTotal: 0,
 
-  const studentList = useMemo(() => {
-    const source =
-      Array.isArray(loadedStudents) &&
-      loadedStudents.length > 0
-        ? loadedStudents
-        : Array.isArray(students)
-        ? students
-        : [];
+    weekCompleted: 0,
+    weekTotal: 0,
 
-    const uniqueStudents = [];
-    const usedIds = new Set();
+    monthCompleted: 0,
+    monthTotal: 0,
 
-    source.forEach((student) => {
-      const id = Number(student?.id);
+    periods: {
+      today: "",
+      week: "",
+      month: "",
+    },
+  });
 
-      if (id <= 0) {
-        return;
-      }
+  /* =========================================================
+     CHECK PARENT LOGIN
+  ========================================================= */
 
-      if (usedIds.has(id)) {
-        return;
-      }
+  useEffect(() => {
+    const savedParent = localStorage.getItem("parent");
+    const loggedIn =
+      localStorage.getItem("parentLoggedIn");
 
-      usedIds.add(id);
-
-      uniqueStudents.push({
-        ...student,
-        id,
+    if (loggedIn !== "true" || !savedParent) {
+      navigate("/parent/login", {
+        replace: true,
       });
-    });
 
-    return uniqueStudents;
-  }, [loadedStudents, students]);
-
-  /* =======================================================
-     LOAD ALL ASSIGNED STUDENTS
-
-     parent_id
-        ↓
-     parent-dashboard.php
-        ↓
-     overview.students
-  ======================================================= */
-
-  const loadAssignedStudents = async () => {
-    const parentId = Number(parent?.id);
-
-    if (parentId <= 0) {
-      setLoadedStudents([]);
       return;
     }
 
     try {
-      const response = await fetch(
-        PARENT_DASHBOARD_API,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Accept: "application/json",
-          },
-
-          body: JSON.stringify({
-            action: "parent_overview",
-
-            parent_id: parentId,
-          }),
-
-          cache: "no-store",
-        }
+      setParent(JSON.parse(savedParent));
+    } catch (error) {
+      console.error(
+        "Parent data error:",
+        error
       );
+
+      localStorage.removeItem("parent");
+      localStorage.removeItem(
+        "parentLoggedIn"
+      );
+      localStorage.removeItem(
+        "parentStudents"
+      );
+
+      navigate("/parent/login", {
+        replace: true,
+      });
+    }
+  }, [navigate]);
+
+  /* =========================================================
+     AUTO REFRESH PARENT DASHBOARD
+     
+     - First load immediately
+     - Then refresh every 3 seconds
+     - Refresh when browser tab becomes visible
+  ========================================================= */
+
+  useEffect(() => {
+    if (!parent?.id) return;
+
+    // Load immediately
+    loadDashboard();
+
+    // Auto refresh every 3 seconds
+    const interval = setInterval(() => {
+      loadDashboard(true);
+    }, 3000);
+
+    // Refresh immediately when user comes back to tab
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === "visible"
+      ) {
+        loadDashboard(true);
+      }
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    return () => {
+      clearInterval(interval);
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+    };
+  }, [parent]);
+
+  /* =========================================================
+     LOAD DASHBOARD DATA
+     
+     silent = false
+     → normal loading
+
+     silent = true
+     → background refresh without showing loader
+  ========================================================= */
+
+  const loadDashboard = async (
+    silent = false
+  ) => {
+    try {
+      if (!silent) {
+        setLoading(true);
+      }
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          action: "parent_overview",
+          parent_id: parent.id,
+        }),
+
+        // Prevent browser cache
+        cache: "no-store",
+      });
 
       const data = await response.json();
 
-      if (
-        !response.ok ||
-        !data.success
-      ) {
+      if (!data.success) {
         throw new Error(
           data.message ||
-            "Unable to load assigned students."
+            "Unable to load dashboard"
         );
       }
 
-      const apiStudents =
-        Array.isArray(
-          data?.overview?.students
+      const overview =
+        data.overview || {};
+
+      /* =====================================================
+         UPDATE DASHBOARD STATE
+      ===================================================== */
+
+      setDashboard({
+        students: Array.isArray(
+          overview.students
         )
-          ? data.overview.students
-          : [];
+          ? overview.students
+          : [],
 
-      const validStudents =
-        apiStudents.filter(
-          (student) =>
-            Number(student?.id) > 0
-        );
+        totalStudents:
+          Number(
+            overview.totalStudents
+          ) || 0,
 
-      setLoadedStudents(
-        validStudents
-      );
+        totalTasks:
+          Number(
+            overview.totalTasks
+          ) || 0,
 
-      console.log(
-        "PARENT PAYMENT ASSIGNED STUDENTS:",
-        validStudents
-      );
+        completedTasks:
+          Number(
+            overview.completedTasks
+          ) || 0,
+
+        pendingTasks:
+          Number(
+            overview.pendingTasks
+          ) || 0,
+
+        overallPerformance:
+          Number(
+            overview.overallPerformance
+          ) || 0,
+
+        /* TODAY */
+
+        todayPerformance:
+          Number(
+            overview.todayPerformance
+          ) || 0,
+
+        todayTaskProgress:
+          Number(
+            overview.todayTaskProgress
+          ) || 0,
+
+        todayAccuracy:
+          Number(
+            overview.todayAccuracy
+          ) || 0,
+
+        todayCompleted:
+          Number(
+            overview.todayCompleted
+          ) || 0,
+
+        todayTotal:
+          Number(
+            overview.todayTotal
+          ) || 0,
+
+        /* WEEK */
+
+        weeklyPerformance:
+          Number(
+            overview.weeklyPerformance
+          ) || 0,
+
+        weeklyTaskProgress:
+          Number(
+            overview.weeklyTaskProgress
+          ) || 0,
+
+        weeklyAccuracy:
+          Number(
+            overview.weeklyAccuracy
+          ) || 0,
+
+        weekCompleted:
+          Number(
+            overview.weekCompleted
+          ) || 0,
+
+        weekTotal:
+          Number(
+            overview.weekTotal
+          ) || 0,
+
+        /* MONTH */
+
+        monthlyPerformance:
+          Number(
+            overview.monthlyPerformance
+          ) || 0,
+
+        monthlyTaskProgress:
+          Number(
+            overview.monthlyTaskProgress
+          ) || 0,
+
+        monthlyAccuracy:
+          Number(
+            overview.monthlyAccuracy
+          ) || 0,
+
+        monthCompleted:
+          Number(
+            overview.monthCompleted
+          ) || 0,
+
+        monthTotal:
+          Number(
+            overview.monthTotal
+          ) || 0,
+
+        /* PERIOD LABELS */
+
+        periods: {
+          today:
+            overview.periods?.today ||
+            "Today",
+
+          week:
+            overview.periods?.week ||
+            "This week",
+
+          month:
+            overview.periods?.month ||
+            "This month",
+        },
+      });
     } catch (error) {
       console.error(
-        "Load assigned students error:",
+        "Parent dashboard error:",
         error
       );
 
       /*
-       * Do not immediately show an error.
-       *
-       * If parent dashboard already passed students,
-       * use that as fallback.
-       */
-      setLoadedStudents([]);
-    }
-  };
+        Only use localStorage fallback
+        during normal loading.
 
-  /* =======================================================
-     LOAD PLANS
-  ======================================================= */
+        Background auto refresh should
+        not replace valid current data.
+      */
 
-  const loadPlans = async () => {
-    const response = await fetch(
-      PLANS_API,
-      {
-        method: "GET",
-
-        headers: {
-          Accept: "application/json",
-        },
-
-        cache: "no-store",
-      }
-    );
-
-    const data =
-      await response.json();
-
-    if (
-      !response.ok ||
-      !data.success
-    ) {
-      throw new Error(
-        data.message ||
-          "Unable to load subscription plans."
-      );
-    }
-
-    const activePlans =
-      Array.isArray(data.plans)
-        ? data.plans.filter(
-            (plan) =>
-              Number(
-                plan.is_active ?? 1
-              ) === 1
-          )
-        : [];
-
-    setPlans(activePlans);
-  };
-
-  /* =======================================================
-     LOAD EACH STUDENT SUBSCRIPTION
-  ======================================================= */
-
-  const loadStudentSubscriptions =
-    async (studentArray = studentList) => {
-      if (
-        !Array.isArray(studentArray) ||
-        studentArray.length === 0
-      ) {
-        setSubscriptions({});
-        return;
-      }
-
-      const entries =
-        await Promise.all(
-          studentArray.map(
-            async (student) => {
-              const studentId =
-                Number(student?.id);
-
-              if (studentId <= 0) {
-                return [
-                  studentId,
-                  null,
-                ];
-              }
-
-              try {
-                const response =
-                  await fetch(
-                    `${SUBSCRIPTION_API}?user_id=${encodeURIComponent(
-                      studentId
-                    )}`,
-                    {
-                      method: "GET",
-
-                      headers: {
-                        Accept:
-                          "application/json",
-                      },
-
-                      cache:
-                        "no-store",
-                    }
-                  );
-
-                const data =
-                  await response.json();
-
-                return [
-                  studentId,
-
-                  data.success &&
-                  data.has_subscription
-                    ? data.subscription
-                    : null,
-                ];
-              } catch (error) {
-                console.error(
-                  `Subscription load failed for student ${studentId}:`,
-                  error
-                );
-
-                return [
-                  studentId,
-                  null,
-                ];
-              }
-            }
-          )
-        );
-
-      setSubscriptions(
-        Object.fromEntries(entries)
-      );
-    };
-
-  /* =======================================================
-     INITIAL LOAD
-  ======================================================= */
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const initialize =
-      async () => {
-        if (!parent?.id) {
-          return;
-        }
-
-        setLoading(true);
-
+      if (!silent) {
         try {
-          /*
-           * FIRST:
-           * Load all students assigned
-           * to this parent.
-           */
-          await loadAssignedStudents();
-
-          /*
-           * Load plans.
-           */
-          await loadPlans();
-        } catch (error) {
-          if (!cancelled) {
-            console.error(
-              "Parent payment initialization error:",
-              error
+          const savedStudents =
+            JSON.parse(
+              localStorage.getItem(
+                "parentStudents"
+              ) || "[]"
             );
 
-            setMessage(
-              error.message ||
-                "Unable to load payment details."
-            );
+          if (
+            Array.isArray(savedStudents)
+          ) {
+            setDashboard((prev) => ({
+              ...prev,
 
-            setMessageType("error");
+              students:
+                savedStudents,
+
+              totalStudents:
+                savedStudents.length,
+            }));
           }
-        } finally {
-          if (!cancelled) {
-            setLoading(false);
-          }
+        } catch (storageError) {
+          console.error(
+            "Student storage error:",
+            storageError
+          );
         }
-      };
-
-    initialize();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [parent?.id]);
-
-  /* =======================================================
-     LOAD SUBSCRIPTIONS AFTER STUDENTS LOAD
-  ======================================================= */
-
-  useEffect(() => {
-    if (!parent?.id) {
-      return;
+      }
+    } finally {
+      if (!silent) {
+        setLoading(false);
+      }
     }
+  };
 
-    if (
-      !Array.isArray(studentList) ||
-      studentList.length === 0
-    ) {
-      setSubscriptions({});
-      return;
-    }
+  /* =========================================================
+     LOGOUT
+  ========================================================= */
 
-    loadStudentSubscriptions(
-      studentList
+  const handleLogout = () => {
+    localStorage.removeItem("parent");
+    localStorage.removeItem(
+      "parentLoggedIn"
     );
+    localStorage.removeItem(
+      "parentStudents"
+    );
+
+    navigate("/parent/login", {
+      replace: true,
+    });
+  };
+
+  /* =========================================================
+     STUDENTS
+  ========================================================= */
+
+  const students = Array.isArray(
+    dashboard.students
+  )
+    ? dashboard.students
+    : [];
+
+  /* =========================================================
+     SEARCH
+  ========================================================= */
+
+  const filteredStudents = useMemo(() => {
+    const value = search
+      .trim()
+      .toLowerCase();
+
+    if (!value) {
+      return students;
+    }
+
+    return students.filter(
+      (student) =>
+        [
+          student.name,
+          student.email,
+          student.id,
+        ].some((item) =>
+          String(item || "")
+            .toLowerCase()
+            .includes(value)
+        )
+    );
+  }, [students, search]);
+
+  /* =========================================================
+     INITIALS
+  ========================================================= */
+
+  const getInitials = (name) => {
+    if (!name) return "S";
+
+    const parts = String(name)
+      .trim()
+      .split(/\s+/);
+
+    if (parts.length === 1) {
+      return parts[0]
+        .substring(0, 2)
+        .toUpperCase();
+    }
+
+    return `${parts[0][0]}${
+      parts[parts.length - 1][0]
+    }`.toUpperCase();
+  };
+
+  /* =========================================================
+     TIME-BASED PARENT GREETING
+  ========================================================= */
+
+  const getParentGreeting = () => {
+    const hour = new Date().getHours();
+
+    const name =
+      parent?.name ||
+      parent?.full_name ||
+      parent?.fullName ||
+      parent?.username ||
+      "Parent";
+
+    let period = "night";
+
+    if (hour >= 5 && hour < 12) {
+      period = "morning";
+    } else if (hour >= 12 && hour < 17) {
+      period = "afternoon";
+    } else if (hour >= 17 && hour < 22) {
+      period = "evening";
+    }
+
+    const messages = {
+      morning: [
+        `Good morning, ${name}. Good to see you!`,
+        `Good morning, ${name}. Ready to check today's progress?`,
+        `Good morning, ${name}. Let's see how your students are doing.`,
+        `Good morning, ${name}. A fresh day for learning.`
+      ],
+      afternoon: [
+        `Good afternoon, ${name}. Here's how the learning day is going.`,
+        `Good afternoon, ${name}. Let's check today's progress.`,
+        `Good afternoon, ${name}. Hope your day is going well.`,
+        `Good afternoon, ${name}. Let's take a quick look at the progress.`
+      ],
+      evening: [
+        `Good evening, ${name}. Had you tea?`,
+        `Good evening, ${name}. How did the learning day go?`,
+        `Good evening, ${name}. Let's check today's progress.`,
+        `Good evening, ${name}. Here's today's learning summary.`
+      ],
+      night: [
+        `Good evening, ${name}. Here's today's learning summary.`,
+        `Good evening, ${name}. Let's take a quick look at today's progress.`,
+        `Good night, ${name}. Today's learning progress is ready to review.`
+      ]
+    };
+
+    const list = messages[period];
+    const todaySeed =
+      new Date().getFullYear() * 10000 +
+      (new Date().getMonth() + 1) * 100 +
+      new Date().getDate();
+
+    return list[todaySeed % list.length];
+  };
+
+  /* =========================================================
+     PERFORMANCE
+  ========================================================= */
+
+  const getPerformance = (student) =>
+    clamp(
+      student?.weekPerformance ??
+        student?.weeklyPerformance ??
+        student?.performance ??
+        0
+    );
+
+  const getPerformanceClass = (
+    value
+  ) => {
+    const percentage = clamp(value);
+
+    if (percentage >= 70)
+      return "excellent";
+
+    if (percentage >= 40)
+      return "good";
+
+    return "attention";
+  };
+
+  const getPerformanceLabel = (
+    value
+  ) => {
+    const percentage = clamp(value);
+
+    if (percentage >= 70)
+      return "Excellent";
+
+    if (percentage >= 40)
+      return "On Track";
+
+    return "Needs Attention";
+  };
+
+  /* =========================================================
+     OPEN STUDENT DASHBOARD
+  ========================================================= */
+
+  const openStudentDashboard = (
+    student
+  ) => {
+    if (!student?.id) return;
+
+    const studentData = {
+      id: student.id,
+      name: student.name || "",
+      email: student.email || "",
+    };
+
+    sessionStorage.setItem(
+      `parentViewingStudent_${student.id}`,
+      JSON.stringify(studentData)
+    );
+
+    navigate(
+      `/parent/students/${student.id}/dashboard`,
+      {
+        state: {
+          studentId: student.id,
+          studentEmail:
+            student.email || "",
+          studentName:
+            student.name || "",
+          fromParent: true,
+        },
+      }
+    );
+  };
+
+  /* =========================================================
+     ANALYTICS
+  ========================================================= */
+
+  const analytics = useMemo(() => {
+    const excellent =
+      students.filter(
+        (s) =>
+          getPerformance(s) >= 70
+      ).length;
+
+    const onTrack =
+      students.filter((s) => {
+        const p =
+          getPerformance(s);
+
+        return (
+          p >= 40 &&
+          p < 70
+        );
+      }).length;
+
+    const attention = Math.max(
+      0,
+      students.length -
+        excellent -
+        onTrack
+    );
+
+    const completed =
+      Number(
+        dashboard.completedTasks
+      ) || 0;
+
+    const pending =
+      Number(
+        dashboard.pendingTasks
+      ) || 0;
+
+    const total =
+      completed + pending;
+
+    const completionPercent =
+      total
+        ? Math.round(
+            (completed / total) *
+              100
+          )
+        : 0;
+
+    return {
+      excellent,
+      onTrack,
+      attention,
+      completionPercent,
+      completed,
+      pending,
+      total,
+    };
   }, [
-    parent?.id,
-    studentList,
+    students,
+    dashboard.completedTasks,
+    dashboard.pendingTasks,
   ]);
 
-  /* =======================================================
-     OPEN PLAN MODAL
-  ======================================================= */
+  /* =========================================================
+     CHART DATA
+  ========================================================= */
 
-  const openPlans = (student) => {
-    setMessage("");
-    setMessageType("");
+  const chartData = [
+    {
+      label: "Today",
+      value: clamp(
+        dashboard.todayPerformance
+      ),
+      completed:
+        dashboard.todayCompleted,
+      total:
+        dashboard.todayTotal,
+    },
 
-    setSelectedStudent(
-      student
+    {
+      label: "This Week",
+      value: clamp(
+        dashboard.weeklyPerformance
+      ),
+      completed:
+        dashboard.weekCompleted,
+      total:
+        dashboard.weekTotal,
+    },
+
+    {
+      label: "This Month",
+      value: clamp(
+        dashboard.monthlyPerformance
+      ),
+      completed:
+        dashboard.monthCompleted,
+      total:
+        dashboard.monthTotal,
+    },
+  ];
+
+  /* =========================================================
+     SIDEBAR
+  ========================================================= */
+
+  const renderSidebar = () => (
+    <>
+      {mobileOpen && (
+        <div
+          className="parent-sidebar-overlay"
+          onClick={() =>
+            setMobileOpen(false)
+          }
+        />
+      )}
+
+      <aside
+        className={`parent-sidebar ${
+          mobileOpen
+            ? "mobile-open"
+            : ""
+        }`}
+      >
+        <div className="parent-sidebar-brand">
+          <div>
+            <strong>
+              SKILL LAB
+            </strong>
+          </div>
+
+          <button
+            className="parent-sidebar-close"
+            onClick={() =>
+              setMobileOpen(false)
+            }
+          >
+            <FaXmark />
+          </button>
+        </div>
+
+        <div className="parent-sidebar-content">
+
+          <button
+            className={`parent-nav-item ${
+              activePage ===
+              "dashboard"
+                ? "active"
+                : ""
+            }`}
+            onClick={() => {
+              setActivePage(
+                "dashboard"
+              );
+              setSearch("");
+              setMobileOpen(false);
+            }}
+          >
+            <FaGaugeHigh />
+            <span>
+              Dashboard
+            </span>
+          </button>
+
+          <button
+            className={`parent-nav-item ${
+              activePage ===
+              "students"
+                ? "active"
+                : ""
+            }`}
+            onClick={() => {
+              setActivePage(
+                "students"
+              );
+              setSearch("");
+              setMobileOpen(false);
+            }}
+          >
+            <FaUserGraduate />
+            <span>
+              Students
+            </span>
+          </button>
+{/* PAYMENT / SUBSCRIPTION */}
+
+<button
+  className={`parent-nav-item ${
+    activePage === "payment"
+      ? "active"
+      : ""
+  }`}
+  onClick={() => {
+    setMobileOpen(false);
+    navigate("/parent/subscription");
+  }}
+>
+  <FaCreditCard />
+
+  <span>
+    Payment
+  </span>
+</button>
+          <button
+            className={`parent-nav-item ${
+              activePage ===
+              "profile"
+                ? "active"
+                : ""
+            }`}
+            onClick={() => {
+              setActivePage(
+                "profile"
+              );
+              setSearch("");
+              setMobileOpen(false);
+            }}
+          >
+            <FaUser />
+            <span>
+              My Profile
+            </span>
+          </button>
+
+        </div>
+
+        <div className="parent-sidebar-bottom">
+          <button
+            className="parent-logout"
+            onClick={handleLogout}
+          >
+            <FaArrowRightFromBracket />
+
+            <span>
+              Logout
+            </span>
+          </button>
+        </div>
+      </aside>
+    </>
+  );
+
+  /* =========================================================
+     TOPBAR
+  ========================================================= */
+
+  const renderTopbar = () => {
+    const topbarName =
+      parent?.name ||
+      parent?.full_name ||
+      parent?.fullName ||
+      parent?.username ||
+      "Parent";
+
+    return (
+      <header className="parent-topbar">
+
+        <div className="parent-topbar-left">
+
+          <button
+            className="parent-mobile-menu"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+          >
+            <FaBars />
+          </button>
+
+          <div className="topbar-heading-wrap">
+            <div className="topbar-breadcrumb">
+              <span>Skill Lab</span>
+              <b>›</b>
+              <span>Parent</span>
+              <b>›</b>
+              <strong>
+                {activePage === "students"
+                  ? "Students"
+                  : activePage === "profile"
+                  ? "My Profile"
+                  : "Dashboard"}
+              </strong>
+            </div>
+
+            <h1>
+              {activePage === "students"
+                ? "Students"
+                : activePage === "profile"
+                ? "My Profile"
+                : "Parent Dashboard"}
+            </h1>
+
+            <p>
+              {activePage === "students"
+                ? "Review student activity and performance."
+                : activePage === "profile"
+                ? "Manage your parent account information."
+                : "A clear view of your students' learning progress."}
+            </p>
+          </div>
+        </div>
+
+        <div className="parent-topbar-right">
+
+  
+          <div className="parent-profile">
+            <div className="parent-profile-avatar">
+              {getInitials(topbarName)}
+            </div>
+            <div>
+              <strong>{topbarName}</strong>
+              <span>Parent account</span>
+            </div>
+          </div>
+
+        </div>
+
+      </header>
     );
   };
 
-  /* =======================================================
-     CLOSE PLAN MODAL
-  ======================================================= */
+  /* =========================================================
+     METRIC CARD
+  ========================================================= */
 
-  const closePlans = () => {
-    if (paymentLoading) {
-      return;
-    }
+  const MetricCard = ({
+    icon,
+    label,
+    value,
+    helper,
+    tone,
+    progress,
+  }) => (
+    <article className="metric-card">
 
-    setSelectedStudent(null);
+      <div
+        className={`metric-icon ${tone}`}
+      >
+        {icon}
+      </div>
 
-    setMessage("");
-    setMessageType("");
+      <div className="metric-body">
+
+        <div className="metric-label">
+          {label}
+        </div>
+
+        <div className="metric-value">
+          {value}
+        </div>
+
+        <div className="metric-helper">
+          {helper}
+        </div>
+
+        {progress !== undefined && (
+          <div className="metric-progress">
+            <span
+              style={{
+                width: `${clamp(
+                  progress
+                )}%`,
+              }}
+            />
+          </div>
+        )}
+
+      </div>
+
+    </article>
+  );
+
+  /* =========================================================
+     PERIOD CARD
+  ========================================================= */
+
+  const PeriodCard = ({
+    label,
+    value,
+    completed,
+    total,
+    date,
+    icon,
+    tone,
+  }) => {
+
+    const safeTotal =
+      Number(total) || 0;
+
+    const safeCompleted =
+      Number(completed) || 0;
+
+    const pending = Math.max(
+      0,
+      safeTotal -
+        safeCompleted
+    );
+
+    const percentage =
+      clamp(value);
+
+    return (
+      <article
+        className={`period-pie-card ${tone}`}
+      >
+
+        <div className="period-pie-head">
+
+          <div>
+
+            <span className="section-kicker">
+              {label}
+            </span>
+
+            <h3>
+              {label === "TODAY"
+                ? "Today's Task Progress"
+                : label ===
+                  "THIS WEEK"
+                ? "Weekly Task Progress"
+                : "Monthly Task Progress"}
+            </h3>
+
+            <p>
+              {date ||
+                "Current learning period"}
+            </p>
+
+          </div>
+
+          <div className="period-icon">
+            {icon}
+          </div>
+
+        </div>
+
+        <div className="period-pie-body">
+
+          <div
+            className="period-donut"
+            style={{
+              background:
+                `conic-gradient(var(--period-color) 0 ${percentage}%, #edf0f6 ${percentage}% 100%)`,
+            }}
+          >
+            <div className="period-donut-inner">
+
+              <strong>
+                {percentage}%
+              </strong>
+
+              <span>
+                Completed
+              </span>
+
+            </div>
+          </div>
+
+          <div className="period-pie-stats">
+
+            <div className="period-stat">
+              <span>
+                <i className="period-dot completed" />
+                Completed
+              </span>
+
+              <strong>
+                {safeCompleted}
+              </strong>
+            </div>
+
+            <div className="period-stat">
+              <span>
+                <i className="period-dot pending" />
+                Pending
+              </span>
+
+              <strong>
+                {pending}
+              </strong>
+            </div>
+
+            <div className="period-stat total">
+              <span>
+                Total tasks
+              </span>
+
+              <strong>
+                {safeTotal}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div className="period-performance-line">
+
+          <span>
+            {label === "TODAY"
+              ? "Today's Performance Progress"
+              : label ===
+                "THIS WEEK"
+              ? "Weekly Performance Progress"
+              : "Monthly Performance Progress"}
+          </span>
+
+          <strong>
+            {percentage}%
+          </strong>
+
+        </div>
+
+        <div className="period-performance-track">
+          <span
+            style={{
+              width: `${percentage}%`,
+            }}
+          />
+        </div>
+
+      </article>
+    );
   };
 
-  /* =======================================================
-     PAYMENT
-  ======================================================= */
+  /* =========================================================
+     PERFORMANCE CHART
+  ========================================================= */
 
-  const handlePayment = async (
-    student,
-    plan
-  ) => {
-    if (paymentLoading) {
-      return;
-    }
+  const renderPerformanceChart =
+    () => {
 
-    const parentId =
-      Number(parent?.id);
+      const width = 820;
+      const height = 300;
 
-    const studentId =
-      Number(student?.id);
+      const padX = 70;
+      const padTop = 28;
+      const padBottom = 54;
 
-    const planId =
-      Number(plan?.id);
+      const innerW =
+        width - padX * 2;
 
-    /* -----------------------------------------------------
-       VALIDATION
-    ----------------------------------------------------- */
+      const innerH =
+        height -
+        padTop -
+        padBottom;
 
-    if (
-      parentId <= 0 ||
-      studentId <= 0 ||
-      planId <= 0
-    ) {
-      setMessage(
-        "Parent, student or plan information is missing."
-      );
+      const points =
+        chartData.map(
+          (item, index) => ({
+            ...item,
 
-      setMessageType("error");
+            x:
+              padX +
+              (index *
+                innerW) /
+                (chartData.length -
+                  1),
 
-      return;
-    }
-
-    /* -----------------------------------------------------
-       CONFIRM
-    ----------------------------------------------------- */
-
-    const confirmed =
-      window.confirm(
-        `Continue with ${plan.name} for ${
-          student.name ||
-          "this student"
-        } for ₹${formatPrice(
-          plan.price
-        )}?`
-      );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      setPaymentLoading(true);
-
-      setMessage("");
-
-      setMessageType("");
-
-      /* ---------------------------------------------------
-         LOAD RAZORPAY
-      --------------------------------------------------- */
-
-      const loaded =
-        await loadRazorpayScript();
-
-      if (!loaded) {
-        throw new Error(
-          "Razorpay Checkout could not be loaded."
-        );
-      }
-
-      /* ---------------------------------------------------
-         CREATE ORDER
-
-         IMPORTANT:
-         Payment belongs to selected STUDENT.
-      --------------------------------------------------- */
-
-      const orderResponse =
-        await fetch(
-          CREATE_ORDER_API,
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json",
-
-              Accept:
-                "application/json",
-            },
-
-            body: JSON.stringify({
-              parent_id:
-                parentId,
-
-              student_id:
-                studentId,
-
-              plan_id:
-                planId,
-            }),
-          }
+            y:
+              padTop +
+              innerH -
+              (item.value /
+                100) *
+                innerH,
+          })
         );
 
-      const orderData =
-        await orderResponse.json();
+      const path =
+        points
+          .map(
+            (point, index) =>
+              `${
+                index === 0
+                  ? "M"
+                  : "L"
+              } ${point.x} ${point.y}`
+          )
+          .join(" ");
 
-      if (
-        !orderResponse.ok ||
-        !orderData.success
-      ) {
-        throw new Error(
-          orderData.message ||
-            "Unable to create Razorpay order."
-        );
-      }
+      const area =
+        `${path} L ${
+          points[
+            points.length - 1
+          ].x
+        } ${
+          padTop + innerH
+        } L ${
+          points[0].x
+        } ${
+          padTop + innerH
+        } Z`;
 
-      /* ---------------------------------------------------
-         RAZORPAY OPTIONS
-      --------------------------------------------------- */
+      return (
+        <div className="performance-chart-wrap">
 
-      const options = {
-        key:
-          orderData.key_id,
+          <div
+            className="chart-y-labels"
+            aria-hidden="true"
+          >
+            <span>
+              100%
+            </span>
 
-        amount:
-          Number(
-            orderData.amount
-          ),
+            <span>
+              75%
+            </span>
 
-        currency:
-          orderData.currency ||
-          "INR",
+            <span>
+              50%
+            </span>
 
-        name:
-          "SkillLab",
+            <span>
+              25%
+            </span>
 
-        description:
-          `${plan.name} Subscription for ${
-            student.name ||
-            "Student"
-          }`,
+            <span>
+              0%
+            </span>
+          </div>
 
-        order_id:
-          orderData.order_id,
+          <svg
+            className="performance-svg"
+            viewBox={`0 0 ${width} ${height}`}
+            role="img"
+            aria-label="Task completion performance for today, this week and this month"
+          >
 
-        prefill: {
-          name:
-            parent?.name ||
-            parent?.username ||
-            "",
+            <defs>
 
-          email:
-            parent?.email ||
-            "",
+              <linearGradient
+                id="performanceArea"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop
+                  offset="0%"
+                  className="chart-area-stop-start"
+                />
 
-          contact:
-            parent?.phone ||
-            "",
-        },
+                <stop
+                  offset="100%"
+                  className="chart-area-stop-end"
+                />
+              </linearGradient>
 
-        notes: {
-          parent_id:
-            String(parentId),
+            </defs>
 
-          student_id:
-            String(studentId),
+            {[0, 25, 50, 75, 100].map(
+              (tick) => {
 
-          student_name:
-            student?.name ||
-            "",
-        },
+                const y =
+                  padTop +
+                  innerH -
+                  (tick / 100) *
+                    innerH;
 
-        theme: {
-          color:
-            "#6d28d9",
-        },
-
-        modal: {
-          ondismiss: () => {
-            setPaymentLoading(
-              false
-            );
-          },
-        },
-
-        /* -------------------------------------------------
-           PAYMENT SUCCESS
-        ------------------------------------------------- */
-
-        handler:
-          async (
-            razorpayResponse
-          ) => {
-            try {
-              setMessage(
-                "Verifying payment..."
-              );
-
-              setMessageType(
-                "success"
-              );
-
-              /* -------------------------------------------
-                 VERIFY PAYMENT
-              ------------------------------------------- */
-
-              const verifyResponse =
-                await fetch(
-                  VERIFY_PAYMENT_API,
-                  {
-                    method:
-                      "POST",
-
-                    headers: {
-                      "Content-Type":
-                        "application/json",
-
-                      Accept:
-                        "application/json",
-                    },
-
-                    body: JSON.stringify(
-                      {
-                        parent_id:
-                          parentId,
-
-                        student_id:
-                          studentId,
-
-                        razorpay_payment_id:
-                          razorpayResponse.razorpay_payment_id,
-
-                        razorpay_order_id:
-                          razorpayResponse.razorpay_order_id,
-
-                        razorpay_signature:
-                          razorpayResponse.razorpay_signature,
-                      }
-                    ),
-                  }
-                );
-
-              const verifyData =
-                await verifyResponse.json();
-
-              if (
-                !verifyResponse.ok ||
-                !verifyData.success
-              ) {
-                throw new Error(
-                  verifyData.message ||
-                    "Payment verification failed."
+                return (
+                  <line
+                    key={tick}
+                    x1={padX}
+                    x2={
+                      width - padX
+                    }
+                    y1={y}
+                    y2={y}
+                    className="chart-grid-line"
+                  />
                 );
               }
+            )}
 
-              /* -------------------------------------------
-                 UPDATE LOCAL SUBSCRIPTION
-              ------------------------------------------- */
+            <path
+              d={area}
+              className="chart-area"
+            />
 
-              setSubscriptions(
-                (previous) => ({
-                  ...previous,
+            <path
+              d={path}
+              className="chart-line"
+            />
 
-                  [studentId]:
-                    verifyData.subscription ||
-                    {
-                      status:
-                        "active",
-                    },
-                })
-              );
+            {points.map(
+              (point, index) => (
+                <g
+                  key={
+                    point.label
+                  }
+                >
 
-              /* -------------------------------------------
-                 SUCCESS MESSAGE
-              ------------------------------------------- */
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    r="8"
+                    className={`chart-point-ring point-${index}`}
+                  />
 
-              setMessage(
-                `Payment successful. ${
-                  student?.name ||
-                  "Student"
-                }'s subscription is active.`
-              );
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    r="4"
+                    className={`chart-point point-${index}`}
+                  />
 
-              setMessageType(
-                "success"
-              );
+                  <text
+                    x={point.x}
+                    y={
+                      point.y - 18
+                    }
+                    textAnchor="middle"
+                    className="chart-value"
+                  >
+                    {point.value}%
+                  </text>
 
-              setSelectedStudent(
-                null
-              );
+                  <text
+                    x={point.x}
+                    y={
+                      height - 25
+                    }
+                    textAnchor="middle"
+                    className="chart-label"
+                  >
+                    {point.label}
+                  </text>
 
-              /* -------------------------------------------
-                 REFRESH STUDENT SUBSCRIPTIONS
-              ------------------------------------------- */
+                </g>
+              )
+            )}
 
-              await loadStudentSubscriptions(
-                studentList
-              );
-            } catch (error) {
-              console.error(
-                "Parent payment verification error:",
-                error
-              );
+          </svg>
 
-              setMessage(
-                error.message ||
-                  "Payment verification failed."
-              );
-
-              setMessageType(
-                "error"
-              );
-            } finally {
-              setPaymentLoading(
-                false
-              );
-            }
-          },
-      };
-
-      /* ---------------------------------------------------
-         OPEN RAZORPAY
-      --------------------------------------------------- */
-
-      const razorpay =
-        new window.Razorpay(
-          options
-        );
-
-      /* ---------------------------------------------------
-         PAYMENT FAILED
-      --------------------------------------------------- */
-
-      razorpay.on(
-        "payment.failed",
-        (response) => {
-          setMessage(
-            response?.error
-              ?.description ||
-              "Payment failed. Please try again."
-          );
-
-          setMessageType(
-            "error"
-          );
-
-          setPaymentLoading(
-            false
-          );
-        }
+        </div>
       );
+    };
 
-      razorpay.open();
-    } catch (error) {
-      console.error(
-        "Parent payment error:",
-        error
-      );
+  /* =========================================================
+     PERFORMANCE CHART CARD
+  ========================================================= */
 
-      setMessage(
-        error.message ||
-          "Unable to start payment."
-      );
+  const renderPerformanceChartCard =
+    () => (
+      <div className="analytics-card chart-card">
 
-      setMessageType(
-        "error"
-      );
+        <div className="analytics-header">
 
-      setPaymentLoading(
-        false
-      );
-    }
-  };
+          <div>
 
-  /* =======================================================
-     REFRESH BUTTON
-  ======================================================= */
+            <span className="section-kicker">
+              PERFORMANCE TREND
+            </span>
 
-  const refreshPayments = async () => {
-    if (paymentLoading) {
-      return;
-    }
+            <h2>
+              Completion rate by period
+            </h2>
 
-    try {
-      setLoading(true);
+            <p>
+              Compare task completion across today, this week and this month.
+            </p>
 
-      await loadAssignedStudents();
+          </div>
 
-      await loadPlans();
+          <div className="analytics-icon chart-icon">
+            <FaChartLine />
+          </div>
 
-      /*
-       * Small delay because
-       * loadedStudents state update is async.
-       */
-      const parentId =
-        Number(parent?.id);
+        </div>
 
-      if (parentId > 0) {
-        const response =
-          await fetch(
-            PARENT_DASHBOARD_API,
-            {
-              method: "POST",
+        {renderPerformanceChart()}
 
-              headers: {
-                "Content-Type":
-                  "application/json",
+        <div className="chart-period-legend">
 
-                Accept:
-                  "application/json",
-              },
+          {chartData.map(
+            (item, index) => (
+              <div
+                key={item.label}
+                className={`chart-period-item period-${index}`}
+              >
 
-              body: JSON.stringify({
-                action:
-                  "parent_overview",
+                <span className="legend-dot" />
 
-                parent_id:
-                  parentId,
-              }),
+                <strong>
+                  {item.label}
+                </strong>
 
-              cache:
-                "no-store",
-            }
-          );
+                <b>
+                  {item.value}%
+                </b>
 
-        const data =
-          await response.json();
+              </div>
+            )
+          )}
 
-        const freshStudents =
-          Array.isArray(
-            data?.overview
-              ?.students
-          )
-            ? data.overview.students
-            : [];
+        </div>
 
-        const validStudents =
-          freshStudents.filter(
-            (student) =>
-              Number(
-                student?.id
-              ) > 0
-          );
+      </div>
+    );
 
-        setLoadedStudents(
-          validStudents
-        );
+  /* =========================================================
+     DONUT
+  ========================================================= */
 
-        await loadStudentSubscriptions(
-          validStudents
-        );
-      }
-    } catch (error) {
-      console.error(
-        "Refresh payment data error:",
-        error
-      );
+  const renderDonut = () => (
+    <div className="analytics-card donut-card">
 
-      setMessage(
-        error.message ||
-          "Unable to refresh payment details."
-      );
-
-      setMessageType(
-        "error"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /* =======================================================
-     RENDER
-  ======================================================= */
-
-  return (
-    <section className="parent-payment-section">
-
-      {/* ===================================================
-          HEADER
-      =================================================== */}
-
-      <div className="parent-payment-header">
+      <div className="analytics-header">
 
         <div>
+
           <span className="section-kicker">
-            STUDENT SUBSCRIPTIONS
+            THIS WEEK
           </span>
 
           <h2>
-            Payments & Subscription
+            Task completion
           </h2>
 
           <p>
-            Manage subscription payments
-            separately for each student
-            assigned to this parent account.
+            Current week progress for all assigned students.
           </p>
+
         </div>
 
-        <div className="parent-payment-secure">
-          <FaShieldHalved />
-
-          <span>
-            Secure Razorpay payment
-          </span>
-
-          <button
-            type="button"
-            onClick={refreshPayments}
-            disabled={
-              loading ||
-              paymentLoading
-            }
-            title="Refresh students"
-            style={{
-              marginLeft: "12px",
-              border: "none",
-              background:
-                "transparent",
-              cursor:
-                loading ||
-                paymentLoading
-                  ? "not-allowed"
-                  : "pointer",
-              color:
-                "inherit",
-            }}
-          >
-            <FaRotate
-              className={
-                loading
-                  ? "spin"
-                  : ""
-              }
-            />
-          </button>
+        <div className="analytics-icon donut-icon">
+          <FaChartPie />
         </div>
 
       </div>
 
-      {/* ===================================================
-          MESSAGE
-      =================================================== */}
+      <div className="donut-layout">
 
-      {message && (
         <div
-          className={`parent-payment-message ${
-            messageType
-          }`}
-        >
-          {messageType ===
-          "success" ? (
-            <FaCircleCheck />
-          ) : (
-            <FaCircleExclamation />
-          )}
-
-          <span>
-            {message}
-          </span>
-        </div>
-      )}
-
-      {/* ===================================================
-          LOADING
-      =================================================== */}
-
-      {loading ? (
-        <div className="parent-payment-loading">
-
-          <FaRotate className="spin" />
-
-          <span>
-            Loading students and
-            subscription details...
-          </span>
-
-        </div>
-      ) : studentList.length ===
-        0 ? (
-        /* =================================================
-           NO STUDENTS
-        ================================================= */
-
-        <div className="parent-payment-empty">
-
-          <FaCircleExclamation />
-
-          <h3>
-            No assigned students
-          </h3>
-
-          <p>
-            No students are currently
-            assigned to this parent
-            account.
-          </p>
-
-        </div>
-      ) : (
-        /* =================================================
-           STUDENT CARDS
-        ================================================= */
-
-        <div className="parent-payment-student-grid">
-
-          {studentList.map(
-            (student) => {
-              const studentId =
-                Number(
-                  student.id
-                );
-
-              const subscription =
-                subscriptions[
-                  studentId
-                ];
-
-              const active =
-                String(
-                  subscription?.status ||
-                    ""
-                ).toLowerCase() ===
-                "active";
-
-              return (
-                <article
-                  className="parent-payment-student-card"
-                  key={
-                    studentId
-                  }
-                >
-
-                  {/* =======================================
-                      STUDENT HEADER
-                  ======================================= */}
-
-                  <div className="parent-payment-student-top">
-
-                    <div className="parent-payment-avatar">
-                      {(
-                        student.name ||
-                        "S"
-                      )
-                        .trim()
-                        .slice(
-                          0,
-                          2
-                        )
-                        .toUpperCase()}
-                    </div>
-
-                    <div>
-
-                      <h3>
-                        {student.name ||
-                          "Unnamed Student"}
-                      </h3>
-
-                      <span>
-                        Student ID #
-                        {studentId}
-                      </span>
-
-                    </div>
-
-                  </div>
-
-                  {/* =======================================
-                      EMAIL
-                  ======================================= */}
-
-                  <div className="parent-payment-email">
-                    {student.email ||
-                      "No email available"}
-                  </div>
-
-                  {/* =======================================
-                      SUBSCRIPTION STATUS
-                  ======================================= */}
-
-                  <div className="parent-payment-status">
-
-                    <span
-                      className={
-                        active
-                          ? "active"
-                          : "inactive"
-                      }
-                    >
-
-                      {active ? (
-                        <FaCircleCheck />
-                      ) : (
-                        <FaCircleExclamation />
-                      )}
-
-                      {active
-                        ? "Subscription Active"
-                        : "No Active Subscription"}
-
-                    </span>
-
-                    {active && (
-                      <small>
-
-                        {subscription.plan_name ||
-                          subscription.name ||
-                          "Current Plan"}
-
-                        {" · "}
-
-                        Until{" "}
-
-                        {formatDate(
-                          subscription.end_date
-                        )}
-
-                      </small>
-                    )}
-
-                  </div>
-
-                  {/* =======================================
-                      PAYMENT BUTTON
-                  ======================================= */}
-
-                  <button
-                    type="button"
-                    className="parent-pay-button"
-                    onClick={() =>
-                      openPlans(
-                        student
-                      )
-                    }
-                  >
-
-                    <FaCreditCard />
-
-                    {active
-                      ? "Renew / Change Plan"
-                      : "Pay Subscription"}
-
-                  </button>
-
-                </article>
-              );
-            }
-          )}
-
-        </div>
-      )}
-
-      {/* ===================================================
-          PLAN MODAL
-      =================================================== */}
-
-      {selectedStudent && (
-        <div
-          className="parent-payment-modal-backdrop"
-
-          onMouseDown={(event) => {
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              closePlans();
-            }
+          className="donut"
+          style={{
+            background:
+              `conic-gradient(#7653e8 0 ${analytics.completionPercent}%, #e8edf6 ${analytics.completionPercent}% 100%)`,
           }}
         >
 
-          <div className="parent-payment-modal">
+          <div className="donut-inner">
 
-            {/* =============================================
-                MODAL HEADER
-            ============================================= */}
+            <strong>
+              {analytics.completionPercent}%
+            </strong>
 
-            <div className="parent-payment-modal-head">
+            <span>
+              Completed
+            </span>
 
-              <div>
+          </div>
 
-                <span className="section-kicker">
-                  STUDENT SUBSCRIPTION
-                </span>
+        </div>
 
-                <h3>
-                  {selectedStudent.name ||
-                    "Student"}
-                </h3>
+        <div className="donut-legend">
 
-                <p>
-                  Student ID #
-                  {selectedStudent.id}
+          <div>
+            <i className="dot purple" />
+            <span>
+              Completed
+            </span>
+            <strong>
+              {analytics.completed}
+            </strong>
+          </div>
 
-                  {" · "}
+          <div>
+            <i className="dot gray" />
+            <span>
+              Pending
+            </span>
+            <strong>
+              {analytics.pending}
+            </strong>
+          </div>
 
-                  Select a subscription
-                  plan
-                </p>
+          <div className="donut-total">
+            <span>
+              Tasks this week
+            </span>
 
-              </div>
+            <strong>
+              {analytics.total}
+            </strong>
+          </div>
 
-              <button
-                type="button"
-                className="parent-payment-close"
-                onClick={
-                  closePlans
-                }
-                disabled={
-                  paymentLoading
-                }
-                aria-label="Close"
-              >
-                <FaXmark />
-              </button>
+        </div>
 
-            </div>
+      </div>
 
-            {/* =============================================
-                PLANS
-            ============================================= */}
+    </div>
+  );
 
-            <div className="parent-payment-plan-grid">
+  /* =========================================================
+     THREE PERIOD VISUALS
+  ========================================================= */
 
-              {plans.length ===
-              0 ? (
-                <div className="parent-payment-empty">
+  const renderThreePeriodVisuals =
+    () => {
 
-                  <FaCircleExclamation />
+      const periods = [
+        {
+          key: "today",
 
-                  <h3>
-                    No active plans
-                  </h3>
+          label: "TODAY",
 
-                  <p>
-                    Please contact
-                    the administrator.
-                  </p>
+          title:
+            "Today's Learning Summary",
 
-                </div>
-              ) : (
-                plans.map(
-                  (plan) => {
-                    const current =
-                      subscriptions[
-                        Number(
-                          selectedStudent.id
-                        )
-                      ];
+          icon: (
+            <FaCalendarDays />
+          ),
 
-                    const isCurrent =
-                      Number(
-                        current?.plan_id
-                      ) ===
-                      Number(
-                        plan.id
-                      );
+          tone: "today",
 
-                    return (
-                      <article
-                        className={`parent-plan-card ${
-                          isCurrent
-                            ? "current"
-                            : ""
-                        }`}
-                        key={
-                          plan.id
-                        }
-                      >
+          taskProgress:
+            clamp(
+              dashboard.todayTaskProgress
+            ),
 
-                        {/* =================================
-                            CURRENT BADGE
-                        ================================= */}
+          performance:
+            clamp(
+              dashboard.todayPerformance
+            ),
 
-                        {isCurrent && (
-                          <span className="current-plan-badge">
-                            Current Plan
-                          </span>
-                        )}
+          accuracy:
+            clamp(
+              dashboard.todayAccuracy
+            ),
 
-                        {/* =================================
-                            ICON
-                        ================================= */}
+          completed:
+            Number(
+              dashboard.todayCompleted
+            ) || 0,
 
-                        <div className="parent-plan-icon">
+          total:
+            Number(
+              dashboard.todayTotal
+            ) || 0,
 
-                          {planIcon(
-                            plan.billing_cycle
-                          )}
+          students:
+            students.length,
 
-                        </div>
+          date:
+            dashboard.periods
+              .today,
+        },
 
-                        {/* =================================
-                            NAME
-                        ================================= */}
+        {
+          key: "week",
 
-                        <h4>
-                          {plan.name}
-                        </h4>
+          label: "THIS WEEK",
 
-                        {/* =================================
-                            PRICE
-                        ================================= */}
+          title:
+            "Weekly Learning Summary",
 
-                        <div className="parent-plan-price">
+          icon: (
+            <FaChartLine />
+          ),
 
-                          ₹
-                          {formatPrice(
-                            plan.price
-                          )}
+          tone: "week",
 
-                        </div>
+          taskProgress:
+            clamp(
+              dashboard.weeklyTaskProgress
+            ),
 
-                        <span className="parent-plan-cycle">
-                          /
-                          {" "}
-                          {cycleText(
-                            plan.billing_cycle
-                          )}
-                        </span>
+          performance:
+            clamp(
+              dashboard.weeklyPerformance
+            ),
 
-                        {/* =================================
-                            DESCRIPTION
-                        ================================= */}
+          accuracy:
+            clamp(
+              dashboard.weeklyAccuracy
+            ),
 
-                        <p>
-                          {plan.description ||
-                            "SkillLab learning subscription"}
-                        </p>
+          completed:
+            Number(
+              dashboard.weekCompleted
+            ) || 0,
 
-                        {/* =================================
-                            PAYMENT
-                        ================================= */}
+          total:
+            Number(
+              dashboard.weekTotal
+            ) || 0,
 
-                        <button
-                          type="button"
-                          className="parent-plan-pay-button"
-                          disabled={
-                            paymentLoading
-                          }
-                          onClick={() =>
-                            handlePayment(
-                              selectedStudent,
-                              plan
-                            )
-                          }
-                        >
+          students:
+            students.length,
 
-                          {paymentLoading ? (
-                            <>
-                              <FaRotate className="spin" />
+          date:
+            dashboard.periods
+              .week,
+        },
 
-                              Processing...
-                            </>
-                          ) : (
-                            <>
-                              <FaCreditCard />
+        {
+          key: "month",
 
-                              {isCurrent
-                                ? "Renew Plan"
-                                : "Pay Now"}
-                            </>
-                          )}
+          label: "THIS MONTH",
 
-                        </button>
+          title:
+            "Monthly Learning Summary",
 
-                      </article>
-                    );
-                  }
-                )
-              )}
+          icon: (
+            <FaTrophy />
+          ),
 
-            </div>
+          tone: "month",
 
-            {/* =============================================
-                PAYMENT NOTE
-            ============================================= */}
+          taskProgress:
+            clamp(
+              dashboard.monthlyTaskProgress
+            ),
 
-            <div className="parent-payment-note">
+          performance:
+            clamp(
+              dashboard.monthlyPerformance
+            ),
 
-              <FaShieldHalved />
+          accuracy:
+            clamp(
+              dashboard.monthlyAccuracy
+            ),
+
+          completed:
+            Number(
+              dashboard.monthCompleted
+            ) || 0,
+
+          total:
+            Number(
+              dashboard.monthTotal
+            ) || 0,
+
+          students:
+            students.length,
+
+          date:
+            dashboard.periods
+              .month,
+        },
+      ];
+
+      const Metric = ({
+        icon,
+        label,
+        value,
+        description,
+      }) => (
+        <div className="period-metric-row">
+
+          <div className="period-metric-icon">
+            {icon}
+          </div>
+
+          <div className="period-metric-copy">
+
+            <div className="period-metric-heading">
 
               <span>
-                Payment is processed
-                securely through Razorpay.
-                The subscription is saved
-                against the selected student,
-                not the parent account.
+                {label}
+              </span>
+
+              <strong>
+                {value}%
+              </strong>
+
+            </div>
+
+            <div className="period-metric-track">
+
+              <span
+                style={{
+                  width: `${value}%`,
+                }}
+              />
+
+            </div>
+
+            <small>
+              {description}
+            </small>
+
+          </div>
+
+        </div>
+      );
+
+      return (
+        <section className="three-period-visual-section">
+
+          <div className="overview-section-head compact">
+
+            <div>
+
+              <span className="section-kicker">
+                LEARNING ANALYTICS
+              </span>
+
+              <h2>
+                Today, This Week & This Month
+              </h2>
+
+              <p>
+                Task progress, performance and completion-time accuracy for all assigned students.
+              </p>
+
+            </div>
+
+            <div className="period-student-summary">
+
+              <FaUserGraduate />
+
+              <strong>
+                {students.length}
+              </strong>
+
+              <span>
+                {students.length === 1
+                  ? "assigned student"
+                  : "assigned students"}
               </span>
 
             </div>
 
           </div>
 
+          <div className="three-period-visual-grid">
+
+            {periods.map(
+              (period) => {
+
+                const pending =
+                  Math.max(
+                    0,
+                    period.total -
+                      period.completed
+                  );
+
+                return (
+                  <article
+                    className={`period-visual-card ${period.tone}-visual`}
+                    key={
+                      period.key
+                    }
+                  >
+
+                    <div className="visual-card-top">
+
+                      <div>
+
+                        <span className="visual-kicker">
+                          {period.label}
+                        </span>
+
+                        <h3>
+                          {period.title}
+                        </h3>
+
+                        <p>
+                          {period.date ||
+                            "Current learning period"}
+                        </p>
+
+                      </div>
+
+                      <div
+                        className={`visual-icon ${period.tone}-icon`}
+                      >
+                        {period.icon}
+                      </div>
+
+                    </div>
+
+                    <div className="period-student-line">
+
+                      <span>
+                        <FaUserGraduate />
+
+                        {" "}
+                        {period.students}{" "}
+
+                        {period.students === 1
+                          ? "student"
+                          : "students"}
+                      </span>
+
+                      <span>
+                        {period.completed}/
+                        {period.total} tasks
+                      </span>
+
+                    </div>
+
+                    <div className="period-main-pie-row">
+
+                      <div
+                        className="period-main-pie"
+                        style={{
+                          background:
+                            `conic-gradient(var(--period-accent) 0 ${period.taskProgress}%, #eceef5 ${period.taskProgress}% 100%)`,
+                        }}
+                      >
+
+                        <div>
+
+                          <strong>
+                            {period.taskProgress}%
+                          </strong>
+
+                          <span>
+                            Task Progress
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                      <div className="period-task-counts">
+
+                        <div>
+                          <span>
+                            Completed
+                          </span>
+
+                          <strong>
+                            {period.completed}
+                          </strong>
+                        </div>
+
+                        <div>
+                          <span>
+                            Pending
+                          </span>
+
+                          <strong>
+                            {pending}
+                          </strong>
+                        </div>
+
+                        <div>
+                          <span>
+                            Total Tasks
+                          </span>
+
+                          <strong>
+                            {period.total}
+                          </strong>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div className="period-metrics-stack">
+
+                      <Metric
+                        icon={
+                          <FaChartLine />
+                        }
+                        label={
+                          period.key ===
+                          "today"
+                            ? "Today's Performance Progress"
+                            : period.key ===
+                              "week"
+                            ? "Weekly Performance Progress"
+                            : "Monthly Performance Progress"
+                        }
+                        value={
+                          period.performance
+                        }
+                        description="Based on saved task performance"
+                      />
+
+                      <Metric
+                        icon={
+                          <FaBullseye />
+                        }
+                        label={
+                          period.key ===
+                          "today"
+                            ? "Today's Task Accuracy Percentage"
+                            : period.key ===
+                              "week"
+                            ? "Weekly Task Accuracy Percentage"
+                            : "Monthly Task Accuracy Percentage"
+                        }
+                        value={
+                          period.accuracy
+                        }
+                        description="Based on completion time"
+                      />
+
+                    </div>
+
+                    <div className="period-calculation-note">
+
+                      <span>
+                        Calculation
+                      </span>
+
+                      <strong>
+                        {period.students}{" "}
+                        {period.students === 1
+                          ? "student"
+                          : "students"}{" "}
+                        ·{" "}
+                        {period.completed}{" "}
+                        completed /{" "}
+                        {period.total}{" "}
+                        total
+                      </strong>
+
+                    </div>
+
+                  </article>
+                );
+              }
+            )}
+
+          </div>
+
+          <div className="period-comparison-card">
+
+            <div className="period-comparison-head">
+
+              <div>
+
+                <span className="section-kicker">
+                  PERIOD COMPARISON
+                </span>
+
+                <h3>
+                  Progress, Performance & Accuracy
+                </h3>
+
+                <p>
+                  Same three measurements compared across all assigned students.
+                </p>
+
+              </div>
+
+              <div className="analytics-icon">
+                <FaChartPie />
+              </div>
+
+            </div>
+
+            <div className="period-comparison-grid">
+
+              {periods.map(
+                (period) => (
+                  <div
+                    className="comparison-column"
+                    key={
+                      period.key
+                    }
+                  >
+
+                    <strong>
+                      {period.label}
+                    </strong>
+
+                    <div className="comparison-bar-row">
+
+                      <span>
+                        Task Progress
+                      </span>
+
+                      <div>
+                        <i
+                          style={{
+                            width: `${period.taskProgress}%`,
+                          }}
+                        />
+                      </div>
+
+                      <b>
+                        {period.taskProgress}%
+                      </b>
+
+                    </div>
+
+                    <div className="comparison-bar-row">
+
+                      <span>
+                        Performance
+                      </span>
+
+                      <div>
+                        <i
+                          style={{
+                            width: `${period.performance}%`,
+                          }}
+                        />
+                      </div>
+
+                      <b>
+                        {period.performance}%
+                      </b>
+
+                    </div>
+
+                    <div className="comparison-bar-row">
+
+                      <span>
+                        Accuracy
+                      </span>
+
+                      <div>
+                        <i
+                          style={{
+                            width: `${period.accuracy}%`,
+                          }}
+                        />
+                      </div>
+
+                      <b>
+                        {period.accuracy}%
+                      </b>
+
+                    </div>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </div>
+
+        </section>
+      );
+    };
+
+  /* =========================================================
+     STUDENT DISTRIBUTION
+  ========================================================= */
+
+  const renderStudentDistribution =
+    () => (
+      <div className="analytics-card distribution-card">
+
+        <div className="analytics-header">
+
+          <div>
+
+            <span className="section-kicker">
+              STUDENT HEALTH
+            </span>
+
+            <h2>
+              Weekly performance distribution
+            </h2>
+
+            <p>
+              Students are grouped using their current weekly performance.
+            </p>
+
+          </div>
+
+          <div className="analytics-icon">
+            <FaTrophy />
+          </div>
+
         </div>
+
+        <div className="distribution-visual">
+
+          <div className="distribution-bar">
+
+            <span
+              className="excellent"
+              style={{
+                width: `${
+                  students.length
+                    ? (analytics.excellent /
+                        students.length) *
+                      100
+                    : 0
+                }%`,
+              }}
+            />
+
+            <span
+              className="ontrack"
+              style={{
+                width: `${
+                  students.length
+                    ? (analytics.onTrack /
+                        students.length) *
+                      100
+                    : 0
+                }%`,
+              }}
+            />
+
+            <span
+              className="attention"
+              style={{
+                width: `${
+                  students.length
+                    ? (analytics.attention /
+                        students.length) *
+                      100
+                    : 0
+                }%`,
+              }}
+            />
+
+          </div>
+
+          <div className="distribution-legend">
+
+            <div>
+              <i className="dot green" />
+              <span>
+                Excellent
+              </span>
+              <strong>
+                {analytics.excellent}
+              </strong>
+            </div>
+
+            <div>
+              <i className="dot blue" />
+              <span>
+                On Track
+              </span>
+              <strong>
+                {analytics.onTrack}
+              </strong>
+            </div>
+
+            <div>
+              <i className="dot orange" />
+              <span>
+                Needs Attention
+              </span>
+              <strong>
+                {analytics.attention}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    );
+
+  /* =========================================================
+     STUDENT TABLE
+  ========================================================= */
+
+  const renderStudentTable = () => (
+    <section className="student-table-card">
+
+      <div className="section-header">
+
+        <div>
+
+          <span className="section-kicker">
+            STUDENT INSIGHTS
+          </span>
+
+          <h2>
+            Student performance
+          </h2>
+
+          <p>
+            Compare Today, This Week and This Month for every student.
+          </p>
+
+        </div>
+
+        <button
+          className="outline-button"
+          onClick={() => {
+            setActivePage(
+              "students"
+            );
+            setSearch("");
+          }}
+        >
+          View students
+          <FaArrowRight />
+        </button>
+
+      </div>
+
+      {students.length === 0 ? (
+
+        <div className="empty-state">
+
+          <div>
+            <FaUserGraduate />
+          </div>
+
+          <h3>
+            No students yet
+          </h3>
+
+          <p>
+            Students assigned to this parent account will appear here.
+          </p>
+
+        </div>
+
+      ) : (
+
+        <div className="table-wrap">
+
+          <table className="performance-table">
+
+            <thead>
+
+              <tr>
+                <th>
+                  Student
+                </th>
+
+                <th>
+                  Today
+                </th>
+
+                <th>
+                  This Week
+                </th>
+
+                <th>
+                  This Month
+                </th>
+
+                <th>
+                  Weekly Status
+                </th>
+
+                <th />
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {students.map(
+                (student) => {
+
+                  const week =
+                    clamp(
+                      student.weekPerformance ??
+                        student.weeklyPerformance
+                    );
+
+                  const today =
+                    clamp(
+                      student.todayPerformance
+                    );
+
+                  const month =
+                    clamp(
+                      student.monthlyPerformance
+                    );
+
+                  return (
+                    <tr
+                      key={
+                        student.id
+                      }
+                    >
+
+                      <td>
+
+                        <div className="table-student">
+
+                          <div className="table-avatar">
+                            {getInitials(
+                              student.name
+                            )}
+                          </div>
+
+                          <div>
+
+                            <strong>
+                              {student.name ||
+                                "Unnamed Student"}
+                            </strong>
+
+                            <span>
+                              #
+                              {student.id}
+
+                              {student.email
+                                ? ` · ${student.email}`
+                                : ""}
+                            </span>
+
+                          </div>
+
+                        </div>
+
+                      </td>
+
+                      <td>
+
+                        <strong className="table-percent purple-text">
+                          {today}%
+                        </strong>
+
+                        <small>
+                          {Number(
+                            student.todayCompleted
+                          ) || 0}
+                          /
+                          {Number(
+                            student.todayTotal
+                          ) || 0}
+                        </small>
+
+                      </td>
+
+                      <td>
+
+                        <strong className="table-percent blue-text">
+                          {week}%
+                        </strong>
+
+                        <small>
+                          {Number(
+                            student.weekCompleted
+                          ) || 0}
+                          /
+                          {Number(
+                            student.weekTotal
+                          ) || 0}
+                        </small>
+
+                      </td>
+
+                      <td>
+
+                        <strong className="table-percent indigo-text">
+                          {month}%
+                        </strong>
+
+                        <small>
+                          {Number(
+                            student.monthCompleted
+                          ) || 0}
+                          /
+                          {Number(
+                            student.monthTotal
+                          ) || 0}
+                        </small>
+
+                      </td>
+
+                      <td>
+
+                        <div className="table-progress">
+
+                          <div className="table-progress-top">
+
+                            <span>
+                              {getPerformanceLabel(
+                                week
+                              )}
+                            </span>
+
+                            <strong>
+                              {week}%
+                            </strong>
+
+                          </div>
+
+                          <div className="table-progress-track">
+
+                            <span
+                              className={getPerformanceClass(
+                                week
+                              )}
+                              style={{
+                                width: `${week}%`,
+                              }}
+                            />
+
+                          </div>
+
+                        </div>
+
+                      </td>
+
+                      <td>
+
+                        <button
+                          className="icon-view-button"
+                          onClick={() =>
+                            openStudentDashboard(
+                              student
+                            )
+                          }
+                          aria-label={`View ${
+                            student.name ||
+                            "student"
+                          }`}
+                        >
+                          <FaArrowRight />
+                        </button>
+
+                      </td>
+
+                    </tr>
+                  );
+                }
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
       )}
 
     </section>
   );
+
+  /* =========================================================
+     DASHBOARD HOME
+  ========================================================= */
+
+  const renderDashboardHome =
+    () => (
+      <div className="dashboard-home overview-home">
+
+        {/* Welcome */}
+
+        <section className="overview-welcome">
+
+          <div className="overview-welcome-copy">
+
+            <span className="overview-eyebrow">
+              PARENT LEARNING CENTER
+            </span>
+
+            <h2>{getParentGreeting()}</h2>
+
+            <p>
+              Monitor the learning progress of the students assigned to your parent account.
+            </p>
+
+            <div className="overview-meta">
+
+              <span>
+                <FaCalendarDays />
+
+                {" "}
+
+                {new Date().toLocaleDateString(
+                  "en-GB",
+                  {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  }
+                )}
+
+              </span>
+
+              <span>
+                <FaCircleCheck />
+
+                {" "}
+                Assigned students performance
+              </span>
+
+            </div>
+
+          </div>
+
+          <div
+            className="overview-welcome-art"
+            aria-hidden="true"
+          >
+
+            <span className="overview-orbit orbit-one" />
+            <span className="overview-orbit orbit-two" />
+            <span className="overview-orbit orbit-three" />
+
+            <div className="overview-art-icon">
+              <FaUserGraduate />
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* Assigned Students */}
+
+        <section className="overview-section-head">
+
+          <div>
+
+            <span className="section-kicker">
+              ASSIGNED STUDENTS
+            </span>
+
+            <h2>
+              Student performance overview
+            </h2>
+
+            <p>
+              Quickly understand task activity and learning progress.
+            </p>
+
+          </div>
+
+          <button
+            className="overview-student-count"
+            onClick={() => {
+              setActivePage(
+                "students"
+              );
+              setSearch("");
+            }}
+          >
+
+            <FaUserGraduate />
+
+            <span>
+              <strong>
+                {students.length}
+              </strong>{" "}
+              assigned students
+            </span>
+
+            <FaArrowRight />
+
+          </button>
+
+        </section>
+
+        {/* Metrics */}
+
+        <section className="overview-metrics">
+
+          <MetricCard
+            icon={
+              <FaUserGraduate />
+            }
+            label="Assigned Students"
+            value={
+              students.length
+            }
+            helper="Students linked to this parent"
+            tone="purple"
+          />
+
+          <MetricCard
+            icon={
+              <FaListCheck />
+            }
+            label="Today's Tasks"
+            value={`${dashboard.todayCompleted}/${dashboard.todayTotal}`}
+            helper={`${clamp(
+              dashboard.todayTaskProgress
+            )}% task progress`}
+            tone="blue"
+            progress={
+              dashboard.todayTaskProgress
+            }
+          />
+
+          <MetricCard
+            icon={
+              <FaChartLine />
+            }
+            label="Today's Performance"
+            value={`${clamp(
+              dashboard.todayPerformance
+            )}%`}
+            helper="Saved task performance"
+            tone="green"
+            progress={
+              dashboard.todayPerformance
+            }
+          />
+
+          <MetricCard
+            icon={
+              <FaBullseye />
+            }
+            label="Today's Accuracy"
+            value={`${clamp(
+              dashboard.todayAccuracy
+            )}%`}
+            helper="Based on completion time"
+            tone="orange"
+            progress={
+              dashboard.todayAccuracy
+            }
+          />
+
+          <MetricCard
+            icon={
+              <FaArrowTrendUp />
+            }
+            label="Weekly Performance"
+            value={`${clamp(
+              dashboard.weeklyPerformance
+            )}%`}
+            helper="All assigned students"
+            tone="indigo"
+            progress={
+              dashboard.weeklyPerformance
+            }
+          />
+
+        </section>
+
+        {/* Performance Trend */}
+
+        <section className="overview-analytics">
+
+          <div className="overview-chart-card">
+
+            <div className="overview-card-head">
+
+              <div>
+
+                <span className="section-kicker">
+                  PERFORMANCE TREND
+                </span>
+
+                <h2>
+                  Task performance trend
+                </h2>
+
+                <p>
+                  Completion rate across today, this week and this month.
+                </p>
+
+              </div>
+
+              <div className="overview-head-icon purple">
+                <FaChartLine />
+              </div>
+
+            </div>
+
+            {renderPerformanceChart()}
+
+            <div className="overview-chart-legend">
+
+              {chartData.map(
+                (item, index) => (
+                  <div
+                    key={
+                      item.label
+                    }
+                    className={`overview-legend-item legend-${index}`}
+                  >
+
+                    <span />
+
+                    <div>
+
+                      <strong>
+                        {item.label}
+                      </strong>
+
+                      <small>
+                        {item.completed}/
+                        {item.total} tasks
+                      </small>
+
+                    </div>
+
+                    <b>
+                      {item.value}%
+                    </b>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* Today / Week / Month */}
+
+        {renderThreePeriodVisuals()}
+
+        {/* Student Health */}
+
+        <div className="student-health-section">
+
+          {renderStudentDistribution()}
+
+        </div>
+
+        {/* Student Table */}
+
+        {renderStudentTable()}
+
+      </div>
+    );
+
+  /* =========================================================
+     STUDENTS PAGE
+  ========================================================= */
+
+  const renderMyStudents =
+    () => (
+      <section className="students-page">
+
+        <div className="page-heading-card">
+
+          <div>
+
+            <span className="section-kicker">
+              STUDENT DIRECTORY
+            </span>
+
+            <h2>
+              Students
+            </h2>
+
+            <p>
+              View each student's learning activity and open their detailed dashboard.
+            </p>
+
+          </div>
+
+          <button
+            className="refresh-button"
+            onClick={() =>
+              loadDashboard()
+            }
+            disabled={loading}
+          >
+
+            <FaRotate />
+
+            {loading
+              ? "Refreshing"
+              : "Refresh"}
+
+          </button>
+
+        </div>
+
+        <div className="student-toolbar">
+
+          <div className="search-box">
+
+            <FaMagnifyingGlass />
+
+            <input
+              value={search}
+              onChange={(e) =>
+                setSearch(
+                  e.target.value
+                )
+              }
+              placeholder="Search by name, email or ID..."
+            />
+
+          </div>
+
+          <div className="result-count">
+
+            {filteredStudents.length}{" "}
+
+            {filteredStudents.length ===
+            1
+              ? "student"
+              : "students"}
+
+          </div>
+
+        </div>
+
+        {loading ? (
+
+          <div className="loading-state">
+
+            <span />
+
+            <p>
+              Loading students...
+            </p>
+
+          </div>
+
+        ) : filteredStudents.length ===
+          0 ? (
+
+          <div className="empty-state large">
+
+            <div>
+              <FaUserGraduate />
+            </div>
+
+            <h3>
+              No students found
+            </h3>
+
+            <p>
+              No students are currently available for this parent account.
+            </p>
+
+          </div>
+
+        ) : (
+
+          <div className="student-cards-grid">
+
+            {filteredStudents.map(
+              (student) => {
+
+                const p =
+                  getPerformance(
+                    student
+                  );
+
+                const total =
+                  Number(
+                    student.weekTotal
+                  ) || 0;
+
+                const completed =
+                  Number(
+                    student.weekCompleted
+                  ) || 0;
+
+                const pending =
+                  Math.max(
+                    0,
+                    total -
+                      completed
+                  );
+
+                return (
+                  <article
+                    className="student-card"
+                    key={
+                      student.id
+                    }
+                    onClick={() =>
+                      openStudentDashboard(
+                        student
+                      )
+                    }
+                  >
+
+                    <div className="student-card-head">
+
+                      <div className="student-avatar">
+                        {getInitials(
+                          student.name
+                        )}
+                      </div>
+
+                      <div className="student-card-name">
+
+                        <h3>
+                          {student.name ||
+                            "Unnamed Student"}
+                        </h3>
+
+                        <span>
+                          Student ID #
+                          {student.id}
+                        </span>
+
+                      </div>
+
+                      <FaArrowRight className="student-card-arrow" />
+
+                    </div>
+
+                    <div className="student-email">
+
+                      <FaUser />
+
+                      {" "}
+
+                      {student.email ||
+                        "No email available"}
+
+                    </div>
+
+                    <div className="student-mini-stats">
+
+                      <div>
+
+                        <span>
+                          Weekly Total
+                        </span>
+
+                        <strong>
+                          {total}
+                        </strong>
+
+                      </div>
+
+                      <div>
+
+                        <span>
+                          Completed
+                        </span>
+
+                        <strong className="green-text">
+                          {completed}
+                        </strong>
+
+                      </div>
+
+                      <div>
+
+                        <span>
+                          Pending
+                        </span>
+
+                        <strong className="orange-text">
+                          {pending}
+                        </strong>
+
+                      </div>
+
+                    </div>
+
+                    <div className="student-card-performance">
+
+                      <div>
+
+                        <span>
+                          This week's performance
+                        </span>
+
+                        <strong>
+                          {p}%
+                        </strong>
+
+                      </div>
+
+                      <em
+                        className={getPerformanceClass(
+                          p
+                        )}
+                      >
+                        {getPerformanceLabel(
+                          p
+                        )}
+                      </em>
+
+                    </div>
+
+                    <div className="student-progress">
+
+                      <span
+                        className={getPerformanceClass(
+                          p
+                        )}
+                        style={{
+                          width: `${p}%`,
+                        }}
+                      />
+
+                    </div>
+
+                    <div className="student-period-row">
+
+                      <div>
+
+                        <span>
+                          Today
+                        </span>
+
+                        <strong>
+                          {clamp(
+                            student.todayPerformance
+                          )}%
+                        </strong>
+
+                      </div>
+
+                      <div>
+
+                        <span>
+                          This Week
+                        </span>
+
+                        <strong>
+                          {p}%
+                        </strong>
+
+                      </div>
+
+                      <div>
+
+                        <span>
+                          This Month
+                        </span>
+
+                        <strong>
+                          {clamp(
+                            student.monthlyPerformance
+                          )}%
+                        </strong>
+
+                      </div>
+
+                    </div>
+
+                    <button
+                      className="student-open-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        openStudentDashboard(
+                          student
+                        );
+                      }}
+                    >
+                      Open student dashboard
+                      <FaArrowRight />
+                    </button>
+
+                  </article>
+                );
+              }
+            )}
+
+          </div>
+
+        )}
+
+      </section>
+    );
+
+  /* =========================================================
+     PROFILE
+  ========================================================= */
+
+  const renderParentProfile = () => {
+    const profileName =
+      parent?.name ||
+      parent?.full_name ||
+      parent?.fullName ||
+      parent?.username ||
+      "Parent";
+
+    const profileUsername = parent?.username || "—";
+    const profileEmail = parent?.email || parent?.mail || "—";
+    const profilePhone = parent?.phone || parent?.mobile || parent?.contact || "—";
+    const profileAddress = parent?.address || "—";
+    const profileId = parent?.id || parent?.parent_id || "—";
+
+    return (
+      <section className="profile-page premium-profile-page">
+
+        <div className="profile-heading-row">
+          <div>
+            <span className="section-kicker">ACCOUNT</span>
+            <h2>My Profile</h2>
+            <p>View and manage the information connected to your parent account.</p>
+          </div>
+
+          <div className="profile-live-badge">
+            <span /> Active account
+          </div>
+        </div>
+
+        <div className="profile-premium-hero">
+          <div className="profile-hero-orb orb-one" />
+          <div className="profile-hero-orb orb-two" />
+
+          <div className="profile-avatar-shell">
+            <div className="profile-avatar-large">
+              {getInitials(profileName)}
+            </div>
+            <div className="profile-verified-dot">
+              <FaCircleCheck />
+            </div>
+          </div>
+
+          <div className="profile-hero-copy">
+            <span className="profile-role">PARENT ACCOUNT</span>
+            <h2>{profileName}</h2>
+            <p>
+              <FaUser />
+              <span>{profileUsername}</span>
+              <b>•</b>
+              <span>ID #{profileId}</span>
+            </p>
+          </div>
+
+          <div className="profile-hero-stat">
+            <span>ASSIGNED STUDENTS</span>
+            <strong>{students.length}</strong>
+            <i>
+              <b style={{ width: `${students.length ? 100 : 0}%` }} />
+            </i>
+          </div>
+        </div>
+
+        <div className="profile-section-title">
+          <div>
+            <span className="section-kicker">ACCOUNT DETAILS</span>
+            <h3>Personal information</h3>
+          </div>
+          <span className="profile-secure">Secure account</span>
+        </div>
+
+        <div className="profile-grid premium-profile-grid">
+          <div className="profile-detail premium-detail">
+            <div className="profile-detail-icon purple"><FaUser /></div>
+            <div><span>Full Name</span><strong>{profileName}</strong></div>
+          </div>
+          <div className="profile-detail premium-detail">
+            <div className="profile-detail-icon blue"><FaListCheck /></div>
+            <div><span>Username</span><strong>{profileUsername}</strong></div>
+          </div>
+          <div className="profile-detail premium-detail">
+            <div className="profile-detail-icon green"><FaChartLine /></div>
+            <div><span>Email Address</span><strong>{profileEmail}</strong></div>
+          </div>
+          <div className="profile-detail premium-detail">
+            <div className="profile-detail-icon orange"><FaClock /></div>
+            <div><span>Phone Number</span><strong>{profilePhone}</strong></div>
+          </div>
+          <div className="profile-detail premium-detail wide">
+            <div className="profile-detail-icon pink"><FaCalendarDays /></div>
+            <div><span>Address</span><strong>{profileAddress}</strong></div>
+          </div>
+        </div>
+
+        <div className="profile-section-title profile-summary-title">
+          <div>
+            <span className="section-kicker">LEARNING OVERVIEW</span>
+            <h3>Account activity</h3>
+          </div>
+        </div>
+
+        <div className="premium-profile-summary">
+          <div className="profile-summary-card purple">
+            <div className="profile-summary-icon"><FaUserGraduate /></div>
+            <span>Assigned Students</span>
+            <strong>{students.length}</strong>
+            <small>Students linked to this parent</small>
+          </div>
+          <div className="profile-summary-card blue">
+            <div className="profile-summary-icon"><FaListCheck /></div>
+            <span>Weekly Tasks</span>
+            <strong>{dashboard.weekTotal}</strong>
+            <small>Total tasks this week</small>
+          </div>
+          <div className="profile-summary-card green">
+            <div className="profile-summary-icon"><FaCircleCheck /></div>
+            <span>Weekly Completed</span>
+            <strong>{dashboard.weekCompleted}</strong>
+            <small>Completed tasks this week</small>
+          </div>
+          <div className="profile-summary-card orange">
+            <div className="profile-summary-icon"><FaArrowTrendUp /></div>
+            <span>Weekly Performance</span>
+            <strong>{clamp(dashboard.weeklyPerformance)}%</strong>
+            <small>Current weekly progress</small>
+          </div>
+        </div>
+
+      </section>
+    );
+  };
+
+  /* =========================================================
+     MAIN
+  ========================================================= */
+
+  return (
+    <div className="parent-dashboard">
+
+      {renderSidebar()}
+
+      <main className="parent-main">
+
+        {renderTopbar()}
+
+        <div className="parent-content">
+
+          {activePage ===
+            "dashboard" &&
+            renderDashboardHome()}
+
+          {activePage ===
+            "students" &&
+            renderMyStudents()}
+
+          {activePage ===
+            "profile" &&
+            renderParentProfile()}
+
+        </div>
+
+      </main>
+
+    </div>
+  );
 }
+
+export default ParentDashboard;
