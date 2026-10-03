@@ -445,25 +445,31 @@ function AdminPaymentHistory() {
                       </div>
 
                       <div className="person-card">
-                        <div className="person-icon parent">
-                          <FaUsers />
+                        <div
+                          className={`person-icon ${
+                            paidByParent ? "parent" : "student"
+                          }`}
+                        >
+                          {paidByParent ? <FaUsers /> : <FaUser />}
                         </div>
 
                         <div>
                           <span>
                             {paidByParent
                               ? "Parent / Paid By"
-                              : "Parent"}
+                              : "Student / Paid By"}
                           </span>
+
                           <strong>
-                            {latestPayment.parent_name ||
-                              (paidByParent
-                                ? "Parent"
-                                : "Not applicable")}
+                            {paidByParent
+                              ? latestPayment.parent_name || "Parent"
+                              : latestPayment.student_name || "-"}
                           </strong>
+
                           <small>
-                            {latestPayment.parent_email ||
-                              (paidByParent ? "-" : "Student payment")}
+                            {paidByParent
+                              ? latestPayment.parent_email || "-"
+                              : latestPayment.student_email || "-"}
                           </small>
                         </div>
                       </div>
