@@ -36,7 +36,7 @@ import {
 } from "react-icons/fa6";
 import { FaTasks } from "react-icons/fa";
 import "./admin-dashboard.css";
-import AdminPaymentHistory from "./AdminPaymentHistory";
+
 const API_URL =
   "https://zyntaweb.com/skilllab/admin-dashboard.php";
 
@@ -47,8 +47,7 @@ function AdminDashboard() {
   const [admin, setAdmin] = useState(null);
 
   const [students, setStudents] = useState([]);
-const [paymentHistoryOpen, setPaymentHistoryOpen] = useState(false);
-const [selectedPaymentStudent, setSelectedPaymentStudent] = useState(null);
+
   const [dashboardData, setDashboardData] =
     useState({
       totalStudents: 0,
@@ -446,15 +445,7 @@ const [selectedPaymentStudent, setSelectedPaymentStudent] = useState(null);
     setEditingDefaultId(null);
     setDeletedDefaultIds([]);
     setDefaultLoading(true);
-const openPaymentHistory = (student) => {
-  setSelectedPaymentStudent(student);
-  setPaymentHistoryOpen(true);
-};
 
-const closePaymentHistory = () => {
-  setPaymentHistoryOpen(false);
-  setSelectedPaymentStudent(null);
-};
     try {
       const adminData = JSON.parse(localStorage.getItem("admin") || "null");
       const response = await fetch(API_URL, {
@@ -1428,22 +1419,39 @@ const openStudentDashboard = (student) => {
   </button>
 
 </div>
-<button
-  type="button"
-  className="student-dashboard-button"
-  style={{ marginBottom: "10px" }}
-  onClick={(e) => {
-    e.stopPropagation();
-    openPaymentHistory(student);
-  }}
->
-  <FaCreditCard />
-  Payment History
-</button>
+
           
 
         </div>
+{/* =================================================
+    PAYMENT HISTORY
+================================================= */}
 
+<div className="admin-nav-group">
+
+  <button
+    type="button"
+    className={`admin-nav-item ${
+      location.pathname === "/admin/payment-history"
+        ? "active"
+        : ""
+    }`}
+    onClick={() => {
+      navigate("/admin/payment-history");
+
+      setStudentsOpen(false);
+      setParentsOpen(false);
+      setMobileOpen(false);
+    }}
+  >
+    <FaCreditCard />
+
+    <span>
+      Payment History
+    </span>
+  </button>
+
+</div>
         {/* LOGOUT */}
 
         <div className="admin-sidebar-bottom">
