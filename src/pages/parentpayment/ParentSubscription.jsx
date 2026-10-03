@@ -12,7 +12,7 @@ import {
   FaXmark,
 } from "react-icons/fa6";
 
-import "./parent-payments.css";
+import "./parentsubscription.css";
 
 /* =========================================================
    API
