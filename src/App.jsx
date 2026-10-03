@@ -314,7 +314,7 @@ function App() {
 ================================================= */}
 
 <Route
-  path="/admin/payment-history"
+  path="/AdminPaymentHistory"
   element={
     <AdminProtectedRoute>
       <AdminPaymentHistory />
