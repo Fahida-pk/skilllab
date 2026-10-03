@@ -1253,6 +1253,119 @@ const getBuiltInDefaultId = (task, dateKey) => {
   };
 
   /* =====================================================
+     FETCH TASKS FOR A DATE RANGE
+     -----------------------------------------------------
+     Week / Month dashboard statistics must use the SAME
+     task.php data that the Tasks page uses.
+     Do not depend on dashboard.php weekTasks/monthTasks.
+  ===================================================== */
+  const fetchTaskRange = async (startDate, endDate) => {
+    const dates = [];
+
+    const cursor = new Date(startDate + "T00:00:00");
+    const end = new Date(endDate + "T00:00:00");
+
+    while (cursor <= end) {
+      dates.push(
+        `${cursor.getFullYear()}-${String(
+          cursor.getMonth() + 1
+        ).padStart(2, "0")}-${String(
+          cursor.getDate()
+        ).padStart(2, "0")}`
+      );
+
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    const results = await Promise.all(
+      dates.map(async (taskDate) => {
+        try {
+          const request = async (adminFlag) => {
+            const response = await fetch(TASK_API_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                action: "get",
+                email: dashboardEmail || user?.email || "",
+                student_id: currentStudentId || undefined,
+                task_date: taskDate,
+                admin_view: adminFlag,
+              }),
+            });
+
+            return await response.json();
+          };
+
+          let data = await request(
+            adminView || parentView ? 1 : 0
+          );
+
+          /* Same fallback used by the main Tasks fetch. */
+          if (
+            (adminView || parentView) &&
+            (!Array.isArray(data?.tasks) ||
+              data.tasks.length === 0)
+          ) {
+            const fallback = await request(0);
+            if (Array.isArray(fallback?.tasks)) {
+              data = fallback;
+            }
+          }
+
+          if (!data?.success || !Array.isArray(data.tasks)) {
+            return [];
+          }
+
+          return data.tasks.map((task) => ({
+            ...task,
+            task_date: taskDate,
+            taskDate,
+            title:
+              task.title ||
+              task.task_name ||
+              "",
+            from:
+              task.from ||
+              task.from_time ||
+              "",
+            to:
+              task.to ||
+              task.to_time ||
+              "",
+            completed:
+              task.completed === true ||
+              task.completed === 1 ||
+              task.completed === "1" ||
+              task.completed === "true",
+            percentage: Math.max(
+              0,
+              Math.min(
+                100,
+                Number(task.percentage ?? 0)
+              )
+            ),
+            default_id:
+              task.default_id ??
+              task.defaultId ??
+              null,
+          }));
+        } catch (error) {
+          console.error(
+            "Task range fetch failed:",
+            taskDate,
+            error
+          );
+          return [];
+        }
+      })
+    );
+
+    return results.flat();
+  };
+
+  /* =====================================================
      LOAD DASHBOARD
   ===================================================== */
 
@@ -1615,12 +1728,113 @@ const getBuiltInDefaultId = (task, dateKey) => {
       return;
     }
 
+    /* =====================================================
+       WEEK / MONTH STATISTICS FROM TASKS PAGE DATA
+       -----------------------------------------------------
+       task.php is the source of truth for the visible tasks.
+       dashboard.php weekTasks/monthTasks are NOT used here.
+    ===================================================== */
+    const selectedForPeriod = new Date(
+      date + "T00:00:00"
+    );
+
+    const selectedDay = selectedForPeriod.getDay();
+    const mondayOffset =
+      selectedDay === 0 ? -6 : 1 - selectedDay;
+
+    const periodWeekStart = new Date(
+      selectedForPeriod
+    );
+    periodWeekStart.setDate(
+      selectedForPeriod.getDate() + mondayOffset
+    );
+
+    const periodWeekEnd = new Date(
+      periodWeekStart
+    );
+    periodWeekEnd.setDate(
+      periodWeekStart.getDate() + 6
+    );
+
+    const periodMonthStart = new Date(
+      selectedForPeriod.getFullYear(),
+      selectedForPeriod.getMonth(),
+      1
+    );
+
+    const periodMonthEnd = new Date(
+      selectedForPeriod.getFullYear(),
+      selectedForPeriod.getMonth() + 1,
+      0
+    );
+
+    const rangeStart =
+      periodWeekStart < periodMonthStart
+        ? periodWeekStart
+        : periodMonthStart;
+
+    const rangeEnd =
+      periodWeekEnd > periodMonthEnd
+        ? periodWeekEnd
+        : periodMonthEnd;
+
+    const rangeStartKey = `${rangeStart.getFullYear()}-${String(
+      rangeStart.getMonth() + 1
+    ).padStart(2, "0")}-${String(
+      rangeStart.getDate()
+    ).padStart(2, "0")}`;
+
+    const rangeEndKey = `${rangeEnd.getFullYear()}-${String(
+      rangeEnd.getMonth() + 1
+    ).padStart(2, "0")}-${String(
+      rangeEnd.getDate()
+    ).padStart(2, "0")}`;
+
+    const periodTasks = await fetchTaskRange(
+      rangeStartKey,
+      rangeEndKey
+    );
+
+    const weekStartKey = `${periodWeekStart.getFullYear()}-${String(
+      periodWeekStart.getMonth() + 1
+    ).padStart(2, "0")}-${String(
+      periodWeekStart.getDate()
+    ).padStart(2, "0")}`;
+
+    const weekEndKey = `${periodWeekEnd.getFullYear()}-${String(
+      periodWeekEnd.getMonth() + 1
+    ).padStart(2, "0")}-${String(
+      periodWeekEnd.getDate()
+    ).padStart(2, "0")}`;
+
+    const monthStartKey = `${periodMonthStart.getFullYear()}-${String(
+      periodMonthStart.getMonth() + 1
+    ).padStart(2, "0")}-01`;
+
+    const monthEndKey = `${periodMonthEnd.getFullYear()}-${String(
+      periodMonthEnd.getMonth() + 1
+    ).padStart(2, "0")}-${String(
+      periodMonthEnd.getDate()
+    ).padStart(2, "0")}`;
+
+    const weekTasksFromTaskPage = periodTasks.filter(
+      (task) =>
+        task.task_date >= weekStartKey &&
+        task.task_date <= weekEndKey
+    );
+
+    const monthTasksFromTaskPage = periodTasks.filter(
+      (task) =>
+        task.task_date >= monthStartKey &&
+        task.task_date <= monthEndKey
+    );
+
     const fixedWeek = calculatePeriodStats(
-      data.weekTasks || []
+      weekTasksFromTaskPage
     );
 
     const fixedMonth = calculatePeriodStats(
-      data.monthTasks || []
+      monthTasksFromTaskPage
     );
 
     /* =====================================================
