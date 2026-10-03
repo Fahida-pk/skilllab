@@ -439,7 +439,7 @@ export default function Sidebar() {
         : ""
     }`}
     onClick={() => {
-      navigate("/admin/payment-history");
+      navigate("/AdminPaymentHistory");
 
       setStudentsOpen(false);
       setParentsOpen(false);
