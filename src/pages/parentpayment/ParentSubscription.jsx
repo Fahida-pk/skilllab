@@ -695,17 +695,17 @@ function ParentSubscription() {
               Accept:
                 "application/json",
             },
-
-            body: JSON.stringify({
-              account_type:
-                "student",
-
-              user_id:
-                studentId,
-
-              plan_id:
-                planId,
-            }),
+body: JSON.stringify({
+  account_type: "student",
+  user_id: Number(studentId),
+  parent_id: getParentId(parent),
+  razorpay_payment_id:
+    razorpayResponse.razorpay_payment_id,
+  razorpay_order_id:
+    razorpayResponse.razorpay_order_id,
+  razorpay_signature:
+    razorpayResponse.razorpay_signature,
+}),
           }
         );
 
