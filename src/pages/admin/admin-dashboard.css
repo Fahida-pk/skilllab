@@ -5583,3 +5583,35 @@ body {
     min-width: 32px !important;
   }
 }
+/* =====================================================
+   MOVE LOGOUT UP ON MOBILE
+===================================================== */
+
+@media (max-width: 800px) {
+
+  .admin-sidebar {
+    height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .admin-sidebar-content {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+
+  .admin-sidebar-bottom {
+    flex-shrink: 0 !important;
+
+    /* Logout കുറച്ച് മുകളിലേക്ക് */
+    margin-bottom: 65px !important;
+
+    padding:
+      14px 15px 0 !important;
+  }
+
+  .admin-logout {
+    height: 53px !important;
+  }
+}
