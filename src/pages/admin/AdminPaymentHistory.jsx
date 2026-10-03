@@ -8,8 +8,6 @@ import React, {
 
 } from "react";
 
-
-
 import {
 
   FaCreditCard,
@@ -34,57 +32,33 @@ import {
 
 } from "react-icons/fa";
 
-
-
 import { useNavigate } from "react-router-dom";
 
-
-
 import "./admin-payment-history.css";
-
-
 
 const API_URL =
 
   "https://zyntaweb.com/skilllab/adminpaymenthistory.php";
 
-
-
-
-
 function AdminPaymentHistory() {
 
-
-
   const navigate = useNavigate();
-
-
 
   const [payments, setPayments] =
 
     useState([]);
 
-
-
   const [loading, setLoading] =
 
     useState(true);
-
-
 
   const [error, setError] =
 
     useState("");
 
-
-
   const [search, setSearch] =
 
     useState("");
-
-
-
-
 
   /* =====================================================
 
@@ -92,33 +66,21 @@ function AdminPaymentHistory() {
 
   ===================================================== */
 
-
-
   const fetchPaymentHistory = useCallback(
 
     async () => {
 
-
-
       try {
-
-
 
         setLoading(true);
 
         setError("");
 
-
-
         const savedAdmin =
 
           localStorage.getItem("admin");
 
-
-
         if (!savedAdmin) {
-
-
 
           navigate(
 
@@ -132,33 +94,19 @@ function AdminPaymentHistory() {
 
           );
 
-
-
           return;
 
         }
 
-
-
-
-
         let adminData;
 
-
-
         try {
-
-
 
           adminData =
 
             JSON.parse(savedAdmin);
 
-
-
         } catch {
-
-
 
           localStorage.removeItem(
 
@@ -166,15 +114,11 @@ function AdminPaymentHistory() {
 
           );
 
-
-
           localStorage.removeItem(
 
             "adminLoggedIn"
 
           );
-
-
 
           navigate(
 
@@ -188,15 +132,9 @@ function AdminPaymentHistory() {
 
           );
 
-
-
           return;
 
         }
-
-
-
-
 
         const response =
 
@@ -208,8 +146,6 @@ function AdminPaymentHistory() {
 
               method: "POST",
 
-
-
               headers: {
 
                 "Content-Type":
@@ -217,8 +153,6 @@ function AdminPaymentHistory() {
                   "application/json",
 
               },
-
-
 
               body: JSON.stringify({
 
@@ -232,17 +166,9 @@ function AdminPaymentHistory() {
 
           );
 
-
-
-
-
         const data =
 
           await response.json();
-
-
-
-
 
         console.log(
 
@@ -252,13 +178,7 @@ function AdminPaymentHistory() {
 
         );
 
-
-
-
-
         if (!data.success) {
-
-
 
           throw new Error(
 
@@ -268,13 +188,7 @@ function AdminPaymentHistory() {
 
           );
 
-
-
         }
-
-
-
-
 
         setPayments(
 
@@ -290,11 +204,7 @@ function AdminPaymentHistory() {
 
         );
 
-
-
       } catch (err) {
-
-
 
         console.error(
 
@@ -304,8 +214,6 @@ function AdminPaymentHistory() {
 
         );
 
-
-
         setError(
 
           err.message ||
@@ -314,23 +222,13 @@ function AdminPaymentHistory() {
 
         );
 
-
-
         setPayments([]);
-
-
 
       } finally {
 
-
-
         setLoading(false);
 
-
-
       }
-
-
 
     },
 
@@ -338,31 +236,17 @@ function AdminPaymentHistory() {
 
   );
 
-
-
-
-
   /* =====================================================
 
      LOAD
 
   ===================================================== */
 
-
-
   useEffect(() => {
-
-
 
     fetchPaymentHistory();
 
-
-
   }, [fetchPaymentHistory]);
-
-
-
-
 
   /* =====================================================
 
@@ -370,15 +254,11 @@ function AdminPaymentHistory() {
 
   ===================================================== */
 
-
-
   const formatDate = (
 
     value
 
   ) => {
-
-
 
     if (!value) {
 
@@ -386,13 +266,9 @@ function AdminPaymentHistory() {
 
     }
 
-
-
     const date =
 
       new Date(value);
-
-
 
     if (
 
@@ -404,15 +280,9 @@ function AdminPaymentHistory() {
 
     ) {
 
-
-
       return value;
 
-
-
     }
-
-
 
     return date.toLocaleDateString(
 
@@ -430,13 +300,7 @@ function AdminPaymentHistory() {
 
     );
 
-
-
   };
-
-
-
-
 
   const formatDateTime = (
 
@@ -444,21 +308,15 @@ function AdminPaymentHistory() {
 
   ) => {
 
-
-
     if (!value) {
 
       return "-";
 
     }
 
-
-
     const date =
 
       new Date(value);
-
-
 
     if (
 
@@ -470,15 +328,9 @@ function AdminPaymentHistory() {
 
     ) {
 
-
-
       return value;
 
-
-
     }
-
-
 
     return date.toLocaleString(
 
@@ -500,13 +352,7 @@ function AdminPaymentHistory() {
 
     );
 
-
-
   };
-
-
-
-
 
   /* =====================================================
 
@@ -514,15 +360,11 @@ function AdminPaymentHistory() {
 
   ===================================================== */
 
-
-
   const getStatusIcon = (
 
     status
 
   ) => {
-
-
 
     const value =
 
@@ -531,10 +373,6 @@ function AdminPaymentHistory() {
         status || ""
 
       ).toLowerCase();
-
-
-
-
 
     if (
 
@@ -545,8 +383,6 @@ function AdminPaymentHistory() {
       value === "completed"
 
     ) {
-
-
 
       return (
 
@@ -554,13 +390,7 @@ function AdminPaymentHistory() {
 
       );
 
-
-
     }
-
-
-
-
 
     if (
 
@@ -568,21 +398,13 @@ function AdminPaymentHistory() {
 
     ) {
 
-
-
       return (
 
         <FaTimesCircle />
 
       );
 
-
-
     }
-
-
-
-
 
     return (
 
@@ -590,13 +412,7 @@ function AdminPaymentHistory() {
 
     );
 
-
-
   };
-
-
-
-
 
   /* =====================================================
 
@@ -604,15 +420,11 @@ function AdminPaymentHistory() {
 
   ===================================================== */
 
-
-
   const getStatusClass = (
 
     status
 
   ) => {
-
-
 
     const value =
 
@@ -621,10 +433,6 @@ function AdminPaymentHistory() {
         status || ""
 
       ).toLowerCase();
-
-
-
-
 
     if (
 
@@ -636,17 +444,9 @@ function AdminPaymentHistory() {
 
     ) {
 
-
-
       return "payment-status-success";
 
-
-
     }
-
-
-
-
 
     if (
 
@@ -654,27 +454,13 @@ function AdminPaymentHistory() {
 
     ) {
 
-
-
       return "payment-status-failed";
-
-
 
     }
 
-
-
-
-
     return "payment-status-pending";
 
-
-
   };
-
-
-
-
 
   /* =====================================================
 
@@ -682,15 +468,11 @@ function AdminPaymentHistory() {
 
   ===================================================== */
 
-
-
   const filteredPayments =
 
     payments.filter(
 
       (payment) => {
-
-
 
         const keyword =
 
@@ -700,57 +482,31 @@ function AdminPaymentHistory() {
 
             .toLowerCase();
 
-
-
         if (!keyword) {
 
           return true;
 
         }
 
-
-
-
-
         return [
-
-
 
           payment.student_name,
 
-
-
           payment.student_email,
-
-
 
           payment.parent_name,
 
-
-
           payment.parent_email,
-
-
 
           payment.plan_name,
 
-
-
           payment.billing_cycle,
-
-
 
           payment.status,
 
-
-
           payment.paid_by,
 
-
-
           payment.gateway_payment_id,
-
-
 
         ]
 
@@ -772,23 +528,46 @@ function AdminPaymentHistory() {
 
           );
 
-
-
       }
 
     );
 
-
-
-
-
   /* =====================================================
+     GROUP PAYMENTS BY STUDENT
+  ===================================================== */
+
+  const groupedPayments = Object.values(
+    filteredPayments.reduce((groups, payment) => {
+      const studentKey =
+        payment.student_id ||
+        payment.student_email ||
+        payment.student_name ||
+        `payment-${payment.id}`;
+
+      if (!groups[studentKey]) {
+        groups[studentKey] = {
+          student: payment,
+          payments: [],
+        };
+      }
+
+      groups[studentKey].payments.push(payment);
+      return groups;
+    }, {})
+  ).map((group) => ({
+    ...group,
+    payments: [...group.payments].sort(
+      (a, b) =>
+        new Date(b.paid_at || 0).getTime() -
+        new Date(a.paid_at || 0).getTime()
+    ),
+  }));
+
+/* =====================================================
 
      TOTAL
 
   ===================================================== */
-
-
 
   const totalAmount =
 
@@ -802,8 +581,6 @@ function AdminPaymentHistory() {
 
       ) => {
 
-
-
         return (
 
           total +
@@ -816,17 +593,11 @@ function AdminPaymentHistory() {
 
         );
 
-
-
       },
 
       0
 
     );
-
-
-
-
 
   /* =====================================================
 
@@ -834,17 +605,9 @@ function AdminPaymentHistory() {
 
   ===================================================== */
 
-
-
   return (
 
-
-
     <div className="admin-payment-page">
-
-
-
-
 
       {/* =================================================
 
@@ -852,41 +615,23 @@ function AdminPaymentHistory() {
 
       ================================================= */}
 
-
-
       <div className="admin-payment-page-header">
-
-
 
         <div className="admin-payment-heading">
 
-
-
           <div className="admin-payment-heading-icon">
-
-
 
             <FaCreditCard />
 
-
-
           </div>
 
-
-
-
-
           <div>
-
-
 
             <h1>
 
               Payment History
 
             </h1>
-
-
 
             <p>
 
@@ -896,21 +641,11 @@ function AdminPaymentHistory() {
 
             </p>
 
-
-
           </div>
-
-
 
         </div>
 
-
-
-
-
         <div className="admin-payment-header-actions">
-
-
 
           <button
 
@@ -930,11 +665,7 @@ function AdminPaymentHistory() {
 
           >
 
-
-
             <FaArrowLeft />
-
-
 
             <span>
 
@@ -942,13 +673,7 @@ function AdminPaymentHistory() {
 
             </span>
 
-
-
           </button>
-
-
-
-
 
           <button
 
@@ -966,8 +691,6 @@ function AdminPaymentHistory() {
 
           >
 
-
-
             <FaSyncAlt
 
               className={
@@ -982,8 +705,6 @@ function AdminPaymentHistory() {
 
             />
 
-
-
             <span>
 
               {loading
@@ -994,21 +715,11 @@ function AdminPaymentHistory() {
 
             </span>
 
-
-
           </button>
-
-
 
         </div>
 
-
-
       </div>
-
-
-
-
 
       {/* =================================================
 
@@ -1016,33 +727,17 @@ function AdminPaymentHistory() {
 
       ================================================= */}
 
-
-
       <div className="admin-payment-summary">
-
-
-
-
 
         <div className="admin-payment-summary-card">
 
-
-
           <div className="summary-icon">
-
-
 
             <FaCreditCard />
 
-
-
           </div>
 
-
-
           <div>
-
-
 
             <span>
 
@@ -1050,53 +745,31 @@ function AdminPaymentHistory() {
 
             </span>
 
-
-
             <strong>
 
               {payments.length}
 
             </strong>
 
-
-
           </div>
-
-
 
         </div>
 
-
-
-
-
         <div className="admin-payment-summary-card">
-
-
 
           <div className="summary-icon">
 
-
-
             <FaRupeeSign />
-
-
 
           </div>
 
-
-
           <div>
-
-
 
             <span>
 
               Total Amount
 
             </span>
-
-
 
             <strong>
 
@@ -1110,45 +783,25 @@ function AdminPaymentHistory() {
 
             </strong>
 
-
-
           </div>
-
-
 
         </div>
 
-
-
-
-
         <div className="admin-payment-summary-card">
-
-
 
           <div className="summary-icon">
 
-
-
             <FaUsers />
-
-
 
           </div>
 
-
-
           <div>
-
-
 
             <span>
 
               Parent Payments
 
             </span>
-
-
 
             <strong>
 
@@ -1174,23 +827,11 @@ function AdminPaymentHistory() {
 
             </strong>
 
-
-
           </div>
-
-
 
         </div>
 
-
-
-
-
       </div>
-
-
-
-
 
       {/* =================================================
 
@@ -1198,15 +839,9 @@ function AdminPaymentHistory() {
 
       ================================================= */}
 
-
-
       <div className="admin-payment-toolbar">
 
-
-
         <div className="admin-payment-search">
-
-
 
           <input
 
@@ -1228,41 +863,20 @@ function AdminPaymentHistory() {
 
           />
 
-
-
         </div>
-
-
 
         <div className="admin-payment-count">
 
-
-
           Showing{" "}
-
-
-
-          <strong>
-
-            {filteredPayments.length}
-
-          </strong>
-
-
-
-          {" "}payments
-
-
+          <strong>{groupedPayments.length}</strong>
+          {" "}students{" "}
+          <span className="payment-count-secondary">
+            ({filteredPayments.length} payments)
+          </span>
 
         </div>
 
-
-
       </div>
-
-
-
-
 
       {/* =================================================
 
@@ -1270,29 +884,15 @@ function AdminPaymentHistory() {
 
       ================================================= */}
 
-
-
       <div className="admin-payment-content">
-
-
-
-
 
         {/* LOADING */}
 
-
-
         {loading && (
-
-
 
           <div className="admin-payment-loading">
 
-
-
             <div className="admin-payment-spinner" />
-
-
 
             <p>
 
@@ -1300,39 +900,21 @@ function AdminPaymentHistory() {
 
             </p>
 
-
-
           </div>
-
-
 
         )}
 
-
-
-
-
         {/* ERROR */}
-
-
 
         {!loading &&
 
           error && (
 
-
-
             <div className="admin-payment-error">
-
-
 
               <FaTimesCircle />
 
-
-
               <div>
-
-
 
                 <strong>
 
@@ -1340,33 +922,19 @@ function AdminPaymentHistory() {
 
                 </strong>
 
-
-
                 <p>
 
                   {error}
 
                 </p>
 
-
-
               </div>
-
-
 
             </div>
 
-
-
           )}
 
-
-
-
-
         {/* EMPTY */}
-
-
 
         {!loading &&
 
@@ -1374,31 +942,19 @@ function AdminPaymentHistory() {
 
           filteredPayments.length === 0 && (
 
-
-
             <div className="admin-payment-empty">
-
-
 
               <div className="admin-payment-empty-icon">
 
-
-
                 <FaCreditCard />
 
-
-
               </div>
-
-
 
               <h2>
 
                 No Payment History
 
               </h2>
-
-
 
               <p>
 
@@ -1410,21 +966,11 @@ function AdminPaymentHistory() {
 
               </p>
 
-
-
             </div>
-
-
 
           )}
 
-
-
-
-
         {/* PAYMENT LIST */}
-
-
 
         {!loading &&
 
@@ -1432,559 +978,167 @@ function AdminPaymentHistory() {
 
           filteredPayments.length > 0 && (
 
-
-
             <div className="admin-payment-list">
 
+              {groupedPayments.map((group, index) => {
+                const latestPayment = group.payments[0];
 
-
-
-
-              {filteredPayments.map(
-
-                (
-
-                  payment,
-
-                  index
-
-                ) => (
-
-
-
+                return (
                   <div
-
                     className="admin-payment-item"
-
                     key={
-
-                      payment.id ||
-
-                      payment.gateway_payment_id ||
-
+                      latestPayment.student_id ||
+                      latestPayment.student_email ||
+                      latestPayment.student_name ||
+                      latestPayment.id ||
                       index
-
                     }
-
                   >
-
-
-
-
-
-                    {/* ============================
-
-                        TOP
-
-                    ============================ */}
-
-
-
                     <div className="admin-payment-item-top">
-
-
-
-
-
                       <div className="admin-payment-main">
-
-
-
-
-
                         <div className="admin-payment-plan-icon">
-
-
-
                           <FaCreditCard />
-
-
-
                         </div>
-
-
-
-
-
                         <div className="admin-payment-details">
-
-
-
                           <div className="admin-payment-plan-row">
-
-
-
-                            <h3>
-
-
-
-                              {payment.plan_name ||
-
-                                "Subscription"}
-
-
-
-                            </h3>
-
-
-
-
-
+                            <h3>{latestPayment.plan_name || "Subscription"}</h3>
                             <span
-
                               className={`admin-payment-status ${getStatusClass(
-
-                                payment.status
-
+                                latestPayment.status
                               )}`}
-
                             >
-
-
-
-                              {getStatusIcon(
-
-                                payment.status
-
-                              )}
-
-
-
-                              {payment.status ||
-
-                                "Pending"}
-
-
-
+                              {getStatusIcon(latestPayment.status)}
+                              {latestPayment.status || "Pending"}
                             </span>
-
-
-
                           </div>
-
-
-
-
-
                           <div className="admin-payment-meta">
-
-
-
-
-
                             <span>
-
-
-
-                              <FaRupeeSign />
-
-
-
-                              ₹
-
-                              {Number(
-
-                                payment.amount ||
-
-                                  0
-
-                              ).toLocaleString(
-
-                                "en-IN"
-
-                              )}
-
-
-
+                              <FaRupeeSign /> ₹
+                              {Number(latestPayment.amount || 0).toLocaleString("en-IN")}
                             </span>
-
-
-
-
-
+                            <span>{latestPayment.billing_cycle || "-"}</span>
                             <span>
-
-
-
-                              {payment.billing_cycle ||
-
-                                "-"}
-
-
-
+                              <FaCalendarAlt /> {formatDateTime(latestPayment.paid_at)}
                             </span>
-
-
-
-
-
-                            <span>
-
-
-
-                              <FaCalendarAlt />
-
-
-
-                              {formatDateTime(
-
-                                payment.paid_at
-
-                              )}
-
-
-
-                            </span>
-
-
-
-
-
                           </div>
-
-
-
                         </div>
-
-
-
                       </div>
-
-
-
-
-
-                      {/* ============================
-
-                          PAID BY
-
-                      ============================ */}
-
-
 
                       <div className="admin-payment-paid-by">
-
-
-
-                        <span className="paid-by-label">
-
-                          Paid By
-
-                        </span>
-
-
-
-
-
+                        <span className="paid-by-label">Paid By</span>
                         <div
-
                           className={`paid-by-badge ${
-
-                            String(
-
-                              payment.paid_by ||
-
-                                ""
-
-                            ).toLowerCase() ===
-
-                            "parent"
-
+                            String(latestPayment.paid_by || "").toLowerCase() === "parent"
                               ? "paid-by-parent"
-
                               : "paid-by-student"
-
                           }`}
-
                         >
-
-
-
-                          {String(
-
-                            payment.paid_by ||
-
-                              ""
-
-                          ).toLowerCase() ===
-
-                          "parent" ? (
-
+                          {String(latestPayment.paid_by || "").toLowerCase() === "parent" ? (
                             <FaUsers />
-
                           ) : (
-
                             <FaUser />
-
                           )}
-
-
-
-
-
-                          {payment.paid_by ||
-
-                            "Student"}
-
-
-
+                          {latestPayment.paid_by || "Student"}
                         </div>
-
-
-
-
-
                         <span className="payment-id">
-
-
-
-                          Payment ID:{" "}
-
-
-
-                          {payment.gateway_payment_id ||
-
-                            "-"}
-
-
-
+                          Payment ID: {latestPayment.gateway_payment_id || "-"}
                         </span>
-
-
-
                       </div>
-
-
-
                     </div>
-
-
-
-
-
-                    {/* ============================
-
-                        STUDENT
-
-                    ============================ */}
-
-
 
                     <div className="admin-payment-person-section">
-
-
-
-
-
                       <div className="payment-person-card">
-
-
-
                         <div className="person-icon student-icon">
-
-
-
                           <FaUser />
-
-
-
                         </div>
-
-
-
-
-
                         <div>
-
-
-
-                          <span>
-
-                            Student
-
-                          </span>
-
-
-
-                          <strong>
-
-                            {payment.student_name ||
-
-                              "-"}
-
-
-
-                          </strong>
-
-
-
-                          <small>
-
-                            {payment.student_email ||
-
-                              "-"}
-
-                          </small>
-
-
-
+                          <span>Student</span>
+                          <strong>{latestPayment.student_name || "-"}</strong>
+                          <small>{latestPayment.student_email || "-"}</small>
                         </div>
-
-
-
                       </div>
-
-
-
-
 
                       <div className="payment-person-card">
-
-
-
                         <div className="person-icon parent-icon">
-
-
-
                           <FaUsers />
-
-
-
                         </div>
-
-
-
-
-
                         <div>
-
-
-
-                          <span>
-
-                            Parent / Paid By
-
-                          </span>
-
-
-
-                          <strong>
-
-                            {payment.parent_name ||
-
-                              payment.paid_by ||
-
-                              "-"}
-
-                          </strong>
-
-
-
-                          <small>
-
-                            {payment.parent_email ||
-
-                              "-"}
-
-                          </small>
-
-
-
+                          <span>Parent / Paid By</span>
+                          <strong>{latestPayment.parent_name || latestPayment.paid_by || "-"}</strong>
+                          <small>{latestPayment.parent_email || "-"}</small>
                         </div>
-
-
-
                       </div>
-
-
-
-
-
                     </div>
 
+                    <div className="student-payment-history">
+                      <div className="student-payment-history-header">
+                        <div>
+                          <strong>Payment History</strong>
+                          <span>
+                            {group.payments.length} payment{group.payments.length === 1 ? "" : "s"}
+                          </span>
+                        </div>
+                      </div>
 
-
-
-
-                    {/* ============================
-
-                        DATES
-
-                    ============================ */}
-
-
-
-                    
-                    {/* ============================
-                        DATES - ONE BOX
-                    ============================ */}
+                      <div className="student-payment-history-list">
+                        {group.payments.map((item, paymentIndex) => (
+                          <div
+                            className="student-payment-history-row"
+                            key={item.id || item.gateway_payment_id || paymentIndex}
+                          >
+                            <div className="student-payment-history-number">
+                              {paymentIndex + 1}
+                            </div>
+                            <div className="student-payment-history-info">
+                              <strong>{item.plan_name || "Subscription"}</strong>
+                              <span>{formatDateTime(item.paid_at)}</span>
+                            </div>
+                            <div className="student-payment-history-amount">
+                              ₹{Number(item.amount || 0).toLocaleString("en-IN")}
+                            </div>
+                            <div
+                              className={`student-payment-history-status ${getStatusClass(
+                                item.status
+                              )}`}
+                            >
+                              {getStatusIcon(item.status)}
+                              {item.status || "Pending"}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
                     <div className="admin-payment-date-box">
-
                       <div className="payment-date-item">
                         <span>Start Date</span>
-                        <strong>
-                          {formatDate(payment.start_date)}
-                        </strong>
+                        <strong>{formatDate(latestPayment.start_date)}</strong>
                       </div>
-
                       <div className="payment-date-divider" />
-
                       <div className="payment-date-item">
                         <span>End Date</span>
-                        <strong>
-                          {formatDate(payment.end_date)}
-                        </strong>
+                        <strong>{formatDate(latestPayment.end_date)}</strong>
                       </div>
-
                       <div className="payment-date-divider" />
-
                       <div className="payment-date-item">
-                        <span>Payment Date</span>
-                        <strong>
-                          {formatDateTime(payment.paid_at)}
-                        </strong>
+                        <span>Latest Payment</span>
+                        <strong>{formatDateTime(latestPayment.paid_at)}</strong>
                       </div>
-
                     </div>
-
-
-
-
-
-
                   </div>
-
-
-
-                )
-
-              )}
-
-
+                );
+              })}
 
             </div>
 
-
-
           )}
-
-
 
       </div>
 
-
-
     </div>
-
-
 
   );
 
 }
-
-
-
-
 
 export default AdminPaymentHistory;
