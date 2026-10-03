@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
+
 import "./subscription.css";
 
 import {
@@ -1033,7 +1034,9 @@ function Subscription() {
 
               razorpayResponse,
 
-              userId
+              userId,
+
+              planId
 
             );
 
@@ -1133,7 +1136,9 @@ function Subscription() {
 
     razorpayResponse,
 
-    userId
+    userId,
+
+    planId
 
   ) => {
 
@@ -1180,6 +1185,10 @@ function Subscription() {
               user_id:
 
                 userId,
+
+              plan_id:
+
+                Number(planId),
 
               razorpay_payment_id:
 
@@ -1388,18 +1397,26 @@ function Subscription() {
         <div className="header-left">
 
      {String(subscription?.status || "").toLowerCase() === "active" && (
-  <button
-    type="button"
-    className="back-button"
-    onClick={() =>
-      navigate("/dashboard")
-    }
-  >
-    <FaArrowLeft />
-  </button>
-)}
 
-          
+  <button
+
+    type="button"
+
+    className="back-button"
+
+    onClick={() =>
+
+      navigate("/dashboard")
+
+    }
+
+  >
+
+    <FaArrowLeft />
+
+  </button>
+
+)}
 
           <div className="header-icon">
 
