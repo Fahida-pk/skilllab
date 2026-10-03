@@ -18,6 +18,7 @@ import {
   FaMagnifyingGlass,
   FaArrowRight,
   FaUser,
+  FaCreditCard,
   FaArrowTrendUp,
   FaChartPie,
   FaRotate,
@@ -788,7 +789,25 @@ function ParentDashboard() {
               Students
             </span>
           </button>
+{/* PAYMENT / SUBSCRIPTION */}
 
+<button
+  className={`parent-nav-item ${
+    activePage === "payment"
+      ? "active"
+      : ""
+  }`}
+  onClick={() => {
+    setMobileOpen(false);
+    navigate("/parent/subscription");
+  }}
+>
+  <FaCreditCard />
+
+  <span>
+    Payment
+  </span>
+</button>
           <button
             className={`parent-nav-item ${
               activePage ===

@@ -20,6 +20,10 @@ import ParentLogin
 import ParentDashboard
   from "./pages/parentdasboard/Parentdashboard.jsx";
 
+/* =====================================================
+   STUDENT PAYMENT
+===================================================== */
+
 import Subscription
   from "./pages/payment/subscription.jsx";
 
@@ -28,6 +32,18 @@ import Payment
 
 import PaymentHistory
   from "./pages/PaymentHistory/PaymentHistory.jsx";
+
+/* =====================================================
+   PARENT PAYMENT
+
+   Create this file:
+   pages/parentpayment/ParentSubscription.jsx
+===================================================== */
+
+import ParentSubscription
+  from "./pages/parentpayment/ParentSubscription.jsx";
+
+
 /* =====================================================
    ADMIN PROTECTED ROUTE
 ===================================================== */
@@ -121,11 +137,9 @@ function App() {
       {/* =================================================
           STUDENT SUBSCRIPTION
 
-          IMPORTANT:
-          Subscription page itself should NOT be inside
-          subscription ProtectedRoute.
+          Student subscription only.
 
-          Expired users must be able to open this page.
+          user_id is used here.
       ================================================= */}
 
       <Route
@@ -133,20 +147,21 @@ function App() {
         element={<Subscription />}
       />
 
-{/* =================================================
-    PAYMENT HISTORY
 
-    Logged-in student's own payment history
-================================================= */}
-
-<Route
-  path="/payment-history"
-  element={<PaymentHistory />}
-/>
       {/* =================================================
-          ACTIVE SUBSCRIPTION REQUIRED
+          STUDENT PAYMENT HISTORY
+      ================================================= */}
 
-          Dashboard + Task only
+      <Route
+        path="/payment-history"
+        element={<PaymentHistory />}
+      />
+
+
+      {/* =================================================
+          STUDENT ACTIVE SUBSCRIPTION REQUIRED
+
+          Dashboard + Task
       ================================================= */}
 
       <Route element={<ProtectedRoute />}>
@@ -265,6 +280,32 @@ function App() {
       <Route
         path="/parent/login"
         element={<ParentLogin />}
+      />
+
+
+      {/* =================================================
+          PARENT SUBSCRIPTION
+
+          IMPORTANT:
+
+          Parent pays ONE subscription.
+
+          parent_id is used here.
+
+          Example:
+          parent_id = 4
+
+          This subscription covers all students
+          assigned to parent 4.
+      ================================================= */}
+
+      <Route
+        path="/parent/subscription"
+        element={
+          <ParentProtectedRoute>
+            <ParentSubscription />
+          </ParentProtectedRoute>
+        }
       />
 
 
