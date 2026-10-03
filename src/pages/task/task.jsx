@@ -1083,7 +1083,7 @@ useEffect(() => {
     if (!isPercentageDraggingRef.current) {
       fetchTasks();
     }
-  }, 2000);
+  }, 3000);
 
   return () => {
     clearInterval(syncTimer);
