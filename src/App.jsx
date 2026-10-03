@@ -16,7 +16,8 @@ import Parent from "./pages/parent/parent.jsx";
 
 import ParentLogin
   from "./pages/parentdasboard/ParentLogin.jsx";
-
+import AdminPaymentHistory
+  from "./pages/admin/AdminPaymentHistory.jsx";
 import ParentDashboard
   from "./pages/parentdasboard/Parentdashboard.jsx";
 
@@ -308,17 +309,29 @@ function App() {
         }
       />
 
+{/* =================================================
+    ADMIN → PAYMENT HISTORY
+================================================= */}
 
-      {/* =================================================
-          PARENT DASHBOARD
-      ================================================= */}
+<Route
+  path="/admin/payment-history"
+  element={
+    <AdminProtectedRoute>
+      <AdminPaymentHistory />
+    </AdminProtectedRoute>
+  }
+/>
 
-      <Route
-        path="/parent/dashboard"
-        element={
-          <ParentProtectedRoute>
-            <ParentDashboard />
-          </ParentProtectedRoute>
+{/* =================================================
+    PARENT DASHBOARD
+================================================= */}
+
+<Route
+  path="/parent/dashboard"
+  element={
+    <ParentProtectedRoute>
+      <ParentDashboard />
+    </ParentProtectedRoute>
         }
       />
 
