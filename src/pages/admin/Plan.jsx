@@ -737,7 +737,6 @@ try {
 
               <h2><FaList /> Plan List</h2>
 
-              <p>Manage current subscription offerings</p>
 
             </div>
 
