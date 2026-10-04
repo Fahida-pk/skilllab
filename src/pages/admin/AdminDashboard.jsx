@@ -9,7 +9,16 @@ import {
   FaTrophy,
   FaUserGraduate,
   FaUserTie,
+
+  // Payment Gateway
   FaCreditCard,
+
+  // Payment History
+  FaClockRotateLeft,
+
+  // Plans
+  FaTags,
+
   FaGear,
   FaArrowRightFromBracket,
   FaChevronDown,
@@ -32,7 +41,6 @@ import {
   FaMoon,
   FaPen,
   FaTrashCan,
-  
 } from "react-icons/fa6";
 import { FaTasks } from "react-icons/fa";
 import "./admin-dashboard.css";
@@ -1454,6 +1462,37 @@ const openStudentDashboard = (student) => {
 
     <span>
       Payment History
+    </span>
+
+  </button>
+
+</div>
+{/* =================================================
+    PLANS
+================================================= */}
+
+<div className="admin-nav-group">
+
+  <button
+    type="button"
+    className={`admin-nav-item ${
+      location.pathname === "/admin/plans"
+        ? "active"
+        : ""
+    }`}
+    onClick={() => {
+      navigate("/admin/plans");
+
+      setStudentsOpen(false);
+      setParentsOpen(false);
+      setMobileOpen(false);
+    }}
+  >
+
+    <FaTags />
+
+    <span>
+      Plans
     </span>
 
   </button>

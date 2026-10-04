@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
 import {
   FaGaugeHigh,
   FaUsers,
   FaUserGraduate,
   FaUserTie,
   FaCreditCard,
+  FaTags,
   FaArrowRightFromBracket,
   FaChevronDown,
   FaXmark,
@@ -456,6 +456,37 @@ export default function Sidebar() {
 
     <span>
       Payment History
+    </span>
+
+  </button>
+
+</div>
+{/* =================================================
+    PLANS
+================================================= */}
+
+<div className="admin-nav-group">
+
+  <button
+    type="button"
+    className={`admin-nav-item ${
+      location.pathname === "/admin/plans"
+        ? "active"
+        : ""
+    }`}
+    onClick={() => {
+      navigate("/admin/plans");
+
+      setStudentsOpen(false);
+      setParentsOpen(false);
+      setMobileOpen(false);
+    }}
+  >
+
+    <FaTags />
+
+    <span>
+      Plans
     </span>
 
   </button>

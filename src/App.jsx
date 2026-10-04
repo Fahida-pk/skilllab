@@ -20,7 +20,7 @@ import AdminPaymentHistory
   from "./pages/admin/AdminPaymentHistory.jsx";
 import ParentDashboard
   from "./pages/parentdasboard/Parentdashboard.jsx";
-
+import Plan from "./pages/admin/Plan.jsx";
 /* =====================================================
    STUDENT PAYMENT
 ===================================================== */
@@ -157,7 +157,18 @@ function App() {
         path="/payment-history"
         element={<PaymentHistory />}
       />
+{/* =================================================
+    ADMIN → PLANS
+================================================= */}
 
+<Route
+  path="/admin/plans"
+  element={
+    <AdminProtectedRoute>
+      <Plan />
+    </AdminProtectedRoute>
+  }
+/>
 
       {/* =================================================
           STUDENT ACTIVE SUBSCRIPTION REQUIRED
