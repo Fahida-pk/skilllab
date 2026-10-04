@@ -192,7 +192,8 @@ const taskEmail = adminView
   // Prevent multiple Save/Add clicks from creating duplicate database rows.
   const saveInProgressRef = useRef(false);
   // Prevent background sync from resetting the slider while it is being dragged.
-  const isPercentageDraggingRef = useRef(false);
+const isPercentageDraggingRef = useRef(false);
+const isPercentageSavingRef = useRef(false);
 const [deleteConfirm, setDeleteConfirm] = useState(null);
   const getDateKey = (d) => {
     const year = d.getFullYear();
@@ -1717,55 +1718,126 @@ const handlePercentageChange = (task, value) => {
   );
 };
 
-  const saveTaskPercentage = async (task, value) => {
-    if (adminView || parentView || isPreviousDay) return;
+ const saveTaskPercentage = async (task, value) => {
+  if (adminView || parentView || isPreviousDay) return;
 
-    const percentage = Math.max(0, Math.min(100, Number(value)));
+  const percentage = Math.max(
+    0,
+    Math.min(100, Number(value) || 0)
+  );
 
-    // 0% must never remain marked/completed.
-    // If a completed task is moved to 0%, automatically remove its tick.
-    if (percentage <= 0) {
-      if (task.completed) {
-        await toggleTask({ ...task, percentage: 0 });
-      } else {
-        setTasks((prev) =>
-          prev.map((t) =>
-            String(t.id) === String(task.id)
-              ? { ...t, percentage: 0, completed: false }
-              : t
-          )
-        );
-      }
+  // 0% must never remain marked/completed.
+  if (percentage <= 0) {
+    if (task.completed) {
+      await toggleTask({
+        ...task,
+        percentage: 0,
+      });
+    } else {
+      setTasks((prev) =>
+        prev.map((t) =>
+          String(t.id) === String(task.id)
+            ? {
+                ...t,
+                percentage: 0,
+                completed: false,
+              }
+            : t
+        )
+      );
+    }
+
+    return;
+  }
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "percentage",
+        email: user?.email,
+        id: task.id,
+        percentage,
+      }),
+    });
+
+    // JSON error വരാതിരിക്കാൻ ആദ്യം text എടുക്കുന്നു
+    const responseText = await res.text();
+
+    let data = {};
+
+    try {
+      data = responseText
+        ? JSON.parse(responseText)
+        : {};
+    } catch (jsonError) {
+      console.error(
+        "Invalid JSON from percentage API:",
+        responseText
+      );
+    }
+
+    if (!res.ok || !data.success) {
+      console.error("Percentage save failed:", {
+        status: res.status,
+        response: responseText,
+      });
+
+      // IMPORTANT:
+      // API fail ആയാലും percentage 0 ആക്കരുത്.
+      // Current UI value നിലനിർത്തുക.
+      setTasks((prev) =>
+        prev.map((t) =>
+          String(t.id) === String(task.id)
+            ? {
+                ...t,
+                percentage,
+              }
+            : t
+        )
+      );
+
       return;
     }
 
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "percentage",
-          email: user?.email,
-          id: task.id,
-          percentage,
-        }),
-      });
+    // Save successful → same percentage UI-ൽ keep ചെയ്യുക
+    setTasks((prev) =>
+      prev.map((t) =>
+        String(t.id) === String(task.id)
+          ? {
+              ...t,
+              percentage,
+            }
+          : t
+      )
+    );
 
-      const data = await res.json();
+    notifyTaskUpdated();
 
-      if (!data.success) {
-        alert(data.message || "Could not save percentage");
-        await fetchTasks();
-        return;
-      }
+  } catch (error) {
+    console.error("Percentage save error:", error);
 
-      notifyTaskUpdated();
-    } catch (error) {
-      console.error("Percentage save error:", error);
-      alert("Unable to save percentage");
-      await fetchTasks();
-    }
-  };
+    // IMPORTANT:
+    // ഇവിടെ fetchTasks() ചെയ്യരുത്.
+    // അത് പഴയ percentage എടുത്ത് slider 0% ആക്കാം.
+
+    setTasks((prev) =>
+      prev.map((t) =>
+        String(t.id) === String(task.id)
+          ? {
+              ...t,
+              percentage,
+            }
+          : t
+      )
+    );
+  }
+};
+
+    
 
   const handleEdit = (task) => {
 
