@@ -567,7 +567,6 @@ try {
 
                       <option value="yearly">Yearly</option>
 
-                      <option value="trial">Trial</option>
 
                     </select>
 
@@ -713,7 +712,6 @@ try {
 
             <h2>Subscription Plans</h2>
 
-            <p>Create, edit and delete your SkillLab plans.</p>
 
           </div>
 
