@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   FaCreditCard,
   FaFloppyDisk,
@@ -11,7 +12,12 @@ import {
   FaKey,
   FaGlobe,
   FaArrowLeft,
+  FaPlus,
+  FaPen,
+  FaTrash,
+  FaXmark,
 } from "react-icons/fa6";
+
 import { useNavigate } from "react-router-dom";
 
 const API_URL =
@@ -23,28 +29,36 @@ function Payment() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const [gateways, setGateways] = useState([]);
+
   const [showSecret, setShowSecret] = useState(false);
   const [showWebhook, setShowWebhook] = useState(false);
 
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
 
-  const [gateway, setGateway] = useState({
-    id: 1,
-    code: "razorpay",
-    name: "Razorpay",
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState(false);
+
+  const emptyGateway = {
+    id: "",
+    code: "",
+    name: "",
     is_enabled: 0,
     is_live: 0,
     public_key: "",
     secret_key: "",
     webhook_secret: "",
-  });
+    sort_order: 1,
+  };
+
+  const [gateway, setGateway] = useState(emptyGateway);
 
   /* =====================================================
-     LOAD RAZORPAY SETTINGS
+     LOAD ALL GATEWAYS
   ===================================================== */
 
-  const loadGateway = async () => {
+  const loadGateways = async () => {
     try {
       setLoading(true);
       setMessage("");
@@ -58,41 +72,21 @@ function Payment() {
 
       const data = await response.json();
 
-      console.log("PAYMENT GATEWAY:", data);
+      console.log("PAYMENT GATEWAYS:", data);
 
       if (!data.success) {
         throw new Error(
-          data.message || "Unable to load payment gateway"
+          data.message || "Unable to load payment gateways"
         );
       }
 
-      if (data.gateway) {
-        setGateway({
-          id: data.gateway.id ?? 1,
-          code: data.gateway.code ?? "razorpay",
-          name: data.gateway.name ?? "Razorpay",
-
-          is_enabled:
-            Number(data.gateway.is_enabled ?? 0),
-
-          is_live:
-            Number(data.gateway.is_live ?? 0),
-
-          public_key:
-            data.gateway.public_key ?? "",
-
-          secret_key:
-            data.gateway.secret_key ?? "",
-
-          webhook_secret:
-            data.gateway.webhook_secret ?? "",
-        });
-      }
-    } catch (error) {
-      console.error(
-        "Payment gateway load error:",
-        error
+      setGateways(
+        Array.isArray(data.gateways)
+          ? data.gateways
+          : []
       );
+    } catch (error) {
+      console.error("Payment gateway load error:", error);
 
       setMessage(
         error.message ||
@@ -106,7 +100,7 @@ function Payment() {
   };
 
   useEffect(() => {
-    loadGateway();
+    loadGateways();
   }, []);
 
   /* =====================================================
@@ -121,6 +115,65 @@ function Payment() {
   };
 
   /* =====================================================
+     OPEN ADD
+  ===================================================== */
+
+  const openAddForm = () => {
+    setEditing(false);
+
+    setGateway({
+      ...emptyGateway,
+      sort_order: gateways.length + 1,
+    });
+
+    setShowSecret(false);
+    setShowWebhook(false);
+
+    setMessage("");
+    setShowForm(true);
+  };
+
+  /* =====================================================
+     OPEN EDIT
+  ===================================================== */
+
+  const openEditForm = (item) => {
+    setEditing(true);
+
+    setGateway({
+      id: item.id ?? "",
+      code: item.code ?? "",
+      name: item.name ?? "",
+      is_enabled: Number(item.is_enabled ?? 0),
+      is_live: Number(item.is_live ?? 0),
+      public_key: item.public_key ?? "",
+      secret_key: "",
+      webhook_secret: "",
+      sort_order: Number(item.sort_order ?? 1),
+    });
+
+    setShowSecret(false);
+    setShowWebhook(false);
+
+    setMessage("");
+    setShowForm(true);
+  };
+
+  /* =====================================================
+     CLOSE FORM
+  ===================================================== */
+
+  const closeForm = () => {
+    if (saving) return;
+
+    setShowForm(false);
+    setEditing(false);
+    setGateway(emptyGateway);
+    setShowSecret(false);
+    setShowWebhook(false);
+  };
+
+  /* =====================================================
      SAVE GATEWAY
   ===================================================== */
 
@@ -129,30 +182,62 @@ function Payment() {
 
     if (saving) return;
 
-    setSaving(true);
     setMessage("");
 
+    const code = gateway.code.trim().toLowerCase();
+    const name = gateway.name.trim();
+
+    if (!code) {
+      setMessage("Gateway code is required.");
+      setMessageType("error");
+      return;
+    }
+
+    if (!/^[a-z0-9_-]+$/.test(code)) {
+      setMessage(
+        "Gateway code can contain only lowercase letters, numbers, underscore and hyphen."
+      );
+      setMessageType("error");
+      return;
+    }
+
+    if (!name) {
+      setMessage("Display name is required.");
+      setMessageType("error");
+      return;
+    }
+
+    if (!editing && !gateway.secret_key.trim()) {
+      setMessage("Secret Key is required for a new gateway.");
+      setMessageType("error");
+      return;
+    }
+
     try {
+      setSaving(true);
+
       const formData = new URLSearchParams();
 
+      formData.append("action", editing ? "update" : "create");
+
+      if (editing) {
+        formData.append(
+          "gateway_id",
+          String(gateway.id)
+        );
+      }
+
+      formData.append("code", code);
+      formData.append("name", name);
+
       formData.append(
-        "save_gateway",
-        "1"
+        "is_enabled",
+        Number(gateway.is_enabled) === 1 ? "1" : "0"
       );
 
       formData.append(
-        "gateway_id",
-        String(gateway.id || 1)
-      );
-
-      formData.append(
-        "code",
-        gateway.code || "razorpay"
-      );
-
-      formData.append(
-        "name",
-        gateway.name || "Razorpay"
+        "is_live",
+        Number(gateway.is_live) === 1 ? "1" : "0"
       );
 
       formData.append(
@@ -171,36 +256,8 @@ function Payment() {
       );
 
       formData.append(
-        "extra_config_json",
-        ""
-      );
-
-      formData.append(
         "sort_order",
-        "1"
-      );
-
-      if (Number(gateway.is_enabled) === 1) {
-        formData.append(
-          "is_enabled",
-          "1"
-        );
-      }
-
-      if (Number(gateway.is_live) === 1) {
-        formData.append(
-          "is_live",
-          "1"
-        );
-      }
-
-      /*
-       * SkillLab is using Razorpay online payment.
-       * Manual payment is not enabled here.
-       */
-      formData.append(
-        "is_manual",
-        "0"
+        String(gateway.sort_order || 1)
       );
 
       const response = await fetch(API_URL, {
@@ -215,36 +272,35 @@ function Payment() {
 
       const data = await response.json();
 
-      console.log(
-        "SAVE PAYMENT GATEWAY:",
-        data
-      );
+      console.log("SAVE GATEWAY:", data);
 
       if (!data.success) {
         throw new Error(
-          data.message ||
-            "Unable to save payment gateway"
+          data.message || "Unable to save gateway"
         );
       }
 
       setMessage(
         data.message ||
-          "Razorpay settings saved successfully."
+          (editing
+            ? "Gateway updated successfully."
+            : "Gateway added successfully.")
       );
 
       setMessageType("success");
 
-      await loadGateway();
+      await loadGateways();
+
+      setShowForm(false);
+      setEditing(false);
+      setGateway(emptyGateway);
 
       window.scrollTo({
         top: 0,
         behavior: "smooth",
       });
     } catch (error) {
-      console.error(
-        "Payment gateway save error:",
-        error
-      );
+      console.error("Payment gateway save error:", error);
 
       setMessage(
         error.message ||
@@ -258,31 +314,97 @@ function Payment() {
   };
 
   /* =====================================================
-     TOGGLE ENABLE
+     ENABLE / DISABLE
   ===================================================== */
 
-  const toggleEnabled = () => {
-    setGateway((prev) => ({
-      ...prev,
-      is_enabled:
-        Number(prev.is_enabled) === 1
-          ? 0
-          : 1,
-    }));
+  const toggleGateway = async (item) => {
+    try {
+      const formData = new URLSearchParams();
+
+      formData.append("action", "toggle");
+      formData.append("gateway_id", String(item.id));
+      formData.append(
+        "is_enabled",
+        Number(item.is_enabled) === 1 ? "0" : "1"
+      );
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/x-www-form-urlencoded",
+          Accept: "application/json",
+        },
+        body: formData.toString(),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.message || "Unable to update gateway"
+        );
+      }
+
+      await loadGateways();
+    } catch (error) {
+      setMessage(error.message);
+      setMessageType("error");
+    }
   };
 
   /* =====================================================
-     TOGGLE LIVE / TEST
+     DELETE
   ===================================================== */
 
-  const toggleLive = () => {
-    setGateway((prev) => ({
-      ...prev,
-      is_live:
-        Number(prev.is_live) === 1
-          ? 0
-          : 1,
-    }));
+  const deleteGateway = async (item) => {
+    if (
+      !window.confirm(
+        `Delete "${item.name}" gateway?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const formData = new URLSearchParams();
+
+      formData.append("action", "delete");
+      formData.append(
+        "gateway_id",
+        String(item.id)
+      );
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/x-www-form-urlencoded",
+          Accept: "application/json",
+        },
+        body: formData.toString(),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.message || "Unable to delete gateway"
+        );
+      }
+
+      setMessage(
+        data.message ||
+          "Gateway deleted successfully."
+      );
+
+      setMessageType("success");
+
+      await loadGateways();
+    } catch (error) {
+      setMessage(error.message);
+      setMessageType("error");
+    }
   };
 
   /* =====================================================
@@ -295,14 +417,12 @@ function Payment() {
         <div className="payment-loading">
           <FaRotate className="payment-loading-icon" />
 
-          <h3>
-            Loading Payment Gateway
-          </h3>
+          <h3>Loading Payment Gateways</h3>
 
-          <p>
-            Please wait...
-          </p>
+          <p>Please wait...</p>
         </div>
+
+        <PaymentStyles />
       </div>
     );
   }
@@ -314,9 +434,7 @@ function Payment() {
   return (
     <div className="payment-page">
 
-      {/* =================================================
-          HEADER
-      ================================================= */}
+      {/* HEADER */}
 
       <div className="payment-header">
 
@@ -337,43 +455,23 @@ function Payment() {
           </div>
 
           <div>
-            <h1>
-              Payment Gateway
-            </h1>
+            <h1>Payment Gateway</h1>
 
             <p>
-              Manage Razorpay payment settings for SkillLab
+              Manage payment gateways for SkillLab
             </p>
           </div>
 
         </div>
 
-        <div className="payment-status-header">
-
-          {Number(gateway.is_enabled) === 1 ? (
-            <>
-              <FaCircleCheck />
-              <span>
-                Gateway Enabled
-              </span>
-            </>
-          ) : (
-            <>
-              <FaCircleXmark />
-              <span>
-                Gateway Disabled
-              </span>
-            </>
-          )}
-
+        <div className="payment-total">
+          <strong>{gateways.length}</strong>
+          <span>Total Gateways</span>
         </div>
 
       </div>
 
-
-      {/* =================================================
-          MESSAGE
-      ================================================= */}
+      {/* MESSAGE */}
 
       {message && (
         <div
@@ -389,910 +487,1322 @@ function Payment() {
             <FaCircleXmark />
           )}
 
-          <span>
-            {message}
-          </span>
+          <span>{message}</span>
         </div>
       )}
 
+      {/* ADD BUTTON */}
 
-      {/* =================================================
-          MAIN GRID
-      ================================================= */}
+      <div className="gateway-toolbar">
 
-      <div className="payment-grid">
+        <div>
+          <h2>Configured Gateways</h2>
 
-        {/* =================================================
-            RAZORPAY CARD
-        ================================================= */}
+          <p>
+            Add and manage all payment integrations.
+          </p>
+        </div>
 
-        <div className="payment-card">
+        <button
+          type="button"
+          className="add-gateway-button"
+          onClick={openAddForm}
+        >
+          <FaPlus />
+          Add New Gateway
+        </button>
 
-          <div className="payment-card-header">
+      </div>
 
-            <div className="razorpay-logo">
-              ₹
-            </div>
+      {/* GATEWAY LIST */}
 
-            <div>
-              <h2>
-                Razorpay
-              </h2>
+      <div className="gateway-list">
 
-              <p>
-                Online payment gateway
-              </p>
-            </div>
+        {gateways.length === 0 ? (
+          <div className="empty-gateway">
+            <FaCreditCard />
 
-            <div
-              className={`gateway-badge ${
-                Number(gateway.is_enabled) === 1
-                  ? "enabled"
-                  : "disabled"
-              }`}
-            >
-              {Number(gateway.is_enabled) === 1
-                ? "Enabled"
-                : "Disabled"}
-            </div>
+            <h3>No Payment Gateways</h3>
 
-          </div>
-
-
-          {/* =================================================
-              SETTINGS
-          ================================================= */}
-
-          <div className="payment-card-body">
-
-            {/* ENABLE */}
-
-            <div className="payment-setting-row">
-
-              <div className="setting-info">
-
-                <div className="setting-icon green">
-                  <FaCircleCheck />
-                </div>
-
-                <div>
-                  <h3>
-                    Enable Razorpay
-                  </h3>
-
-                  <p>
-                    Allow students to make online renewal payments.
-                  </p>
-                </div>
-
-              </div>
-
-              <button
-                type="button"
-                className={`payment-switch ${
-                  Number(gateway.is_enabled) === 1
-                    ? "on"
-                    : ""
-                }`}
-                onClick={toggleEnabled}
-                aria-label="Toggle Razorpay"
-              >
-                <span />
-              </button>
-
-            </div>
-
-
-            {/* MODE */}
-
-            <div className="payment-setting-row">
-
-              <div className="setting-info">
-
-                <div className="setting-icon blue">
-                  <FaGlobe />
-                </div>
-
-                <div>
-                  <h3>
-                    Payment Mode
-                  </h3>
-
-                  <p>
-                    Choose whether Razorpay uses Test or Live mode.
-                  </p>
-                </div>
-
-              </div>
-
-              <button
-                type="button"
-                className={`mode-switch ${
-                  Number(gateway.is_live) === 1
-                    ? "live"
-                    : "test"
-                }`}
-                onClick={toggleLive}
-              >
-                {Number(gateway.is_live) === 1
-                  ? "LIVE"
-                  : "TEST"}
-              </button>
-
-            </div>
-
-
-            {/* DIVIDER */}
-
-            <div className="payment-divider" />
-
-
-            {/* PUBLIC KEY */}
-
-            <div className="payment-field">
-
-              <label>
-                <FaKey />
-                Razorpay Key ID
-              </label>
-
-              <input
-                type="text"
-                value={
-                  gateway.public_key || ""
-                }
-                onChange={(e) =>
-                  handleChange(
-                    "public_key",
-                    e.target.value
-                  )
-                }
-                placeholder="rzp_test_xxxxxxxxxxxxx"
-                autoComplete="off"
-              />
-
-              <small>
-                This is the Razorpay public Key ID.
-              </small>
-
-            </div>
-
-
-            {/* SECRET KEY */}
-
-            <div className="payment-field">
-
-              <label>
-                <FaShieldHalved />
-                Razorpay Key Secret
-              </label>
-
-              <div className="secret-input">
-
-                <input
-                  type={
-                    showSecret
-                      ? "text"
-                      : "password"
-                  }
-                  value={
-                    gateway.secret_key || ""
-                  }
-                  onChange={(e) =>
-                    handleChange(
-                      "secret_key",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Enter Razorpay Key Secret"
-                  autoComplete="new-password"
-                />
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowSecret(
-                      (prev) => !prev
-                    )
-                  }
-                >
-                  {showSecret ? (
-                    <FaEyeSlash />
-                  ) : (
-                    <FaEye />
-                  )}
-                </button>
-
-              </div>
-
-              <small className="security-note">
-                <FaShieldHalved />
-                Secret key is used only by the server.
-              </small>
-
-            </div>
-
-
-            {/* WEBHOOK SECRET */}
-
-            <div className="payment-field">
-
-              <label>
-                <FaShieldHalved />
-                Webhook Secret
-                <span className="optional">
-                  Optional
-                </span>
-              </label>
-
-              <div className="secret-input">
-
-                <input
-                  type={
-                    showWebhook
-                      ? "text"
-                      : "password"
-                  }
-                  value={
-                    gateway.webhook_secret || ""
-                  }
-                  onChange={(e) =>
-                    handleChange(
-                      "webhook_secret",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Enter webhook secret"
-                  autoComplete="new-password"
-                />
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowWebhook(
-                      (prev) => !prev
-                    )
-                  }
-                >
-                  {showWebhook ? (
-                    <FaEyeSlash />
-                  ) : (
-                    <FaEye />
-                  )}
-                </button>
-
-              </div>
-
-            </div>
-
-
-            {/* SAVE */}
+            <p>
+              Add your first payment gateway.
+            </p>
 
             <button
               type="button"
-              className="payment-save-button"
-              disabled={saving}
-              onClick={saveGateway}
+              onClick={openAddForm}
             >
-              {saving ? (
-                <>
-                  <FaRotate className="spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-<FaFloppyDisk />
-                  Save Razorpay Settings
-                </>
-              )}
+              <FaPlus />
+              Add Gateway
             </button>
+          </div>
+        ) : (
+          gateways.map((item, index) => (
+            <div
+              className="gateway-row"
+              key={item.id}
+            >
+
+              <div className="gateway-number">
+                {index + 1}
+              </div>
+
+              <div className="gateway-logo">
+                {item.code === "razorpay"
+                  ? "₹"
+                  : item.code === "stripe"
+                  ? "$"
+                  : "₿"}
+              </div>
+
+              <div className="gateway-info">
+
+                <div className="gateway-name-line">
+
+                  <strong>{item.name}</strong>
+
+                  <span className="code-badge">
+                    {item.code}
+                  </span>
+
+                </div>
+
+                <span className="gateway-description">
+                  Online payment gateway
+                </span>
+
+              </div>
+
+              <div className="gateway-mode">
+
+                <span
+                  className={
+                    Number(item.is_live) === 1
+                      ? "mode-live"
+                      : "mode-test"
+                  }
+                >
+                  <FaGlobe />
+                  {Number(item.is_live) === 1
+                    ? "Live"
+                    : "Test"}
+                </span>
+
+              </div>
+
+              <div>
+
+                <span
+                  className={
+                    Number(item.is_enabled) === 1
+                      ? "status-enabled"
+                      : "status-disabled"
+                  }
+                >
+                  <span className="status-dot" />
+
+                  {Number(item.is_enabled) === 1
+                    ? "Enabled"
+                    : "Disabled"}
+                </span>
+
+              </div>
+
+              <div className="sort-badge">
+                {item.sort_order ?? index + 1}
+              </div>
+
+              <div className="gateway-actions">
+
+                <button
+                  type="button"
+                  className="edit-button"
+                  onClick={() =>
+                    openEditForm(item)
+                  }
+                >
+                  <FaPen />
+                  Edit
+                </button>
+
+                <button
+                  type="button"
+                  className={
+                    Number(item.is_enabled) === 1
+                      ? "disable-button"
+                      : "enable-button"
+                  }
+                  onClick={() =>
+                    toggleGateway(item)
+                  }
+                >
+                  {Number(item.is_enabled) === 1 ? (
+                    <>
+                      <FaCircleXmark />
+                      Disable
+                    </>
+                  ) : (
+                    <>
+                      <FaCircleCheck />
+                      Enable
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  className="delete-button"
+                  onClick={() =>
+                    deleteGateway(item)
+                  }
+                >
+                  <FaTrash />
+                </button>
+
+              </div>
+
+            </div>
+          ))
+        )}
+
+      </div>
+
+      {/* ADD / EDIT FORM */}
+
+      {showForm && (
+        <div
+          className="gateway-modal-overlay"
+          onMouseDown={(e) => {
+            if (
+              e.target === e.currentTarget &&
+              !saving
+            ) {
+              closeForm();
+            }
+          }}
+        >
+
+          <div className="gateway-modal">
+
+            <div className="modal-header">
+
+              <div>
+                <h2>
+                  {editing
+                    ? "Edit Payment Gateway"
+                    : "Add New Gateway"}
+                </h2>
+
+                <p>
+                  {editing
+                    ? "Update payment gateway settings"
+                    : "Configure a new payment gateway"}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="modal-close"
+                onClick={closeForm}
+                disabled={saving}
+              >
+                <FaXmark />
+              </button>
+
+            </div>
+
+            <form onSubmit={saveGateway}>
+
+              <div className="form-grid">
+
+                {/* CODE */}
+
+                <div className="payment-field">
+
+                  <label>
+                    <FaKey />
+                    Gateway Code
+                  </label>
+
+                  <input
+                    type="text"
+                    value={gateway.code}
+                    onChange={(e) =>
+                      handleChange(
+                        "code",
+                        e.target.value
+                          .toLowerCase()
+                          .replace(/\s+/g, "_")
+                      )
+                    }
+                    placeholder="razorpay"
+                    disabled={editing}
+                    autoComplete="off"
+                  />
+
+                  <small>
+                    Unique lowercase identifier.
+                  </small>
+
+                </div>
+
+                {/* NAME */}
+
+                <div className="payment-field">
+
+                  <label>
+                    Display Name
+                  </label>
+
+                  <input
+                    type="text"
+                    value={gateway.name}
+                    onChange={(e) =>
+                      handleChange(
+                        "name",
+                        e.target.value
+                      )
+                    }
+                    placeholder="Razorpay"
+                  />
+
+                </div>
+
+              </div>
+
+              {/* ENABLE / MODE */}
+
+              <div className="modal-setting-grid">
+
+                <div className="modal-setting">
+
+                  <div>
+                    <strong>Enable Gateway</strong>
+
+                    <small>
+                      Allow students to use this gateway.
+                    </small>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={`payment-switch ${
+                      Number(gateway.is_enabled) === 1
+                        ? "on"
+                        : ""
+                    }`}
+                    onClick={() =>
+                      handleChange(
+                        "is_enabled",
+                        Number(
+                          gateway.is_enabled
+                        ) === 1
+                          ? 0
+                          : 1
+                      )
+                    }
+                  >
+                    <span />
+                  </button>
+
+                </div>
+
+                <div className="modal-setting">
+
+                  <div>
+                    <strong>Payment Mode</strong>
+
+                    <small>
+                      Test or Live payment mode.
+                    </small>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={`mode-switch ${
+                      Number(gateway.is_live) === 1
+                        ? "live"
+                        : "test"
+                    }`}
+                    onClick={() =>
+                      handleChange(
+                        "is_live",
+                        Number(
+                          gateway.is_live
+                        ) === 1
+                          ? 0
+                          : 1
+                      )
+                    }
+                  >
+                    {Number(gateway.is_live) === 1
+                      ? "LIVE"
+                      : "TEST"}
+                  </button>
+
+                </div>
+
+              </div>
+
+              {/* PUBLIC KEY */}
+
+              <div className="payment-field">
+
+                <label>
+                  <FaKey />
+                  Public Key
+                </label>
+
+                <input
+                  type="text"
+                  value={gateway.public_key}
+                  onChange={(e) =>
+                    handleChange(
+                      "public_key",
+                      e.target.value
+                    )
+                  }
+                  placeholder="rzp_live_xxxxxxxxx"
+                  autoComplete="off"
+                />
+
+              </div>
+
+              {/* SECRET */}
+
+              <div className="payment-field">
+
+                <label>
+                  <FaShieldHalved />
+                  Secret Key
+                </label>
+
+                <div className="secret-input">
+
+                  <input
+                    type={
+                      showSecret
+                        ? "text"
+                        : "password"
+                    }
+                    value={gateway.secret_key}
+                    onChange={(e) =>
+                      handleChange(
+                        "secret_key",
+                        e.target.value
+                      )
+                    }
+                    placeholder={
+                      editing
+                        ? "Leave blank to keep existing secret"
+                        : "Enter secret key"
+                    }
+                    autoComplete="new-password"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowSecret(
+                        (prev) => !prev
+                      )
+                    }
+                  >
+                    {showSecret ? (
+                      <FaEyeSlash />
+                    ) : (
+                      <FaEye />
+                    )}
+                  </button>
+
+                </div>
+
+                {editing && (
+                  <small className="security-note">
+                    <FaShieldHalved />
+                    Leave blank to keep the existing secret.
+                  </small>
+                )}
+
+              </div>
+
+              {/* WEBHOOK */}
+
+              <div className="payment-field">
+
+                <label>
+                  <FaShieldHalved />
+                  Webhook Secret
+                  <span className="optional">
+                    Optional
+                  </span>
+                </label>
+
+                <div className="secret-input">
+
+                  <input
+                    type={
+                      showWebhook
+                        ? "text"
+                        : "password"
+                    }
+                    value={gateway.webhook_secret}
+                    onChange={(e) =>
+                      handleChange(
+                        "webhook_secret",
+                        e.target.value
+                      )
+                    }
+                    placeholder={
+                      editing
+                        ? "Leave blank to keep existing secret"
+                        : "Enter webhook secret"
+                    }
+                    autoComplete="new-password"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowWebhook(
+                        (prev) => !prev
+                      )
+                    }
+                  >
+                    {showWebhook ? (
+                      <FaEyeSlash />
+                    ) : (
+                      <FaEye />
+                    )}
+                  </button>
+
+                </div>
+
+              </div>
+
+              {/* SORT */}
+
+              <div className="payment-field">
+
+                <label>Sort Order</label>
+
+                <input
+                  type="number"
+                  min="1"
+                  value={gateway.sort_order}
+                  onChange={(e) =>
+                    handleChange(
+                      "sort_order",
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+              {/* BUTTONS */}
+
+              <div className="modal-actions">
+
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={closeForm}
+                  disabled={saving}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="payment-save-button"
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <>
+                      <FaRotate className="spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <FaFloppyDisk />
+                      {editing
+                        ? "Update Gateway"
+                        : "Add Gateway"}
+                    </>
+                  )}
+                </button>
+
+              </div>
+
+            </form>
 
           </div>
 
-</div>
-</div>
+        </div>
+      )}
 
-     
+      <PaymentStyles />
 
-      {/* =================================================
-          INLINE CSS
-      ================================================= */}
+    </div>
+  );
+}
 
-      <style>{`
 
-        * {
-          box-sizing: border-box;
+/* =====================================================
+   CSS
+===================================================== */
+
+function PaymentStyles() {
+  return (
+    <style>{`
+
+      * {
+        box-sizing: border-box;
+      }
+
+      .payment-page {
+        min-height: 100vh;
+        padding: 28px;
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(124,58,237,.10),
+            transparent 35%
+          ),
+          #f6f7fb;
+        color: #172033;
+      }
+
+      .payment-header {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:20px;
+        padding:22px 24px;
+        border-radius:20px;
+        background:linear-gradient(
+          135deg,
+          #fff,
+          #f8f7ff
+        );
+        border:1px solid #ebe8f5;
+        box-shadow:0 10px 35px rgba(40,32,80,.07);
+        margin-bottom:22px;
+      }
+
+      .payment-header-left {
+        display:flex;
+        align-items:center;
+        gap:15px;
+      }
+
+      .payment-back-button {
+        width:40px;
+        height:40px;
+        border:1px solid #e4e0ef;
+        border-radius:11px;
+        background:#fff;
+        color:#5b21b6;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      }
+
+      .payment-header-icon {
+        width:54px;
+        height:54px;
+        border-radius:15px;
+        background:linear-gradient(
+          135deg,
+          #5b21b6,
+          #7c3aed
+        );
+        color:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:22px;
+        box-shadow:0 8px 20px rgba(91,33,182,.22);
+      }
+
+      .payment-header h1 {
+        margin:0;
+        font-size:25px;
+        font-weight:800;
+      }
+
+      .payment-header p {
+        margin:4px 0 0;
+        color:#77728a;
+        font-size:14px;
+      }
+
+      .payment-total {
+        min-width:100px;
+        text-align:center;
+        padding:12px 18px;
+        border-radius:15px;
+        background:#f3e8ff;
+        color:#6d28d9;
+      }
+
+      .payment-total strong {
+        display:block;
+        font-size:25px;
+        font-weight:800;
+      }
+
+      .payment-total span {
+        display:block;
+        font-size:11px;
+      }
+
+      .payment-message {
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:13px 16px;
+        border-radius:13px;
+        margin-bottom:20px;
+        font-size:14px;
+        font-weight:600;
+      }
+
+      .payment-message.success {
+        background:#ecfdf5;
+        border:1px solid #a7f3d0;
+        color:#047857;
+      }
+
+      .payment-message.error {
+        background:#fef2f2;
+        border:1px solid #fecaca;
+        color:#b91c1c;
+      }
+
+      .gateway-toolbar {
+        max-width:1200px;
+        margin:0 auto 16px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:15px;
+      }
+
+      .gateway-toolbar h2 {
+        margin:0;
+        font-size:20px;
+        font-weight:800;
+      }
+
+      .gateway-toolbar p {
+        margin:4px 0 0;
+        color:#817b91;
+        font-size:13px;
+      }
+
+      .add-gateway-button {
+        border:0;
+        border-radius:11px;
+        padding:12px 17px;
+        background:linear-gradient(
+          135deg,
+          #5b21b6,
+          #7c3aed
+        );
+        color:#fff;
+        font-weight:700;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        gap:8px;
+        box-shadow:0 8px 18px rgba(91,33,182,.20);
+      }
+
+      .gateway-list {
+        max-width:1200px;
+        margin:0 auto;
+        background:#fff;
+        border:1px solid #ebe8f5;
+        border-radius:18px;
+        overflow:hidden;
+        box-shadow:0 10px 35px rgba(40,32,80,.06);
+      }
+
+      .gateway-row {
+        min-height:88px;
+        padding:14px 18px;
+        display:grid;
+        grid-template-columns:
+          35px
+          48px
+          minmax(180px,1fr)
+          90px
+          100px
+          50px
+          auto;
+        align-items:center;
+        gap:14px;
+        border-bottom:1px solid #eeeaf5;
+      }
+
+      .gateway-row:last-child {
+        border-bottom:0;
+      }
+
+      .gateway-number {
+        color:#777;
+        font-size:13px;
+        text-align:center;
+      }
+
+      .gateway-logo {
+        width:44px;
+        height:44px;
+        border-radius:13px;
+        background:linear-gradient(
+          135deg,
+          #3395ff,
+          #1674d1
+        );
+        color:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:20px;
+        font-weight:800;
+      }
+
+      .gateway-info {
+        min-width:0;
+      }
+
+      .gateway-name-line {
+        display:flex;
+        align-items:center;
+        gap:8px;
+        flex-wrap:wrap;
+      }
+
+      .gateway-name-line strong {
+        font-size:15px;
+      }
+
+      .code-badge {
+        padding:4px 8px;
+        border-radius:10px;
+        background:#f3e8ff;
+        color:#6d28d9;
+        font-size:10px;
+        font-weight:700;
+      }
+
+      .gateway-description {
+        display:block;
+        margin-top:4px;
+        color:#898397;
+        font-size:11px;
+      }
+
+      .mode-live,
+      .mode-test {
+        display:inline-flex;
+        align-items:center;
+        gap:5px;
+        padding:6px 9px;
+        border-radius:15px;
+        font-size:11px;
+        font-weight:700;
+      }
+
+      .mode-live {
+        background:#fff7ed;
+        color:#c2410c;
+      }
+
+      .mode-test {
+        background:#eff6ff;
+        color:#2563eb;
+      }
+
+      .status-enabled,
+      .status-disabled {
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        padding:7px 10px;
+        border-radius:15px;
+        font-size:11px;
+        font-weight:700;
+      }
+
+      .status-enabled {
+        background:#ecfdf5;
+        color:#047857;
+      }
+
+      .status-disabled {
+        background:#fef2f2;
+        color:#b91c1c;
+      }
+
+      .status-dot {
+        width:6px;
+        height:6px;
+        border-radius:50%;
+        background:currentColor;
+      }
+
+      .sort-badge {
+        width:30px;
+        height:30px;
+        border-radius:8px;
+        border:1px solid #ddd8e9;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:11px;
+      }
+
+      .gateway-actions {
+        display:flex;
+        align-items:center;
+        gap:7px;
+      }
+
+      .gateway-actions button {
+        border:0;
+        border-radius:9px;
+        padding:9px 11px;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        gap:6px;
+        font-size:11px;
+        font-weight:700;
+      }
+
+      .edit-button {
+        background:#eef2ff;
+        color:#4338ca;
+      }
+
+      .enable-button {
+        background:#d1fae5;
+        color:#047857;
+      }
+
+      .disable-button {
+        background:#fef3c7;
+        color:#92400e;
+      }
+
+      .delete-button {
+        background:#fee2e2;
+        color:#b91c1c;
+      }
+
+      .empty-gateway {
+        text-align:center;
+        padding:70px 20px;
+        color:#817b91;
+      }
+
+      .empty-gateway > svg {
+        font-size:45px;
+        color:#7c3aed;
+        margin-bottom:15px;
+      }
+
+      .empty-gateway h3 {
+        margin:0 0 5px;
+        color:#27223a;
+      }
+
+      .empty-gateway p {
+        margin:0 0 20px;
+      }
+
+      .empty-gateway button {
+        border:0;
+        border-radius:10px;
+        padding:11px 16px;
+        background:#7c3aed;
+        color:#fff;
+        font-weight:700;
+        cursor:pointer;
+      }
+
+      .gateway-modal-overlay {
+        position:fixed;
+        inset:0;
+        z-index:9999;
+        background:rgba(20,15,35,.48);
+        backdrop-filter:blur(5px);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:20px;
+      }
+
+      .gateway-modal {
+        width:min(700px,100%);
+        max-height:92vh;
+        overflow:auto;
+        background:#fff;
+        border-radius:20px;
+        box-shadow:0 25px 70px rgba(0,0,0,.25);
+      }
+
+      .modal-header {
+        padding:20px 22px;
+        border-bottom:1px solid #eeeaf5;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:15px;
+      }
+
+      .modal-header h2 {
+        margin:0;
+        font-size:20px;
+        font-weight:800;
+      }
+
+      .modal-header p {
+        margin:4px 0 0;
+        color:#888394;
+        font-size:12px;
+      }
+
+      .modal-close {
+        width:36px;
+        height:36px;
+        border:0;
+        border-radius:9px;
+        background:#f4f1fa;
+        color:#6b6478;
+        cursor:pointer;
+      }
+
+      .gateway-modal form {
+        padding:22px;
+      }
+
+      .form-grid {
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:15px;
+      }
+
+      .payment-field {
+        margin-bottom:18px;
+      }
+
+      .payment-field label {
+        display:flex;
+        align-items:center;
+        gap:7px;
+        margin-bottom:8px;
+        font-size:13px;
+        font-weight:750;
+        color:#29233b;
+      }
+
+      .payment-field label svg {
+        color:#6d28d9;
+      }
+
+      .payment-field input {
+        width:100%;
+        height:45px;
+        border:1px solid #ddd8e9;
+        border-radius:10px;
+        padding:0 13px;
+        outline:none;
+        font-size:13px;
+        color:#27223a;
+        background:#fff;
+      }
+
+      .payment-field input:focus {
+        border-color:#8b5cf6;
+        box-shadow:0 0 0 3px rgba(139,92,246,.10);
+      }
+
+      .payment-field input:disabled {
+        background:#f4f1fa;
+        color:#777;
+        cursor:not-allowed;
+      }
+
+      .payment-field small {
+        display:block;
+        margin-top:6px;
+        color:#9993a5;
+        font-size:11px;
+      }
+
+      .security-note {
+        display:flex !important;
+        align-items:center;
+        gap:5px;
+        color:#059669 !important;
+      }
+
+      .modal-setting-grid {
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:14px;
+        margin-bottom:20px;
+      }
+
+      .modal-setting {
+        border:1px solid #ebe8f5;
+        border-radius:13px;
+        padding:14px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+      }
+
+      .modal-setting strong {
+        display:block;
+        font-size:13px;
+      }
+
+      .modal-setting small {
+        display:block;
+        margin-top:3px;
+        color:#888394;
+        font-size:10px;
+      }
+
+      .payment-switch {
+        width:51px;
+        height:29px;
+        border:0;
+        border-radius:30px;
+        background:#d7d5df;
+        padding:3px;
+        cursor:pointer;
+        transition:.2s;
+      }
+
+      .payment-switch span {
+        display:block;
+        width:23px;
+        height:23px;
+        border-radius:50%;
+        background:#fff;
+        transition:.2s;
+        box-shadow:0 2px 5px rgba(0,0,0,.15);
+      }
+
+      .payment-switch.on {
+        background:#16a34a;
+      }
+
+      .payment-switch.on span {
+        transform:translateX(22px);
+      }
+
+      .mode-switch {
+        min-width:70px;
+        height:32px;
+        border:0;
+        border-radius:20px;
+        color:#fff;
+        font-size:10px;
+        font-weight:800;
+        cursor:pointer;
+      }
+
+      .mode-switch.test {
+        background:#f59e0b;
+      }
+
+      .mode-switch.live {
+        background:#dc2626;
+      }
+
+      .secret-input {
+        position:relative;
+      }
+
+      .secret-input input {
+        padding-right:48px;
+      }
+
+      .secret-input button {
+        position:absolute;
+        top:50%;
+        right:5px;
+        transform:translateY(-50%);
+        width:36px;
+        height:36px;
+        border:0;
+        background:transparent;
+        color:#777;
+        cursor:pointer;
+        border-radius:8px;
+      }
+
+      .optional {
+        margin-left:5px;
+        font-size:10px;
+        color:#9a93a7;
+        font-weight:500;
+      }
+
+      .modal-actions {
+        display:flex;
+        justify-content:flex-end;
+        gap:10px;
+        padding-top:5px;
+      }
+
+      .cancel-button {
+        height:48px;
+        padding:0 20px;
+        border:1px solid #ddd8e9;
+        border-radius:11px;
+        background:#fff;
+        color:#5d566b;
+        font-weight:700;
+        cursor:pointer;
+      }
+
+      .payment-save-button {
+        min-width:170px;
+        height:48px;
+        border:0;
+        border-radius:11px;
+        background:linear-gradient(
+          135deg,
+          #5b21b6,
+          #7c3aed
+        );
+        color:#fff;
+        font-weight:750;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+      }
+
+      .payment-save-button:disabled {
+        opacity:.6;
+        cursor:not-allowed;
+      }
+
+      .payment-loading {
+        min-height:80vh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-direction:column;
+        color:#5b21b6;
+      }
+
+      .payment-loading-icon {
+        font-size:30px;
+        animation:payment-spin 1s linear infinite;
+      }
+
+      .spin {
+        animation:payment-spin 1s linear infinite;
+      }
+
+      @keyframes payment-spin {
+        to {
+          transform:rotate(360deg);
+        }
+      }
+
+      @media(max-width:900px) {
+
+        .gateway-row {
+          grid-template-columns:
+            35px
+            48px
+            1fr
+            auto;
         }
 
+        .gateway-mode,
+        .gateway-row > div:nth-child(5),
+        .sort-badge {
+          display:none;
+        }
+
+        .gateway-actions {
+          flex-wrap:wrap;
+          justify-content:flex-end;
+        }
+
+      }
+
+      @media(max-width:650px) {
+
         .payment-page {
-          min-height: 100vh;
-          padding: 28px;
-          background:
-            radial-gradient(
-              circle at top right,
-              rgba(124,58,237,0.10),
-              transparent 35%
-            ),
-            #f6f7fb;
-          color: #172033;
+          padding:14px;
         }
 
         .payment-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 20px;
-          padding: 22px 24px;
-          border-radius: 20px;
-          background: linear-gradient(
-            135deg,
-            #ffffff,
-            #f8f7ff
-          );
-          border: 1px solid #ebe8f5;
-          box-shadow:
-            0 10px 35px rgba(40, 32, 80, 0.07);
-          margin-bottom: 22px;
+          padding:17px;
         }
 
-        .payment-header-left {
-          display: flex;
-          align-items: center;
-          gap: 15px;
+        .payment-total {
+          display:none;
         }
 
-        .payment-back-button {
-          width: 40px;
-          height: 40px;
-          border: 1px solid #e4e0ef;
-          border-radius: 11px;
-          background: #fff;
-          color: #5b21b6;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+        .gateway-toolbar {
+          align-items:flex-start;
+          flex-direction:column;
         }
 
-        .payment-back-button:hover {
-          background: #f4f0ff;
+        .add-gateway-button {
+          width:100%;
+          justify-content:center;
         }
 
-        .payment-header-icon {
-          width: 54px;
-          height: 54px;
-          border-radius: 15px;
-          background: linear-gradient(
-            135deg,
-            #5b21b6,
-            #7c3aed
-          );
-          color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 22px;
-          box-shadow:
-            0 8px 20px rgba(91,33,182,.22);
+        .gateway-row {
+          grid-template-columns:35px 44px 1fr;
+          gap:10px;
         }
 
-        .payment-header h1 {
-          margin: 0;
-          font-size: 25px;
-          font-weight: 800;
+        .gateway-actions {
+          grid-column:1 / -1;
+          width:100%;
         }
 
-        .payment-header p {
-          margin: 4px 0 0;
-          color: #77728a;
-          font-size: 14px;
+        .gateway-actions button {
+          flex:1;
+          justify-content:center;
         }
 
-        .payment-status-header {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 9px 13px;
-          border-radius: 30px;
-          background: #ecfdf5;
-          color: #047857;
-          font-size: 13px;
-          font-weight: 700;
+        .form-grid,
+        .modal-setting-grid {
+          grid-template-columns:1fr;
         }
 
-        .payment-message {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 13px 16px;
-          border-radius: 13px;
-          margin-bottom: 20px;
-          font-size: 14px;
-          font-weight: 600;
+        .modal-actions {
+          flex-direction:column-reverse;
         }
 
-        .payment-message.success {
-          background: #ecfdf5;
-          border: 1px solid #a7f3d0;
-          color: #047857;
-        }
-
-        .payment-message.error {
-          background: #fef2f2;
-          border: 1px solid #fecaca;
-          color: #b91c1c;
-        }
-.payment-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1000px);
-    justify-content: center;
-    gap: 22px;
-    align-items: start;
-}
-
-        .payment-card,
-        .payment-info-card,
-        .payment-mode-card {
-          background: #fff;
-          border: 1px solid #ebe8f5;
-          border-radius: 20px;
-          box-shadow:
-            0 10px 35px rgba(40,32,80,.06);
-          overflow: hidden;
-        }
-
-        .payment-card-header {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 22px;
-          border-bottom: 1px solid #eeeaf5;
-        }
-
-        .razorpay-logo {
-          width: 50px;
-          height: 50px;
-          border-radius: 14px;
-          background: linear-gradient(
-            135deg,
-            #3395ff,
-            #1674d1
-          );
-          color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 25px;
-          font-weight: 800;
-        }
-
-        .payment-card-header h2 {
-          margin: 0;
-          font-size: 19px;
-          font-weight: 800;
-        }
-
-        .payment-card-header p {
-          margin: 3px 0 0;
-          color: #858092;
-          font-size: 13px;
-        }
-
-        .gateway-badge {
-          margin-left: auto;
-          padding: 7px 11px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 700;
-        }
-
-        .gateway-badge.enabled {
-          background: #ecfdf5;
-          color: #047857;
-        }
-
-        .gateway-badge.disabled {
-          background: #f3f4f6;
-          color: #6b7280;
-        }
-
-        .payment-card-body {
-          padding: 24px;
-        }
-
-        .payment-setting-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 20px;
-          padding: 10px 0;
-        }
-
-        .setting-info {
-          display: flex;
-          align-items: center;
-          gap: 13px;
-        }
-
-        .setting-icon {
-          width: 42px;
-          height: 42px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .setting-icon.green {
-          background: #ecfdf5;
-          color: #059669;
-        }
-
-        .setting-icon.blue {
-          background: #eff6ff;
-          color: #2563eb;
-        }
-
-        .setting-info h3 {
-          margin: 0;
-          font-size: 14px;
-          font-weight: 750;
-        }
-
-        .setting-info p {
-          margin: 3px 0 0;
-          font-size: 12px;
-          color: #888394;
-        }
-
-        .payment-switch {
-          width: 51px;
-          height: 29px;
-          border: 0;
-          border-radius: 30px;
-          background: #d7d5df;
-          padding: 3px;
-          cursor: pointer;
-          transition: .2s;
-        }
-
-        .payment-switch span {
-          display: block;
-          width: 23px;
-          height: 23px;
-          border-radius: 50%;
-          background: #fff;
-          transition: .2s;
-          box-shadow: 0 2px 5px rgba(0,0,0,.15);
-        }
-
-        .payment-switch.on {
-          background: #16a34a;
-        }
-
-        .payment-switch.on span {
-          transform: translateX(22px);
-        }
-
-        .mode-switch {
-          min-width: 74px;
-          height: 32px;
-          border: 0;
-          border-radius: 20px;
-          color: #fff;
-          font-size: 11px;
-          font-weight: 800;
-          cursor: pointer;
-        }
-
-        .mode-switch.test {
-          background: #f59e0b;
-        }
-
-        .mode-switch.live {
-          background: #dc2626;
-        }
-
-        .payment-divider {
-          height: 1px;
-          background: #eeeaf5;
-          margin: 20px 0;
-        }
-
-        .payment-field {
-          margin-bottom: 20px;
-        }
-
-        .payment-field label {
-          display: flex;
-          align-items: center;
-          gap: 7px;
-          margin-bottom: 8px;
-          font-size: 13px;
-          font-weight: 750;
-          color: #29233b;
-        }
-
-        .payment-field label svg {
-          color: #6d28d9;
-        }
-
-        .payment-field input {
-          width: 100%;
-          height: 46px;
-          border: 1px solid #ddd8e9;
-          border-radius: 11px;
-          padding: 0 13px;
-          outline: none;
-          font-size: 13px;
-          color: #27223a;
-          background: #fff;
-        }
-
-        .payment-field input:focus {
-          border-color: #8b5cf6;
-          box-shadow:
-            0 0 0 3px rgba(139,92,246,.10);
-        }
-
-        .payment-field small {
-          display: block;
-          margin-top: 6px;
-          color: #9993a5;
-          font-size: 11px;
-        }
-
-        .security-note {
-          display: flex !important;
-          align-items: center;
-          gap: 5px;
-          color: #059669 !important;
-        }
-
-        .secret-input {
-          position: relative;
-        }
-
-        .secret-input input {
-          padding-right: 48px;
-        }
-
-        .secret-input button {
-          position: absolute;
-          top: 50%;
-          right: 5px;
-          transform: translateY(-50%);
-          width: 36px;
-          height: 36px;
-          border: 0;
-          background: transparent;
-          color: #777;
-          cursor: pointer;
-          border-radius: 8px;
-        }
-
-        .secret-input button:hover {
-          background: #f4f1fa;
-        }
-
-        .optional {
-          margin-left: 5px;
-          font-size: 10px;
-          color: #9a93a7;
-          font-weight: 500;
-        }
-
+        .cancel-button,
         .payment-save-button {
-          width: 100%;
-          height: 48px;
-          border: 0;
-          border-radius: 12px;
-          background: linear-gradient(
-            135deg,
-            #5b21b6,
-            #7c3aed
-          );
-          color: #fff;
-          font-weight: 750;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          box-shadow:
-            0 8px 18px rgba(91,33,182,.20);
+          width:100%;
         }
 
-        .payment-save-button:hover {
-          opacity: .94;
-        }
+      }
 
-        .payment-save-button:disabled {
-          opacity: .6;
-          cursor: not-allowed;
-        }
-
-        .payment-side {
-          display: flex;
-          flex-direction: column;
-          gap: 18px;
-        }
-
-        .payment-info-card {
-          padding: 24px;
-        }
-
-        .info-card-icon {
-          width: 46px;
-          height: 46px;
-          border-radius: 13px;
-          background: #f3e8ff;
-          color: #7c3aed;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 19px;
-          margin-bottom: 15px;
-        }
-
-        .payment-info-card h2 {
-          margin: 0 0 8px;
-          font-size: 18px;
-          font-weight: 800;
-        }
-
-        .payment-info-card > p {
-          margin: 0;
-          color: #777283;
-          line-height: 1.6;
-          font-size: 13px;
-        }
-
-        .info-list {
-          margin-top: 20px;
-          display: flex;
-          flex-direction: column;
-          gap: 13px;
-        }
-
-        .info-list div {
-          display: flex;
-          align-items: flex-start;
-          gap: 9px;
-          font-size: 12px;
-          color: #514b5d;
-        }
-
-        .info-list svg {
-          flex-shrink: 0;
-          color: #10b981;
-          margin-top: 2px;
-        }
-
-        .payment-mode-card {
-          padding: 17px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .mode-card-icon {
-          width: 42px;
-          height: 42px;
-          border-radius: 11px;
-          background: #eff6ff;
-          color: #2563eb;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .payment-mode-card span {
-          display: block;
-          font-size: 11px;
-          color: #9993a5;
-        }
-
-        .payment-mode-card strong {
-          display: block;
-          margin-top: 3px;
-          font-size: 13px;
-        }
-
-        .payment-loading {
-          min-height: 80vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-direction: column;
-          color: #5b21b6;
-        }
-
-        .payment-loading h3 {
-          margin: 15px 0 4px;
-        }
-
-        .payment-loading p {
-          margin: 0;
-          color: #888;
-        }
-
-        .payment-loading-icon {
-          font-size: 30px;
-          animation: payment-spin 1s linear infinite;
-        }
-
-        .spin {
-          animation: payment-spin 1s linear infinite;
-        }
-
-        @keyframes payment-spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-
-        @media (max-width: 900px) {
-
-          .payment-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .payment-side {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-          }
-
-        }
-
-        @media (max-width: 650px) {
-
-          .payment-page {
-            padding: 14px;
-          }
-
-          .payment-header {
-            padding: 17px;
-            align-items: flex-start;
-          }
-
-          .payment-header h1 {
-            font-size: 20px;
-          }
-
-          .payment-status-header {
-            display: none;
-          }
-
-          .payment-card-header {
-            flex-wrap: wrap;
-          }
-
-          .gateway-badge {
-            margin-left: auto;
-          }
-
-          .payment-card-body {
-            padding: 18px;
-          }
-
-          .payment-setting-row {
-            align-items: flex-start;
-          }
-
-          .setting-info p {
-            max-width: 220px;
-          }
-
-          .payment-side {
-            display: flex;
-          }
-
-        }
-
-      `}</style>
-
-    </div>
+    `}</style>
   );
 }
 
