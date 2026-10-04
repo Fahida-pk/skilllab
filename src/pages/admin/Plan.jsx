@@ -919,26 +919,7 @@ try {
 
         </div>
 
-        <div className="plans-note">
-
-          <FaCircleXmark />
-
-          <span>
-
-            Delete is allowed only when the plan is not assigned to any subscription.
-
-          </span>
-
-        </div>
-
-        <div className="plans-footer-stats">
-
-          <span>Total: <strong>{plans.length}</strong></span>
-
-          <span>Active: <strong>{activePlans}</strong></span>
-
-        </div>
-
+      
       </div>
 
     </div>
