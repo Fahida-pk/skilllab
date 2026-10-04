@@ -1011,12 +1011,10 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           // A task that is not completed must always start/display at 0%
           // after refresh or when another date is opened.
           // Its saved percentage is used only after the task is ticked.
-          percentage:
-            t.completed === true ||
-            t.completed === 1 ||
-            t.completed === "1"
-              ? Math.max(0, Math.min(100, Number(t.percentage ?? 0)))
-              : 0,
+      percentage: Math.max(
+  0,
+  Math.min(100, Number(t.percentage ?? 0))
+),
           accuracy:
             t.completed === true ||
             t.completed === 1 ||
@@ -1079,11 +1077,14 @@ useEffect(() => {
 
   // Automatically sync task changes from other devices.
   // Do not refresh while the percentage slider is being dragged.
-  const syncTimer = setInterval(() => {
-    if (!isPercentageDraggingRef.current) {
-      fetchTasks();
-    }
-  }, 3000);
+const syncTimer = setInterval(() => {
+  if (
+    !isPercentageDraggingRef.current &&
+    !isPercentageSavingRef.current
+  ) {
+    fetchTasks();
+  }
+}, 3000);
 
   return () => {
     clearInterval(syncTimer);
@@ -2558,9 +2559,8 @@ const handlePercentageChange = (task, value) => {
       );
       alert("Unable to save task");
     } finally {
-      // Always unlock Save button
-      saveInProgressRef.current = false;
-    }
+  isPercentageSavingRef.current = false;
+}
   };
   // Every visible task now comes from the database, including the built-in
   // tasks. This keeps status and percentage in one source of truth.
