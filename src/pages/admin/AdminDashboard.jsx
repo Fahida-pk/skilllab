@@ -10,9 +10,7 @@ import {
   FaUserGraduate,
   FaUserTie,
 
-  // Payment Gateway
-  FaCreditCard,
-
+  
   // Payment History
   FaClockRotateLeft,
 
