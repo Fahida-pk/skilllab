@@ -190,9 +190,16 @@ const taskEmail = adminView
   const [tasks, setTasks] = useState([]);
   const [performanceErrorTaskId, setPerformanceErrorTaskId] = useState(null);
   // Prevent multiple Save/Add clicks from creating duplicate database rows.
-  const saveInProgressRef = useRef(false);
-  // Prevent background sync from resetting the slider while it is being dragged.
-  const isPercentageDraggingRef = useRef(false);
+const saveInProgressRef = useRef(false);
+
+// Prevent background sync from resetting the slider while it is being dragged.
+const isPercentageDraggingRef = useRef(false);
+
+// Prevent duplicate percentage save from pointerUp + blur
+const isPercentageSavingRef = useRef(false);
+
+// Prevent old/background fetch from overwriting newly saved percentage
+const percentageSaveVersionRef = useRef(0);
 const [deleteConfirm, setDeleteConfirm] = useState(null);
   const getDateKey = (d) => {
     const year = d.getFullYear();
@@ -960,7 +967,7 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
       console.error("Default task database sync error:", error);
     }
   };
-
+const fetchVersion = percentageSaveVersionRef.current;
   const fetchTasks = async () => {
     try {
       // Admin view is strictly read-only.
@@ -1011,12 +1018,10 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           // A task that is not completed must always start/display at 0%
           // after refresh or when another date is opened.
           // Its saved percentage is used only after the task is ticked.
-          percentage:
-            t.completed === true ||
-            t.completed === 1 ||
-            t.completed === "1"
-              ? Math.max(0, Math.min(100, Number(t.percentage ?? 0)))
-              : 0,
+        percentage: Math.max(
+  0,
+  Math.min(100, Number(t.percentage ?? 0))
+),
           accuracy:
             t.completed === true ||
             t.completed === 1 ||
@@ -1062,8 +1067,13 @@ const [deleteConfirm, setDeleteConfirm] = useState(null);
           seenBuiltIns.add(builtInId);
           return true;
         });
+// Ignore an old/background response if a percentage was saved
+// while this request was running.
+if (fetchVersion !== percentageSaveVersionRef.current) {
+  return;
+}
 
-        setTasks(normalized);
+setTasks(normalized);
       } else {
         setTasks([]);
       }
@@ -1079,11 +1089,14 @@ useEffect(() => {
 
   // Automatically sync task changes from other devices.
   // Do not refresh while the percentage slider is being dragged.
-  const syncTimer = setInterval(() => {
-    if (!isPercentageDraggingRef.current) {
-      fetchTasks();
-    }
-  }, 5000);
+const syncTimer = setInterval(() => {
+  if (
+    !isPercentageDraggingRef.current &&
+    !isPercentageSavingRef.current
+  ) {
+    fetchTasks();
+  }
+}, 3000);
 
   return () => {
     clearInterval(syncTimer);
@@ -1717,53 +1730,108 @@ const handlePercentageChange = (task, value) => {
   );
 };
 
-  const saveTaskPercentage = async (task, value) => {
-    if (adminView || parentView || isPreviousDay) return;
+const saveTaskPercentage = async (task, value) => {
+  if (adminView || parentView || isPreviousDay) return;
 
-    const percentage = Math.max(0, Math.min(100, Number(value)));
+  // Prevent duplicate save from pointerUp + blur
+  if (isPercentageSavingRef.current) return;
 
-    // 0% must never remain marked/completed.
-    // If a completed task is moved to 0%, automatically remove its tick.
-    if (percentage <= 0) {
-      if (task.completed) {
-        await toggleTask({ ...task, percentage: 0 });
-      } else {
-        setTasks((prev) =>
-          prev.map((t) =>
-            String(t.id) === String(task.id)
-              ? { ...t, percentage: 0, completed: false }
-              : t
-          )
-        );
-      }
+  const percentage = Math.max(
+    0,
+    Math.min(100, Number(value) || 0)
+  );
+
+  // 0% must never remain marked/completed.
+  // If a completed task is moved to 0%, automatically remove its tick.
+  if (percentage <= 0) {
+    if (task.completed) {
+      await toggleTask({
+        ...task,
+        percentage: 0,
+      });
+    } else {
+      setTasks((prev) =>
+        prev.map((t) =>
+          String(t.id) === String(task.id)
+            ? {
+                ...t,
+                percentage: 0,
+                completed: false,
+              }
+            : t
+        )
+      );
+    }
+
+    return;
+  }
+
+  // ---------------------------------------------------------
+  // IMPORTANT:
+  // Invalidate any background fetch that may already be running.
+  // ---------------------------------------------------------
+  percentageSaveVersionRef.current += 1;
+
+  isPercentageSavingRef.current = true;
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "percentage",
+        email: user?.email,
+        id: task.id,
+        percentage,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(
+        data.message ||
+          "Could not save percentage"
+      );
       return;
     }
 
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "percentage",
-          email: user?.email,
-          id: task.id,
-          percentage,
-        }),
-      });
+    // Keep the value immediately visible in the UI.
+    setTasks((prev) =>
+      prev.map((t) =>
+        String(t.id) === String(task.id)
+          ? {
+              ...t,
+              percentage,
+            }
+          : t
+      )
+    );
 
-      const data = await res.json();
+    notifyTaskUpdated();
 
-      if (!data.success) {
-        alert(data.message || "Could not save percentage");
-        return;
-      }
+  } catch (error) {
+    console.error(
+      "Percentage save error:",
+      error
+    );
 
-      notifyTaskUpdated();
-    } catch (error) {
-      console.error("Percentage save error:", error);
-      alert("Unable to save percentage");
-    }
-  };
+    alert("Unable to save percentage");
+
+  } finally {
+
+    // -------------------------------------------------------
+    // IMPORTANT:
+    // Invalidate every fetch that started while the save
+    // request was in progress.
+    // -------------------------------------------------------
+    percentageSaveVersionRef.current += 1;
+
+    isPercentageSavingRef.current = false;
+  }
+};
 
   const handleEdit = (task) => {
 
