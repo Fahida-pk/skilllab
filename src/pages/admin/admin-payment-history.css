@@ -119,10 +119,9 @@
 }
 
 /* ---------------- SUMMARY ---------------- */
-
 .admin-payment-summary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 18px;
 }
@@ -785,5 +784,16 @@
 
   .history-status {
     font-size: 8px;
+  }
+}
+@media (max-width: 1100px) {
+  .admin-payment-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-payment-summary {
+    grid-template-columns: 1fr;
   }
 }
