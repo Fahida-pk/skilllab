@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+
 import {
   FaArrowLeft,
   FaCalendarAlt,
@@ -11,6 +12,7 @@ import {
   FaUser,
   FaUsers,
 } from "react-icons/fa";
+
 import { useNavigate } from "react-router-dom";
 import "./admin-payment-history.css";
 
@@ -71,9 +73,11 @@ function AdminPaymentHistory() {
       );
     } catch (err) {
       console.error("Payment history error:", err);
+
       setError(
         err.message || "Unable to load payment history"
       );
+
       setPayments([]);
     } finally {
       setLoading(false);
@@ -190,6 +194,7 @@ function AdminPaymentHistory() {
       }
 
       result[key].payments.push(payment);
+
       return result;
     }, {});
 
@@ -204,32 +209,47 @@ function AdminPaymentHistory() {
   }, [filteredPayments]);
 
   const totalAmount = payments.reduce(
-    (total, payment) => total + Number(payment.amount || 0),
+    (total, payment) =>
+      total + Number(payment.amount || 0),
     0
   );
 
+  // Parent payment count
   const parentPayments = payments.filter(
     (payment) =>
       String(payment.paid_by || "").toLowerCase() === "parent"
   ).length;
 
+  // Student payment count
+  const studentPayments = payments.filter(
+    (payment) =>
+      String(payment.paid_by || "").toLowerCase() === "student"
+  ).length;
+
   return (
     <div className="admin-payment-page">
+
+      {/* HEADER */}
       <div className="admin-payment-page-header">
+
         <div className="admin-payment-heading">
+
           <div className="admin-payment-heading-icon">
             <FaCreditCard />
           </div>
 
           <div>
             <h1>Payment History</h1>
+
             <p>
               View student subscriptions and parent payment records
             </p>
           </div>
+
         </div>
 
         <div className="admin-payment-header-actions">
+
           <button
             type="button"
             className="admin-payment-back"
@@ -245,107 +265,179 @@ function AdminPaymentHistory() {
             onClick={fetchPaymentHistory}
             disabled={loading}
           >
-            <FaSyncAlt className={loading ? "payment-spin" : ""} />
-            <span>{loading ? "Loading..." : "Refresh"}</span>
+            <FaSyncAlt
+              className={loading ? "payment-spin" : ""}
+            />
+
+            <span>
+              {loading ? "Loading..." : "Refresh"}
+            </span>
           </button>
+
         </div>
+
       </div>
 
+      {/* SUMMARY CARDS */}
       <div className="admin-payment-summary">
+
+        {/* TOTAL PAYMENTS */}
         <div className="admin-payment-summary-card">
+
           <div className="summary-icon blue">
             <FaCreditCard />
           </div>
+
           <div>
             <span>Total Payments</span>
             <strong>{payments.length}</strong>
           </div>
+
         </div>
 
+        {/* TOTAL AMOUNT */}
         <div className="admin-payment-summary-card">
+
           <div className="summary-icon green">
             <FaRupeeSign />
           </div>
+
           <div>
             <span>Total Amount</span>
+
             <strong>
               ₹{totalAmount.toLocaleString("en-IN")}
             </strong>
           </div>
+
         </div>
 
+        {/* PARENT PAYMENTS */}
         <div className="admin-payment-summary-card">
+
           <div className="summary-icon purple">
             <FaUsers />
           </div>
+
           <div>
             <span>Parent Payments</span>
             <strong>{parentPayments}</strong>
           </div>
+
         </div>
+
+        {/* STUDENT PAYMENTS */}
+        <div className="admin-payment-summary-card">
+
+          <div className="summary-icon orange">
+            <FaUser />
+          </div>
+
+          <div>
+            <span>Student Payments</span>
+            <strong>{studentPayments}</strong>
+          </div>
+
+        </div>
+
       </div>
 
+      {/* SEARCH TOOLBAR */}
       <div className="admin-payment-toolbar">
+
         <div className="admin-payment-search">
+
           <input
             type="text"
             placeholder="Search student, parent, email, payment ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+
         </div>
 
         <div className="admin-payment-count">
-          Showing <strong>{groupedPayments.length}</strong> students
+
+          Showing{" "}
+          <strong>{groupedPayments.length}</strong>{" "}
+          students
+
           <span>
             ({filteredPayments.length} payments)
           </span>
+
         </div>
+
       </div>
 
+      {/* CONTENT */}
       <div className="admin-payment-content">
+
+        {/* LOADING */}
         {loading && (
           <div className="admin-payment-state">
+
             <div className="admin-payment-spinner" />
+
             <p>Loading payment history...</p>
+
           </div>
         )}
 
+        {/* ERROR */}
         {!loading && error && (
           <div className="admin-payment-error">
+
             <FaTimesCircle />
+
             <div>
-              <strong>Unable to load payment history</strong>
+
+              <strong>
+                Unable to load payment history
+              </strong>
+
               <p>{error}</p>
+
             </div>
+
           </div>
         )}
 
+        {/* EMPTY */}
         {!loading &&
           !error &&
           filteredPayments.length === 0 && (
             <div className="admin-payment-state admin-payment-empty">
+
               <div className="empty-icon">
                 <FaCreditCard />
               </div>
+
               <h2>No Payment History</h2>
+
               <p>
                 No student or parent subscription payments
                 have been recorded yet.
               </p>
+
             </div>
           )}
 
+        {/* PAYMENT LIST */}
         {!loading &&
           !error &&
           groupedPayments.length > 0 && (
+
             <div className="admin-payment-list">
+
               {groupedPayments.map((group, index) => {
+
                 const latestPayment = group.payments[0];
 
                 const paidByParent =
-                  String(latestPayment.paid_by || "").toLowerCase() ===
-                  "parent";
+                  String(
+                    latestPayment.paid_by || ""
+                  ).toLowerCase() === "parent";
 
                 return (
                   <article
@@ -357,14 +449,20 @@ function AdminPaymentHistory() {
                       index
                     }
                   >
+
+                    {/* CARD HEADER */}
                     <div className="payment-card-header">
+
                       <div className="payment-title-wrap">
+
                         <div className="payment-plan-icon">
                           <FaCreditCard />
                         </div>
 
                         <div>
+
                           <div className="payment-title-row">
+
                             <h2>
                               {latestPayment.plan_name ||
                                 "Subscription"}
@@ -375,12 +473,18 @@ function AdminPaymentHistory() {
                                 latestPayment.status
                               )}`}
                             >
-                              {getStatusIcon(latestPayment.status)}
-                              {latestPayment.status || "Pending"}
+                              {getStatusIcon(
+                                latestPayment.status
+                              )}
+
+                              {latestPayment.status ||
+                                "Pending"}
                             </span>
+
                           </div>
 
                           <div className="payment-meta">
+
                             <span>
                               <FaRupeeSign />
                               ₹
@@ -390,21 +494,29 @@ function AdminPaymentHistory() {
                             </span>
 
                             <span>
-                              {latestPayment.billing_cycle || "-"}
+                              {latestPayment.billing_cycle ||
+                                "-"}
                             </span>
 
                             <span>
                               <FaCalendarAlt />
+
                               {formatDateTime(
                                 latestPayment.paid_at
                               )}
                             </span>
+
                           </div>
+
                         </div>
+
                       </div>
 
+                      {/* PAID BY */}
                       <div className="payment-paid-by">
+
                         <span>Paid By</span>
+
                         <div
                           className={`paid-by-badge ${
                             paidByParent
@@ -412,48 +524,76 @@ function AdminPaymentHistory() {
                               : "paid-by-student"
                           }`}
                         >
+
                           {paidByParent ? (
                             <FaUsers />
                           ) : (
                             <FaUser />
                           )}
-                          {paidByParent ? "Parent" : "Student"}
+
+                          {paidByParent
+                            ? "Parent"
+                            : "Student"}
+
                         </div>
 
                         <small>
                           Payment ID:{" "}
-                          {latestPayment.gateway_payment_id || "-"}
+                          {latestPayment.gateway_payment_id ||
+                            "-"}
                         </small>
+
                       </div>
+
                     </div>
 
+                    {/* PEOPLE */}
                     <div className="payment-people">
+
+                      {/* STUDENT */}
                       <div className="person-card">
+
                         <div className="person-icon student">
                           <FaUser />
                         </div>
 
                         <div>
+
                           <span>Student</span>
+
                           <strong>
-                            {latestPayment.student_name || "-"}
+                            {latestPayment.student_name ||
+                              "-"}
                           </strong>
+
                           <small>
-                            {latestPayment.student_email || "-"}
+                            {latestPayment.student_email ||
+                              "-"}
                           </small>
+
                         </div>
+
                       </div>
 
+                      {/* PARENT / PAID BY */}
                       <div className="person-card">
+
                         <div
                           className={`person-icon ${
-                            paidByParent ? "parent" : "student"
+                            paidByParent
+                              ? "parent"
+                              : "student"
                           }`}
                         >
-                          {paidByParent ? <FaUsers /> : <FaUser />}
+                          {paidByParent ? (
+                            <FaUsers />
+                          ) : (
+                            <FaUser />
+                          )}
                         </div>
 
                         <div>
+
                           <span>
                             {paidByParent
                               ? "Parent / Paid By"
@@ -462,111 +602,169 @@ function AdminPaymentHistory() {
 
                           <strong>
                             {paidByParent
-                              ? latestPayment.parent_name || "Parent"
-                              : latestPayment.student_name || "-"}
+                              ? latestPayment.parent_name ||
+                                "Parent"
+                              : latestPayment.student_name ||
+                                "-"}
                           </strong>
 
                           <small>
                             {paidByParent
-                              ? latestPayment.parent_email || "-"
-                              : latestPayment.student_email || "-"}
+                              ? latestPayment.parent_email ||
+                                "-"
+                              : latestPayment.student_email ||
+                                "-"}
                           </small>
+
                         </div>
+
                       </div>
+
                     </div>
 
+                    {/* PAYMENT HISTORY */}
                     <div className="payment-history">
+
                       <div className="payment-history-heading">
+
                         <div>
+
                           <h3>Payment History</h3>
+
                           <span>
                             {group.payments.length}{" "}
                             {group.payments.length === 1
                               ? "payment"
                               : "payments"}
                           </span>
+
                         </div>
+
                       </div>
 
                       <div className="payment-history-list">
-                        {group.payments.map((item, paymentIndex) => (
-                          <div
-                            className="payment-history-row"
-                            key={
-                              item.id ||
-                              item.gateway_payment_id ||
-                              paymentIndex
-                            }
-                          >
-                            <div className="history-number">
-                              {paymentIndex + 1}
-                            </div>
 
-                            <div className="history-main">
-                              <strong>
-                                {item.plan_name || "Subscription"}
-                              </strong>
-                              <span>
-                                {formatDateTime(item.paid_at)}
-                              </span>
-                            </div>
-
-                            <div className="history-cycle">
-                              {item.billing_cycle || "-"}
-                            </div>
-
-                            <div className="history-amount">
-                              ₹
-                              {Number(
-                                item.amount || 0
-                              ).toLocaleString("en-IN")}
-                            </div>
+                        {group.payments.map(
+                          (item, paymentIndex) => (
 
                             <div
-                              className={`history-status ${getStatusClass(
-                                item.status
-                              )}`}
+                              className="payment-history-row"
+                              key={
+                                item.id ||
+                                item.gateway_payment_id ||
+                                paymentIndex
+                              }
                             >
-                              {getStatusIcon(item.status)}
-                              {item.status || "Pending"}
+
+                              <div className="history-number">
+                                {paymentIndex + 1}
+                              </div>
+
+                              <div className="history-main">
+
+                                <strong>
+                                  {item.plan_name ||
+                                    "Subscription"}
+                                </strong>
+
+                                <span>
+                                  {formatDateTime(
+                                    item.paid_at
+                                  )}
+                                </span>
+
+                              </div>
+
+                              <div className="history-cycle">
+                                {item.billing_cycle || "-"}
+                              </div>
+
+                              <div className="history-amount">
+
+                                ₹
+                                {Number(
+                                  item.amount || 0
+                                ).toLocaleString("en-IN")}
+
+                              </div>
+
+                              <div
+                                className={`history-status ${getStatusClass(
+                                  item.status
+                                )}`}
+                              >
+
+                                {getStatusIcon(
+                                  item.status
+                                )}
+
+                                {item.status || "Pending"}
+
+                              </div>
+
                             </div>
-                          </div>
-                        ))}
+
+                          )
+                        )}
+
                       </div>
+
                     </div>
 
+                    {/* DATES */}
                     <div className="payment-date-box">
+
                       <div>
+
                         <span>Start Date</span>
+
                         <strong>
-                          {formatDate(latestPayment.start_date)}
+                          {formatDate(
+                            latestPayment.start_date
+                          )}
                         </strong>
+
                       </div>
 
                       <div className="date-divider" />
 
                       <div>
+
                         <span>End Date</span>
+
                         <strong>
-                          {formatDate(latestPayment.end_date)}
+                          {formatDate(
+                            latestPayment.end_date
+                          )}
                         </strong>
+
                       </div>
 
                       <div className="date-divider" />
 
                       <div>
+
                         <span>Latest Payment</span>
+
                         <strong>
-                          {formatDateTime(latestPayment.paid_at)}
+                          {formatDateTime(
+                            latestPayment.paid_at
+                          )}
                         </strong>
+
                       </div>
+
                     </div>
+
                   </article>
                 );
               })}
+
             </div>
           )}
+
       </div>
+
     </div>
   );
 }
