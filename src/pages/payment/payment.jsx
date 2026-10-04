@@ -86,7 +86,10 @@ function Payment() {
           : []
       );
     } catch (error) {
-      console.error("Payment gateway load error:", error);
+      console.error(
+        "Payment gateway load error:",
+        error
+      );
 
       setMessage(
         error.message ||
@@ -115,7 +118,7 @@ function Payment() {
   };
 
   /* =====================================================
-     OPEN ADD
+     OPEN ADD FORM
   ===================================================== */
 
   const openAddForm = () => {
@@ -134,7 +137,7 @@ function Payment() {
   };
 
   /* =====================================================
-     OPEN EDIT
+     OPEN EDIT FORM
   ===================================================== */
 
   const openEditForm = (item) => {
@@ -144,12 +147,18 @@ function Payment() {
       id: item.id ?? "",
       code: item.code ?? "",
       name: item.name ?? "",
-      is_enabled: Number(item.is_enabled ?? 0),
-      is_live: Number(item.is_live ?? 0),
+      is_enabled: Number(
+        item.is_enabled ?? 0
+      ),
+      is_live: Number(
+        item.is_live ?? 0
+      ),
       public_key: item.public_key ?? "",
       secret_key: "",
       webhook_secret: "",
-      sort_order: Number(item.sort_order ?? 1),
+      sort_order: Number(
+        item.sort_order ?? 1
+      ),
     });
 
     setShowSecret(false);
@@ -184,11 +193,16 @@ function Payment() {
 
     setMessage("");
 
-    const code = gateway.code.trim().toLowerCase();
+    const code = gateway.code
+      .trim()
+      .toLowerCase();
+
     const name = gateway.name.trim();
 
     if (!code) {
-      setMessage("Gateway code is required.");
+      setMessage(
+        "Gateway code is required."
+      );
       setMessageType("error");
       return;
     }
@@ -202,13 +216,20 @@ function Payment() {
     }
 
     if (!name) {
-      setMessage("Display name is required.");
+      setMessage(
+        "Display name is required."
+      );
       setMessageType("error");
       return;
     }
 
-    if (!editing && !gateway.secret_key.trim()) {
-      setMessage("Secret Key is required for a new gateway.");
+    if (
+      !editing &&
+      !gateway.secret_key.trim()
+    ) {
+      setMessage(
+        "Secret Key is required for a new gateway."
+      );
       setMessageType("error");
       return;
     }
@@ -216,9 +237,13 @@ function Payment() {
     try {
       setSaving(true);
 
-      const formData = new URLSearchParams();
+      const formData =
+        new URLSearchParams();
 
-      formData.append("action", editing ? "update" : "create");
+      formData.append(
+        "action",
+        editing ? "update" : "create"
+      );
 
       if (editing) {
         formData.append(
@@ -232,12 +257,16 @@ function Payment() {
 
       formData.append(
         "is_enabled",
-        Number(gateway.is_enabled) === 1 ? "1" : "0"
+        Number(gateway.is_enabled) === 1
+          ? "1"
+          : "0"
       );
 
       formData.append(
         "is_live",
-        Number(gateway.is_live) === 1 ? "1" : "0"
+        Number(gateway.is_live) === 1
+          ? "1"
+          : "0"
       );
 
       formData.append(
@@ -257,26 +286,36 @@ function Payment() {
 
       formData.append(
         "sort_order",
-        String(gateway.sort_order || 1)
+        String(
+          gateway.sort_order || 1
+        )
       );
 
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/x-www-form-urlencoded",
-          Accept: "application/json",
-        },
-        body: formData.toString(),
-      });
+      const response = await fetch(
+        API_URL,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/x-www-form-urlencoded",
+            Accept: "application/json",
+          },
+          body: formData.toString(),
+        }
+      );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
-      console.log("SAVE GATEWAY:", data);
+      console.log(
+        "SAVE GATEWAY:",
+        data
+      );
 
       if (!data.success) {
         throw new Error(
-          data.message || "Unable to save gateway"
+          data.message ||
+            "Unable to save gateway"
         );
       }
 
@@ -300,7 +339,10 @@ function Payment() {
         behavior: "smooth",
       });
     } catch (error) {
-      console.error("Payment gateway save error:", error);
+      console.error(
+        "Payment gateway save error:",
+        error
+      );
 
       setMessage(
         error.message ||
@@ -319,30 +361,46 @@ function Payment() {
 
   const toggleGateway = async (item) => {
     try {
-      const formData = new URLSearchParams();
+      const formData =
+        new URLSearchParams();
 
-      formData.append("action", "toggle");
-      formData.append("gateway_id", String(item.id));
       formData.append(
-        "is_enabled",
-        Number(item.is_enabled) === 1 ? "0" : "1"
+        "action",
+        "toggle"
       );
 
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/x-www-form-urlencoded",
-          Accept: "application/json",
-        },
-        body: formData.toString(),
-      });
+      formData.append(
+        "gateway_id",
+        String(item.id)
+      );
 
-      const data = await response.json();
+      formData.append(
+        "is_enabled",
+        Number(item.is_enabled) === 1
+          ? "0"
+          : "1"
+      );
+
+      const response = await fetch(
+        API_URL,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/x-www-form-urlencoded",
+            Accept: "application/json",
+          },
+          body: formData.toString(),
+        }
+      );
+
+      const data =
+        await response.json();
 
       if (!data.success) {
         throw new Error(
-          data.message || "Unable to update gateway"
+          data.message ||
+            "Unable to update gateway"
         );
       }
 
@@ -367,29 +425,39 @@ function Payment() {
     }
 
     try {
-      const formData = new URLSearchParams();
+      const formData =
+        new URLSearchParams();
 
-      formData.append("action", "delete");
+      formData.append(
+        "action",
+        "delete"
+      );
+
       formData.append(
         "gateway_id",
         String(item.id)
       );
 
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/x-www-form-urlencoded",
-          Accept: "application/json",
-        },
-        body: formData.toString(),
-      });
+      const response = await fetch(
+        API_URL,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/x-www-form-urlencoded",
+            Accept: "application/json",
+          },
+          body: formData.toString(),
+        }
+      );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       if (!data.success) {
         throw new Error(
-          data.message || "Unable to delete gateway"
+          data.message ||
+            "Unable to delete gateway"
         );
       }
 
@@ -417,7 +485,9 @@ function Payment() {
         <div className="payment-loading">
           <FaRotate className="payment-loading-icon" />
 
-          <h3>Loading Payment Gateways</h3>
+          <h3>
+            Loading Payment Gateways
+          </h3>
 
           <p>Please wait...</p>
         </div>
@@ -434,7 +504,9 @@ function Payment() {
   return (
     <div className="payment-page">
 
-      {/* HEADER */}
+      {/* =================================================
+          HEADER
+      ================================================= */}
 
       <div className="payment-header">
 
@@ -455,23 +527,34 @@ function Payment() {
           </div>
 
           <div>
-            <h1>Payment Gateway</h1>
+            <h1>
+              Payment Gateway
+            </h1>
 
             <p>
-              Manage payment gateways for SkillLab
+              Manage payment gateways
+              for SkillLab
             </p>
           </div>
 
         </div>
 
         <div className="payment-total">
-          <strong>{gateways.length}</strong>
-          <span>Total Gateways</span>
+          <strong>
+            {gateways.length}
+          </strong>
+
+          <span>
+            Total Gateways
+          </span>
         </div>
 
       </div>
 
-      {/* MESSAGE */}
+
+      {/* =================================================
+          MESSAGE
+      ================================================= */}
 
       {message && (
         <div
@@ -481,25 +564,36 @@ function Payment() {
               : "error"
           }`}
         >
-          {messageType === "success" ? (
+
+          {messageType ===
+          "success" ? (
             <FaCircleCheck />
           ) : (
             <FaCircleXmark />
           )}
 
-          <span>{message}</span>
+          <span>
+            {message}
+          </span>
+
         </div>
       )}
 
-      {/* ADD BUTTON */}
+
+      {/* =================================================
+          TOOLBAR
+      ================================================= */}
 
       <div className="gateway-toolbar">
 
         <div>
-          <h2>Configured Gateways</h2>
+          <h2>
+            Configured Gateways
+          </h2>
 
           <p>
-            Add and manage all payment integrations.
+            Add and manage all
+            payment integrations.
           </p>
         </div>
 
@@ -509,221 +603,328 @@ function Payment() {
           onClick={openAddForm}
         >
           <FaPlus />
+
           Add New Gateway
         </button>
 
       </div>
 
-   {/* GATEWAY LIST */}
 
-<div className="gateway-list">
+      {/* =================================================
+          GATEWAY LIST
+      ================================================= */}
 
-  {/* TABLE HEADER */}
-  {gateways.length > 0 && (
-    <div className="gateway-table-header">
-      <div>#</div>
+      <div className="gateway-list">
 
-      <div className="gateway-header-gateway">
-        Gateway
-      </div>
+        {/* TABLE HEADER */}
 
-      <div>Mode</div>
+        {gateways.length > 0 && (
+          <div className="gateway-table-header">
 
-      <div>Type</div>
+            {/* MOBILE TITLE */}
 
-      <div>Status</div>
+            <div className="mobile-configured-title">
 
-      <div>Sort</div>
+              <span className="mobile-configured-icon">
+                <FaListIcon />
+              </span>
 
-      <div>Actions</div>
-    </div>
-  )}
+              <span>
+                Configured Gateways
+              </span>
 
-  {gateways.length === 0 ? (
-    <div className="empty-gateway">
-      <FaCreditCard />
+              <span className="mobile-total-badge">
+                {gateways.length} total
+              </span>
 
-      <h3>No Payment Gateways</h3>
+            </div>
 
-      <p>
-        Add your first payment gateway.
-      </p>
 
-      <button
-        type="button"
-        onClick={openAddForm}
-      >
-        <FaPlus />
-        Add Gateway
-      </button>
-    </div>
-  ) : (
-    gateways.map((item, index) => (
-      <div
-        className="gateway-row"
-        key={item.id}
-      >
+            {/* DESKTOP HEADINGS */}
 
-        {/* # */}
-        <div className="gateway-number">
-          {index + 1}
-        </div>
+            <div className="desktop-heading">
+              #
+            </div>
 
-        {/* GATEWAY LOGO */}
-        <div className="gateway-logo">
-          {item.code === "razorpay"
-            ? "₹"
-            : item.code === "stripe"
-            ? "$"
-            : "₿"}
-        </div>
+            <div className="desktop-heading">
+              Gateway
+            </div>
 
-        {/* GATEWAY */}
-        <div className="gateway-info">
+            <div className="desktop-heading">
+              Mode
+            </div>
 
-          <div className="gateway-name-line">
+            <div className="desktop-heading">
+              Type
+            </div>
 
-            <strong>{item.name}</strong>
+            <div className="desktop-heading">
+              Status
+            </div>
 
-            <span className="code-badge">
-              {item.code}
-            </span>
+            <div className="desktop-heading">
+              Sort
+            </div>
+
+            <div className="desktop-heading">
+              Actions
+            </div>
 
           </div>
+        )}
 
-          <span className="gateway-description">
-            Online payment gateway
-          </span>
 
-        </div>
+        {/* EMPTY */}
 
-        {/* MODE */}
-        <div className="gateway-mode">
+        {gateways.length === 0 ? (
+          <div className="empty-gateway">
 
-          <span
-            className={
-              Number(item.is_live) === 1
-                ? "mode-live"
-                : "mode-test"
-            }
-          >
-            <FaGlobe />
+            <FaCreditCard />
 
-            {Number(item.is_live) === 1
-              ? "Live"
-              : "Test"}
-          </span>
+            <h3>
+              No Payment Gateways
+            </h3>
 
-        </div>
+            <p>
+              Add your first payment
+              gateway.
+            </p>
 
-        {/* TYPE */}
-        <div className="gateway-type">
+            <button
+              type="button"
+              onClick={openAddForm}
+            >
+              <FaPlus />
+              Add Gateway
+            </button>
 
-          <span className="type-badge">
-            Auto
-          </span>
+          </div>
+        ) : (
 
-        </div>
+          gateways.map(
+            (item, index) => (
 
-        {/* STATUS */}
-        <div>
+              <div
+                className="gateway-row"
+                key={item.id}
+              >
 
-          <span
-            className={
-              Number(item.is_enabled) === 1
-                ? "status-enabled"
-                : "status-disabled"
-            }
-          >
-            <span className="status-dot" />
+                {/* # */}
 
-            {Number(item.is_enabled) === 1
-              ? "Enabled"
-              : "Disabled"}
-          </span>
+                <div className="gateway-number">
+                  {index + 1}
+                </div>
 
-        </div>
 
-        {/* SORT */}
-        <div className="sort-badge">
-          {item.sort_order ?? index + 1}
-        </div>
+                {/* LOGO */}
 
-        {/* ACTIONS */}
-        <div className="gateway-actions">
+                <div className="gateway-logo">
 
-          <button
-            type="button"
-            className="edit-button"
-            onClick={() =>
-              openEditForm(item)
-            }
-          >
-            <FaPen />
-            Edit
-          </button>
+                  {item.code ===
+                  "razorpay"
+                    ? "₹"
+                    : item.code ===
+                      "stripe"
+                    ? "$"
+                    : "₿"}
 
-          <button
-            type="button"
-            className={
-              Number(item.is_enabled) === 1
-                ? "disable-button"
-                : "enable-button"
-            }
-            onClick={() =>
-              toggleGateway(item)
-            }
-          >
-            {Number(item.is_enabled) === 1 ? (
-              <>
-                <FaCircleXmark />
-                Disable
-              </>
-            ) : (
-              <>
-                <FaCircleCheck />
-                Enable
-              </>
-            )}
-          </button>
+                </div>
 
-          <button
-            type="button"
-            className="delete-button"
-            onClick={() =>
-              deleteGateway(item)
-            }
-          >
-            <FaTrash />
-          </button>
 
-        </div>
+                {/* GATEWAY */}
+
+                <div className="gateway-info">
+
+                  <div className="gateway-name-line">
+
+                    <strong>
+                      {item.name}
+                    </strong>
+
+                    <span className="code-badge">
+                      {item.code}
+                    </span>
+
+                  </div>
+
+                  <span className="gateway-description">
+                    Online payment gateway
+                  </span>
+
+                </div>
+
+
+                {/* MODE */}
+
+                <div className="gateway-mode">
+
+                  <span
+                    className={
+                      Number(
+                        item.is_live
+                      ) === 1
+                        ? "mode-live"
+                        : "mode-test"
+                    }
+                  >
+
+                    <FaGlobe />
+
+                    {Number(
+                      item.is_live
+                    ) === 1
+                      ? "Live"
+                      : "Test"}
+
+                  </span>
+
+                </div>
+
+
+                {/* TYPE */}
+
+                <div className="gateway-type">
+
+                  <span className="type-badge">
+                    Auto
+                  </span>
+
+                </div>
+
+
+                {/* STATUS */}
+
+                <div className="gateway-status">
+
+                  <span
+                    className={
+                      Number(
+                        item.is_enabled
+                      ) === 1
+                        ? "status-enabled"
+                        : "status-disabled"
+                    }
+                  >
+
+                    <span className="status-dot" />
+
+                    {Number(
+                      item.is_enabled
+                    ) === 1
+                      ? "Enabled"
+                      : "Disabled"}
+
+                  </span>
+
+                </div>
+
+
+                {/* SORT */}
+
+                <div className="sort-badge">
+                  {item.sort_order ??
+                    index + 1}
+                </div>
+
+
+                {/* ACTIONS */}
+
+                <div className="gateway-actions">
+
+                  <button
+                    type="button"
+                    className="edit-button"
+                    onClick={() =>
+                      openEditForm(item)
+                    }
+                  >
+                    <FaPen />
+
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    className={
+                      Number(
+                        item.is_enabled
+                      ) === 1
+                        ? "disable-button"
+                        : "enable-button"
+                    }
+                    onClick={() =>
+                      toggleGateway(item)
+                    }
+                  >
+
+                    {Number(
+                      item.is_enabled
+                    ) === 1 ? (
+                      <>
+                        <FaCircleXmark />
+
+                        Disable
+                      </>
+                    ) : (
+                      <>
+                        <FaCircleCheck />
+
+                        Enable
+                      </>
+                    )}
+
+                  </button>
+
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={() =>
+                      deleteGateway(item)
+                    }
+                  >
+                    <FaTrash />
+                  </button>
+
+                </div>
+
+              </div>
+
+            )
+          )
+
+        )}
 
       </div>
-    ))
-  )}
 
-</div>
-      {/* ADD / EDIT FORM */}
+
+      {/* =================================================
+          ADD / EDIT MODAL
+      ================================================= */}
 
       {showForm && (
         <div
           className="gateway-modal-overlay"
           onMouseDown={(e) => {
+
             if (
-              e.target === e.currentTarget &&
+              e.target ===
+                e.currentTarget &&
               !saving
             ) {
               closeForm();
             }
+
           }}
         >
 
           <div className="gateway-modal">
 
+            {/* MODAL HEADER */}
+
             <div className="modal-header">
 
               <div>
+
                 <h2>
                   {editing
                     ? "Edit Payment Gateway"
@@ -735,6 +936,7 @@ function Payment() {
                     ? "Update payment gateway settings"
                     : "Configure a new payment gateway"}
                 </p>
+
               </div>
 
               <button
@@ -748,7 +950,12 @@ function Payment() {
 
             </div>
 
-            <form onSubmit={saveGateway}>
+
+            {/* FORM */}
+
+            <form
+              onSubmit={saveGateway}
+            >
 
               <div className="form-grid">
 
@@ -758,18 +965,24 @@ function Payment() {
 
                   <label>
                     <FaKey />
+
                     Gateway Code
                   </label>
 
                   <input
                     type="text"
-                    value={gateway.code}
+                    value={
+                      gateway.code
+                    }
                     onChange={(e) =>
                       handleChange(
                         "code",
                         e.target.value
                           .toLowerCase()
-                          .replace(/\s+/g, "_")
+                          .replace(
+                            /\s+/g,
+                            "_"
+                          )
                       )
                     }
                     placeholder="razorpay"
@@ -778,10 +991,12 @@ function Payment() {
                   />
 
                   <small>
-                    Unique lowercase identifier.
+                    Unique lowercase
+                    identifier.
                   </small>
 
                 </div>
+
 
                 {/* NAME */}
 
@@ -793,7 +1008,9 @@ function Payment() {
 
                   <input
                     type="text"
-                    value={gateway.name}
+                    value={
+                      gateway.name
+                    }
                     onChange={(e) =>
                       handleChange(
                         "name",
@@ -807,6 +1024,7 @@ function Payment() {
 
               </div>
 
+
               {/* ENABLE / MODE */}
 
               <div className="modal-setting-grid">
@@ -814,17 +1032,25 @@ function Payment() {
                 <div className="modal-setting">
 
                   <div>
-                    <strong>Enable Gateway</strong>
+
+                    <strong>
+                      Enable Gateway
+                    </strong>
 
                     <small>
-                      Allow students to use this gateway.
+                      Allow students
+                      to use this
+                      gateway.
                     </small>
+
                   </div>
 
                   <button
                     type="button"
                     className={`payment-switch ${
-                      Number(gateway.is_enabled) === 1
+                      Number(
+                        gateway.is_enabled
+                      ) === 1
                         ? "on"
                         : ""
                     }`}
@@ -844,20 +1070,28 @@ function Payment() {
 
                 </div>
 
+
                 <div className="modal-setting">
 
                   <div>
-                    <strong>Payment Mode</strong>
+
+                    <strong>
+                      Payment Mode
+                    </strong>
 
                     <small>
-                      Test or Live payment mode.
+                      Test or Live
+                      payment mode.
                     </small>
+
                   </div>
 
                   <button
                     type="button"
                     className={`mode-switch ${
-                      Number(gateway.is_live) === 1
+                      Number(
+                        gateway.is_live
+                      ) === 1
                         ? "live"
                         : "test"
                     }`}
@@ -872,14 +1106,19 @@ function Payment() {
                       )
                     }
                   >
-                    {Number(gateway.is_live) === 1
+
+                    {Number(
+                      gateway.is_live
+                    ) === 1
                       ? "LIVE"
                       : "TEST"}
+
                   </button>
 
                 </div>
 
               </div>
+
 
               {/* PUBLIC KEY */}
 
@@ -887,12 +1126,15 @@ function Payment() {
 
                 <label>
                   <FaKey />
+
                   Public Key
                 </label>
 
                 <input
                   type="text"
-                  value={gateway.public_key}
+                  value={
+                    gateway.public_key
+                  }
                   onChange={(e) =>
                     handleChange(
                       "public_key",
@@ -905,12 +1147,14 @@ function Payment() {
 
               </div>
 
-              {/* SECRET */}
+
+              {/* SECRET KEY */}
 
               <div className="payment-field">
 
                 <label>
                   <FaShieldHalved />
+
                   Secret Key
                 </label>
 
@@ -922,7 +1166,9 @@ function Payment() {
                         ? "text"
                         : "password"
                     }
-                    value={gateway.secret_key}
+                    value={
+                      gateway.secret_key
+                    }
                     onChange={(e) =>
                       handleChange(
                         "secret_key",
@@ -941,7 +1187,8 @@ function Payment() {
                     type="button"
                     onClick={() =>
                       setShowSecret(
-                        (prev) => !prev
+                        (prev) =>
+                          !prev
                       )
                     }
                   >
@@ -956,23 +1203,32 @@ function Payment() {
 
                 {editing && (
                   <small className="security-note">
+
                     <FaShieldHalved />
-                    Leave blank to keep the existing secret.
+
+                    Leave blank to keep
+                    the existing secret.
+
                   </small>
                 )}
 
               </div>
+
 
               {/* WEBHOOK */}
 
               <div className="payment-field">
 
                 <label>
+
                   <FaShieldHalved />
+
                   Webhook Secret
+
                   <span className="optional">
                     Optional
                   </span>
+
                 </label>
 
                 <div className="secret-input">
@@ -983,7 +1239,9 @@ function Payment() {
                         ? "text"
                         : "password"
                     }
-                    value={gateway.webhook_secret}
+                    value={
+                      gateway.webhook_secret
+                    }
                     onChange={(e) =>
                       handleChange(
                         "webhook_secret",
@@ -1002,7 +1260,8 @@ function Payment() {
                     type="button"
                     onClick={() =>
                       setShowWebhook(
-                        (prev) => !prev
+                        (prev) =>
+                          !prev
                       )
                     }
                   >
@@ -1017,16 +1276,21 @@ function Payment() {
 
               </div>
 
+
               {/* SORT */}
 
               <div className="payment-field">
 
-                <label>Sort Order</label>
+                <label>
+                  Sort Order
+                </label>
 
                 <input
                   type="number"
                   min="1"
-                  value={gateway.sort_order}
+                  value={
+                    gateway.sort_order
+                  }
                   onChange={(e) =>
                     handleChange(
                       "sort_order",
@@ -1036,6 +1300,7 @@ function Payment() {
                 />
 
               </div>
+
 
               {/* BUTTONS */}
 
@@ -1055,19 +1320,23 @@ function Payment() {
                   className="payment-save-button"
                   disabled={saving}
                 >
+
                   {saving ? (
                     <>
                       <FaRotate className="spin" />
+
                       Saving...
                     </>
                   ) : (
                     <>
                       <FaFloppyDisk />
+
                       {editing
                         ? "Update Gateway"
                         : "Add Gateway"}
                     </>
                   )}
+
                 </button>
 
               </div>
@@ -1087,6 +1356,25 @@ function Payment() {
 
 
 /* =====================================================
+   SIMPLE LIST ICON
+===================================================== */
+
+function FaListIcon() {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        fontSize: "15px",
+        fontWeight: "900",
+      }}
+    >
+      ☷
+    </span>
+  );
+}
+
+
+/* =====================================================
    CSS
 ===================================================== */
 
@@ -1094,761 +1382,316 @@ function PaymentStyles() {
   return (
     <style>{`
 
-      * {
-        box-sizing: border-box;
-      }
-
-      .payment-page {
-        min-height: 100vh;
-        padding: 28px;
-        background:
-          radial-gradient(
-            circle at top right,
-            rgba(124,58,237,.10),
-            transparent 35%
-          ),
-          #f6f7fb;
-        color: #172033;
-      }
-
-      .payment-header {
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:20px;
-        padding:22px 24px;
-        border-radius:20px;
-        background:linear-gradient(
-          135deg,
-          #fff,
-          #f8f7ff
-        );
-        border:1px solid #ebe8f5;
-        box-shadow:0 10px 35px rgba(40,32,80,.07);
-        margin-bottom:22px;
-      }
-
-      .payment-header-left {
-        display:flex;
-        align-items:center;
-        gap:15px;
-      }
-
-      .payment-back-button {
-        width:40px;
-        height:40px;
-        border:1px solid #e4e0ef;
-        border-radius:11px;
-        background:#fff;
-        color:#5b21b6;
-        cursor:pointer;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-      }
-
-      .payment-header-icon {
-        width:54px;
-        height:54px;
-        border-radius:15px;
-        background:linear-gradient(
-          135deg,
-          #5b21b6,
-          #7c3aed
-        );
-        color:#fff;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-size:22px;
-        box-shadow:0 8px 20px rgba(91,33,182,.22);
-      }
-
-      .payment-header h1 {
-        margin:0;
-        font-size:25px;
-        font-weight:800;
-      }
-
-      .payment-header p {
-        margin:4px 0 0;
-        color:#77728a;
-        font-size:14px;
-      }
-
-      .payment-total {
-        min-width:100px;
-        text-align:center;
-        padding:12px 18px;
-        border-radius:15px;
-        background:#f3e8ff;
-        color:#6d28d9;
-      }
-
-      .payment-total strong {
-        display:block;
-        font-size:25px;
-        font-weight:800;
-      }
-
-      .payment-total span {
-        display:block;
-        font-size:11px;
-      }
-
-      .payment-message {
-        display:flex;
-        align-items:center;
-        gap:10px;
-        padding:13px 16px;
-        border-radius:13px;
-        margin-bottom:20px;
-        font-size:14px;
-        font-weight:600;
-      }
-
-      .payment-message.success {
-        background:#ecfdf5;
-        border:1px solid #a7f3d0;
-        color:#047857;
-      }
-
-      .payment-message.error {
-        background:#fef2f2;
-        border:1px solid #fecaca;
-        color:#b91c1c;
-      }
-
-      .gateway-toolbar {
-        max-width:1200px;
-        margin:0 auto 16px;
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:15px;
-      }
-
-      .gateway-toolbar h2 {
-        margin:0;
-        font-size:20px;
-        font-weight:800;
-      }
-
-      .gateway-toolbar p {
-        margin:4px 0 0;
-        color:#817b91;
-        font-size:13px;
-      }
-
-      .add-gateway-button {
-        border:0;
-        border-radius:11px;
-        padding:12px 17px;
-        background:linear-gradient(
-          135deg,
-          #5b21b6,
-          #7c3aed
-        );
-        color:#fff;
-        font-weight:700;
-        cursor:pointer;
-        display:flex;
-        align-items:center;
-        gap:8px;
-        box-shadow:0 8px 18px rgba(91,33,182,.20);
-      }
-
-      .gateway-list {
-        max-width:1200px;
-        margin:0 auto;
-        background:#fff;
-        border:1px solid #ebe8f5;
-        border-radius:18px;
-        overflow:hidden;
-        box-shadow:0 10px 35px rgba(40,32,80,.06);
-      }
-
-      .gateway-row {
-        min-height:88px;
-        padding:14px 18px;
-        display:grid;
-        grid-template-columns:
-          35px
-          48px
-          minmax(180px,1fr)
-          90px
-          100px
-          50px
-          auto;
-        align-items:center;
-        gap:14px;
-        border-bottom:1px solid #eeeaf5;
-      }
-
-      .gateway-row:last-child {
-        border-bottom:0;
-      }
-
-      .gateway-number {
-        color:#777;
-        font-size:13px;
-        text-align:center;
-      }
-
-      .gateway-logo {
-        width:44px;
-        height:44px;
-        border-radius:13px;
-        background:linear-gradient(
-          135deg,
-          #3395ff,
-          #1674d1
-        );
-        color:#fff;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-size:20px;
-        font-weight:800;
-      }
-
-      .gateway-info {
-        min-width:0;
-      }
-
-      .gateway-name-line {
-        display:flex;
-        align-items:center;
-        gap:8px;
-        flex-wrap:wrap;
-      }
-
-      .gateway-name-line strong {
-        font-size:15px;
-      }
-
-      .code-badge {
-        padding:4px 8px;
-        border-radius:10px;
-        background:#f3e8ff;
-        color:#6d28d9;
-        font-size:10px;
-        font-weight:700;
-      }
-
-      .gateway-description {
-        display:block;
-        margin-top:4px;
-        color:#898397;
-        font-size:11px;
-      }
-
-      .mode-live,
-      .mode-test {
-        display:inline-flex;
-        align-items:center;
-        gap:5px;
-        padding:6px 9px;
-        border-radius:15px;
-        font-size:11px;
-        font-weight:700;
-      }
-
-      .mode-live {
-        background:#fff7ed;
-        color:#c2410c;
-      }
-
-      .mode-test {
-        background:#eff6ff;
-        color:#2563eb;
-      }
-
-      .status-enabled,
-      .status-disabled {
-        display:inline-flex;
-        align-items:center;
-        gap:6px;
-        padding:7px 10px;
-        border-radius:15px;
-        font-size:11px;
-        font-weight:700;
-      }
-
-      .status-enabled {
-        background:#ecfdf5;
-        color:#047857;
-      }
-
-      .status-disabled {
-        background:#fef2f2;
-        color:#b91c1c;
-      }
-
-      .status-dot {
-        width:6px;
-        height:6px;
-        border-radius:50%;
-        background:currentColor;
-      }
-
-      .sort-badge {
-        width:30px;
-        height:30px;
-        border-radius:8px;
-        border:1px solid #ddd8e9;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-size:11px;
-      }
-
-      .gateway-actions {
-        display:flex;
-        align-items:center;
-        gap:7px;
-      }
-
-      .gateway-actions button {
-        border:0;
-        border-radius:9px;
-        padding:9px 11px;
-        cursor:pointer;
-        display:flex;
-        align-items:center;
-        gap:6px;
-        font-size:11px;
-        font-weight:700;
-      }
-
-      .edit-button {
-        background:#eef2ff;
-        color:#4338ca;
-      }
-
-      .enable-button {
-        background:#d1fae5;
-        color:#047857;
-      }
-
-      .disable-button {
-        background:#fef3c7;
-        color:#92400e;
-      }
-
-      .delete-button {
-        background:#fee2e2;
-        color:#b91c1c;
-      }
-
-      .empty-gateway {
-        text-align:center;
-        padding:70px 20px;
-        color:#817b91;
-      }
-
-      .empty-gateway > svg {
-        font-size:45px;
-        color:#7c3aed;
-        margin-bottom:15px;
-      }
-
-      .empty-gateway h3 {
-        margin:0 0 5px;
-        color:#27223a;
-      }
-
-      .empty-gateway p {
-        margin:0 0 20px;
-      }
-
-      .empty-gateway button {
-        border:0;
-        border-radius:10px;
-        padding:11px 16px;
-        background:#7c3aed;
-        color:#fff;
-        font-weight:700;
-        cursor:pointer;
-      }
-
-      .gateway-modal-overlay {
-        position:fixed;
-        inset:0;
-        z-index:9999;
-        background:rgba(20,15,35,.48);
-        backdrop-filter:blur(5px);
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:20px;
-      }
-
-      .gateway-modal {
-        width:min(700px,100%);
-        max-height:92vh;
-        overflow:auto;
-        background:#fff;
-        border-radius:20px;
-        box-shadow:0 25px 70px rgba(0,0,0,.25);
-      }
-
-      .modal-header {
-        padding:20px 22px;
-        border-bottom:1px solid #eeeaf5;
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:15px;
-      }
-
-      .modal-header h2 {
-        margin:0;
-        font-size:20px;
-        font-weight:800;
-      }
-
-      .modal-header p {
-        margin:4px 0 0;
-        color:#888394;
-        font-size:12px;
-      }
-
-      .modal-close {
-        width:36px;
-        height:36px;
-        border:0;
-        border-radius:9px;
-        background:#f4f1fa;
-        color:#6b6478;
-        cursor:pointer;
-      }
-
-      .gateway-modal form {
-        padding:22px;
-      }
-
-      .form-grid {
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        gap:15px;
-      }
-
-      .payment-field {
-        margin-bottom:18px;
-      }
-
-      .payment-field label {
-        display:flex;
-        align-items:center;
-        gap:7px;
-        margin-bottom:8px;
-        font-size:13px;
-        font-weight:750;
-        color:#29233b;
-      }
-
-      .payment-field label svg {
-        color:#6d28d9;
-      }
-
-      .payment-field input {
-        width:100%;
-        height:45px;
-        border:1px solid #ddd8e9;
-        border-radius:10px;
-        padding:0 13px;
-        outline:none;
-        font-size:13px;
-        color:#27223a;
-        background:#fff;
-      }
-
-      .payment-field input:focus {
-        border-color:#8b5cf6;
-        box-shadow:0 0 0 3px rgba(139,92,246,.10);
-      }
-
-      .payment-field input:disabled {
-        background:#f4f1fa;
-        color:#777;
-        cursor:not-allowed;
-      }
-
-      .payment-field small {
-        display:block;
-        margin-top:6px;
-        color:#9993a5;
-        font-size:11px;
-      }
-
-      .security-note {
-        display:flex !important;
-        align-items:center;
-        gap:5px;
-        color:#059669 !important;
-      }
-
-      .modal-setting-grid {
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        gap:14px;
-        margin-bottom:20px;
-      }
-
-      .modal-setting {
-        border:1px solid #ebe8f5;
-        border-radius:13px;
-        padding:14px;
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:10px;
-      }
-
-      .modal-setting strong {
-        display:block;
-        font-size:13px;
-      }
-
-      .modal-setting small {
-        display:block;
-        margin-top:3px;
-        color:#888394;
-        font-size:10px;
-      }
-
-      .payment-switch {
-        width:51px;
-        height:29px;
-        border:0;
-        border-radius:30px;
-        background:#d7d5df;
-        padding:3px;
-        cursor:pointer;
-        transition:.2s;
-      }
-
-      .payment-switch span {
-        display:block;
-        width:23px;
-        height:23px;
-        border-radius:50%;
-        background:#fff;
-        transition:.2s;
-        box-shadow:0 2px 5px rgba(0,0,0,.15);
-      }
-
-      .payment-switch.on {
-        background:#16a34a;
-      }
-
-      .payment-switch.on span {
-        transform:translateX(22px);
-      }
-
-      .mode-switch {
-        min-width:70px;
-        height:32px;
-        border:0;
-        border-radius:20px;
-        color:#fff;
-        font-size:10px;
-        font-weight:800;
-        cursor:pointer;
-      }
-
-      .mode-switch.test {
-        background:#f59e0b;
-      }
-
-      .mode-switch.live {
-        background:#dc2626;
-      }
-
-      .secret-input {
-        position:relative;
-      }
-
-      .secret-input input {
-        padding-right:48px;
-      }
-
-      .secret-input button {
-        position:absolute;
-        top:50%;
-        right:5px;
-        transform:translateY(-50%);
-        width:36px;
-        height:36px;
-        border:0;
-        background:transparent;
-        color:#777;
-        cursor:pointer;
-        border-radius:8px;
-      }
-
-      .optional {
-        margin-left:5px;
-        font-size:10px;
-        color:#9a93a7;
-        font-weight:500;
-      }
-
-      .modal-actions {
-        display:flex;
-        justify-content:flex-end;
-        gap:10px;
-        padding-top:5px;
-      }
-
-      .cancel-button {
-        height:48px;
-        padding:0 20px;
-        border:1px solid #ddd8e9;
-        border-radius:11px;
-        background:#fff;
-        color:#5d566b;
-        font-weight:700;
-        cursor:pointer;
-      }
-
-      .payment-save-button {
-        min-width:170px;
-        height:48px;
-        border:0;
-        border-radius:11px;
-        background:linear-gradient(
-          135deg,
-          #5b21b6,
-          #7c3aed
-        );
-        color:#fff;
-        font-weight:750;
-        cursor:pointer;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        gap:8px;
-      }
-
-      .payment-save-button:disabled {
-        opacity:.6;
-        cursor:not-allowed;
-      }
-
-      .payment-loading {
-        min-height:80vh;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        flex-direction:column;
-        color:#5b21b6;
-      }
-
-      .payment-loading-icon {
-        font-size:30px;
-        animation:payment-spin 1s linear infinite;
-      }
-
-      .spin {
-        animation:payment-spin 1s linear infinite;
-      }
-
-      @keyframes payment-spin {
-        to {
-          transform:rotate(360deg);
-        }
-      }
-
-      @media(max-width:900px) {
-
-        .gateway-row {
-          grid-template-columns:
-            35px
-            48px
-            1fr
-            auto;
-        }
-
-        .gateway-mode,
-        .gateway-row > div:nth-child(5),
-        .sort-badge {
-          display:none;
-        }
-
-        .gateway-actions {
-          flex-wrap:wrap;
-          justify-content:flex-end;
-        }
-
-      }
-
-      @media(max-width:650px) {
-
-        .payment-page {
-          padding:14px;
-        }
-
-        .payment-header {
-          padding:17px;
-        }
-
-        .payment-total {
-          display:none;
-        }
-
-        .gateway-toolbar {
-          align-items:flex-start;
-          flex-direction:column;
-        }
-
-        .add-gateway-button {
-          width:100%;
-          justify-content:center;
-        }
-
-        .gateway-row {
-          grid-template-columns:35px 44px 1fr;
-          gap:10px;
-        }
-
-        .gateway-actions {
-          grid-column:1 / -1;
-          width:100%;
-        }
-
-        .gateway-actions button {
-          flex:1;
-          justify-content:center;
-        }
-
-        .form-grid,
-        .modal-setting-grid {
-          grid-template-columns:1fr;
-        }
-
-        .modal-actions {
-          flex-direction:column-reverse;
-        }
-
-        .cancel-button,
-        .payment-save-button {
-          width:100%;
-        }
 /* =====================================================
-   GATEWAY TABLE HEADER
+   GLOBAL
+===================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+
+/* =====================================================
+   PAGE
+===================================================== */
+
+.payment-page {
+  min-height:100vh;
+
+  padding:28px;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(124,58,237,.10),
+      transparent 35%
+    ),
+    #f6f7fb;
+
+  color:#172033;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.payment-header {
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:20px;
+
+  padding:22px 24px;
+
+  border-radius:20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff,
+      #f8f7ff
+    );
+
+  border:1px solid #ebe8f5;
+
+  box-shadow:
+    0 10px 35px
+    rgba(40,32,80,.07);
+
+  margin-bottom:22px;
+}
+
+.payment-header-left {
+  display:flex;
+
+  align-items:center;
+
+  gap:15px;
+}
+
+.payment-back-button {
+  width:40px;
+  height:40px;
+
+  border:1px solid #e4e0ef;
+
+  border-radius:11px;
+
+  background:#fff;
+
+  color:#5b21b6;
+
+  cursor:pointer;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+}
+
+.payment-header-icon {
+  width:54px;
+  height:54px;
+
+  border-radius:15px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #5b21b6,
+      #7c3aed
+    );
+
+  color:#fff;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:22px;
+
+  box-shadow:
+    0 8px 20px
+    rgba(91,33,182,.22);
+}
+
+.payment-header h1 {
+  margin:0;
+
+  font-size:25px;
+
+  font-weight:800;
+}
+
+.payment-header p {
+  margin:4px 0 0;
+
+  color:#77728a;
+
+  font-size:14px;
+}
+
+.payment-total {
+  min-width:100px;
+
+  text-align:center;
+
+  padding:12px 18px;
+
+  border-radius:15px;
+
+  background:#f3e8ff;
+
+  color:#6d28d9;
+}
+
+.payment-total strong {
+  display:block;
+
+  font-size:25px;
+
+  font-weight:800;
+}
+
+.payment-total span {
+  display:block;
+
+  font-size:11px;
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+.payment-message {
+  display:flex;
+
+  align-items:center;
+
+  gap:10px;
+
+  padding:13px 16px;
+
+  border-radius:13px;
+
+  margin-bottom:20px;
+
+  font-size:14px;
+
+  font-weight:600;
+}
+
+.payment-message.success {
+  background:#ecfdf5;
+
+  border:1px solid #a7f3d0;
+
+  color:#047857;
+}
+
+.payment-message.error {
+  background:#fef2f2;
+
+  border:1px solid #fecaca;
+
+  color:#b91c1c;
+}
+
+
+/* =====================================================
+   TOOLBAR
+===================================================== */
+
+.gateway-toolbar {
+  max-width:1200px;
+
+  margin:0 auto 16px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:15px;
+}
+
+.gateway-toolbar h2 {
+  margin:0;
+
+  font-size:20px;
+
+  font-weight:800;
+}
+
+.gateway-toolbar p {
+  margin:4px 0 0;
+
+  color:#817b91;
+
+  font-size:13px;
+}
+
+.add-gateway-button {
+  border:0;
+
+  border-radius:11px;
+
+  padding:12px 17px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #5b21b6,
+      #7c3aed
+    );
+
+  color:#fff;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:8px;
+
+  box-shadow:
+    0 8px 18px
+    rgba(91,33,182,.20);
+}
+
+
+/* =====================================================
+   LIST
+===================================================== */
+
+.gateway-list {
+  max-width:1200px;
+
+  margin:0 auto;
+
+  background:#fff;
+
+  border:1px solid #ebe8f5;
+
+  border-radius:18px;
+
+  overflow:hidden;
+
+  box-shadow:
+    0 10px 35px
+    rgba(40,32,80,.06);
+}
+
+
+/* =====================================================
+   TABLE HEADER
 ===================================================== */
 
 .gateway-table-header {
   min-height:56px;
+
   padding:0 18px;
 
   display:grid;
 
   grid-template-columns:
     35px
-    minmax(180px, 1fr)
+    48px
+    minmax(180px,1fr)
     90px
     80px
     100px
@@ -1856,6 +1699,7 @@ function PaymentStyles() {
     auto;
 
   align-items:center;
+
   gap:14px;
 
   background:#f8fafc;
@@ -1865,19 +1709,25 @@ function PaymentStyles() {
   color:#4b5563;
 
   font-size:12px;
+
   font-weight:800;
 
   text-transform:uppercase;
+
   letter-spacing:.7px;
 }
 
-.gateway-header-gateway {
-  padding-left:0;
+.mobile-configured-title {
+  display:none;
+}
+
+.desktop-heading {
+  display:block;
 }
 
 
 /* =====================================================
-   GATEWAY ROW
+   ROW
 ===================================================== */
 
 .gateway-row {
@@ -1910,42 +1760,21 @@ function PaymentStyles() {
 
 
 /* =====================================================
-   TYPE
-===================================================== */
-
-.gateway-type {
-  display:flex;
-  align-items:center;
-}
-
-.type-badge {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-
-  min-width:48px;
-
-  padding:6px 10px;
-
-  border-radius:14px;
-
-  background:#eef2ff;
-  color:#4338ca;
-
-  font-size:10px;
-  font-weight:800;
-}
-
-
-/* =====================================================
-   OTHER EXISTING STYLES
+   NUMBER
 ===================================================== */
 
 .gateway-number {
   color:#777;
+
   font-size:13px;
+
   text-align:center;
 }
+
+
+/* =====================================================
+   LOGO
+===================================================== */
 
 .gateway-logo {
   width:44px;
@@ -1953,21 +1782,30 @@ function PaymentStyles() {
 
   border-radius:13px;
 
-  background:linear-gradient(
-    135deg,
-    #3395ff,
-    #1674d1
-  );
+  background:
+    linear-gradient(
+      135deg,
+      #3395ff,
+      #1674d1
+    );
 
   color:#fff;
 
   display:flex;
+
   align-items:center;
+
   justify-content:center;
 
   font-size:20px;
+
   font-weight:800;
 }
+
+
+/* =====================================================
+   INFO
+===================================================== */
 
 .gateway-info {
   min-width:0;
@@ -1975,8 +1813,11 @@ function PaymentStyles() {
 
 .gateway-name-line {
   display:flex;
+
   align-items:center;
+
   gap:8px;
+
   flex-wrap:wrap;
 }
 
@@ -1986,25 +1827,1216 @@ function PaymentStyles() {
 
 .code-badge {
   padding:4px 8px;
+
   border-radius:10px;
 
   background:#f3e8ff;
+
   color:#6d28d9;
 
   font-size:10px;
+
   font-weight:700;
 }
 
 .gateway-description {
   display:block;
+
   margin-top:4px;
 
   color:#898397;
+
   font-size:11px;
 }
-      }
 
-    `}</style>
+
+/* =====================================================
+   MODE
+===================================================== */
+
+.mode-live,
+.mode-test {
+  display:inline-flex;
+
+  align-items:center;
+
+  gap:5px;
+
+  padding:6px 9px;
+
+  border-radius:15px;
+
+  font-size:11px;
+
+  font-weight:700;
+}
+
+.mode-live {
+  background:#fff7ed;
+
+  color:#c2410c;
+}
+
+.mode-test {
+  background:#eff6ff;
+
+  color:#2563eb;
+}
+
+
+/* =====================================================
+   TYPE
+===================================================== */
+
+.gateway-type {
+  display:flex;
+
+  align-items:center;
+}
+
+.type-badge {
+  display:inline-flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  min-width:48px;
+
+  padding:6px 10px;
+
+  border-radius:14px;
+
+  background:#eef2ff;
+
+  color:#4338ca;
+
+  font-size:10px;
+
+  font-weight:800;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.gateway-status {
+  display:flex;
+
+  align-items:center;
+}
+
+.status-enabled,
+.status-disabled {
+  display:inline-flex;
+
+  align-items:center;
+
+  gap:6px;
+
+  padding:7px 10px;
+
+  border-radius:15px;
+
+  font-size:11px;
+
+  font-weight:700;
+}
+
+.status-enabled {
+  background:#d1fae5;
+
+  color:#047857;
+}
+
+.status-disabled {
+  background:#fee2e2;
+
+  color:#b91c1c;
+}
+
+.status-dot {
+  width:6px;
+  height:6px;
+
+  border-radius:50%;
+
+  background:currentColor;
+}
+
+
+/* =====================================================
+   SORT
+===================================================== */
+
+.sort-badge {
+  width:30px;
+  height:30px;
+
+  border-radius:8px;
+
+  border:1px solid #ddd8e9;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:11px;
+}
+
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.gateway-actions {
+  display:flex;
+
+  align-items:center;
+
+  gap:7px;
+}
+
+.gateway-actions button {
+  border:0;
+
+  border-radius:9px;
+
+  padding:9px 11px;
+
+  cursor:pointer;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:6px;
+
+  font-size:11px;
+
+  font-weight:700;
+}
+
+.edit-button {
+  background:#eef2ff;
+
+  color:#4338ca;
+}
+
+.enable-button {
+  background:#d1fae5;
+
+  color:#047857;
+}
+
+.disable-button {
+  background:#fef3c7;
+
+  color:#92400e;
+}
+
+.delete-button {
+  background:#fee2e2;
+
+  color:#b91c1c;
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.empty-gateway {
+  text-align:center;
+
+  padding:70px 20px;
+
+  color:#817b91;
+}
+
+.empty-gateway > svg {
+  font-size:45px;
+
+  color:#7c3aed;
+
+  margin-bottom:15px;
+}
+
+.empty-gateway h3 {
+  margin:0 0 5px;
+
+  color:#27223a;
+}
+
+.empty-gateway p {
+  margin:0 0 20px;
+}
+
+.empty-gateway button {
+  border:0;
+
+  border-radius:10px;
+
+  padding:11px 16px;
+
+  background:#7c3aed;
+
+  color:#fff;
+
+  font-weight:700;
+
+  cursor:pointer;
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.gateway-modal-overlay {
+  position:fixed;
+
+  inset:0;
+
+  z-index:9999;
+
+  background:
+    rgba(20,15,35,.48);
+
+  backdrop-filter:blur(5px);
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  padding:20px;
+}
+
+.gateway-modal {
+  width:min(700px,100%);
+
+  max-height:92vh;
+
+  overflow:auto;
+
+  background:#fff;
+
+  border-radius:20px;
+
+  box-shadow:
+    0 25px 70px
+    rgba(0,0,0,.25);
+}
+
+.modal-header {
+  padding:20px 22px;
+
+  border-bottom:1px solid #eeeaf5;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:15px;
+}
+
+.modal-header h2 {
+  margin:0;
+
+  font-size:20px;
+
+  font-weight:800;
+}
+
+.modal-header p {
+  margin:4px 0 0;
+
+  color:#888394;
+
+  font-size:12px;
+}
+
+.modal-close {
+  width:36px;
+  height:36px;
+
+  border:0;
+
+  border-radius:9px;
+
+  background:#f4f1fa;
+
+  color:#6b6478;
+
+  cursor:pointer;
+}
+
+.gateway-modal form {
+  padding:22px;
+}
+
+.form-grid {
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:15px;
+}
+
+.payment-field {
+  margin-bottom:18px;
+}
+
+.payment-field label {
+  display:flex;
+
+  align-items:center;
+
+  gap:7px;
+
+  margin-bottom:8px;
+
+  font-size:13px;
+
+  font-weight:750;
+
+  color:#29233b;
+}
+
+.payment-field label svg {
+  color:#6d28d9;
+}
+
+.payment-field input {
+  width:100%;
+
+  height:45px;
+
+  border:1px solid #ddd8e9;
+
+  border-radius:10px;
+
+  padding:0 13px;
+
+  outline:none;
+
+  font-size:13px;
+
+  color:#27223a;
+
+  background:#fff;
+}
+
+.payment-field input:focus {
+  border-color:#8b5cf6;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(139,92,246,.10);
+}
+
+.payment-field input:disabled {
+  background:#f4f1fa;
+
+  color:#777;
+
+  cursor:not-allowed;
+}
+
+.payment-field small {
+  display:block;
+
+  margin-top:6px;
+
+  color:#9993a5;
+
+  font-size:11px;
+}
+
+.security-note {
+  display:flex !important;
+
+  align-items:center;
+
+  gap:5px;
+
+  color:#059669 !important;
+}
+
+.modal-setting-grid {
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:14px;
+
+  margin-bottom:20px;
+}
+
+.modal-setting {
+  border:1px solid #ebe8f5;
+
+  border-radius:13px;
+
+  padding:14px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:10px;
+}
+
+.modal-setting strong {
+  display:block;
+
+  font-size:13px;
+}
+
+.modal-setting small {
+  display:block;
+
+  margin-top:3px;
+
+  color:#888394;
+
+  font-size:10px;
+}
+
+.payment-switch {
+  width:51px;
+  height:29px;
+
+  border:0;
+
+  border-radius:30px;
+
+  background:#d7d5df;
+
+  padding:3px;
+
+  cursor:pointer;
+
+  transition:.2s;
+}
+
+.payment-switch span {
+  display:block;
+
+  width:23px;
+  height:23px;
+
+  border-radius:50%;
+
+  background:#fff;
+
+  transition:.2s;
+
+  box-shadow:
+    0 2px 5px
+    rgba(0,0,0,.15);
+}
+
+.payment-switch.on {
+  background:#16a34a;
+}
+
+.payment-switch.on span {
+  transform:translateX(22px);
+}
+
+.mode-switch {
+  min-width:70px;
+
+  height:32px;
+
+  border:0;
+
+  border-radius:20px;
+
+  color:#fff;
+
+  font-size:10px;
+
+  font-weight:800;
+
+  cursor:pointer;
+}
+
+.mode-switch.test {
+  background:#f59e0b;
+}
+
+.mode-switch.live {
+  background:#dc2626;
+}
+
+.secret-input {
+  position:relative;
+}
+
+.secret-input input {
+  padding-right:48px;
+}
+
+.secret-input button {
+  position:absolute;
+
+  top:50%;
+
+  right:5px;
+
+  transform:translateY(-50%);
+
+  width:36px;
+  height:36px;
+
+  border:0;
+
+  background:transparent;
+
+  color:#777;
+
+  cursor:pointer;
+
+  border-radius:8px;
+}
+
+.optional {
+  margin-left:5px;
+
+  font-size:10px;
+
+  color:#9a93a7;
+
+  font-weight:500;
+}
+
+.modal-actions {
+  display:flex;
+
+  justify-content:flex-end;
+
+  gap:10px;
+
+  padding-top:5px;
+}
+
+.cancel-button {
+  height:48px;
+
+  padding:0 20px;
+
+  border:1px solid #ddd8e9;
+
+  border-radius:11px;
+
+  background:#fff;
+
+  color:#5d566b;
+
+  font-weight:700;
+
+  cursor:pointer;
+}
+
+.payment-save-button {
+  min-width:170px;
+
+  height:48px;
+
+  border:0;
+
+  border-radius:11px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #5b21b6,
+      #7c3aed
+    );
+
+  color:#fff;
+
+  font-weight:750;
+
+  cursor:pointer;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:8px;
+}
+
+.payment-save-button:disabled {
+  opacity:.6;
+
+  cursor:not-allowed;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.payment-loading {
+  min-height:80vh;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  flex-direction:column;
+
+  color:#5b21b6;
+}
+
+.payment-loading-icon {
+  font-size:30px;
+
+  animation:
+    payment-spin 1s linear infinite;
+}
+
+.spin {
+  animation:
+    payment-spin 1s linear infinite;
+}
+
+@keyframes payment-spin {
+
+  to {
+    transform:rotate(360deg);
+  }
+
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media(max-width:1100px) {
+
+  .gateway-list {
+    overflow-x:auto;
+  }
+
+  .gateway-table-header,
+  .gateway-row {
+    min-width:950px;
+  }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:650px) {
+
+  /* PAGE */
+
+  .payment-page {
+    padding:14px;
+  }
+
+
+  /* HEADER */
+
+  .payment-header {
+    padding:17px;
+
+    border-radius:18px;
+
+    align-items:center;
+  }
+
+  .payment-header-left {
+    gap:10px;
+
+    min-width:0;
+  }
+
+  .payment-back-button {
+    width:34px;
+    height:34px;
+
+    flex-shrink:0;
+  }
+
+  .payment-header-icon {
+    width:42px;
+    height:42px;
+
+    flex-shrink:0;
+
+    border-radius:12px;
+
+    font-size:17px;
+  }
+
+  .payment-header h1 {
+    font-size:21px;
+
+    line-height:1.15;
+  }
+
+  .payment-header p {
+    font-size:11px;
+
+    line-height:1.4;
+  }
+
+  .payment-total {
+    display:none;
+  }
+
+
+  /* TOOLBAR */
+
+  .gateway-toolbar {
+    align-items:stretch;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    margin-bottom:14px;
+  }
+
+  .gateway-toolbar h2 {
+    font-size:18px;
+  }
+
+  .gateway-toolbar p {
+    font-size:11px;
+  }
+
+  .add-gateway-button {
+    width:100%;
+
+    height:43px;
+
+    justify-content:center;
+
+    border-radius:10px;
+  }
+
+
+  /* LIST */
+
+  .gateway-list {
+    width:100%;
+
+    max-width:100%;
+
+    overflow:hidden;
+
+    border-radius:16px;
+  }
+
+
+  /* MOBILE PURPLE HEADER */
+
+  .gateway-table-header {
+    min-width:0;
+
+    min-height:49px;
+
+    padding:0;
+
+    display:block;
+
+    background:
+      linear-gradient(
+        135deg,
+        #5b21b6,
+        #7c3aed
+      );
+
+    color:#fff;
+
+    border-bottom:0;
+  }
+
+  .mobile-configured-title {
+    min-height:49px;
+
+    padding:0 14px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
+    color:#fff;
+
+    font-size:13px;
+
+    font-weight:800;
+
+    text-transform:none;
+
+    letter-spacing:0;
+  }
+
+  .mobile-configured-icon {
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:16px;
+  }
+
+  .mobile-total-badge {
+    margin-left:auto;
+
+    padding:5px 9px;
+
+    border-radius:12px;
+
+    background:
+      rgba(255,255,255,.18);
+
+    color:#fff;
+
+    font-size:9px;
+
+    font-weight:700;
+
+    white-space:nowrap;
+  }
+
+  .desktop-heading {
+    display:none;
+  }
+
+
+  /* =================================================
+     MOBILE ROW
+  ================================================= */
+
+  .gateway-row {
+    min-width:0;
+
+    min-height:auto;
+
+    padding:13px 12px;
+
+    display:grid;
+
+    grid-template-columns:
+      24px
+      42px
+      minmax(0,1fr);
+
+    grid-template-rows:
+      auto
+      auto
+      auto;
+
+    gap:7px 9px;
+
+    background:#fff;
+
+    border-bottom:1px solid #edf0f5;
+  }
+
+
+  /* NUMBER */
+
+  .gateway-number {
+    grid-column:1;
+
+    grid-row:1;
+
+    align-self:center;
+
+    font-size:11px;
+  }
+
+
+  /* LOGO */
+
+  .gateway-logo {
+    grid-column:2;
+
+    grid-row:1;
+
+    width:40px;
+    height:40px;
+
+    border-radius:11px;
+
+    font-size:17px;
+  }
+
+
+  /* INFO */
+
+  .gateway-info {
+    grid-column:3;
+
+    grid-row:1;
+
+    align-self:center;
+
+    min-width:0;
+  }
+
+  .gateway-name-line {
+    gap:5px;
+
+    flex-wrap:nowrap;
+  }
+
+  .gateway-name-line strong {
+    font-size:13px;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+  }
+
+  .code-badge {
+    flex-shrink:0;
+
+    padding:3px 6px;
+
+    font-size:8px;
+  }
+
+  .gateway-description {
+    margin-top:2px;
+
+    font-size:9px;
+  }
+
+
+  /* MODE */
+
+  .gateway-mode {
+    grid-column:3;
+
+    grid-row:2;
+
+    display:flex;
+
+    justify-content:flex-start;
+  }
+
+  .mode-live,
+  .mode-test {
+    padding:4px 7px;
+
+    font-size:9px;
+  }
+
+
+  /* TYPE HIDDEN MOBILE */
+
+  .gateway-type {
+    display:none;
+  }
+
+
+  /* STATUS */
+
+  .gateway-status {
+    grid-column:1;
+
+    grid-row:3;
+
+    display:flex;
+
+    align-items:center;
+  }
+
+  .status-enabled,
+  .status-disabled {
+    padding:6px 8px;
+
+    font-size:9px;
+
+    white-space:nowrap;
+  }
+
+  .status-dot {
+    width:5px;
+    height:5px;
+  }
+
+
+  /* SORT */
+
+  .gateway-row > .sort-badge {
+    grid-column:2;
+
+    grid-row:3;
+
+    width:26px;
+    height:26px;
+
+    border-radius:7px;
+
+    font-size:9px;
+
+    justify-self:center;
+  }
+
+
+  /* ACTIONS */
+
+  .gateway-actions {
+    grid-column:3;
+
+    grid-row:3;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:flex-end;
+
+    gap:5px;
+
+    min-width:0;
+  }
+
+  .gateway-actions button {
+    padding:7px 8px;
+
+    border-radius:8px;
+
+    font-size:9px;
+
+    gap:4px;
+
+    white-space:nowrap;
+  }
+
+  .gateway-actions .delete-button {
+    display:none;
+  }
+
+
+  /* MODAL */
+
+  .gateway-modal-overlay {
+    padding:10px;
+  }
+
+  .gateway-modal {
+    width:100%;
+
+    max-height:94vh;
+
+    border-radius:18px;
+  }
+
+  .modal-header {
+    padding:16px;
+  }
+
+  .modal-header h2 {
+    font-size:18px;
+  }
+
+  .gateway-modal form {
+    padding:16px;
+  }
+
+  .form-grid,
+  .modal-setting-grid {
+    grid-template-columns:1fr;
+  }
+
+  .modal-actions {
+    flex-direction:column-reverse;
+  }
+
+  .cancel-button,
+  .payment-save-button {
+    width:100%;
+  }
+
+}
+
+
+/* =====================================================
+   VERY SMALL PHONES
+===================================================== */
+
+@media(max-width:380px) {
+
+  .payment-page {
+    padding:10px;
+  }
+
+  .payment-header {
+    padding:13px;
+  }
+
+  .payment-header h1 {
+    font-size:18px;
+  }
+
+  .payment-header p {
+    font-size:10px;
+  }
+
+  .gateway-row {
+    padding:11px 9px;
+
+    grid-template-columns:
+      21px
+      39px
+      minmax(0,1fr);
+
+    gap:7px;
+  }
+
+  .gateway-logo {
+    width:37px;
+    height:37px;
+  }
+
+  .gateway-name-line strong {
+    font-size:12px;
+  }
+
+  .gateway-actions button {
+    padding:6px 7px;
+
+    font-size:8px;
+  }
+
+}
+
+`}</style>
   );
 }
 
