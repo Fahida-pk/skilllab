@@ -96,7 +96,7 @@ function AdminPaymentHistory() {
   }, [fetchPaymentHistory]);
 
   /* =========================================================
-     FORMAT DATE
+     DATE FORMAT
   ========================================================= */
 
   const formatDate = (value) => {
@@ -114,10 +114,6 @@ function AdminPaymentHistory() {
       year: "numeric",
     });
   };
-
-  /* =========================================================
-     FORMAT DATE TIME
-  ========================================================= */
 
   const formatDateTime = (value) => {
     if (!value) return "-";
@@ -138,7 +134,7 @@ function AdminPaymentHistory() {
   };
 
   /* =========================================================
-     STATUS ICON
+     STATUS
   ========================================================= */
 
   const getStatusIcon = (status) => {
@@ -159,10 +155,6 @@ function AdminPaymentHistory() {
     return <FaClock />;
   };
 
-  /* =========================================================
-     STATUS CLASS
-  ========================================================= */
-
   const getStatusClass = (status) => {
     const value = String(status || "").toLowerCase();
 
@@ -182,7 +174,7 @@ function AdminPaymentHistory() {
   };
 
   /* =========================================================
-     PAYMENT FILTER
+     SEARCH
   ========================================================= */
 
   const filteredPayments = useMemo(() => {
@@ -254,7 +246,7 @@ function AdminPaymentHistory() {
   }, [filteredPayments]);
 
   /* =========================================================
-     TOTAL AMOUNT
+     SUMMARY
   ========================================================= */
 
   const totalAmount = payments.reduce(
@@ -263,25 +255,51 @@ function AdminPaymentHistory() {
     0
   );
 
-  /* =========================================================
-     PARENT PAYMENT COUNT
-  ========================================================= */
-
   const parentPayments = payments.filter(
     (payment) =>
       String(payment.paid_by || "").toLowerCase() ===
       "parent"
   ).length;
 
-  /* =========================================================
-     STUDENT PAYMENT COUNT
-  ========================================================= */
-
   const studentPayments = payments.filter(
     (payment) =>
       String(payment.paid_by || "").toLowerCase() ===
       "student"
   ).length;
+
+  /* =========================================================
+     PLAN DESCRIPTION
+  ========================================================= */
+
+  const getPlanDescription = (payment) => {
+    if (
+      payment.plan_description &&
+      String(payment.plan_description).trim()
+    ) {
+      return payment.plan_description;
+    }
+
+    if (
+      payment.description &&
+      String(payment.description).trim()
+    ) {
+      return payment.description;
+    }
+
+    const planName = String(
+      payment.plan_name || ""
+    ).toLowerCase();
+
+    if (planName.includes("monthly")) {
+      return "SkillLab Monthly Plan";
+    }
+
+    if (planName.includes("yearly")) {
+      return "SkillLab Yearly Plan";
+    }
+
+    return "SkillLab Subscription Plan";
+  };
 
   /* =========================================================
      PAYMENT BOX
@@ -300,9 +318,15 @@ function AdminPaymentHistory() {
     const latestPayment = paymentsList[0];
 
     const description =
-      latestPayment.plan_description ||
-      latestPayment.description ||
-      "SkillLab subscription plan";
+      getPlanDescription(latestPayment);
+
+    const planAmount =
+      Number(
+        latestPayment.plan_price ??
+          latestPayment.price ??
+          latestPayment.amount ??
+          0
+      );
 
     const totalPaid = paymentsList.reduce(
       (sum, payment) =>
@@ -313,16 +337,14 @@ function AdminPaymentHistory() {
     const isParent = type === "parent";
 
     return (
-      <div
+      <section
         className={`payment-type-box ${
           isParent
             ? "parent-payment-box"
             : "student-payment-box"
         }`}
       >
-        {/* =================================================
-            BOX HEADER
-        ================================================= */}
+        {/* HEADER */}
 
         <div className="payment-type-header">
 
@@ -364,14 +386,14 @@ function AdminPaymentHistory() {
               <FaUser />
             )}
 
-            {isParent ? "Parent" : "Student"}
+            {isParent
+              ? "Parent"
+              : "Student"}
           </div>
 
         </div>
 
-        {/* =================================================
-            PLAN INFORMATION
-        ================================================= */}
+        {/* PLAN NOTE */}
 
         <div className="payment-plan-note">
 
@@ -406,9 +428,9 @@ function AdminPaymentHistory() {
 
             <strong>
               ₹
-              {Number(
-                latestPayment.amount || 0
-              ).toLocaleString("en-IN")}
+              {planAmount.toLocaleString(
+                "en-IN"
+              )}
             </strong>
 
             <small>
@@ -421,46 +443,37 @@ function AdminPaymentHistory() {
 
         </div>
 
-        {/* =================================================
-            PLAN DETAILS
-        ================================================= */}
+        {/* PLAN DETAILS */}
 
         <div className="payment-plan-details">
 
           <div className="payment-plan-detail">
-
             <span>Plan</span>
 
             <strong>
               {latestPayment.plan_name ||
                 "-"}
             </strong>
-
           </div>
 
           <div className="payment-plan-detail">
-
             <span>Description</span>
 
             <strong>
               {description}
             </strong>
-
           </div>
 
           <div className="payment-plan-detail">
-
             <span>Billing Cycle</span>
 
             <strong>
               {latestPayment.billing_cycle ||
                 "-"}
             </strong>
-
           </div>
 
           <div className="payment-plan-detail">
-
             <span>Total Paid</span>
 
             <strong>
@@ -469,81 +482,66 @@ function AdminPaymentHistory() {
                 "en-IN"
               )}
             </strong>
+          </div>
+
+        </div>
+
+        {/* PAID BY */}
+
+        <div
+          className={`payment-person ${
+            isParent
+              ? "payment-person-parent"
+              : "payment-person-student"
+          }`}
+        >
+
+          <div className="payment-person-icon">
+            {isParent ? (
+              <FaUsers />
+            ) : (
+              <FaUser />
+            )}
+          </div>
+
+          <div className="payment-person-content">
+
+            <span>
+              {isParent
+                ? "Paid By Parent"
+                : "Paid By Student"}
+            </span>
+
+            <strong>
+              {isParent
+                ? latestPayment.parent_name ||
+                  "Parent"
+                : latestPayment.student_name ||
+                  "-"}
+            </strong>
+
+            <small>
+              {isParent
+                ? latestPayment.parent_email ||
+                  "-"
+                : latestPayment.student_email ||
+                  "-"}
+            </small>
 
           </div>
 
         </div>
 
-        {/* =================================================
-            PARENT INFORMATION
-        ================================================= */}
-
-        {isParent && (
-          <div className="payment-parent-info">
-
-            <div className="payment-parent-info-icon">
-              <FaUsers />
-            </div>
-
-            <div>
-
-              <span>Paid By Parent</span>
-
-              <strong>
-                {latestPayment.parent_name ||
-                  "Parent"}
-              </strong>
-
-              <small>
-                {latestPayment.parent_email ||
-                  "-"}
-              </small>
-
-            </div>
-
-          </div>
-        )}
-
-        {/* =================================================
-            STUDENT INFORMATION
-        ================================================= */}
-
-        {!isParent && (
-          <div className="payment-student-info">
-
-            <div className="payment-student-info-icon">
-              <FaUser />
-            </div>
-
-            <div>
-
-              <span>Paid By Student</span>
-
-              <strong>
-                {latestPayment.student_name ||
-                  "-"}
-              </strong>
-
-              <small>
-                {latestPayment.student_email ||
-                  "-"}
-              </small>
-
-            </div>
-
-          </div>
-        )}
-
-        {/* =================================================
-            PAYMENT HISTORY
-        ================================================= */}
+        {/* PAYMENT HISTORY */}
 
         <div className="payment-type-history">
 
           <div className="payment-type-history-heading">
 
             <div>
-              <h4>Payment History</h4>
+              <h4>
+                Payment History
+              </h4>
 
               <span>
                 {paymentsList.length}{" "}
@@ -558,90 +556,87 @@ function AdminPaymentHistory() {
           <div className="payment-type-history-list">
 
             {paymentsList.map(
-              (item, index) => (
-                <div
-                  className="payment-type-history-row"
-                  key={
-                    item.id ||
-                    item.gateway_payment_id ||
-                    index
-                  }
-                >
+              (item, index) => {
 
-                  <div className="history-number">
-                    {index + 1}
-                  </div>
+                const itemDescription =
+                  getPlanDescription(item);
 
-                  <div className="history-plan">
-
-                    <strong>
-                      {item.plan_name ||
-                        "Subscription"}
-                    </strong>
-
-                    <small>
-                      {item.plan_description ||
-                        item.description ||
-                        "SkillLab subscription plan"}
-                    </small>
-
-                    <span>
-                      {formatDateTime(
-                        item.paid_at
-                      )}
-                    </span>
-
-                  </div>
-
-                  <div className="history-cycle">
-
-                    {item.billing_cycle ||
-                      "-"}
-
-                  </div>
-
-                  <div className="history-amount">
-
-                    ₹
-                    {Number(
-                      item.amount || 0
-                    ).toLocaleString(
-                      "en-IN"
-                    )}
-
-                  </div>
-
+                return (
                   <div
-                    className={`history-status ${getStatusClass(
-                      item.status
-                    )}`}
+                    className="payment-type-history-row"
+                    key={
+                      item.id ||
+                      item.gateway_payment_id ||
+                      index
+                    }
                   >
 
-                    {getStatusIcon(
-                      item.status
-                    )}
+                    <div className="history-number">
+                      {index + 1}
+                    </div>
 
-                    {item.status ||
-                      "Pending"}
+                    <div className="history-plan">
+
+                      <strong>
+                        {item.plan_name ||
+                          "Subscription"}
+                      </strong>
+
+                      <small>
+                        {itemDescription}
+                      </small>
+
+                      <span>
+                        <FaCalendarAlt />
+
+                        {formatDateTime(
+                          item.paid_at
+                        )}
+                      </span>
+
+                    </div>
+
+                    <div className="history-cycle">
+                      {item.billing_cycle ||
+                        "-"}
+                    </div>
+
+                    <div className="history-amount">
+                      ₹
+                      {Number(
+                        item.amount || 0
+                      ).toLocaleString(
+                        "en-IN"
+                      )}
+                    </div>
+
+                    <div
+                      className={`history-status ${getStatusClass(
+                        item.status
+                      )}`}
+                    >
+                      {getStatusIcon(
+                        item.status
+                      )}
+
+                      {item.status ||
+                        "Pending"}
+                    </div>
 
                   </div>
-
-                </div>
-              )
+                );
+              }
             )}
 
           </div>
 
         </div>
 
-        {/* =================================================
-            DATES
-        ================================================= */}
+        {/* DATES */}
 
         <div className="payment-date-box">
 
           <div>
-
             <span>Start Date</span>
 
             <strong>
@@ -649,13 +644,11 @@ function AdminPaymentHistory() {
                 latestPayment.start_date
               )}
             </strong>
-
           </div>
 
           <div className="date-divider" />
 
           <div>
-
             <span>End Date</span>
 
             <strong>
@@ -663,13 +656,11 @@ function AdminPaymentHistory() {
                 latestPayment.end_date
               )}
             </strong>
-
           </div>
 
           <div className="date-divider" />
 
           <div>
-
             <span>Latest Payment</span>
 
             <strong>
@@ -677,12 +668,11 @@ function AdminPaymentHistory() {
                 latestPayment.paid_at
               )}
             </strong>
-
           </div>
 
         </div>
 
-      </div>
+      </section>
     );
   };
 
@@ -693,9 +683,7 @@ function AdminPaymentHistory() {
   return (
     <div className="admin-payment-page">
 
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
+      {/* HEADER */}
 
       <div className="admin-payment-page-header">
 
@@ -706,14 +694,12 @@ function AdminPaymentHistory() {
           </div>
 
           <div>
-
             <h1>Payment History</h1>
 
             <p>
               View student subscriptions and
               parent payment records
             </p>
-
           </div>
 
         </div>
@@ -728,7 +714,6 @@ function AdminPaymentHistory() {
             }
           >
             <FaArrowLeft />
-
             <span>Back</span>
           </button>
 
@@ -738,7 +723,6 @@ function AdminPaymentHistory() {
             onClick={fetchPaymentHistory}
             disabled={loading}
           >
-
             <FaSyncAlt
               className={
                 loading
@@ -752,20 +736,16 @@ function AdminPaymentHistory() {
                 ? "Loading..."
                 : "Refresh"}
             </span>
-
           </button>
 
         </div>
 
       </div>
 
-      {/* =====================================================
-          SUMMARY
-      ===================================================== */}
+      {/* SUMMARY */}
 
       <div className="admin-payment-summary">
 
-        {/* TOTAL */}
         <div className="admin-payment-summary-card">
 
           <div className="summary-icon blue">
@@ -773,18 +753,15 @@ function AdminPaymentHistory() {
           </div>
 
           <div>
-
             <span>Total Payments</span>
 
             <strong>
               {payments.length}
             </strong>
-
           </div>
 
         </div>
 
-        {/* TOTAL AMOUNT */}
         <div className="admin-payment-summary-card">
 
           <div className="summary-icon green">
@@ -792,7 +769,6 @@ function AdminPaymentHistory() {
           </div>
 
           <div>
-
             <span>Total Amount</span>
 
             <strong>
@@ -801,12 +777,10 @@ function AdminPaymentHistory() {
                 "en-IN"
               )}
             </strong>
-
           </div>
 
         </div>
 
-        {/* PARENT */}
         <div className="admin-payment-summary-card">
 
           <div className="summary-icon purple">
@@ -814,18 +788,15 @@ function AdminPaymentHistory() {
           </div>
 
           <div>
-
             <span>Parent Payments</span>
 
             <strong>
               {parentPayments}
             </strong>
-
           </div>
 
         </div>
 
-        {/* STUDENT */}
         <div className="admin-payment-summary-card">
 
           <div className="summary-icon orange">
@@ -833,22 +804,18 @@ function AdminPaymentHistory() {
           </div>
 
           <div>
-
             <span>Student Payments</span>
 
             <strong>
               {studentPayments}
             </strong>
-
           </div>
 
         </div>
 
       </div>
 
-      {/* =====================================================
-          SEARCH
-      ===================================================== */}
+      {/* SEARCH */}
 
       <div className="admin-payment-toolbar">
 
@@ -883,9 +850,7 @@ function AdminPaymentHistory() {
 
       </div>
 
-      {/* =====================================================
-          CONTENT
-      ===================================================== */}
+      {/* CONTENT */}
 
       <div className="admin-payment-content">
 
@@ -911,13 +876,11 @@ function AdminPaymentHistory() {
             <FaTimesCircle />
 
             <div>
-
               <strong>
                 Unable to load payment history
               </strong>
 
               <p>{error}</p>
-
             </div>
 
           </div>
@@ -946,13 +909,12 @@ function AdminPaymentHistory() {
             </div>
           )}
 
-        {/* =================================================
-            STUDENT GROUPS
-        ================================================= */}
+        {/* STUDENT LIST */}
 
         {!loading &&
           !error &&
           groupedPayments.length > 0 && (
+
             <div className="admin-payment-list">
 
               {groupedPayments.map(
@@ -988,9 +950,7 @@ function AdminPaymentHistory() {
                       }
                     >
 
-                      {/* =================================================
-                          STUDENT HEADER
-                      ================================================= */}
+                      {/* STUDENT HEADER */}
 
                       <div className="student-main-header">
 
@@ -1036,13 +996,9 @@ function AdminPaymentHistory() {
 
                       </div>
 
-                      {/* =================================================
-                          SEPARATE PAYMENT BOXES
-                      ================================================= */}
+                      {/* SEPARATE BOXES */}
 
                       <div className="payment-type-grid">
-
-                        {/* STUDENT PAYMENT */}
 
                         <PaymentTypeBox
                           title="Student Payment"
@@ -1052,8 +1008,6 @@ function AdminPaymentHistory() {
                           }
                           type="student"
                         />
-
-                        {/* PARENT PAYMENT */}
 
                         <PaymentTypeBox
                           title="Parent Payment"
