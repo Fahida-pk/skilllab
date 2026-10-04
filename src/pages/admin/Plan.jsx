@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import {
   FaArrowLeft,
-  FaCheckCircle,
+  FaCircleCheck,
   FaCircleXmark,
-  FaEdit,
+  FaPen,
   FaFloppyDisk,
   FaList,
   FaPlus,

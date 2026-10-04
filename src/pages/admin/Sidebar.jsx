@@ -6,11 +6,11 @@ import {
   FaUserGraduate,
   FaUserTie,
   FaCreditCard,
+  FaClockRotateLeft,
   FaTags,
   FaArrowRightFromBracket,
   FaChevronDown,
   FaXmark,
-  FaClockRotateLeft,
   FaBars,
 } from "react-icons/fa6";
 
