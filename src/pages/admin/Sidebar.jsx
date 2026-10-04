@@ -10,6 +10,7 @@ import {
   FaArrowRightFromBracket,
   FaChevronDown,
   FaXmark,
+  FaCreditCard,
   FaBars,
 } from "react-icons/fa6";
 
