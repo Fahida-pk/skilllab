@@ -52,10 +52,11 @@ function Payment() {
     sort_order: 1,
   };
 
-  const [gateway, setGateway] = useState(emptyGateway);
+  const [gateway, setGateway] =
+    useState(emptyGateway);
 
   /* =====================================================
-     LOAD ALL GATEWAYS
+     LOAD GATEWAYS
   ===================================================== */
 
   const loadGateways = async () => {
@@ -72,7 +73,10 @@ function Payment() {
 
       const data = await response.json();
 
-      console.log("PAYMENT GATEWAYS:", data);
+      console.log(
+        "PAYMENT GATEWAYS:",
+        data
+      );
 
       if (!data.success) {
         throw new Error(
@@ -111,7 +115,10 @@ function Payment() {
      INPUT CHANGE
   ===================================================== */
 
-  const handleChange = (field, value) => {
+  const handleChange = (
+    field,
+    value
+  ) => {
     setGateway((prev) => ({
       ...prev,
       [field]: value,
@@ -119,7 +126,7 @@ function Payment() {
   };
 
   /* =====================================================
-     OPEN ADD FORM
+     ADD
   ===================================================== */
 
   const openAddForm = () => {
@@ -127,7 +134,8 @@ function Payment() {
 
     setGateway({
       ...emptyGateway,
-      sort_order: gateways.length + 1,
+      sort_order:
+        gateways.length + 1,
     });
 
     setShowSecret(false);
@@ -138,7 +146,7 @@ function Payment() {
   };
 
   /* =====================================================
-     OPEN EDIT FORM
+     EDIT
   ===================================================== */
 
   const openEditForm = (item) => {
@@ -148,15 +156,22 @@ function Payment() {
       id: item.id ?? "",
       code: item.code ?? "",
       name: item.name ?? "",
+
       is_enabled: Number(
         item.is_enabled ?? 0
       ),
+
       is_live: Number(
         item.is_live ?? 0
       ),
-      public_key: item.public_key ?? "",
+
+      public_key:
+        item.public_key ?? "",
+
       secret_key: "",
+
       webhook_secret: "",
+
       sort_order: Number(
         item.sort_order ?? 1
       ),
@@ -170,7 +185,7 @@ function Payment() {
   };
 
   /* =====================================================
-     CLOSE FORM
+     CLOSE
   ===================================================== */
 
   const closeForm = () => {
@@ -188,10 +203,12 @@ function Payment() {
   };
 
   /* =====================================================
-     SAVE GATEWAY
+     SAVE
   ===================================================== */
 
-  const saveGateway = async (event) => {
+  const saveGateway = async (
+    event
+  ) => {
     event.preventDefault();
 
     if (saving) return;
@@ -202,7 +219,8 @@ function Payment() {
       .trim()
       .toLowerCase();
 
-    const name = gateway.name.trim();
+    const name =
+      gateway.name.trim();
 
     if (!code) {
       setMessage(
@@ -213,7 +231,9 @@ function Payment() {
       return;
     }
 
-    if (!/^[a-z0-9_-]+$/.test(code)) {
+    if (
+      !/^[a-z0-9_-]+$/.test(code)
+    ) {
       setMessage(
         "Gateway code can contain only lowercase letters, numbers, underscore and hyphen."
       );
@@ -273,14 +293,18 @@ function Payment() {
 
       formData.append(
         "is_enabled",
-        Number(gateway.is_enabled) === 1
+        Number(
+          gateway.is_enabled
+        ) === 1
           ? "1"
           : "0"
       );
 
       formData.append(
         "is_live",
-        Number(gateway.is_live) === 1
+        Number(
+          gateway.is_live
+        ) === 1
           ? "1"
           : "0"
       );
@@ -307,19 +331,21 @@ function Payment() {
         )
       );
 
-      const response = await fetch(
-        API_URL,
-        {
+      const response =
+        await fetch(API_URL, {
           method: "POST",
+
           headers: {
             "Content-Type":
               "application/x-www-form-urlencoded",
+
             Accept:
               "application/json",
           },
-          body: formData.toString(),
-        }
-      );
+
+          body:
+            formData.toString(),
+        });
 
       const data =
         await response.json();
@@ -379,7 +405,9 @@ function Payment() {
      ENABLE / DISABLE
   ===================================================== */
 
-  const toggleGateway = async (item) => {
+  const toggleGateway = async (
+    item
+  ) => {
     try {
       const formData =
         new URLSearchParams();
@@ -396,24 +424,28 @@ function Payment() {
 
       formData.append(
         "is_enabled",
-        Number(item.is_enabled) === 1
+        Number(
+          item.is_enabled
+        ) === 1
           ? "0"
           : "1"
       );
 
-      const response = await fetch(
-        API_URL,
-        {
+      const response =
+        await fetch(API_URL, {
           method: "POST",
+
           headers: {
             "Content-Type":
               "application/x-www-form-urlencoded",
+
             Accept:
               "application/json",
           },
-          body: formData.toString(),
-        }
-      );
+
+          body:
+            formData.toString(),
+        });
 
       const data =
         await response.json();
@@ -439,7 +471,9 @@ function Payment() {
      DELETE
   ===================================================== */
 
-  const deleteGateway = async (item) => {
+  const deleteGateway = async (
+    item
+  ) => {
     if (
       !window.confirm(
         `Delete "${item.name}" gateway?`
@@ -462,19 +496,21 @@ function Payment() {
         String(item.id)
       );
 
-      const response = await fetch(
-        API_URL,
-        {
+      const response =
+        await fetch(API_URL, {
           method: "POST",
+
           headers: {
             "Content-Type":
               "application/x-www-form-urlencoded",
+
             Accept:
               "application/json",
           },
-          body: formData.toString(),
-        }
-      );
+
+          body:
+            formData.toString(),
+        });
 
       const data =
         await response.json();
@@ -538,9 +574,7 @@ function Payment() {
   return (
     <div className="payment-page">
 
-      {/* =================================================
-          PAYMENT HEADER
-      ================================================= */}
+      {/* HEADER */}
 
       <div className="payment-header">
 
@@ -592,9 +626,7 @@ function Payment() {
       </div>
 
 
-      {/* =================================================
-          MESSAGE
-      ================================================= */}
+      {/* MESSAGE */}
 
       {message && (
         <div
@@ -619,9 +651,7 @@ function Payment() {
       )}
 
 
-      {/* =================================================
-          SEPARATE PAGE HEADING
-      ================================================= */}
+      {/* TOOLBAR */}
 
       <div className="gateway-toolbar">
 
@@ -637,7 +667,6 @@ function Payment() {
           </p>
 
         </div>
-
 
         <button
           type="button"
@@ -661,8 +690,6 @@ function Payment() {
       <div className="gateway-list">
 
         {gateways.length === 0 ? (
-
-          /* EMPTY */
 
           <div className="empty-gateway">
 
@@ -729,7 +756,6 @@ function Payment() {
 
               </thead>
 
-
               <tbody>
 
                 {gateways.map(
@@ -739,20 +765,16 @@ function Payment() {
 
                       {/* NUMBER */}
 
-                      <td
-                        className="gateway-number"
-                        data-label="#"
-                      >
+                      <td className="gateway-number">
+
                         {index + 1}
+
                       </td>
 
 
                       {/* GATEWAY */}
 
-                      <td
-                        className="gateway-cell"
-                        data-label="Gateway"
-                      >
+                      <td className="gateway-cell">
 
                         <div className="gateway-cell-inner">
 
@@ -767,7 +789,6 @@ function Payment() {
                               : "₿"}
 
                           </div>
-
 
                           <div className="gateway-info">
 
@@ -796,10 +817,7 @@ function Payment() {
 
                       {/* MODE */}
 
-                      <td
-                        className="gateway-mode"
-                        data-label="Mode"
-                      >
+                      <td className="gateway-mode">
 
                         <span
                           className={
@@ -826,10 +844,7 @@ function Payment() {
 
                       {/* TYPE */}
 
-                      <td
-                        className="gateway-type"
-                        data-label="Type"
-                      >
+                      <td className="gateway-type">
 
                         <span className="type-badge">
                           Auto
@@ -840,10 +855,7 @@ function Payment() {
 
                       {/* STATUS */}
 
-                      <td
-                        className="gateway-status"
-                        data-label="Status"
-                      >
+                      <td className="gateway-status">
 
                         <span
                           className={
@@ -870,10 +882,7 @@ function Payment() {
 
                       {/* SORT */}
 
-                      <td
-                        className="sort-cell"
-                        data-label="Sort"
-                      >
+                      <td className="sort-cell">
 
                         <span className="sort-badge">
 
@@ -887,10 +896,7 @@ function Payment() {
 
                       {/* ACTIONS */}
 
-                      <td
-                        className="gateway-actions-cell"
-                        data-label="Actions"
-                      >
+                      <td className="gateway-actions-cell">
 
                         <div className="gateway-actions">
 
@@ -903,10 +909,13 @@ function Payment() {
                               )
                             }
                           >
+
                             <FaPen />
+
                             <span>
                               Edit
                             </span>
+
                           </button>
 
 
@@ -1005,8 +1014,6 @@ function Payment() {
 
           <div className="gateway-modal">
 
-            {/* MODAL HEADER */}
-
             <div className="modal-header">
 
               <div>
@@ -1025,7 +1032,6 @@ function Payment() {
 
               </div>
 
-
               <button
                 type="button"
                 className="modal-close"
@@ -1038,24 +1044,17 @@ function Payment() {
             </div>
 
 
-            {/* FORM */}
-
             <form
               onSubmit={saveGateway}
             >
 
               <div className="form-grid">
 
-                {/* CODE */}
-
                 <div className="payment-field">
 
                   <label>
-
                     <FaKey />
-
                     Gateway Code
-
                   </label>
 
                   <input
@@ -1086,8 +1085,6 @@ function Payment() {
 
                 </div>
 
-
-                {/* NAME */}
 
                 <div className="payment-field">
 
@@ -1133,7 +1130,6 @@ function Payment() {
 
                   </div>
 
-
                   <button
                     type="button"
                     className={`payment-switch ${
@@ -1175,7 +1171,6 @@ function Payment() {
 
                   </div>
 
-
                   <button
                     type="button"
                     className={`mode-switch ${
@@ -1196,13 +1191,11 @@ function Payment() {
                       )
                     }
                   >
-
                     {Number(
                       gateway.is_live
                     ) === 1
                       ? "LIVE"
                       : "TEST"}
-
                   </button>
 
                 </div>
@@ -1215,11 +1208,8 @@ function Payment() {
               <div className="payment-field">
 
                 <label>
-
                   <FaKey />
-
                   Public Key
-
                 </label>
 
                 <input
@@ -1245,13 +1235,9 @@ function Payment() {
               <div className="payment-field">
 
                 <label>
-
                   <FaShieldHalved />
-
                   Secret Key
-
                 </label>
-
 
                 <div className="secret-input">
 
@@ -1278,7 +1264,6 @@ function Payment() {
                     autoComplete="new-password"
                   />
 
-
                   <button
                     type="button"
                     onClick={() =>
@@ -1288,20 +1273,17 @@ function Payment() {
                       )
                     }
                   >
-
                     {showSecret ? (
                       <FaEyeSlash />
                     ) : (
                       <FaEye />
                     )}
-
                   </button>
 
                 </div>
 
 
                 {editing && (
-
                   <small className="security-note">
 
                     <FaShieldHalved />
@@ -1310,7 +1292,6 @@ function Payment() {
                     the existing secret.
 
                   </small>
-
                 )}
 
               </div>
@@ -1321,7 +1302,6 @@ function Payment() {
               <div className="payment-field">
 
                 <label>
-
                   <FaShieldHalved />
 
                   Webhook Secret
@@ -1329,9 +1309,7 @@ function Payment() {
                   <span className="optional">
                     Optional
                   </span>
-
                 </label>
-
 
                 <div className="secret-input">
 
@@ -1358,7 +1336,6 @@ function Payment() {
                     autoComplete="new-password"
                   />
 
-
                   <button
                     type="button"
                     onClick={() =>
@@ -1368,13 +1345,11 @@ function Payment() {
                       )
                     }
                   >
-
                     {showWebhook ? (
                       <FaEyeSlash />
                     ) : (
                       <FaEye />
                     )}
-
                   </button>
 
                 </div>
@@ -1420,7 +1395,6 @@ function Payment() {
                   Cancel
                 </button>
 
-
                 <button
                   type="submit"
                   className="payment-save-button"
@@ -1430,7 +1404,6 @@ function Payment() {
                   {saving ? (
                     <>
                       <FaRotate className="spin" />
-
                       Saving...
                     </>
                   ) : (
@@ -1455,7 +1428,6 @@ function Payment() {
 
       )}
 
-
       <PaymentStyles />
 
     </div>
@@ -1472,12 +1444,11 @@ function PaymentStyles() {
     <style>{`
 
       * {
-        box-sizing: border-box;
+        box-sizing:border-box;
       }
 
-
       body {
-        margin: 0;
+        margin:0;
       }
 
 
@@ -1503,7 +1474,7 @@ function PaymentStyles() {
 
 
       /* =================================================
-         MAIN HEADER
+         HEADER
       ================================================= */
 
       .payment-header {
@@ -1522,7 +1493,7 @@ function PaymentStyles() {
         background:
           linear-gradient(
             135deg,
-            #fff,
+            #ffffff,
             #f8f7ff
           );
 
@@ -1549,7 +1520,6 @@ function PaymentStyles() {
 
       .payment-back-button {
         width:40px;
-
         height:40px;
 
         flex:0 0 40px;
@@ -1574,14 +1544,8 @@ function PaymentStyles() {
       }
 
 
-      .payment-back-button:hover {
-        background:#f8f5ff;
-      }
-
-
       .payment-header-icon {
         width:54px;
-
         height:54px;
 
         flex:0 0 54px;
@@ -1604,10 +1568,6 @@ function PaymentStyles() {
         justify-content:center;
 
         font-size:22px;
-
-        box-shadow:
-          0 8px 20px
-          rgba(91,33,182,.22);
       }
 
 
@@ -1622,8 +1582,6 @@ function PaymentStyles() {
         font-size:25px;
 
         font-weight:800;
-
-        color:#172033;
       }
 
 
@@ -1711,7 +1669,7 @@ function PaymentStyles() {
 
 
       /* =================================================
-         SEPARATE HEADING
+         TOOLBAR
       ================================================= */
 
       .gateway-toolbar {
@@ -1729,17 +1687,10 @@ function PaymentStyles() {
       }
 
 
-      .gateway-heading-content {
-        min-width:0;
-      }
-
-
       .gateway-heading-content h2 {
         margin:0;
 
         font-size:24px;
-
-        line-height:1.2;
 
         font-weight:800;
 
@@ -1755,10 +1706,6 @@ function PaymentStyles() {
         font-size:13px;
       }
 
-
-      /* =================================================
-         ADD BUTTON
-      ================================================= */
 
       .add-gateway-button {
         flex-shrink:0;
@@ -1793,24 +1740,11 @@ function PaymentStyles() {
         box-shadow:
           0 8px 18px
           rgba(91,33,182,.20);
-
-        transition:
-          transform .15s ease,
-          box-shadow .15s ease;
-      }
-
-
-      .add-gateway-button:hover {
-        transform:translateY(-1px);
-
-        box-shadow:
-          0 11px 22px
-          rgba(91,33,182,.25);
       }
 
 
       /* =================================================
-         TABLE CONTAINER
+         LIST
       ================================================= */
 
       .gateway-list {
@@ -1873,7 +1807,7 @@ function PaymentStyles() {
       .gateway-table {
         width:100%;
 
-        min-width:900px;
+        min-width:950px;
 
         border-collapse:collapse;
 
@@ -1881,12 +1815,8 @@ function PaymentStyles() {
       }
 
 
-      /* =================================================
-         TABLE HEADER
-      ================================================= */
-
       .gateway-table thead th {
-        height:54px;
+        height:56px;
 
         padding:0 14px;
 
@@ -1909,10 +1839,6 @@ function PaymentStyles() {
         white-space:nowrap;
       }
 
-
-      /* =================================================
-         TABLE ROW
-      ================================================= */
 
       .gateway-table tbody td {
         height:100px;
@@ -1938,42 +1864,41 @@ function PaymentStyles() {
 
 
       /* =================================================
-         COLUMN WIDTH
+         COLUMN WIDTHS
       ================================================= */
 
-      .gateway-table .col-number {
+      .col-number {
         width:55px;
-
-        text-align:center;
+        text-align:center !important;
       }
 
 
-      .gateway-table .col-gateway {
+      .col-gateway {
         width:360px;
       }
 
 
-      .gateway-table .col-mode {
+      .col-mode {
         width:110px;
       }
 
 
-      .gateway-table .col-type {
+      .col-type {
         width:90px;
       }
 
 
-      .gateway-table .col-status {
+      .col-status {
         width:120px;
       }
 
 
-      .gateway-table .col-sort {
+      .col-sort {
         width:70px;
       }
 
 
-      .gateway-table .col-actions {
+      .col-actions {
         width:245px;
       }
 
@@ -1988,11 +1913,13 @@ function PaymentStyles() {
         font-size:13px;
 
         text-align:center;
+
+        white-space:nowrap;
       }
 
 
       /* =================================================
-         GATEWAY CELL
+         GATEWAY
       ================================================= */
 
       .gateway-cell-inner {
@@ -2008,7 +1935,6 @@ function PaymentStyles() {
 
       .gateway-logo {
         width:55px;
-
         height:55px;
 
         flex:0 0 55px;
@@ -2033,10 +1959,6 @@ function PaymentStyles() {
         font-size:24px;
 
         font-weight:800;
-
-        box-shadow:
-          0 6px 14px
-          rgba(22,116,209,.16);
       }
 
 
@@ -2052,7 +1974,7 @@ function PaymentStyles() {
 
         gap:8px;
 
-        flex-wrap:wrap;
+        flex-wrap:nowrap;
       }
 
 
@@ -2212,7 +2134,6 @@ function PaymentStyles() {
 
       .status-dot {
         width:6px;
-
         height:6px;
 
         border-radius:50%;
@@ -2232,7 +2153,6 @@ function PaymentStyles() {
 
       .sort-badge {
         width:36px;
-
         height:36px;
 
         border-radius:9px;
@@ -2293,17 +2213,6 @@ function PaymentStyles() {
         font-size:11px;
 
         font-weight:700;
-
-        transition:
-          transform .15s ease,
-          opacity .15s ease;
-      }
-
-
-      .gateway-actions button:hover {
-        transform:translateY(-1px);
-
-        opacity:.92;
       }
 
 
@@ -2399,7 +2308,7 @@ function PaymentStyles() {
 
 
       /* =================================================
-         MODAL OVERLAY
+         MODAL
       ================================================= */
 
       .gateway-modal-overlay {
@@ -2441,10 +2350,6 @@ function PaymentStyles() {
       }
 
 
-      /* =================================================
-         MODAL HEADER
-      ================================================= */
-
       .modal-header {
         padding:20px 22px;
 
@@ -2480,7 +2385,6 @@ function PaymentStyles() {
 
       .modal-close {
         width:36px;
-
         height:36px;
 
         border:0;
@@ -2500,10 +2404,6 @@ function PaymentStyles() {
         justify-content:center;
       }
 
-
-      /* =================================================
-         FORM
-      ================================================= */
 
       .gateway-modal form {
         padding:22px;
@@ -2608,10 +2508,6 @@ function PaymentStyles() {
       }
 
 
-      /* =================================================
-         MODAL SETTINGS
-      ================================================= */
-
       .modal-setting-grid {
         display:grid;
 
@@ -2659,13 +2555,8 @@ function PaymentStyles() {
       }
 
 
-      /* =================================================
-         ENABLE SWITCH
-      ================================================= */
-
       .payment-switch {
         width:51px;
-
         height:29px;
 
         border:0;
@@ -2678,8 +2569,6 @@ function PaymentStyles() {
 
         cursor:pointer;
 
-        transition:.2s;
-
         flex-shrink:0;
       }
 
@@ -2688,7 +2577,6 @@ function PaymentStyles() {
         display:block;
 
         width:23px;
-
         height:23px;
 
         border-radius:50%;
@@ -2713,10 +2601,6 @@ function PaymentStyles() {
           translateX(22px);
       }
 
-
-      /* =================================================
-         MODE SWITCH
-      ================================================= */
 
       .mode-switch {
         min-width:70px;
@@ -2749,10 +2633,6 @@ function PaymentStyles() {
       }
 
 
-      /* =================================================
-         SECRET INPUT
-      ================================================= */
-
       .secret-input {
         position:relative;
       }
@@ -2767,14 +2647,12 @@ function PaymentStyles() {
         position:absolute;
 
         top:50%;
-
         right:5px;
 
         transform:
           translateY(-50%);
 
         width:36px;
-
         height:36px;
 
         border:0;
@@ -2799,10 +2677,6 @@ function PaymentStyles() {
         font-weight:500;
       }
 
-
-      /* =================================================
-         MODAL ACTIONS
-      ================================================= */
 
       .modal-actions {
         display:flex;
@@ -2904,15 +2778,7 @@ function PaymentStyles() {
       }
 
 
-      .payment-loading-icon {
-        font-size:30px;
-
-        animation:
-          payment-spin
-          1s linear infinite;
-      }
-
-
+      .payment-loading-icon,
       .spin {
         animation:
           payment-spin
@@ -2921,12 +2787,9 @@ function PaymentStyles() {
 
 
       @keyframes payment-spin {
-
         to {
-          transform:
-            rotate(360deg);
+          transform:rotate(360deg);
         }
-
       }
 
 
@@ -2940,8 +2803,18 @@ function PaymentStyles() {
           padding:20px;
         }
 
+        /*
+          IMPORTANT:
+          Keep the table as a real table.
+          Do NOT convert rows to cards.
+        */
+
+        .gateway-table-scroll {
+          overflow-x:auto;
+        }
+
         .gateway-table {
-          min-width:900px;
+          min-width:950px;
         }
 
       }
@@ -2949,6 +2822,7 @@ function PaymentStyles() {
 
       /* =================================================
          MOBILE
+         SECOND IMAGE STYLE
       ================================================= */
 
       @media(max-width:650px) {
@@ -2965,7 +2839,7 @@ function PaymentStyles() {
 
           border-radius:18px;
 
-          margin-bottom:22px;
+          margin-bottom:20px;
         }
 
 
@@ -2978,7 +2852,6 @@ function PaymentStyles() {
 
         .payment-back-button {
           width:35px;
-
           height:35px;
 
           flex:0 0 35px;
@@ -2987,7 +2860,6 @@ function PaymentStyles() {
 
         .payment-header-icon {
           width:43px;
-
           height:43px;
 
           flex:0 0 43px;
@@ -3006,7 +2878,7 @@ function PaymentStyles() {
 
 
         .payment-header p {
-          font-size:11px;
+          font-size:10px;
 
           line-height:1.35;
         }
@@ -3017,45 +2889,50 @@ function PaymentStyles() {
         }
 
 
-        /* HEADING */
+        /* =================================================
+           TOOLBAR
+        ================================================= */
 
         .gateway-toolbar {
           align-items:stretch;
 
           flex-direction:column;
 
-          gap:13px;
+          gap:11px;
 
-          margin-bottom:16px;
+          margin-bottom:14px;
         }
 
 
         .gateway-heading-content h2 {
-          font-size:21px;
+          font-size:18px;
         }
 
 
         .gateway-heading-content p {
-          margin-top:5px;
+          margin-top:4px;
 
-          font-size:12px;
+          font-size:10px;
         }
 
 
         .add-gateway-button {
           width:100%;
 
-          min-height:48px;
+          height:43px;
 
-          justify-content:center;
+          min-height:43px;
 
-          border-radius:11px;
+          border-radius:9px;
 
-          font-size:14px;
+          font-size:12px;
         }
 
 
-        /* TABLE CONTAINER */
+        /* =================================================
+           TABLE
+           DO NOT MAKE CARD
+        ================================================= */
 
         .gateway-list {
           width:100%;
@@ -3063,274 +2940,320 @@ function PaymentStyles() {
           max-width:100%;
 
           border-radius:16px;
+
+          overflow:hidden;
+        }
+
+
+        .gateway-table-scroll {
+          width:100%;
+
+          overflow-x:auto;
+
+          overflow-y:hidden;
+
+          -webkit-overflow-scrolling:touch;
+
+          scrollbar-width:thin;
         }
 
 
         /*
-          On mobile the table becomes
-          card-like while keeping labels.
+          This is the important part.
+
+          Mobile table stays wide.
+          User can swipe horizontally.
         */
 
         .gateway-table {
-          width:100%;
+          width:950px;
 
-          min-width:0;
+          min-width:950px;
 
-          border-collapse:separate;
+          table-layout:auto;
 
-          border-spacing:0;
+          border-collapse:collapse;
         }
 
+
+        /* TABLE HEADER */
 
         .gateway-table thead {
-          display:none;
+          display:table-header-group;
         }
 
 
-        .gateway-table tbody {
-          display:block;
+        .gateway-table thead th {
+          height:49px;
 
-          width:100%;
+          padding:0 12px;
+
+          font-size:9px;
+
+          letter-spacing:.5px;
+
+          background:#f8fafc;
+
+          white-space:nowrap;
+        }
+
+
+        /* TABLE BODY */
+
+        .gateway-table tbody {
+          display:table-row-group;
         }
 
 
         .gateway-table tbody tr {
-          display:block;
+          display:table-row;
 
-          width:100%;
+          padding:0;
 
-          padding:17px 15px;
+          border:0;
+        }
 
-          border-bottom:1px solid #eeeaf5;
+
+        .gateway-table tbody td {
+          display:table-cell;
+
+          height:90px;
+
+          min-height:0;
+
+          padding:12px;
+
+          border-bottom:
+            1px solid #eeeaf5;
+
+          vertical-align:middle;
+
+          text-align:left;
 
           background:#fff;
         }
 
 
-        .gateway-table tbody tr:last-child {
-          border-bottom:0;
-        }
-
-
-        .gateway-table tbody td {
-          display:flex;
-
-          align-items:center;
-
-          justify-content:space-between;
-
-          width:100%;
-
-          height:auto;
-
-          min-height:38px;
-
-          padding:5px 0;
-
-          border:0;
-
-          background:transparent;
-
-          text-align:right;
-        }
-
-
         .gateway-table tbody tr:hover td {
-          background:transparent;
+          background:#fbfaff;
         }
 
+
+        /* REMOVE MOBILE LABELS */
 
         .gateway-table tbody td::before {
-          content:attr(data-label);
+          display:none !important;
 
-          flex:0 0 auto;
-
-          margin-right:15px;
-
-          color:#77728a;
-
-          font-size:10px;
-
-          font-weight:800;
-
-          text-transform:uppercase;
-
-          letter-spacing:.5px;
-
-          text-align:left;
+          content:none !important;
         }
 
 
         /* NUMBER */
 
-        .gateway-table td.gateway-number {
-          display:none;
+        .col-number {
+          width:45px;
+        }
+
+
+        .gateway-number {
+          width:45px;
+
+          text-align:center;
         }
 
 
         /* GATEWAY */
 
-        .gateway-table td.gateway-cell {
-          display:block;
-
-          padding:0 0 10px;
-
-          text-align:left;
+        .col-gateway {
+          width:300px;
         }
 
 
-        .gateway-table td.gateway-cell::before {
-          display:none;
+        .gateway-cell {
+          width:300px;
         }
 
 
         .gateway-cell-inner {
-          display:flex;
+          min-width:250px;
 
-          align-items:center;
-
-          gap:12px;
-
-          min-width:0;
+          gap:10px;
         }
 
 
         .gateway-logo {
-          width:50px;
+          width:43px;
+          height:43px;
 
-          height:50px;
+          flex:0 0 43px;
 
-          flex:0 0 50px;
+          border-radius:11px;
 
-          border-radius:14px;
-
-          font-size:21px;
-        }
-
-
-        .gateway-info {
-          min-width:0;
+          font-size:19px;
         }
 
 
         .gateway-name-line {
-          gap:6px;
+          gap:5px;
         }
 
 
         .gateway-name-line strong {
-          font-size:15px;
+          font-size:12px;
         }
 
 
         .code-badge {
-          font-size:9px;
+          padding:3px 6px;
 
-          padding:4px 7px;
+          font-size:8px;
         }
 
 
         .gateway-description {
-          font-size:10px;
+          margin-top:3px;
 
-          margin-top:4px;
+          font-size:8px;
         }
 
 
         /* MODE */
 
-        .gateway-table td.gateway-mode {
-          justify-content:space-between;
+        .col-mode {
+          width:90px;
+        }
+
+
+        .gateway-mode {
+          width:90px;
+        }
+
+
+        .mode-live,
+        .mode-test {
+          padding:6px 8px;
+
+          font-size:8px;
+
+          border-radius:12px;
+
+          gap:4px;
         }
 
 
         /* TYPE */
 
-        .gateway-table td.gateway-type {
-          justify-content:space-between;
+        .col-type {
+          width:75px;
+        }
+
+
+        .gateway-type {
+          width:75px;
+        }
+
+
+        .type-badge {
+          min-width:42px;
+
+          padding:6px 8px;
+
+          font-size:8px;
         }
 
 
         /* STATUS */
 
-        .gateway-table td.gateway-status {
-          justify-content:space-between;
+        .col-status {
+          width:100px;
+        }
+
+
+        .gateway-status {
+          width:100px;
+        }
+
+
+        .status-enabled,
+        .status-disabled {
+          padding:7px 9px;
+
+          font-size:8px;
+
+          border-radius:13px;
+
+          gap:4px;
+        }
+
+
+        .status-dot {
+          width:5px;
+          height:5px;
         }
 
 
         /* SORT */
 
-        .gateway-table td.sort-cell {
-          justify-content:space-between;
+        .col-sort {
+          width:60px;
+        }
 
-          text-align:right;
+
+        .sort-cell {
+          width:60px;
+
+          text-align:center;
         }
 
 
         .sort-badge {
-          width:32px;
+          width:31px;
+          height:31px;
 
-          height:32px;
+          font-size:9px;
         }
 
 
         /* ACTIONS */
 
-        .gateway-table td.gateway-actions-cell {
-          display:block;
-
-          padding-top:10px;
-
-          margin-top:5px;
-
-          border-top:1px solid #f0edf5;
-
+        .col-actions {
+          width:230px;
         }
 
 
-        .gateway-table td.gateway-actions-cell::before {
-          display:none;
+        .gateway-actions-cell {
+          width:230px;
         }
 
 
         .gateway-actions {
-          width:100%;
+          display:flex;
 
-          display:grid;
+          gap:6px;
 
-          grid-template-columns:
-            1fr
-            1fr
-            42px;
-
-          gap:7px;
+          white-space:nowrap;
         }
 
 
         .gateway-actions button {
-          min-height:39px;
+          min-height:34px;
 
-          width:100%;
+          padding:7px 9px;
 
-          padding:8px 7px;
+          font-size:9px;
 
-          font-size:10px;
+          border-radius:7px;
         }
 
 
         .delete-button {
-          width:42px !important;
+          width:36px;
         }
 
 
-        /* EMPTY */
-
-        .empty-gateway {
-          padding:50px 20px;
-        }
-
-
-        /* MODAL */
+        /* =================================================
+           MODAL
+        ================================================= */
 
         .gateway-modal-overlay {
           padding:10px;
@@ -3348,8 +3271,6 @@ function PaymentStyles() {
 
         .modal-header {
           padding:17px;
-
-          gap:10px;
         }
 
 
@@ -3403,35 +3324,22 @@ function PaymentStyles() {
         }
 
 
-        .payment-header {
-          padding:13px;
+        .gateway-table {
+          min-width:900px;
+
+          width:900px;
         }
 
 
-        .payment-header-icon {
-          width:40px;
+        .gateway-table thead th {
+          font-size:8px;
 
-          height:40px;
-
-          flex-basis:40px;
+          padding:0 10px;
         }
 
 
-        .payment-header h1 {
-          font-size:18px;
-        }
-
-
-        .gateway-heading-content h2 {
-          font-size:19px;
-        }
-
-
-        .gateway-actions {
-          grid-template-columns:
-            1fr
-            1fr
-            40px;
+        .gateway-table tbody td {
+          padding:10px;
         }
 
       }
