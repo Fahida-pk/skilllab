@@ -610,224 +610,252 @@ function Payment() {
       </div>
 
 
-      {/* =================================================
-          GATEWAY LIST
-      ================================================= */}
+     {/* =================================================
+    GATEWAY LIST
+================================================= */}
 
-      <div className="gateway-list">
+<div className="gateway-list">
 
-        {/* TABLE HEADER */}
+  {/* PURPLE TABLE TITLE */}
 
-        {gateways.length > 0 && (
-          <div className="gateway-table-header">
+  {gateways.length > 0 && (
+    <div className="gateway-section-header">
 
-            {/* MOBILE TITLE */}
+      <div className="gateway-section-title">
+        <span className="gateway-section-icon">
+          <FaListIcon />
+        </span>
 
-            <div className="mobile-configured-title">
+        <span>Configured Gateways</span>
+      </div>
 
-              <span className="mobile-configured-icon">
-                <FaListIcon />
-              </span>
+      <span className="gateway-total-badge">
+        {gateways.length} total
+      </span>
 
-              <span>
-                Configured Gateways
-              </span>
-
-              <span className="mobile-total-badge">
-                {gateways.length} total
-              </span>
-
-            </div>
+    </div>
+  )}
 
 
-            {/* DESKTOP HEADINGS */}
+  {/* EMPTY */}
 
-            <div className="desktop-heading">
+  {gateways.length === 0 ? (
+
+    <div className="empty-gateway">
+
+      <FaCreditCard />
+
+      <h3>No Payment Gateways</h3>
+
+      <p>
+        Add your first payment gateway.
+      </p>
+
+      <button
+        type="button"
+        onClick={openAddForm}
+      >
+        <FaPlus />
+        Add Gateway
+      </button>
+
+    </div>
+
+  ) : (
+
+    /* =================================================
+       REAL TABLE
+    ================================================= */
+
+    <div className="gateway-table-scroll">
+
+      <table className="gateway-table">
+
+        <thead>
+
+          <tr>
+
+            <th className="col-number">
               #
-            </div>
+            </th>
 
-            <div className="desktop-heading">
+            <th className="col-gateway">
               Gateway
-            </div>
+            </th>
 
-            <div className="desktop-heading">
+            <th className="col-mode">
               Mode
-            </div>
+            </th>
 
-            <div className="desktop-heading">
+            <th className="col-type">
               Type
-            </div>
+            </th>
 
-            <div className="desktop-heading">
+            <th className="col-status">
               Status
-            </div>
+            </th>
 
-            <div className="desktop-heading">
+            <th className="col-sort">
               Sort
-            </div>
+            </th>
 
-            <div className="desktop-heading">
+            <th className="col-actions">
               Actions
-            </div>
+            </th>
 
-          </div>
-        )}
+          </tr>
+
+        </thead>
 
 
-        {/* EMPTY */}
+        <tbody>
 
-        {gateways.length === 0 ? (
-          <div className="empty-gateway">
+          {gateways.map((item, index) => (
 
-            <FaCreditCard />
+            <tr key={item.id}>
 
-            <h3>
-              No Payment Gateways
-            </h3>
+              {/* NUMBER */}
 
-            <p>
-              Add your first payment
-              gateway.
-            </p>
+              <td
+                className="gateway-number"
+                data-label="#"
+              >
+                {index + 1}
+              </td>
 
-            <button
-              type="button"
-              onClick={openAddForm}
-            >
-              <FaPlus />
-              Add Gateway
-            </button>
 
-          </div>
-        ) : (
+              {/* GATEWAY */}
 
-          gateways.map(
-            (item, index) => (
-
-              <div
-                className="gateway-row"
-                key={item.id}
+              <td
+                className="gateway-cell"
+                data-label="Gateway"
               >
 
-                {/* # */}
+                <div className="gateway-cell-inner">
 
-                <div className="gateway-number">
-                  {index + 1}
-                </div>
+                  <div className="gateway-logo">
 
+                    {item.code === "razorpay"
+                      ? "₹"
+                      : item.code === "stripe"
+                      ? "$"
+                      : "₿"}
 
-                {/* LOGO */}
-
-                <div className="gateway-logo">
-
-                  {item.code ===
-                  "razorpay"
-                    ? "₹"
-                    : item.code ===
-                      "stripe"
-                    ? "$"
-                    : "₿"}
-
-                </div>
+                  </div>
 
 
-                {/* GATEWAY */}
+                  <div className="gateway-info">
 
-                <div className="gateway-info">
+                    <div className="gateway-name-line">
 
-                  <div className="gateway-name-line">
+                      <strong>
+                        {item.name}
+                      </strong>
 
-                    <strong>
-                      {item.name}
-                    </strong>
+                      <span className="code-badge">
+                        {item.code}
+                      </span>
 
-                    <span className="code-badge">
-                      {item.code}
+                    </div>
+
+                    <span className="gateway-description">
+                      Online payment gateway
                     </span>
 
                   </div>
 
-                  <span className="gateway-description">
-                    Online payment gateway
-                  </span>
-
                 </div>
 
-
-                {/* MODE */}
-
-                <div className="gateway-mode">
-
-                  <span
-                    className={
-                      Number(
-                        item.is_live
-                      ) === 1
-                        ? "mode-live"
-                        : "mode-test"
-                    }
-                  >
-
-                    <FaGlobe />
-
-                    {Number(
-                      item.is_live
-                    ) === 1
-                      ? "Live"
-                      : "Test"}
-
-                  </span>
-
-                </div>
+              </td>
 
 
-                {/* TYPE */}
+              {/* MODE */}
 
-                <div className="gateway-type">
+              <td
+                className="gateway-mode"
+                data-label="Mode"
+              >
 
-                  <span className="type-badge">
-                    Auto
-                  </span>
+                <span
+                  className={
+                    Number(item.is_live) === 1
+                      ? "mode-live"
+                      : "mode-test"
+                  }
+                >
 
-                </div>
+                  <FaGlobe />
 
+                  {Number(item.is_live) === 1
+                    ? "Live"
+                    : "Test"}
 
-                {/* STATUS */}
+                </span>
 
-                <div className="gateway-status">
-
-                  <span
-                    className={
-                      Number(
-                        item.is_enabled
-                      ) === 1
-                        ? "status-enabled"
-                        : "status-disabled"
-                    }
-                  >
-
-                    <span className="status-dot" />
-
-                    {Number(
-                      item.is_enabled
-                    ) === 1
-                      ? "Enabled"
-                      : "Disabled"}
-
-                  </span>
-
-                </div>
+              </td>
 
 
-                {/* SORT */}
+              {/* TYPE */}
 
-                <div className="sort-badge">
+              <td
+                className="gateway-type"
+                data-label="Type"
+              >
+
+                <span className="type-badge">
+                  Auto
+                </span>
+
+              </td>
+
+
+              {/* STATUS */}
+
+              <td
+                className="gateway-status"
+                data-label="Status"
+              >
+
+                <span
+                  className={
+                    Number(item.is_enabled) === 1
+                      ? "status-enabled"
+                      : "status-disabled"
+                  }
+                >
+
+                  <span className="status-dot" />
+
+                  {Number(item.is_enabled) === 1
+                    ? "Enabled"
+                    : "Disabled"}
+
+                </span>
+
+              </td>
+
+
+              {/* SORT */}
+
+              <td
+                className="sort-cell"
+                data-label="Sort"
+              >
+
+                <span className="sort-badge">
                   {item.sort_order ??
                     index + 1}
-                </div>
+                </span>
+
+              </td>
 
 
-                {/* ACTIONS */}
+              {/* ACTIONS */}
+
+              <td
+                className="gateway-actions-cell"
+                data-label="Actions"
+              >
 
                 <div className="gateway-actions">
 
@@ -839,16 +867,14 @@ function Payment() {
                     }
                   >
                     <FaPen />
-
                     Edit
                   </button>
+
 
                   <button
                     type="button"
                     className={
-                      Number(
-                        item.is_enabled
-                      ) === 1
+                      Number(item.is_enabled) === 1
                         ? "disable-button"
                         : "enable-button"
                     }
@@ -857,23 +883,20 @@ function Payment() {
                     }
                   >
 
-                    {Number(
-                      item.is_enabled
-                    ) === 1 ? (
+                    {Number(item.is_enabled) === 1 ? (
                       <>
                         <FaCircleXmark />
-
                         Disable
                       </>
                     ) : (
                       <>
                         <FaCircleCheck />
-
                         Enable
                       </>
                     )}
 
                   </button>
+
 
                   <button
                     type="button"
@@ -887,15 +910,21 @@ function Payment() {
 
                 </div>
 
-              </div>
+              </td>
 
-            )
-          )
+            </tr>
 
-        )}
+          ))}
 
-      </div>
+        </tbody>
 
+      </table>
+
+    </div>
+
+  )}
+
+</div>
 
       {/* =================================================
           ADD / EDIT MODAL
@@ -2045,7 +2074,546 @@ function PaymentStyles() {
 
   color:#b91c1c;
 }
+/* =====================================================
+   GATEWAY TABLE
+===================================================== */
 
+.gateway-list {
+  max-width:1200px;
+
+  margin:0 auto;
+
+  background:#fff;
+
+  border:1px solid #ebe8f5;
+
+  border-radius:18px;
+
+  overflow:hidden;
+
+  box-shadow:
+    0 10px 35px
+    rgba(40,32,80,.06);
+}
+
+
+/* =====================================================
+   PURPLE HEADER
+===================================================== */
+
+.gateway-section-header {
+  min-height:54px;
+
+  padding:0 18px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  background:
+    linear-gradient(
+      135deg,
+      #5b21b6,
+      #7c3aed
+    );
+
+  color:#fff;
+}
+
+.gateway-section-title {
+  display:flex;
+
+  align-items:center;
+
+  gap:9px;
+
+  font-size:14px;
+
+  font-weight:800;
+}
+
+.gateway-section-icon {
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:16px;
+}
+
+.gateway-total-badge {
+  padding:6px 11px;
+
+  border-radius:20px;
+
+  background:rgba(255,255,255,.18);
+
+  color:#fff;
+
+  font-size:10px;
+
+  font-weight:700;
+
+  white-space:nowrap;
+}
+
+
+/* =====================================================
+   TABLE SCROLL
+===================================================== */
+
+.gateway-table-scroll {
+  width:100%;
+
+  overflow-x:auto;
+
+  overflow-y:hidden;
+
+  -webkit-overflow-scrolling:touch;
+
+  scrollbar-width:thin;
+}
+
+.gateway-table-scroll::-webkit-scrollbar {
+  height:7px;
+}
+
+.gateway-table-scroll::-webkit-scrollbar-track {
+  background:#f1f3f7;
+}
+
+.gateway-table-scroll::-webkit-scrollbar-thumb {
+  background:#b8a9d8;
+
+  border-radius:10px;
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.gateway-table {
+  width:100%;
+
+  min-width:900px;
+
+  border-collapse:collapse;
+
+  background:#fff;
+}
+
+
+/* TABLE HEADER */
+
+.gateway-table thead th {
+  height:52px;
+
+  padding:0 14px;
+
+  background:#f8fafc;
+
+  border-bottom:1px solid #e5e7eb;
+
+  color:#4b5563;
+
+  font-size:11px;
+
+  font-weight:800;
+
+  text-align:left;
+
+  text-transform:uppercase;
+
+  letter-spacing:.65px;
+
+  white-space:nowrap;
+}
+
+
+/* TABLE ROW */
+
+.gateway-table tbody td {
+  height:82px;
+
+  padding:13px 14px;
+
+  border-bottom:1px solid #eeeaf5;
+
+  vertical-align:middle;
+
+  background:#fff;
+}
+
+.gateway-table tbody tr:last-child td {
+  border-bottom:0;
+}
+
+.gateway-table tbody tr:hover td {
+  background:#fbfaff;
+}
+
+
+/* =====================================================
+   COLUMN WIDTH
+===================================================== */
+
+.gateway-table .col-number {
+  width:45px;
+
+  text-align:center;
+}
+
+.gateway-table .col-gateway {
+  width:330px;
+}
+
+.gateway-table .col-mode {
+  width:105px;
+}
+
+.gateway-table .col-type {
+  width:85px;
+}
+
+.gateway-table .col-status {
+  width:110px;
+}
+
+.gateway-table .col-sort {
+  width:65px;
+}
+
+.gateway-table .col-actions {
+  width:230px;
+}
+
+
+/* =====================================================
+   NUMBER
+===================================================== */
+
+.gateway-table .gateway-number {
+  color:#777;
+
+  font-size:13px;
+
+  text-align:center;
+}
+
+
+/* =====================================================
+   GATEWAY
+===================================================== */
+
+.gateway-cell-inner {
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+  min-width:250px;
+}
+
+.gateway-logo {
+  width:44px;
+
+  height:44px;
+
+  flex:0 0 44px;
+
+  border-radius:13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #3395ff,
+      #1674d1
+    );
+
+  color:#fff;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:20px;
+
+  font-weight:800;
+}
+
+.gateway-info {
+  min-width:0;
+}
+
+.gateway-name-line {
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  flex-wrap:wrap;
+}
+
+.gateway-name-line strong {
+  font-size:14px;
+
+  color:#202638;
+
+  white-space:nowrap;
+}
+
+.code-badge {
+  padding:4px 8px;
+
+  border-radius:10px;
+
+  background:#f3e8ff;
+
+  color:#6d28d9;
+
+  font-size:10px;
+
+  font-weight:700;
+}
+
+.gateway-description {
+  display:block;
+
+  margin-top:4px;
+
+  color:#898397;
+
+  font-size:11px;
+
+  white-space:nowrap;
+}
+
+
+/* =====================================================
+   MODE
+===================================================== */
+
+.mode-live,
+.mode-test {
+  display:inline-flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:5px;
+
+  padding:6px 9px;
+
+  border-radius:15px;
+
+  font-size:10px;
+
+  font-weight:700;
+
+  white-space:nowrap;
+}
+
+.mode-live {
+  background:#fff7ed;
+
+  color:#c2410c;
+}
+
+.mode-test {
+  background:#eff6ff;
+
+  color:#2563eb;
+}
+
+
+/* =====================================================
+   TYPE
+===================================================== */
+
+.gateway-type {
+  white-space:nowrap;
+}
+
+.type-badge {
+  display:inline-flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  min-width:48px;
+
+  padding:6px 10px;
+
+  border-radius:14px;
+
+  background:#eef2ff;
+
+  color:#4338ca;
+
+  font-size:10px;
+
+  font-weight:800;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.gateway-status {
+  white-space:nowrap;
+}
+
+.status-enabled,
+.status-disabled {
+  display:inline-flex;
+
+  align-items:center;
+
+  gap:6px;
+
+  padding:7px 10px;
+
+  border-radius:15px;
+
+  font-size:10px;
+
+  font-weight:700;
+
+  white-space:nowrap;
+}
+
+.status-enabled {
+  background:#d1fae5;
+
+  color:#047857;
+}
+
+.status-disabled {
+  background:#fee2e2;
+
+  color:#b91c1c;
+}
+
+.status-dot {
+  width:6px;
+
+  height:6px;
+
+  border-radius:50%;
+
+  background:currentColor;
+}
+
+
+/* =====================================================
+   SORT
+===================================================== */
+
+.sort-cell {
+  text-align:center;
+}
+
+.sort-badge {
+  width:30px;
+
+  height:30px;
+
+  border-radius:8px;
+
+  border:1px solid #ddd8e9;
+
+  display:inline-flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:11px;
+
+  color:#575064;
+
+  background:#fff;
+}
+
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.gateway-actions {
+  display:flex;
+
+  align-items:center;
+
+  gap:7px;
+
+  white-space:nowrap;
+}
+
+.gateway-actions button {
+  border:0;
+
+  border-radius:9px;
+
+  min-height:34px;
+
+  padding:8px 10px;
+
+  cursor:pointer;
+
+  display:inline-flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:6px;
+
+  font-size:10px;
+
+  font-weight:700;
+
+  white-space:nowrap;
+}
+
+.edit-button {
+  background:#eef2ff;
+
+  color:#4338ca;
+}
+
+.enable-button {
+  background:#d1fae5;
+
+  color:#047857;
+}
+
+.disable-button {
+  background:#fef3c7;
+
+  color:#92400e;
+}
+
+.delete-button {
+  width:34px;
+
+  padding:8px !important;
+
+  background:#fee2e2;
+
+  color:#b91c1c;
+}
 
 /* =====================================================
    EMPTY
