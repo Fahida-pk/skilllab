@@ -1458,7 +1458,7 @@ const openStudentDashboard = (student) => {
     }}
   >
 
-    <FaCreditCard />
+    <FaClockRotateLeft />
 
     <span>
       Payment History

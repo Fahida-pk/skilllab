@@ -11,6 +11,7 @@ import {
   FaChevronDown,
   FaXmark,
   FaCreditCard,
+  FaClockRotateLeft,
   FaBars,
 } from "react-icons/fa6";
 
@@ -453,7 +454,7 @@ export default function Sidebar() {
     }}
   >
 
-    <FaCreditCard />
+    <FaClockRotateLeft />
 
     <span>
       Payment History
