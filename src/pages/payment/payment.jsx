@@ -76,7 +76,8 @@ function Payment() {
 
       if (!data.success) {
         throw new Error(
-          data.message || "Unable to load payment gateways"
+          data.message ||
+            "Unable to load payment gateways"
         );
       }
 
@@ -177,7 +178,11 @@ function Payment() {
 
     setShowForm(false);
     setEditing(false);
-    setGateway(emptyGateway);
+
+    setGateway({
+      ...emptyGateway,
+    });
+
     setShowSecret(false);
     setShowWebhook(false);
   };
@@ -203,6 +208,7 @@ function Payment() {
       setMessage(
         "Gateway code is required."
       );
+
       setMessageType("error");
       return;
     }
@@ -211,6 +217,7 @@ function Payment() {
       setMessage(
         "Gateway code can contain only lowercase letters, numbers, underscore and hyphen."
       );
+
       setMessageType("error");
       return;
     }
@@ -219,6 +226,7 @@ function Payment() {
       setMessage(
         "Display name is required."
       );
+
       setMessageType("error");
       return;
     }
@@ -230,6 +238,7 @@ function Payment() {
       setMessage(
         "Secret Key is required for a new gateway."
       );
+
       setMessageType("error");
       return;
     }
@@ -252,8 +261,15 @@ function Payment() {
         );
       }
 
-      formData.append("code", code);
-      formData.append("name", name);
+      formData.append(
+        "code",
+        code
+      );
+
+      formData.append(
+        "name",
+        name
+      );
 
       formData.append(
         "is_enabled",
@@ -298,7 +314,8 @@ function Payment() {
           headers: {
             "Content-Type":
               "application/x-www-form-urlencoded",
-            Accept: "application/json",
+            Accept:
+              "application/json",
           },
           body: formData.toString(),
         }
@@ -332,7 +349,10 @@ function Payment() {
 
       setShowForm(false);
       setEditing(false);
-      setGateway(emptyGateway);
+
+      setGateway({
+        ...emptyGateway,
+      });
 
       window.scrollTo({
         top: 0,
@@ -388,7 +408,8 @@ function Payment() {
           headers: {
             "Content-Type":
               "application/x-www-form-urlencoded",
-            Accept: "application/json",
+            Accept:
+              "application/json",
           },
           body: formData.toString(),
         }
@@ -406,7 +427,10 @@ function Payment() {
 
       await loadGateways();
     } catch (error) {
-      setMessage(error.message);
+      setMessage(
+        error.message
+      );
+
       setMessageType("error");
     }
   };
@@ -445,7 +469,8 @@ function Payment() {
           headers: {
             "Content-Type":
               "application/x-www-form-urlencoded",
-            Accept: "application/json",
+            Accept:
+              "application/json",
           },
           body: formData.toString(),
         }
@@ -470,7 +495,10 @@ function Payment() {
 
       await loadGateways();
     } catch (error) {
-      setMessage(error.message);
+      setMessage(
+        error.message
+      );
+
       setMessageType("error");
     }
   };
@@ -482,17 +510,23 @@ function Payment() {
   if (loading) {
     return (
       <div className="payment-page">
+
         <div className="payment-loading">
+
           <FaRotate className="payment-loading-icon" />
 
           <h3>
             Loading Payment Gateways
           </h3>
 
-          <p>Please wait...</p>
+          <p>
+            Please wait...
+          </p>
+
         </div>
 
         <PaymentStyles />
+
       </div>
     );
   }
@@ -505,7 +539,7 @@ function Payment() {
     <div className="payment-page">
 
       {/* =================================================
-          HEADER
+          PAYMENT HEADER
       ================================================= */}
 
       <div className="payment-header">
@@ -516,7 +550,9 @@ function Payment() {
             type="button"
             className="payment-back-button"
             onClick={() =>
-              navigate("/AdminDashboard")
+              navigate(
+                "/AdminDashboard"
+              )
             }
           >
             <FaArrowLeft />
@@ -526,7 +562,8 @@ function Payment() {
             <FaCreditCard />
           </div>
 
-          <div>
+          <div className="payment-header-text">
+
             <h1>
               Payment Gateway
             </h1>
@@ -535,11 +572,13 @@ function Payment() {
               Manage payment gateways
               for SkillLab
             </p>
+
           </div>
 
         </div>
 
         <div className="payment-total">
+
           <strong>
             {gateways.length}
           </strong>
@@ -547,6 +586,7 @@ function Payment() {
           <span>
             Total Gateways
           </span>
+
         </div>
 
       </div>
@@ -565,8 +605,7 @@ function Payment() {
           }`}
         >
 
-          {messageType ===
-          "success" ? (
+          {messageType === "success" ? (
             <FaCircleCheck />
           ) : (
             <FaCircleXmark />
@@ -581,21 +620,24 @@ function Payment() {
 
 
       {/* =================================================
-          TOOLBAR
+          SEPARATE PAGE HEADING
       ================================================= */}
 
       <div className="gateway-toolbar">
 
-        <div>
+        <div className="gateway-heading-content">
+
           <h2>
             Configured Gateways
           </h2>
 
           <p>
-            Add and manage all
-            payment integrations.
+            Add and manage all payment
+            integrations.
           </p>
+
         </div>
+
 
         <button
           type="button"
@@ -604,333 +646,348 @@ function Payment() {
         >
           <FaPlus />
 
-          Add New Gateway
+          <span>
+            Add New Gateway
+          </span>
         </button>
 
       </div>
 
 
-     {/* =================================================
-    GATEWAY LIST
-================================================= */}
+      {/* =================================================
+          GATEWAY TABLE
+      ================================================= */}
 
-<div className="gateway-list">
+      <div className="gateway-list">
 
-  {/* PURPLE TABLE TITLE */}
+        {gateways.length === 0 ? (
 
-  {gateways.length > 0 && (
-    <div className="gateway-section-header">
+          /* EMPTY */
 
-      <div className="gateway-section-title">
-        <span className="gateway-section-icon">
-          <FaListIcon />
-        </span>
+          <div className="empty-gateway">
 
-        <span>Configured Gateways</span>
+            <FaCreditCard />
+
+            <h3>
+              No Payment Gateways
+            </h3>
+
+            <p>
+              Add your first payment
+              gateway.
+            </p>
+
+            <button
+              type="button"
+              onClick={openAddForm}
+            >
+              <FaPlus />
+              Add Gateway
+            </button>
+
+          </div>
+
+        ) : (
+
+          <div className="gateway-table-scroll">
+
+            <table className="gateway-table">
+
+              <thead>
+
+                <tr>
+
+                  <th className="col-number">
+                    #
+                  </th>
+
+                  <th className="col-gateway">
+                    Gateway
+                  </th>
+
+                  <th className="col-mode">
+                    Mode
+                  </th>
+
+                  <th className="col-type">
+                    Type
+                  </th>
+
+                  <th className="col-status">
+                    Status
+                  </th>
+
+                  <th className="col-sort">
+                    Sort
+                  </th>
+
+                  <th className="col-actions">
+                    Actions
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody>
+
+                {gateways.map(
+                  (item, index) => (
+
+                    <tr key={item.id}>
+
+                      {/* NUMBER */}
+
+                      <td
+                        className="gateway-number"
+                        data-label="#"
+                      >
+                        {index + 1}
+                      </td>
+
+
+                      {/* GATEWAY */}
+
+                      <td
+                        className="gateway-cell"
+                        data-label="Gateway"
+                      >
+
+                        <div className="gateway-cell-inner">
+
+                          <div className="gateway-logo">
+
+                            {item.code ===
+                            "razorpay"
+                              ? "₹"
+                              : item.code ===
+                                "stripe"
+                              ? "$"
+                              : "₿"}
+
+                          </div>
+
+
+                          <div className="gateway-info">
+
+                            <div className="gateway-name-line">
+
+                              <strong>
+                                {item.name}
+                              </strong>
+
+                              <span className="code-badge">
+                                {item.code}
+                              </span>
+
+                            </div>
+
+                            <span className="gateway-description">
+                              Online payment gateway
+                            </span>
+
+                          </div>
+
+                        </div>
+
+                      </td>
+
+
+                      {/* MODE */}
+
+                      <td
+                        className="gateway-mode"
+                        data-label="Mode"
+                      >
+
+                        <span
+                          className={
+                            Number(
+                              item.is_live
+                            ) === 1
+                              ? "mode-live"
+                              : "mode-test"
+                          }
+                        >
+
+                          <FaGlobe />
+
+                          {Number(
+                            item.is_live
+                          ) === 1
+                            ? "Live"
+                            : "Test"}
+
+                        </span>
+
+                      </td>
+
+
+                      {/* TYPE */}
+
+                      <td
+                        className="gateway-type"
+                        data-label="Type"
+                      >
+
+                        <span className="type-badge">
+                          Auto
+                        </span>
+
+                      </td>
+
+
+                      {/* STATUS */}
+
+                      <td
+                        className="gateway-status"
+                        data-label="Status"
+                      >
+
+                        <span
+                          className={
+                            Number(
+                              item.is_enabled
+                            ) === 1
+                              ? "status-enabled"
+                              : "status-disabled"
+                          }
+                        >
+
+                          <span className="status-dot" />
+
+                          {Number(
+                            item.is_enabled
+                          ) === 1
+                            ? "Enabled"
+                            : "Disabled"}
+
+                        </span>
+
+                      </td>
+
+
+                      {/* SORT */}
+
+                      <td
+                        className="sort-cell"
+                        data-label="Sort"
+                      >
+
+                        <span className="sort-badge">
+
+                          {item.sort_order ??
+                            index + 1}
+
+                        </span>
+
+                      </td>
+
+
+                      {/* ACTIONS */}
+
+                      <td
+                        className="gateway-actions-cell"
+                        data-label="Actions"
+                      >
+
+                        <div className="gateway-actions">
+
+                          <button
+                            type="button"
+                            className="edit-button"
+                            onClick={() =>
+                              openEditForm(
+                                item
+                              )
+                            }
+                          >
+                            <FaPen />
+                            <span>
+                              Edit
+                            </span>
+                          </button>
+
+
+                          <button
+                            type="button"
+                            className={
+                              Number(
+                                item.is_enabled
+                              ) === 1
+                                ? "disable-button"
+                                : "enable-button"
+                            }
+                            onClick={() =>
+                              toggleGateway(
+                                item
+                              )
+                            }
+                          >
+
+                            {Number(
+                              item.is_enabled
+                            ) === 1 ? (
+                              <>
+                                <FaCircleXmark />
+
+                                <span>
+                                  Disable
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <FaCircleCheck />
+
+                                <span>
+                                  Enable
+                                </span>
+                              </>
+                            )}
+
+                          </button>
+
+
+                          <button
+                            type="button"
+                            className="delete-button"
+                            onClick={() =>
+                              deleteGateway(
+                                item
+                              )
+                            }
+                            title="Delete"
+                          >
+                            <FaTrash />
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  )
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        )}
+
       </div>
 
-      <span className="gateway-total-badge">
-        {gateways.length} total
-      </span>
-
-    </div>
-  )}
-
-
-  {/* EMPTY */}
-
-  {gateways.length === 0 ? (
-
-    <div className="empty-gateway">
-
-      <FaCreditCard />
-
-      <h3>No Payment Gateways</h3>
-
-      <p>
-        Add your first payment gateway.
-      </p>
-
-      <button
-        type="button"
-        onClick={openAddForm}
-      >
-        <FaPlus />
-        Add Gateway
-      </button>
-
-    </div>
-
-  ) : (
-
-    /* =================================================
-       REAL TABLE
-    ================================================= */
-
-    <div className="gateway-table-scroll">
-
-      <table className="gateway-table">
-
-        <thead>
-
-          <tr>
-
-            <th className="col-number">
-              #
-            </th>
-
-            <th className="col-gateway">
-              Gateway
-            </th>
-
-            <th className="col-mode">
-              Mode
-            </th>
-
-            <th className="col-type">
-              Type
-            </th>
-
-            <th className="col-status">
-              Status
-            </th>
-
-            <th className="col-sort">
-              Sort
-            </th>
-
-            <th className="col-actions">
-              Actions
-            </th>
-
-          </tr>
-
-        </thead>
-
-
-        <tbody>
-
-          {gateways.map((item, index) => (
-
-            <tr key={item.id}>
-
-              {/* NUMBER */}
-
-              <td
-                className="gateway-number"
-                data-label="#"
-              >
-                {index + 1}
-              </td>
-
-
-              {/* GATEWAY */}
-
-              <td
-                className="gateway-cell"
-                data-label="Gateway"
-              >
-
-                <div className="gateway-cell-inner">
-
-                  <div className="gateway-logo">
-
-                    {item.code === "razorpay"
-                      ? "₹"
-                      : item.code === "stripe"
-                      ? "$"
-                      : "₿"}
-
-                  </div>
-
-
-                  <div className="gateway-info">
-
-                    <div className="gateway-name-line">
-
-                      <strong>
-                        {item.name}
-                      </strong>
-
-                      <span className="code-badge">
-                        {item.code}
-                      </span>
-
-                    </div>
-
-                    <span className="gateway-description">
-                      Online payment gateway
-                    </span>
-
-                  </div>
-
-                </div>
-
-              </td>
-
-
-              {/* MODE */}
-
-              <td
-                className="gateway-mode"
-                data-label="Mode"
-              >
-
-                <span
-                  className={
-                    Number(item.is_live) === 1
-                      ? "mode-live"
-                      : "mode-test"
-                  }
-                >
-
-                  <FaGlobe />
-
-                  {Number(item.is_live) === 1
-                    ? "Live"
-                    : "Test"}
-
-                </span>
-
-              </td>
-
-
-              {/* TYPE */}
-
-              <td
-                className="gateway-type"
-                data-label="Type"
-              >
-
-                <span className="type-badge">
-                  Auto
-                </span>
-
-              </td>
-
-
-              {/* STATUS */}
-
-              <td
-                className="gateway-status"
-                data-label="Status"
-              >
-
-                <span
-                  className={
-                    Number(item.is_enabled) === 1
-                      ? "status-enabled"
-                      : "status-disabled"
-                  }
-                >
-
-                  <span className="status-dot" />
-
-                  {Number(item.is_enabled) === 1
-                    ? "Enabled"
-                    : "Disabled"}
-
-                </span>
-
-              </td>
-
-
-              {/* SORT */}
-
-              <td
-                className="sort-cell"
-                data-label="Sort"
-              >
-
-                <span className="sort-badge">
-                  {item.sort_order ??
-                    index + 1}
-                </span>
-
-              </td>
-
-
-              {/* ACTIONS */}
-
-              <td
-                className="gateway-actions-cell"
-                data-label="Actions"
-              >
-
-                <div className="gateway-actions">
-
-                  <button
-                    type="button"
-                    className="edit-button"
-                    onClick={() =>
-                      openEditForm(item)
-                    }
-                  >
-                    <FaPen />
-                    Edit
-                  </button>
-
-
-                  <button
-                    type="button"
-                    className={
-                      Number(item.is_enabled) === 1
-                        ? "disable-button"
-                        : "enable-button"
-                    }
-                    onClick={() =>
-                      toggleGateway(item)
-                    }
-                  >
-
-                    {Number(item.is_enabled) === 1 ? (
-                      <>
-                        <FaCircleXmark />
-                        Disable
-                      </>
-                    ) : (
-                      <>
-                        <FaCircleCheck />
-                        Enable
-                      </>
-                    )}
-
-                  </button>
-
-
-                  <button
-                    type="button"
-                    className="delete-button"
-                    onClick={() =>
-                      deleteGateway(item)
-                    }
-                  >
-                    <FaTrash />
-                  </button>
-
-                </div>
-
-              </td>
-
-            </tr>
-
-          ))}
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-  )}
-
-</div>
 
       {/* =================================================
           ADD / EDIT MODAL
       ================================================= */}
 
       {showForm && (
+
         <div
           className="gateway-modal-overlay"
           onMouseDown={(e) => {
@@ -968,6 +1025,7 @@ function Payment() {
 
               </div>
 
+
               <button
                 type="button"
                 className="modal-close"
@@ -993,9 +1051,11 @@ function Payment() {
                 <div className="payment-field">
 
                   <label>
+
                     <FaKey />
 
                     Gateway Code
+
                   </label>
 
                   <input
@@ -1067,12 +1127,12 @@ function Payment() {
                     </strong>
 
                     <small>
-                      Allow students
-                      to use this
-                      gateway.
+                      Allow students to use
+                      this gateway.
                     </small>
 
                   </div>
+
 
                   <button
                     type="button"
@@ -1115,6 +1175,7 @@ function Payment() {
 
                   </div>
 
+
                   <button
                     type="button"
                     className={`mode-switch ${
@@ -1154,9 +1215,11 @@ function Payment() {
               <div className="payment-field">
 
                 <label>
+
                   <FaKey />
 
                   Public Key
+
                 </label>
 
                 <input
@@ -1182,10 +1245,13 @@ function Payment() {
               <div className="payment-field">
 
                 <label>
+
                   <FaShieldHalved />
 
                   Secret Key
+
                 </label>
+
 
                 <div className="secret-input">
 
@@ -1212,6 +1278,7 @@ function Payment() {
                     autoComplete="new-password"
                   />
 
+
                   <button
                     type="button"
                     onClick={() =>
@@ -1221,16 +1288,20 @@ function Payment() {
                       )
                     }
                   >
+
                     {showSecret ? (
                       <FaEyeSlash />
                     ) : (
                       <FaEye />
                     )}
+
                   </button>
 
                 </div>
 
+
                 {editing && (
+
                   <small className="security-note">
 
                     <FaShieldHalved />
@@ -1239,6 +1310,7 @@ function Payment() {
                     the existing secret.
 
                   </small>
+
                 )}
 
               </div>
@@ -1259,6 +1331,7 @@ function Payment() {
                   </span>
 
                 </label>
+
 
                 <div className="secret-input">
 
@@ -1285,6 +1358,7 @@ function Payment() {
                     autoComplete="new-password"
                   />
 
+
                   <button
                     type="button"
                     onClick={() =>
@@ -1294,11 +1368,13 @@ function Payment() {
                       )
                     }
                   >
+
                     {showWebhook ? (
                       <FaEyeSlash />
                     ) : (
                       <FaEye />
                     )}
+
                   </button>
 
                 </div>
@@ -1344,6 +1420,7 @@ function Payment() {
                   Cancel
                 </button>
 
+
                 <button
                   type="submit"
                   className="payment-save-button"
@@ -1375,30 +1452,13 @@ function Payment() {
           </div>
 
         </div>
+
       )}
+
 
       <PaymentStyles />
 
     </div>
-  );
-}
-
-
-/* =====================================================
-   SIMPLE LIST ICON
-===================================================== */
-
-function FaListIcon() {
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        fontSize: "15px",
-        fontWeight: "900",
-      }}
-    >
-      ☷
-    </span>
   );
 }
 
@@ -1411,2200 +1471,1972 @@ function PaymentStyles() {
   return (
     <style>{`
 
-/* =====================================================
-   GLOBAL
-===================================================== */
+      * {
+        box-sizing: border-box;
+      }
 
-* {
-  box-sizing: border-box;
-}
 
+      body {
+        margin: 0;
+      }
 
-/* =====================================================
-   PAGE
-===================================================== */
 
-.payment-page {
-  min-height:100vh;
+      /* =================================================
+         PAGE
+      ================================================= */
 
-  padding:28px;
+      .payment-page {
+        min-height:100vh;
 
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(124,58,237,.10),
-      transparent 35%
-    ),
-    #f6f7fb;
+        padding:28px;
 
-  color:#172033;
-}
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(124,58,237,.10),
+            transparent 35%
+          ),
+          #f6f7fb;
 
+        color:#172033;
+      }
 
-/* =====================================================
-   HEADER
-===================================================== */
 
-.payment-header {
-  display:flex;
+      /* =================================================
+         MAIN HEADER
+      ================================================= */
 
-  align-items:center;
+      .payment-header {
+        display:flex;
 
-  justify-content:space-between;
+        align-items:center;
 
-  gap:20px;
+        justify-content:space-between;
 
-  padding:22px 24px;
+        gap:20px;
 
-  border-radius:20px;
+        padding:22px 24px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #fff,
-      #f8f7ff
-    );
+        border-radius:20px;
 
-  border:1px solid #ebe8f5;
+        background:
+          linear-gradient(
+            135deg,
+            #fff,
+            #f8f7ff
+          );
 
-  box-shadow:
-    0 10px 35px
-    rgba(40,32,80,.07);
+        border:1px solid #ebe8f5;
 
-  margin-bottom:22px;
-}
+        box-shadow:
+          0 10px 35px
+          rgba(40,32,80,.07);
 
-.payment-header-left {
-  display:flex;
+        margin-bottom:28px;
+      }
 
-  align-items:center;
 
-  gap:15px;
-}
+      .payment-header-left {
+        display:flex;
 
-.payment-back-button {
-  width:40px;
-  height:40px;
+        align-items:center;
 
-  border:1px solid #e4e0ef;
+        gap:15px;
 
-  border-radius:11px;
+        min-width:0;
+      }
 
-  background:#fff;
 
-  color:#5b21b6;
+      .payment-back-button {
+        width:40px;
 
-  cursor:pointer;
+        height:40px;
 
-  display:flex;
+        flex:0 0 40px;
 
-  align-items:center;
+        border:1px solid #e4e0ef;
 
-  justify-content:center;
-}
+        border-radius:11px;
 
-.payment-header-icon {
-  width:54px;
-  height:54px;
+        background:#fff;
 
-  border-radius:15px;
+        color:#5b21b6;
 
-  background:
-    linear-gradient(
-      135deg,
-      #5b21b6,
-      #7c3aed
-    );
+        cursor:pointer;
 
-  color:#fff;
+        display:flex;
 
-  display:flex;
+        align-items:center;
 
-  align-items:center;
+        justify-content:center;
 
-  justify-content:center;
+        font-size:16px;
+      }
 
-  font-size:22px;
 
-  box-shadow:
-    0 8px 20px
-    rgba(91,33,182,.22);
-}
+      .payment-back-button:hover {
+        background:#f8f5ff;
+      }
 
-.payment-header h1 {
-  margin:0;
 
-  font-size:25px;
+      .payment-header-icon {
+        width:54px;
 
-  font-weight:800;
-}
+        height:54px;
 
-.payment-header p {
-  margin:4px 0 0;
+        flex:0 0 54px;
 
-  color:#77728a;
+        border-radius:15px;
 
-  font-size:14px;
-}
+        background:
+          linear-gradient(
+            135deg,
+            #5b21b6,
+            #7c3aed
+          );
 
-.payment-total {
-  min-width:100px;
+        color:#fff;
 
-  text-align:center;
+        display:flex;
 
-  padding:12px 18px;
+        align-items:center;
 
-  border-radius:15px;
+        justify-content:center;
 
-  background:#f3e8ff;
+        font-size:22px;
 
-  color:#6d28d9;
-}
+        box-shadow:
+          0 8px 20px
+          rgba(91,33,182,.22);
+      }
 
-.payment-total strong {
-  display:block;
 
-  font-size:25px;
+      .payment-header-text {
+        min-width:0;
+      }
 
-  font-weight:800;
-}
 
-.payment-total span {
-  display:block;
+      .payment-header h1 {
+        margin:0;
 
-  font-size:11px;
-}
+        font-size:25px;
 
+        font-weight:800;
 
-/* =====================================================
-   MESSAGE
-===================================================== */
+        color:#172033;
+      }
 
-.payment-message {
-  display:flex;
 
-  align-items:center;
+      .payment-header p {
+        margin:4px 0 0;
 
-  gap:10px;
+        color:#77728a;
 
-  padding:13px 16px;
+        font-size:14px;
+      }
 
-  border-radius:13px;
 
-  margin-bottom:20px;
+      .payment-total {
+        min-width:100px;
 
-  font-size:14px;
+        text-align:center;
 
-  font-weight:600;
-}
+        padding:12px 18px;
 
-.payment-message.success {
-  background:#ecfdf5;
+        border-radius:15px;
 
-  border:1px solid #a7f3d0;
+        background:#f3e8ff;
 
-  color:#047857;
-}
+        color:#6d28d9;
+      }
 
-.payment-message.error {
-  background:#fef2f2;
 
-  border:1px solid #fecaca;
+      .payment-total strong {
+        display:block;
 
-  color:#b91c1c;
-}
+        font-size:25px;
 
+        font-weight:800;
+      }
 
-/* =====================================================
-   TOOLBAR
-===================================================== */
 
-.gateway-toolbar {
-  max-width:1200px;
+      .payment-total span {
+        display:block;
 
-  margin:0 auto 16px;
+        font-size:11px;
+      }
 
-  display:flex;
 
-  align-items:center;
+      /* =================================================
+         MESSAGE
+      ================================================= */
 
-  justify-content:space-between;
+      .payment-message {
+        max-width:1200px;
 
-  gap:15px;
-}
+        margin:0 auto 20px;
 
-.gateway-toolbar h2 {
-  margin:0;
+        display:flex;
 
-  font-size:20px;
+        align-items:center;
 
-  font-weight:800;
-}
+        gap:10px;
 
-.gateway-toolbar p {
-  margin:4px 0 0;
+        padding:13px 16px;
 
-  color:#817b91;
+        border-radius:13px;
 
-  font-size:13px;
-}
+        font-size:14px;
 
-.add-gateway-button {
-  border:0;
+        font-weight:600;
+      }
 
-  border-radius:11px;
 
-  padding:12px 17px;
+      .payment-message.success {
+        background:#ecfdf5;
 
-  background:
-    linear-gradient(
-      135deg,
-      #5b21b6,
-      #7c3aed
-    );
+        border:1px solid #a7f3d0;
 
-  color:#fff;
+        color:#047857;
+      }
 
-  font-weight:700;
 
-  cursor:pointer;
+      .payment-message.error {
+        background:#fef2f2;
 
-  display:flex;
+        border:1px solid #fecaca;
 
-  align-items:center;
+        color:#b91c1c;
+      }
 
-  justify-content:center;
 
-  gap:8px;
+      /* =================================================
+         SEPARATE HEADING
+      ================================================= */
 
-  box-shadow:
-    0 8px 18px
-    rgba(91,33,182,.20);
-}
+      .gateway-toolbar {
+        max-width:1200px;
 
+        margin:0 auto 18px;
 
-/* =====================================================
-   LIST
-===================================================== */
+        display:flex;
 
-.gateway-list {
-  max-width:1200px;
+        align-items:flex-end;
 
-  margin:0 auto;
+        justify-content:space-between;
 
-  background:#fff;
+        gap:20px;
+      }
 
-  border:1px solid #ebe8f5;
 
-  border-radius:18px;
+      .gateway-heading-content {
+        min-width:0;
+      }
 
-  overflow:hidden;
 
-  box-shadow:
-    0 10px 35px
-    rgba(40,32,80,.06);
-}
+      .gateway-heading-content h2 {
+        margin:0;
 
+        font-size:24px;
 
-/* =====================================================
-   TABLE HEADER
-===================================================== */
+        line-height:1.2;
 
-.gateway-table-header {
-  min-height:56px;
+        font-weight:800;
 
-  padding:0 18px;
+        color:#172033;
+      }
 
-  display:grid;
 
-  grid-template-columns:
-    35px
-    48px
-    minmax(180px,1fr)
-    90px
-    80px
-    100px
-    50px
-    auto;
+      .gateway-heading-content p {
+        margin:7px 0 0;
 
-  align-items:center;
+        color:#817b91;
 
-  gap:14px;
+        font-size:13px;
+      }
 
-  background:#f8fafc;
 
-  border-bottom:1px solid #e5e7eb;
+      /* =================================================
+         ADD BUTTON
+      ================================================= */
 
-  color:#4b5563;
+      .add-gateway-button {
+        flex-shrink:0;
 
-  font-size:12px;
+        border:0;
 
-  font-weight:800;
+        border-radius:11px;
 
-  text-transform:uppercase;
+        padding:13px 18px;
 
-  letter-spacing:.7px;
-}
+        background:
+          linear-gradient(
+            135deg,
+            #5b21b6,
+            #7c3aed
+          );
 
-.mobile-configured-title {
-  display:none;
-}
+        color:#fff;
 
-.desktop-heading {
-  display:block;
-}
+        font-weight:700;
 
+        cursor:pointer;
 
-/* =====================================================
-   ROW
-===================================================== */
+        display:flex;
 
-.gateway-row {
-  min-height:88px;
+        align-items:center;
 
-  padding:14px 18px;
+        justify-content:center;
 
-  display:grid;
+        gap:8px;
 
-  grid-template-columns:
-    35px
-    48px
-    minmax(180px,1fr)
-    90px
-    80px
-    100px
-    50px
-    auto;
+        box-shadow:
+          0 8px 18px
+          rgba(91,33,182,.20);
 
-  align-items:center;
+        transition:
+          transform .15s ease,
+          box-shadow .15s ease;
+      }
 
-  gap:14px;
 
-  border-bottom:1px solid #eeeaf5;
-}
+      .add-gateway-button:hover {
+        transform:translateY(-1px);
 
-.gateway-row:last-child {
-  border-bottom:0;
-}
+        box-shadow:
+          0 11px 22px
+          rgba(91,33,182,.25);
+      }
 
 
-/* =====================================================
-   NUMBER
-===================================================== */
+      /* =================================================
+         TABLE CONTAINER
+      ================================================= */
 
-.gateway-number {
-  color:#777;
+      .gateway-list {
+        max-width:1200px;
 
-  font-size:13px;
+        margin:0 auto;
 
-  text-align:center;
-}
+        background:#fff;
 
+        border:1px solid #ebe8f5;
 
-/* =====================================================
-   LOGO
-===================================================== */
+        border-radius:18px;
 
-.gateway-logo {
-  width:44px;
-  height:44px;
+        overflow:hidden;
 
-  border-radius:13px;
+        box-shadow:
+          0 10px 35px
+          rgba(40,32,80,.06);
+      }
 
-  background:
-    linear-gradient(
-      135deg,
-      #3395ff,
-      #1674d1
-    );
 
-  color:#fff;
+      /* =================================================
+         TABLE SCROLL
+      ================================================= */
 
-  display:flex;
+      .gateway-table-scroll {
+        width:100%;
 
-  align-items:center;
+        overflow-x:auto;
 
-  justify-content:center;
+        overflow-y:hidden;
 
-  font-size:20px;
+        -webkit-overflow-scrolling:touch;
 
-  font-weight:800;
-}
+        scrollbar-width:thin;
+      }
 
 
-/* =====================================================
-   INFO
-===================================================== */
+      .gateway-table-scroll::-webkit-scrollbar {
+        height:7px;
+      }
 
-.gateway-info {
-  min-width:0;
-}
 
-.gateway-name-line {
-  display:flex;
+      .gateway-table-scroll::-webkit-scrollbar-track {
+        background:#f1f3f7;
+      }
 
-  align-items:center;
 
-  gap:8px;
+      .gateway-table-scroll::-webkit-scrollbar-thumb {
+        background:#b8a9d8;
 
-  flex-wrap:wrap;
-}
+        border-radius:10px;
+      }
 
-.gateway-name-line strong {
-  font-size:15px;
-}
 
-.code-badge {
-  padding:4px 8px;
+      /* =================================================
+         TABLE
+      ================================================= */
 
-  border-radius:10px;
+      .gateway-table {
+        width:100%;
 
-  background:#f3e8ff;
+        min-width:900px;
 
-  color:#6d28d9;
+        border-collapse:collapse;
 
-  font-size:10px;
+        background:#fff;
+      }
 
-  font-weight:700;
-}
 
-.gateway-description {
-  display:block;
+      /* =================================================
+         TABLE HEADER
+      ================================================= */
 
-  margin-top:4px;
+      .gateway-table thead th {
+        height:54px;
 
-  color:#898397;
+        padding:0 14px;
 
-  font-size:11px;
-}
+        background:#f8fafc;
 
+        border-bottom:1px solid #e5e7eb;
 
-/* =====================================================
-   MODE
-===================================================== */
+        color:#4b5563;
 
-.mode-live,
-.mode-test {
-  display:inline-flex;
+        font-size:11px;
 
-  align-items:center;
+        font-weight:800;
 
-  gap:5px;
+        text-align:left;
 
-  padding:6px 9px;
+        text-transform:uppercase;
 
-  border-radius:15px;
+        letter-spacing:.65px;
 
-  font-size:11px;
+        white-space:nowrap;
+      }
 
-  font-weight:700;
-}
 
-.mode-live {
-  background:#fff7ed;
+      /* =================================================
+         TABLE ROW
+      ================================================= */
 
-  color:#c2410c;
-}
+      .gateway-table tbody td {
+        height:100px;
 
-.mode-test {
-  background:#eff6ff;
+        padding:16px 14px;
 
-  color:#2563eb;
-}
+        border-bottom:1px solid #eeeaf5;
 
+        vertical-align:middle;
 
-/* =====================================================
-   TYPE
-===================================================== */
+        background:#fff;
+      }
 
-.gateway-type {
-  display:flex;
 
-  align-items:center;
-}
+      .gateway-table tbody tr:last-child td {
+        border-bottom:0;
+      }
 
-.type-badge {
-  display:inline-flex;
 
-  align-items:center;
+      .gateway-table tbody tr:hover td {
+        background:#fbfaff;
+      }
 
-  justify-content:center;
 
-  min-width:48px;
+      /* =================================================
+         COLUMN WIDTH
+      ================================================= */
 
-  padding:6px 10px;
+      .gateway-table .col-number {
+        width:55px;
 
-  border-radius:14px;
+        text-align:center;
+      }
 
-  background:#eef2ff;
 
-  color:#4338ca;
+      .gateway-table .col-gateway {
+        width:360px;
+      }
 
-  font-size:10px;
 
-  font-weight:800;
-}
+      .gateway-table .col-mode {
+        width:110px;
+      }
 
 
-/* =====================================================
-   STATUS
-===================================================== */
+      .gateway-table .col-type {
+        width:90px;
+      }
 
-.gateway-status {
-  display:flex;
 
-  align-items:center;
-}
+      .gateway-table .col-status {
+        width:120px;
+      }
 
-.status-enabled,
-.status-disabled {
-  display:inline-flex;
 
-  align-items:center;
+      .gateway-table .col-sort {
+        width:70px;
+      }
 
-  gap:6px;
 
-  padding:7px 10px;
+      .gateway-table .col-actions {
+        width:245px;
+      }
 
-  border-radius:15px;
 
-  font-size:11px;
+      /* =================================================
+         NUMBER
+      ================================================= */
 
-  font-weight:700;
-}
+      .gateway-number {
+        color:#777;
 
-.status-enabled {
-  background:#d1fae5;
+        font-size:13px;
 
-  color:#047857;
-}
+        text-align:center;
+      }
 
-.status-disabled {
-  background:#fee2e2;
 
-  color:#b91c1c;
-}
+      /* =================================================
+         GATEWAY CELL
+      ================================================= */
 
-.status-dot {
-  width:6px;
-  height:6px;
+      .gateway-cell-inner {
+        display:flex;
 
-  border-radius:50%;
+        align-items:center;
 
-  background:currentColor;
-}
+        gap:14px;
 
+        min-width:280px;
+      }
 
-/* =====================================================
-   SORT
-===================================================== */
 
-.sort-badge {
-  width:30px;
-  height:30px;
+      .gateway-logo {
+        width:55px;
 
-  border-radius:8px;
+        height:55px;
 
-  border:1px solid #ddd8e9;
+        flex:0 0 55px;
 
-  display:flex;
+        border-radius:15px;
 
-  align-items:center;
+        background:
+          linear-gradient(
+            135deg,
+            #3395ff,
+            #1674d1
+          );
 
-  justify-content:center;
+        color:#fff;
 
-  font-size:11px;
-}
+        display:flex;
 
+        align-items:center;
 
-/* =====================================================
-   ACTIONS
-===================================================== */
+        justify-content:center;
 
-.gateway-actions {
-  display:flex;
+        font-size:24px;
 
-  align-items:center;
+        font-weight:800;
 
-  gap:7px;
-}
+        box-shadow:
+          0 6px 14px
+          rgba(22,116,209,.16);
+      }
 
-.gateway-actions button {
-  border:0;
 
-  border-radius:9px;
+      .gateway-info {
+        min-width:0;
+      }
 
-  padding:9px 11px;
 
-  cursor:pointer;
+      .gateway-name-line {
+        display:flex;
 
-  display:flex;
+        align-items:center;
 
-  align-items:center;
+        gap:8px;
 
-  justify-content:center;
+        flex-wrap:wrap;
+      }
 
-  gap:6px;
 
-  font-size:11px;
+      .gateway-name-line strong {
+        font-size:15px;
 
-  font-weight:700;
-}
+        color:#202638;
 
-.edit-button {
-  background:#eef2ff;
+        white-space:nowrap;
+      }
 
-  color:#4338ca;
-}
 
-.enable-button {
-  background:#d1fae5;
+      .code-badge {
+        padding:4px 8px;
 
-  color:#047857;
-}
+        border-radius:10px;
 
-.disable-button {
-  background:#fef3c7;
+        background:#f3e8ff;
 
-  color:#92400e;
-}
+        color:#6d28d9;
 
-.delete-button {
-  background:#fee2e2;
+        font-size:10px;
 
-  color:#b91c1c;
-}
-/* =====================================================
-   GATEWAY TABLE
-===================================================== */
+        font-weight:700;
 
-.gateway-list {
-  max-width:1200px;
+        white-space:nowrap;
+      }
 
-  margin:0 auto;
 
-  background:#fff;
+      .gateway-description {
+        display:block;
 
-  border:1px solid #ebe8f5;
+        margin-top:5px;
 
-  border-radius:18px;
+        color:#898397;
 
-  overflow:hidden;
+        font-size:11px;
 
-  box-shadow:
-    0 10px 35px
-    rgba(40,32,80,.06);
-}
+        white-space:nowrap;
+      }
 
 
-/* =====================================================
-   PURPLE HEADER
-===================================================== */
+      /* =================================================
+         MODE
+      ================================================= */
 
-.gateway-section-header {
-  min-height:54px;
+      .mode-live,
+      .mode-test {
+        display:inline-flex;
 
-  padding:0 18px;
+        align-items:center;
 
-  display:flex;
+        justify-content:center;
 
-  align-items:center;
+        gap:5px;
 
-  justify-content:space-between;
+        padding:7px 10px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #5b21b6,
-      #7c3aed
-    );
+        border-radius:15px;
 
-  color:#fff;
-}
+        font-size:10px;
 
-.gateway-section-title {
-  display:flex;
+        font-weight:700;
 
-  align-items:center;
+        white-space:nowrap;
+      }
 
-  gap:9px;
 
-  font-size:14px;
+      .mode-live {
+        background:#fff7ed;
 
-  font-weight:800;
-}
+        color:#c2410c;
+      }
 
-.gateway-section-icon {
-  display:flex;
 
-  align-items:center;
+      .mode-test {
+        background:#eff6ff;
 
-  justify-content:center;
+        color:#2563eb;
+      }
 
-  font-size:16px;
-}
 
-.gateway-total-badge {
-  padding:6px 11px;
+      /* =================================================
+         TYPE
+      ================================================= */
 
-  border-radius:20px;
+      .gateway-type {
+        white-space:nowrap;
+      }
 
-  background:rgba(255,255,255,.18);
 
-  color:#fff;
+      .type-badge {
+        display:inline-flex;
 
-  font-size:10px;
+        align-items:center;
 
-  font-weight:700;
+        justify-content:center;
 
-  white-space:nowrap;
-}
+        min-width:48px;
 
+        padding:7px 10px;
 
-/* =====================================================
-   TABLE SCROLL
-===================================================== */
+        border-radius:14px;
 
-.gateway-table-scroll {
-  width:100%;
+        background:#eef2ff;
 
-  overflow-x:auto;
+        color:#4338ca;
 
-  overflow-y:hidden;
+        font-size:10px;
 
-  -webkit-overflow-scrolling:touch;
+        font-weight:800;
+      }
 
-  scrollbar-width:thin;
-}
 
-.gateway-table-scroll::-webkit-scrollbar {
-  height:7px;
-}
+      /* =================================================
+         STATUS
+      ================================================= */
 
-.gateway-table-scroll::-webkit-scrollbar-track {
-  background:#f1f3f7;
-}
+      .gateway-status {
+        white-space:nowrap;
+      }
 
-.gateway-table-scroll::-webkit-scrollbar-thumb {
-  background:#b8a9d8;
 
-  border-radius:10px;
-}
+      .status-enabled,
+      .status-disabled {
+        display:inline-flex;
 
+        align-items:center;
 
-/* =====================================================
-   TABLE
-===================================================== */
+        gap:6px;
 
-.gateway-table {
-  width:100%;
+        padding:8px 11px;
 
-  min-width:900px;
+        border-radius:15px;
 
-  border-collapse:collapse;
+        font-size:10px;
 
-  background:#fff;
-}
+        font-weight:700;
 
+        white-space:nowrap;
+      }
 
-/* TABLE HEADER */
 
-.gateway-table thead th {
-  height:52px;
+      .status-enabled {
+        background:#d1fae5;
 
-  padding:0 14px;
+        color:#047857;
+      }
 
-  background:#f8fafc;
 
-  border-bottom:1px solid #e5e7eb;
+      .status-disabled {
+        background:#fee2e2;
 
-  color:#4b5563;
+        color:#b91c1c;
+      }
 
-  font-size:11px;
 
-  font-weight:800;
+      .status-dot {
+        width:6px;
 
-  text-align:left;
+        height:6px;
 
-  text-transform:uppercase;
+        border-radius:50%;
 
-  letter-spacing:.65px;
+        background:currentColor;
+      }
 
-  white-space:nowrap;
-}
 
+      /* =================================================
+         SORT
+      ================================================= */
 
-/* TABLE ROW */
+      .sort-cell {
+        text-align:center;
+      }
 
-.gateway-table tbody td {
-  height:82px;
 
-  padding:13px 14px;
+      .sort-badge {
+        width:36px;
 
-  border-bottom:1px solid #eeeaf5;
+        height:36px;
 
-  vertical-align:middle;
+        border-radius:9px;
 
-  background:#fff;
-}
+        border:1px solid #ddd8e9;
 
-.gateway-table tbody tr:last-child td {
-  border-bottom:0;
-}
+        display:inline-flex;
 
-.gateway-table tbody tr:hover td {
-  background:#fbfaff;
-}
+        align-items:center;
 
+        justify-content:center;
 
-/* =====================================================
-   COLUMN WIDTH
-===================================================== */
+        font-size:11px;
 
-.gateway-table .col-number {
-  width:45px;
+        color:#514b60;
 
-  text-align:center;
-}
+        background:#fff;
+      }
 
-.gateway-table .col-gateway {
-  width:330px;
-}
 
-.gateway-table .col-mode {
-  width:105px;
-}
+      /* =================================================
+         ACTIONS
+      ================================================= */
 
-.gateway-table .col-type {
-  width:85px;
-}
+      .gateway-actions-cell {
+        white-space:nowrap;
+      }
 
-.gateway-table .col-status {
-  width:110px;
-}
 
-.gateway-table .col-sort {
-  width:65px;
-}
+      .gateway-actions {
+        display:flex;
 
-.gateway-table .col-actions {
-  width:230px;
-}
+        align-items:center;
 
+        gap:8px;
+      }
 
-/* =====================================================
-   NUMBER
-===================================================== */
 
-.gateway-table .gateway-number {
-  color:#777;
+      .gateway-actions button {
+        border:0;
 
-  font-size:13px;
+        border-radius:9px;
 
-  text-align:center;
-}
+        min-height:40px;
 
+        padding:9px 11px;
 
-/* =====================================================
-   GATEWAY
-===================================================== */
+        cursor:pointer;
 
-.gateway-cell-inner {
-  display:flex;
+        display:flex;
 
-  align-items:center;
+        align-items:center;
 
-  gap:12px;
+        justify-content:center;
 
-  min-width:250px;
-}
+        gap:6px;
 
-.gateway-logo {
-  width:44px;
+        font-size:11px;
 
-  height:44px;
+        font-weight:700;
 
-  flex:0 0 44px;
+        transition:
+          transform .15s ease,
+          opacity .15s ease;
+      }
 
-  border-radius:13px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #3395ff,
-      #1674d1
-    );
+      .gateway-actions button:hover {
+        transform:translateY(-1px);
 
-  color:#fff;
+        opacity:.92;
+      }
 
-  display:flex;
 
-  align-items:center;
+      .edit-button {
+        background:#eef2ff;
 
-  justify-content:center;
+        color:#4338ca;
+      }
 
-  font-size:20px;
 
-  font-weight:800;
-}
+      .enable-button {
+        background:#d1fae5;
 
-.gateway-info {
-  min-width:0;
-}
+        color:#047857;
+      }
 
-.gateway-name-line {
-  display:flex;
 
-  align-items:center;
+      .disable-button {
+        background:#fef3c7;
 
-  gap:8px;
+        color:#92400e;
+      }
 
-  flex-wrap:wrap;
-}
 
-.gateway-name-line strong {
-  font-size:14px;
+      .delete-button {
+        width:42px;
 
-  color:#202638;
+        background:#fee2e2;
 
-  white-space:nowrap;
-}
+        color:#b91c1c;
+      }
 
-.code-badge {
-  padding:4px 8px;
 
-  border-radius:10px;
+      /* =================================================
+         EMPTY
+      ================================================= */
 
-  background:#f3e8ff;
+      .empty-gateway {
+        text-align:center;
 
-  color:#6d28d9;
+        padding:70px 20px;
 
-  font-size:10px;
+        color:#817b91;
+      }
 
-  font-weight:700;
-}
 
-.gateway-description {
-  display:block;
+      .empty-gateway > svg {
+        font-size:45px;
 
-  margin-top:4px;
+        color:#7c3aed;
 
-  color:#898397;
+        margin-bottom:15px;
+      }
 
-  font-size:11px;
 
-  white-space:nowrap;
-}
+      .empty-gateway h3 {
+        margin:0 0 6px;
 
+        color:#27223a;
 
-/* =====================================================
-   MODE
-===================================================== */
+        font-size:18px;
+      }
 
-.mode-live,
-.mode-test {
-  display:inline-flex;
 
-  align-items:center;
+      .empty-gateway p {
+        margin:0 0 20px;
 
-  justify-content:center;
+        font-size:13px;
+      }
 
-  gap:5px;
 
-  padding:6px 9px;
+      .empty-gateway button {
+        border:0;
 
-  border-radius:15px;
+        border-radius:10px;
 
-  font-size:10px;
+        padding:11px 16px;
 
-  font-weight:700;
+        background:#7c3aed;
 
-  white-space:nowrap;
-}
+        color:#fff;
 
-.mode-live {
-  background:#fff7ed;
+        font-weight:700;
 
-  color:#c2410c;
-}
+        cursor:pointer;
 
-.mode-test {
-  background:#eff6ff;
+        display:inline-flex;
 
-  color:#2563eb;
-}
+        align-items:center;
 
+        gap:7px;
+      }
 
-/* =====================================================
-   TYPE
-===================================================== */
 
-.gateway-type {
-  white-space:nowrap;
-}
+      /* =================================================
+         MODAL OVERLAY
+      ================================================= */
 
-.type-badge {
-  display:inline-flex;
+      .gateway-modal-overlay {
+        position:fixed;
 
-  align-items:center;
+        inset:0;
 
-  justify-content:center;
+        z-index:9999;
 
-  min-width:48px;
+        background:
+          rgba(20,15,35,.48);
 
-  padding:6px 10px;
+        backdrop-filter:blur(5px);
 
-  border-radius:14px;
+        display:flex;
 
-  background:#eef2ff;
+        align-items:center;
 
-  color:#4338ca;
+        justify-content:center;
 
-  font-size:10px;
+        padding:20px;
+      }
 
-  font-weight:800;
-}
 
+      .gateway-modal {
+        width:min(700px,100%);
 
-/* =====================================================
-   STATUS
-===================================================== */
+        max-height:92vh;
 
-.gateway-status {
-  white-space:nowrap;
-}
+        overflow:auto;
 
-.status-enabled,
-.status-disabled {
-  display:inline-flex;
+        background:#fff;
 
-  align-items:center;
+        border-radius:20px;
 
-  gap:6px;
+        box-shadow:
+          0 25px 70px
+          rgba(0,0,0,.25);
+      }
 
-  padding:7px 10px;
 
-  border-radius:15px;
+      /* =================================================
+         MODAL HEADER
+      ================================================= */
 
-  font-size:10px;
+      .modal-header {
+        padding:20px 22px;
 
-  font-weight:700;
+        border-bottom:1px solid #eeeaf5;
 
-  white-space:nowrap;
-}
+        display:flex;
 
-.status-enabled {
-  background:#d1fae5;
+        align-items:center;
 
-  color:#047857;
-}
+        justify-content:space-between;
 
-.status-disabled {
-  background:#fee2e2;
+        gap:15px;
+      }
 
-  color:#b91c1c;
-}
 
-.status-dot {
-  width:6px;
+      .modal-header h2 {
+        margin:0;
 
-  height:6px;
+        font-size:20px;
 
-  border-radius:50%;
+        font-weight:800;
+      }
 
-  background:currentColor;
-}
 
+      .modal-header p {
+        margin:4px 0 0;
 
-/* =====================================================
-   SORT
-===================================================== */
+        color:#888394;
 
-.sort-cell {
-  text-align:center;
-}
+        font-size:12px;
+      }
 
-.sort-badge {
-  width:30px;
 
-  height:30px;
+      .modal-close {
+        width:36px;
 
-  border-radius:8px;
+        height:36px;
 
-  border:1px solid #ddd8e9;
+        border:0;
 
-  display:inline-flex;
+        border-radius:9px;
 
-  align-items:center;
+        background:#f4f1fa;
 
-  justify-content:center;
+        color:#6b6478;
 
-  font-size:11px;
+        cursor:pointer;
 
-  color:#575064;
+        display:flex;
 
-  background:#fff;
-}
+        align-items:center;
 
+        justify-content:center;
+      }
 
-/* =====================================================
-   ACTIONS
-===================================================== */
 
-.gateway-actions {
-  display:flex;
+      /* =================================================
+         FORM
+      ================================================= */
 
-  align-items:center;
+      .gateway-modal form {
+        padding:22px;
+      }
 
-  gap:7px;
 
-  white-space:nowrap;
-}
+      .form-grid {
+        display:grid;
 
-.gateway-actions button {
-  border:0;
+        grid-template-columns:
+          1fr 1fr;
 
-  border-radius:9px;
+        gap:15px;
+      }
 
-  min-height:34px;
 
-  padding:8px 10px;
+      .payment-field {
+        margin-bottom:18px;
+      }
 
-  cursor:pointer;
 
-  display:inline-flex;
+      .payment-field label {
+        display:flex;
 
-  align-items:center;
+        align-items:center;
 
-  justify-content:center;
+        gap:7px;
 
-  gap:6px;
+        margin-bottom:8px;
 
-  font-size:10px;
+        font-size:13px;
 
-  font-weight:700;
+        font-weight:750;
 
-  white-space:nowrap;
-}
+        color:#29233b;
+      }
 
-.edit-button {
-  background:#eef2ff;
 
-  color:#4338ca;
-}
+      .payment-field label svg {
+        color:#6d28d9;
+      }
 
-.enable-button {
-  background:#d1fae5;
 
-  color:#047857;
-}
+      .payment-field input {
+        width:100%;
 
-.disable-button {
-  background:#fef3c7;
+        height:45px;
 
-  color:#92400e;
-}
+        border:1px solid #ddd8e9;
 
-.delete-button {
-  width:34px;
+        border-radius:10px;
 
-  padding:8px !important;
+        padding:0 13px;
 
-  background:#fee2e2;
+        outline:none;
 
-  color:#b91c1c;
-}
+        font-size:13px;
 
-/* =====================================================
-   EMPTY
-===================================================== */
+        color:#27223a;
 
-.empty-gateway {
-  text-align:center;
+        background:#fff;
+      }
 
-  padding:70px 20px;
 
-  color:#817b91;
-}
+      .payment-field input:focus {
+        border-color:#8b5cf6;
 
-.empty-gateway > svg {
-  font-size:45px;
+        box-shadow:
+          0 0 0 3px
+          rgba(139,92,246,.10);
+      }
 
-  color:#7c3aed;
 
-  margin-bottom:15px;
-}
+      .payment-field input:disabled {
+        background:#f4f1fa;
 
-.empty-gateway h3 {
-  margin:0 0 5px;
+        color:#777;
 
-  color:#27223a;
-}
+        cursor:not-allowed;
+      }
 
-.empty-gateway p {
-  margin:0 0 20px;
-}
 
-.empty-gateway button {
-  border:0;
+      .payment-field small {
+        display:block;
 
-  border-radius:10px;
+        margin-top:6px;
 
-  padding:11px 16px;
+        color:#9993a5;
 
-  background:#7c3aed;
+        font-size:11px;
+      }
 
-  color:#fff;
 
-  font-weight:700;
+      .security-note {
+        display:flex !important;
 
-  cursor:pointer;
-}
+        align-items:center;
 
+        gap:5px;
 
-/* =====================================================
-   MODAL
-===================================================== */
+        color:#059669 !important;
+      }
 
-.gateway-modal-overlay {
-  position:fixed;
 
-  inset:0;
+      /* =================================================
+         MODAL SETTINGS
+      ================================================= */
 
-  z-index:9999;
+      .modal-setting-grid {
+        display:grid;
 
-  background:
-    rgba(20,15,35,.48);
+        grid-template-columns:
+          1fr 1fr;
 
-  backdrop-filter:blur(5px);
+        gap:14px;
 
-  display:flex;
+        margin-bottom:20px;
+      }
 
-  align-items:center;
 
-  justify-content:center;
+      .modal-setting {
+        border:1px solid #ebe8f5;
 
-  padding:20px;
-}
+        border-radius:13px;
 
-.gateway-modal {
-  width:min(700px,100%);
+        padding:14px;
 
-  max-height:92vh;
+        display:flex;
 
-  overflow:auto;
+        align-items:center;
 
-  background:#fff;
+        justify-content:space-between;
 
-  border-radius:20px;
+        gap:10px;
+      }
 
-  box-shadow:
-    0 25px 70px
-    rgba(0,0,0,.25);
-}
 
-.modal-header {
-  padding:20px 22px;
+      .modal-setting strong {
+        display:block;
 
-  border-bottom:1px solid #eeeaf5;
+        font-size:13px;
+      }
 
-  display:flex;
 
-  align-items:center;
+      .modal-setting small {
+        display:block;
 
-  justify-content:space-between;
+        margin-top:3px;
 
-  gap:15px;
-}
+        color:#888394;
 
-.modal-header h2 {
-  margin:0;
+        font-size:10px;
+      }
 
-  font-size:20px;
 
-  font-weight:800;
-}
+      /* =================================================
+         ENABLE SWITCH
+      ================================================= */
 
-.modal-header p {
-  margin:4px 0 0;
+      .payment-switch {
+        width:51px;
 
-  color:#888394;
+        height:29px;
 
-  font-size:12px;
-}
+        border:0;
 
-.modal-close {
-  width:36px;
-  height:36px;
+        border-radius:30px;
 
-  border:0;
+        background:#d7d5df;
 
-  border-radius:9px;
+        padding:3px;
 
-  background:#f4f1fa;
+        cursor:pointer;
 
-  color:#6b6478;
+        transition:.2s;
 
-  cursor:pointer;
-}
+        flex-shrink:0;
+      }
 
-.gateway-modal form {
-  padding:22px;
-}
 
-.form-grid {
-  display:grid;
+      .payment-switch span {
+        display:block;
 
-  grid-template-columns:1fr 1fr;
+        width:23px;
 
-  gap:15px;
-}
+        height:23px;
 
-.payment-field {
-  margin-bottom:18px;
-}
+        border-radius:50%;
 
-.payment-field label {
-  display:flex;
+        background:#fff;
 
-  align-items:center;
+        transition:.2s;
 
-  gap:7px;
+        box-shadow:
+          0 2px 5px
+          rgba(0,0,0,.15);
+      }
 
-  margin-bottom:8px;
 
-  font-size:13px;
+      .payment-switch.on {
+        background:#16a34a;
+      }
 
-  font-weight:750;
 
-  color:#29233b;
-}
+      .payment-switch.on span {
+        transform:
+          translateX(22px);
+      }
 
-.payment-field label svg {
-  color:#6d28d9;
-}
 
-.payment-field input {
-  width:100%;
+      /* =================================================
+         MODE SWITCH
+      ================================================= */
 
-  height:45px;
+      .mode-switch {
+        min-width:70px;
 
-  border:1px solid #ddd8e9;
+        height:32px;
 
-  border-radius:10px;
+        border:0;
 
-  padding:0 13px;
+        border-radius:20px;
 
-  outline:none;
+        color:#fff;
 
-  font-size:13px;
+        font-size:10px;
 
-  color:#27223a;
+        font-weight:800;
 
-  background:#fff;
-}
+        cursor:pointer;
 
-.payment-field input:focus {
-  border-color:#8b5cf6;
+        flex-shrink:0;
+      }
 
-  box-shadow:
-    0 0 0 3px
-    rgba(139,92,246,.10);
-}
 
-.payment-field input:disabled {
-  background:#f4f1fa;
+      .mode-switch.test {
+        background:#f59e0b;
+      }
 
-  color:#777;
 
-  cursor:not-allowed;
-}
+      .mode-switch.live {
+        background:#dc2626;
+      }
 
-.payment-field small {
-  display:block;
 
-  margin-top:6px;
+      /* =================================================
+         SECRET INPUT
+      ================================================= */
 
-  color:#9993a5;
+      .secret-input {
+        position:relative;
+      }
 
-  font-size:11px;
-}
 
-.security-note {
-  display:flex !important;
+      .secret-input input {
+        padding-right:48px;
+      }
 
-  align-items:center;
 
-  gap:5px;
+      .secret-input button {
+        position:absolute;
 
-  color:#059669 !important;
-}
+        top:50%;
 
-.modal-setting-grid {
-  display:grid;
+        right:5px;
 
-  grid-template-columns:1fr 1fr;
+        transform:
+          translateY(-50%);
 
-  gap:14px;
+        width:36px;
 
-  margin-bottom:20px;
-}
+        height:36px;
 
-.modal-setting {
-  border:1px solid #ebe8f5;
+        border:0;
 
-  border-radius:13px;
+        background:transparent;
 
-  padding:14px;
+        color:#777;
 
-  display:flex;
+        cursor:pointer;
 
-  align-items:center;
+        border-radius:8px;
+      }
 
-  justify-content:space-between;
 
-  gap:10px;
-}
+      .optional {
+        margin-left:5px;
 
-.modal-setting strong {
-  display:block;
+        font-size:10px;
 
-  font-size:13px;
-}
+        color:#9a93a7;
 
-.modal-setting small {
-  display:block;
+        font-weight:500;
+      }
 
-  margin-top:3px;
 
-  color:#888394;
+      /* =================================================
+         MODAL ACTIONS
+      ================================================= */
 
-  font-size:10px;
-}
+      .modal-actions {
+        display:flex;
 
-.payment-switch {
-  width:51px;
-  height:29px;
+        justify-content:flex-end;
 
-  border:0;
+        gap:10px;
 
-  border-radius:30px;
+        padding-top:5px;
+      }
 
-  background:#d7d5df;
 
-  padding:3px;
+      .cancel-button {
+        height:48px;
 
-  cursor:pointer;
+        padding:0 20px;
 
-  transition:.2s;
-}
+        border:1px solid #ddd8e9;
 
-.payment-switch span {
-  display:block;
+        border-radius:11px;
 
-  width:23px;
-  height:23px;
+        background:#fff;
 
-  border-radius:50%;
+        color:#5d566b;
 
-  background:#fff;
+        font-weight:700;
 
-  transition:.2s;
+        cursor:pointer;
+      }
 
-  box-shadow:
-    0 2px 5px
-    rgba(0,0,0,.15);
-}
 
-.payment-switch.on {
-  background:#16a34a;
-}
+      .payment-save-button {
+        min-width:170px;
 
-.payment-switch.on span {
-  transform:translateX(22px);
-}
+        height:48px;
 
-.mode-switch {
-  min-width:70px;
+        border:0;
 
-  height:32px;
+        border-radius:11px;
 
-  border:0;
+        background:
+          linear-gradient(
+            135deg,
+            #5b21b6,
+            #7c3aed
+          );
 
-  border-radius:20px;
+        color:#fff;
 
-  color:#fff;
+        font-weight:750;
 
-  font-size:10px;
+        cursor:pointer;
 
-  font-weight:800;
+        display:flex;
 
-  cursor:pointer;
-}
+        align-items:center;
 
-.mode-switch.test {
-  background:#f59e0b;
-}
+        justify-content:center;
 
-.mode-switch.live {
-  background:#dc2626;
-}
+        gap:8px;
+      }
 
-.secret-input {
-  position:relative;
-}
 
-.secret-input input {
-  padding-right:48px;
-}
+      .payment-save-button:disabled {
+        opacity:.6;
 
-.secret-input button {
-  position:absolute;
+        cursor:not-allowed;
+      }
 
-  top:50%;
 
-  right:5px;
+      /* =================================================
+         LOADING
+      ================================================= */
 
-  transform:translateY(-50%);
+      .payment-loading {
+        min-height:80vh;
 
-  width:36px;
-  height:36px;
+        display:flex;
 
-  border:0;
+        align-items:center;
 
-  background:transparent;
+        justify-content:center;
 
-  color:#777;
+        flex-direction:column;
 
-  cursor:pointer;
+        color:#5b21b6;
+      }
 
-  border-radius:8px;
-}
 
-.optional {
-  margin-left:5px;
+      .payment-loading h3 {
+        margin:15px 0 4px;
+      }
 
-  font-size:10px;
 
-  color:#9a93a7;
+      .payment-loading p {
+        margin:0;
 
-  font-weight:500;
-}
+        color:#888394;
+      }
 
-.modal-actions {
-  display:flex;
 
-  justify-content:flex-end;
+      .payment-loading-icon {
+        font-size:30px;
 
-  gap:10px;
+        animation:
+          payment-spin
+          1s linear infinite;
+      }
 
-  padding-top:5px;
-}
 
-.cancel-button {
-  height:48px;
+      .spin {
+        animation:
+          payment-spin
+          1s linear infinite;
+      }
 
-  padding:0 20px;
 
-  border:1px solid #ddd8e9;
+      @keyframes payment-spin {
 
-  border-radius:11px;
+        to {
+          transform:
+            rotate(360deg);
+        }
 
-  background:#fff;
+      }
 
-  color:#5d566b;
 
-  font-weight:700;
+      /* =================================================
+         TABLET
+      ================================================= */
 
-  cursor:pointer;
-}
+      @media(max-width:1100px) {
 
-.payment-save-button {
-  min-width:170px;
+        .payment-page {
+          padding:20px;
+        }
 
-  height:48px;
+        .gateway-table {
+          min-width:900px;
+        }
 
-  border:0;
+      }
 
-  border-radius:11px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #5b21b6,
-      #7c3aed
-    );
+      /* =================================================
+         MOBILE
+      ================================================= */
 
-  color:#fff;
+      @media(max-width:650px) {
 
-  font-weight:750;
+        .payment-page {
+          padding:14px;
+        }
 
-  cursor:pointer;
 
-  display:flex;
+        /* HEADER */
 
-  align-items:center;
+        .payment-header {
+          padding:16px;
 
-  justify-content:center;
+          border-radius:18px;
 
-  gap:8px;
-}
+          margin-bottom:22px;
+        }
 
-.payment-save-button:disabled {
-  opacity:.6;
 
-  cursor:not-allowed;
-}
+        .payment-header-left {
+          gap:9px;
 
+          min-width:0;
+        }
 
-/* =====================================================
-   LOADING
-===================================================== */
 
-.payment-loading {
-  min-height:80vh;
+        .payment-back-button {
+          width:35px;
 
-  display:flex;
+          height:35px;
 
-  align-items:center;
+          flex:0 0 35px;
+        }
 
-  justify-content:center;
 
-  flex-direction:column;
+        .payment-header-icon {
+          width:43px;
 
-  color:#5b21b6;
-}
+          height:43px;
 
-.payment-loading-icon {
-  font-size:30px;
+          flex:0 0 43px;
 
-  animation:
-    payment-spin 1s linear infinite;
-}
+          border-radius:12px;
 
-.spin {
-  animation:
-    payment-spin 1s linear infinite;
-}
+          font-size:17px;
+        }
 
-@keyframes payment-spin {
 
-  to {
-    transform:rotate(360deg);
-  }
+        .payment-header h1 {
+          font-size:20px;
 
-}
+          line-height:1.15;
+        }
 
 
-/* =====================================================
-   TABLET
-===================================================== */
+        .payment-header p {
+          font-size:11px;
 
-@media(max-width:1100px) {
+          line-height:1.35;
+        }
 
-  .gateway-list {
-    overflow-x:auto;
-  }
 
-  .gateway-table-header,
-  .gateway-row {
-    min-width:950px;
-  }
+        .payment-total {
+          display:none;
+        }
 
-}
 
+        /* HEADING */
 
-/* =====================================================
-   MOBILE
-===================================================== */
+        .gateway-toolbar {
+          align-items:stretch;
 
-@media(max-width:650px) {
+          flex-direction:column;
 
-  /* PAGE */
+          gap:13px;
 
-  .payment-page {
-    padding:14px;
-  }
+          margin-bottom:16px;
+        }
 
 
-  /* HEADER */
+        .gateway-heading-content h2 {
+          font-size:21px;
+        }
 
-  .payment-header {
-    padding:17px;
 
-    border-radius:18px;
+        .gateway-heading-content p {
+          margin-top:5px;
 
-    align-items:center;
-  }
+          font-size:12px;
+        }
 
-  .payment-header-left {
-    gap:10px;
 
-    min-width:0;
-  }
+        .add-gateway-button {
+          width:100%;
 
-  .payment-back-button {
-    width:34px;
-    height:34px;
+          min-height:48px;
 
-    flex-shrink:0;
-  }
+          justify-content:center;
 
-  .payment-header-icon {
-    width:42px;
-    height:42px;
+          border-radius:11px;
 
-    flex-shrink:0;
+          font-size:14px;
+        }
 
-    border-radius:12px;
 
-    font-size:17px;
-  }
+        /* TABLE CONTAINER */
 
-  .payment-header h1 {
-    font-size:21px;
+        .gateway-list {
+          width:100%;
 
-    line-height:1.15;
-  }
+          max-width:100%;
 
-  .payment-header p {
-    font-size:11px;
+          border-radius:16px;
+        }
 
-    line-height:1.4;
-  }
 
-  .payment-total {
-    display:none;
-  }
+        /*
+          On mobile the table becomes
+          card-like while keeping labels.
+        */
 
+        .gateway-table {
+          width:100%;
 
-  /* TOOLBAR */
+          min-width:0;
 
-  .gateway-toolbar {
-    align-items:stretch;
+          border-collapse:separate;
 
-    flex-direction:column;
+          border-spacing:0;
+        }
 
-    gap:12px;
 
-    margin-bottom:14px;
-  }
+        .gateway-table thead {
+          display:none;
+        }
 
-  .gateway-toolbar h2 {
-    font-size:18px;
-  }
 
-  .gateway-toolbar p {
-    font-size:11px;
-  }
+        .gateway-table tbody {
+          display:block;
 
-  .add-gateway-button {
-    width:100%;
+          width:100%;
+        }
 
-    height:43px;
 
-    justify-content:center;
+        .gateway-table tbody tr {
+          display:block;
 
-    border-radius:10px;
-  }
+          width:100%;
 
+          padding:17px 15px;
 
-  /* LIST */
+          border-bottom:1px solid #eeeaf5;
 
-  .gateway-list {
-    width:100%;
+          background:#fff;
+        }
 
-    max-width:100%;
 
-    overflow:hidden;
+        .gateway-table tbody tr:last-child {
+          border-bottom:0;
+        }
 
-    border-radius:16px;
-  }
 
+        .gateway-table tbody td {
+          display:flex;
 
-  /* MOBILE PURPLE HEADER */
+          align-items:center;
 
-  .gateway-table-header {
-    min-width:0;
+          justify-content:space-between;
 
-    min-height:49px;
+          width:100%;
 
-    padding:0;
+          height:auto;
 
-    display:block;
+          min-height:38px;
 
-    background:
-      linear-gradient(
-        135deg,
-        #5b21b6,
-        #7c3aed
-      );
+          padding:5px 0;
 
-    color:#fff;
+          border:0;
 
-    border-bottom:0;
-  }
+          background:transparent;
 
-  .mobile-configured-title {
-    min-height:49px;
+          text-align:right;
+        }
 
-    padding:0 14px;
 
-    display:flex;
+        .gateway-table tbody tr:hover td {
+          background:transparent;
+        }
 
-    align-items:center;
 
-    gap:7px;
+        .gateway-table tbody td::before {
+          content:attr(data-label);
 
-    color:#fff;
+          flex:0 0 auto;
 
-    font-size:13px;
+          margin-right:15px;
 
-    font-weight:800;
+          color:#77728a;
 
-    text-transform:none;
+          font-size:10px;
 
-    letter-spacing:0;
-  }
+          font-weight:800;
 
-  .mobile-configured-icon {
-    display:flex;
+          text-transform:uppercase;
 
-    align-items:center;
+          letter-spacing:.5px;
 
-    justify-content:center;
+          text-align:left;
+        }
 
-    font-size:16px;
-  }
 
-  .mobile-total-badge {
-    margin-left:auto;
+        /* NUMBER */
 
-    padding:5px 9px;
+        .gateway-table td.gateway-number {
+          display:none;
+        }
 
-    border-radius:12px;
 
-    background:
-      rgba(255,255,255,.18);
+        /* GATEWAY */
 
-    color:#fff;
+        .gateway-table td.gateway-cell {
+          display:block;
 
-    font-size:9px;
+          padding:0 0 10px;
 
-    font-weight:700;
+          text-align:left;
+        }
 
-    white-space:nowrap;
-  }
 
-  .desktop-heading {
-    display:none;
-  }
+        .gateway-table td.gateway-cell::before {
+          display:none;
+        }
 
 
-  /* =================================================
-     MOBILE ROW
-  ================================================= */
+        .gateway-cell-inner {
+          display:flex;
 
-  .gateway-row {
-    min-width:0;
+          align-items:center;
 
-    min-height:auto;
+          gap:12px;
 
-    padding:13px 12px;
+          min-width:0;
+        }
 
-    display:grid;
 
-    grid-template-columns:
-      24px
-      42px
-      minmax(0,1fr);
+        .gateway-logo {
+          width:50px;
 
-    grid-template-rows:
-      auto
-      auto
-      auto;
+          height:50px;
 
-    gap:7px 9px;
+          flex:0 0 50px;
 
-    background:#fff;
+          border-radius:14px;
 
-    border-bottom:1px solid #edf0f5;
-  }
+          font-size:21px;
+        }
 
 
-  /* NUMBER */
+        .gateway-info {
+          min-width:0;
+        }
 
-  .gateway-number {
-    grid-column:1;
 
-    grid-row:1;
+        .gateway-name-line {
+          gap:6px;
+        }
 
-    align-self:center;
 
-    font-size:11px;
-  }
+        .gateway-name-line strong {
+          font-size:15px;
+        }
 
 
-  /* LOGO */
+        .code-badge {
+          font-size:9px;
 
-  .gateway-logo {
-    grid-column:2;
+          padding:4px 7px;
+        }
 
-    grid-row:1;
 
-    width:40px;
-    height:40px;
+        .gateway-description {
+          font-size:10px;
 
-    border-radius:11px;
+          margin-top:4px;
+        }
 
-    font-size:17px;
-  }
 
+        /* MODE */
 
-  /* INFO */
+        .gateway-table td.gateway-mode {
+          justify-content:space-between;
+        }
 
-  .gateway-info {
-    grid-column:3;
 
-    grid-row:1;
+        /* TYPE */
 
-    align-self:center;
+        .gateway-table td.gateway-type {
+          justify-content:space-between;
+        }
 
-    min-width:0;
-  }
 
-  .gateway-name-line {
-    gap:5px;
+        /* STATUS */
 
-    flex-wrap:nowrap;
-  }
+        .gateway-table td.gateway-status {
+          justify-content:space-between;
+        }
 
-  .gateway-name-line strong {
-    font-size:13px;
 
-    white-space:nowrap;
+        /* SORT */
 
-    overflow:hidden;
+        .gateway-table td.sort-cell {
+          justify-content:space-between;
 
-    text-overflow:ellipsis;
-  }
+          text-align:right;
+        }
 
-  .code-badge {
-    flex-shrink:0;
 
-    padding:3px 6px;
+        .sort-badge {
+          width:32px;
 
-    font-size:8px;
-  }
+          height:32px;
+        }
 
-  .gateway-description {
-    margin-top:2px;
 
-    font-size:9px;
-  }
+        /* ACTIONS */
 
+        .gateway-table td.gateway-actions-cell {
+          display:block;
 
-  /* MODE */
+          padding-top:10px;
 
-  .gateway-mode {
-    grid-column:3;
+          margin-top:5px;
 
-    grid-row:2;
+          border-top:1px solid #f0edf5;
 
-    display:flex;
+        }
 
-    justify-content:flex-start;
-  }
 
-  .mode-live,
-  .mode-test {
-    padding:4px 7px;
+        .gateway-table td.gateway-actions-cell::before {
+          display:none;
+        }
 
-    font-size:9px;
-  }
 
+        .gateway-actions {
+          width:100%;
 
-  /* TYPE HIDDEN MOBILE */
+          display:grid;
 
-  .gateway-type {
-    display:none;
-  }
+          grid-template-columns:
+            1fr
+            1fr
+            42px;
 
+          gap:7px;
+        }
 
-  /* STATUS */
 
-  .gateway-status {
-    grid-column:1;
+        .gateway-actions button {
+          min-height:39px;
 
-    grid-row:3;
+          width:100%;
 
-    display:flex;
+          padding:8px 7px;
 
-    align-items:center;
-  }
+          font-size:10px;
+        }
 
-  .status-enabled,
-  .status-disabled {
-    padding:6px 8px;
 
-    font-size:9px;
+        .delete-button {
+          width:42px !important;
+        }
 
-    white-space:nowrap;
-  }
 
-  .status-dot {
-    width:5px;
-    height:5px;
-  }
+        /* EMPTY */
 
+        .empty-gateway {
+          padding:50px 20px;
+        }
 
-  /* SORT */
 
-  .gateway-row > .sort-badge {
-    grid-column:2;
+        /* MODAL */
 
-    grid-row:3;
+        .gateway-modal-overlay {
+          padding:10px;
+        }
 
-    width:26px;
-    height:26px;
 
-    border-radius:7px;
+        .gateway-modal {
+          width:100%;
 
-    font-size:9px;
+          max-height:94vh;
 
-    justify-self:center;
-  }
+          border-radius:17px;
+        }
 
 
-  /* ACTIONS */
+        .modal-header {
+          padding:17px;
 
-  .gateway-actions {
-    grid-column:3;
+          gap:10px;
+        }
 
-    grid-row:3;
 
-    display:flex;
+        .modal-header h2 {
+          font-size:17px;
+        }
 
-    align-items:center;
 
-    justify-content:flex-end;
+        .modal-header p {
+          font-size:10px;
+        }
 
-    gap:5px;
 
-    min-width:0;
-  }
+        .gateway-modal form {
+          padding:17px;
+        }
 
-  .gateway-actions button {
-    padding:7px 8px;
 
-    border-radius:8px;
+        .form-grid,
+        .modal-setting-grid {
+          grid-template-columns:1fr;
+        }
 
-    font-size:9px;
 
-    gap:4px;
+        .modal-setting {
+          padding:13px;
+        }
 
-    white-space:nowrap;
-  }
 
-  .gateway-actions .delete-button {
-    display:none;
-  }
+        .modal-actions {
+          flex-direction:column-reverse;
+        }
 
 
-  /* MODAL */
+        .cancel-button,
+        .payment-save-button {
+          width:100%;
+        }
 
-  .gateway-modal-overlay {
-    padding:10px;
-  }
+      }
 
-  .gateway-modal {
-    width:100%;
 
-    max-height:94vh;
+      /* =================================================
+         VERY SMALL MOBILE
+      ================================================= */
 
-    border-radius:18px;
-  }
+      @media(max-width:380px) {
 
-  .modal-header {
-    padding:16px;
-  }
+        .payment-page {
+          padding:10px;
+        }
 
-  .modal-header h2 {
-    font-size:18px;
-  }
 
-  .gateway-modal form {
-    padding:16px;
-  }
+        .payment-header {
+          padding:13px;
+        }
 
-  .form-grid,
-  .modal-setting-grid {
-    grid-template-columns:1fr;
-  }
 
-  .modal-actions {
-    flex-direction:column-reverse;
-  }
+        .payment-header-icon {
+          width:40px;
 
-  .cancel-button,
-  .payment-save-button {
-    width:100%;
-  }
+          height:40px;
 
-}
+          flex-basis:40px;
+        }
 
 
-/* =====================================================
-   VERY SMALL PHONES
-===================================================== */
+        .payment-header h1 {
+          font-size:18px;
+        }
 
-@media(max-width:380px) {
 
-  .payment-page {
-    padding:10px;
-  }
+        .gateway-heading-content h2 {
+          font-size:19px;
+        }
 
-  .payment-header {
-    padding:13px;
-  }
 
-  .payment-header h1 {
-    font-size:18px;
-  }
+        .gateway-actions {
+          grid-template-columns:
+            1fr
+            1fr
+            40px;
+        }
 
-  .payment-header p {
-    font-size:10px;
-  }
+      }
 
-  .gateway-row {
-    padding:11px 9px;
-
-    grid-template-columns:
-      21px
-      39px
-      minmax(0,1fr);
-
-    gap:7px;
-  }
-
-  .gateway-logo {
-    width:37px;
-    height:37px;
-  }
-
-  .gateway-name-line strong {
-    font-size:12px;
-  }
-
-  .gateway-actions button {
-    padding:6px 7px;
-
-    font-size:8px;
-  }
-
-}
-
-`}</style>
+    `}</style>
   );
 }
 
