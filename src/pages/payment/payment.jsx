@@ -514,159 +514,196 @@ function Payment() {
 
       </div>
 
-      {/* GATEWAY LIST */}
+   {/* GATEWAY LIST */}
 
-      <div className="gateway-list">
+<div className="gateway-list">
 
-        {gateways.length === 0 ? (
-          <div className="empty-gateway">
-            <FaCreditCard />
+  {/* TABLE HEADER */}
+  {gateways.length > 0 && (
+    <div className="gateway-table-header">
+      <div>#</div>
 
-            <h3>No Payment Gateways</h3>
-
-            <p>
-              Add your first payment gateway.
-            </p>
-
-            <button
-              type="button"
-              onClick={openAddForm}
-            >
-              <FaPlus />
-              Add Gateway
-            </button>
-          </div>
-        ) : (
-          gateways.map((item, index) => (
-            <div
-              className="gateway-row"
-              key={item.id}
-            >
-
-              <div className="gateway-number">
-                {index + 1}
-              </div>
-
-              <div className="gateway-logo">
-                {item.code === "razorpay"
-                  ? "₹"
-                  : item.code === "stripe"
-                  ? "$"
-                  : "₿"}
-              </div>
-
-              <div className="gateway-info">
-
-                <div className="gateway-name-line">
-
-                  <strong>{item.name}</strong>
-
-                  <span className="code-badge">
-                    {item.code}
-                  </span>
-
-                </div>
-
-                <span className="gateway-description">
-                  Online payment gateway
-                </span>
-
-              </div>
-
-              <div className="gateway-mode">
-
-                <span
-                  className={
-                    Number(item.is_live) === 1
-                      ? "mode-live"
-                      : "mode-test"
-                  }
-                >
-                  <FaGlobe />
-                  {Number(item.is_live) === 1
-                    ? "Live"
-                    : "Test"}
-                </span>
-
-              </div>
-
-              <div>
-
-                <span
-                  className={
-                    Number(item.is_enabled) === 1
-                      ? "status-enabled"
-                      : "status-disabled"
-                  }
-                >
-                  <span className="status-dot" />
-
-                  {Number(item.is_enabled) === 1
-                    ? "Enabled"
-                    : "Disabled"}
-                </span>
-
-              </div>
-
-              <div className="sort-badge">
-                {item.sort_order ?? index + 1}
-              </div>
-
-              <div className="gateway-actions">
-
-                <button
-                  type="button"
-                  className="edit-button"
-                  onClick={() =>
-                    openEditForm(item)
-                  }
-                >
-                  <FaPen />
-                  Edit
-                </button>
-
-                <button
-                  type="button"
-                  className={
-                    Number(item.is_enabled) === 1
-                      ? "disable-button"
-                      : "enable-button"
-                  }
-                  onClick={() =>
-                    toggleGateway(item)
-                  }
-                >
-                  {Number(item.is_enabled) === 1 ? (
-                    <>
-                      <FaCircleXmark />
-                      Disable
-                    </>
-                  ) : (
-                    <>
-                      <FaCircleCheck />
-                      Enable
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  className="delete-button"
-                  onClick={() =>
-                    deleteGateway(item)
-                  }
-                >
-                  <FaTrash />
-                </button>
-
-              </div>
-
-            </div>
-          ))
-        )}
-
+      <div className="gateway-header-gateway">
+        Gateway
       </div>
 
+      <div>Mode</div>
+
+      <div>Type</div>
+
+      <div>Status</div>
+
+      <div>Sort</div>
+
+      <div>Actions</div>
+    </div>
+  )}
+
+  {gateways.length === 0 ? (
+    <div className="empty-gateway">
+      <FaCreditCard />
+
+      <h3>No Payment Gateways</h3>
+
+      <p>
+        Add your first payment gateway.
+      </p>
+
+      <button
+        type="button"
+        onClick={openAddForm}
+      >
+        <FaPlus />
+        Add Gateway
+      </button>
+    </div>
+  ) : (
+    gateways.map((item, index) => (
+      <div
+        className="gateway-row"
+        key={item.id}
+      >
+
+        {/* # */}
+        <div className="gateway-number">
+          {index + 1}
+        </div>
+
+        {/* GATEWAY LOGO */}
+        <div className="gateway-logo">
+          {item.code === "razorpay"
+            ? "₹"
+            : item.code === "stripe"
+            ? "$"
+            : "₿"}
+        </div>
+
+        {/* GATEWAY */}
+        <div className="gateway-info">
+
+          <div className="gateway-name-line">
+
+            <strong>{item.name}</strong>
+
+            <span className="code-badge">
+              {item.code}
+            </span>
+
+          </div>
+
+          <span className="gateway-description">
+            Online payment gateway
+          </span>
+
+        </div>
+
+        {/* MODE */}
+        <div className="gateway-mode">
+
+          <span
+            className={
+              Number(item.is_live) === 1
+                ? "mode-live"
+                : "mode-test"
+            }
+          >
+            <FaGlobe />
+
+            {Number(item.is_live) === 1
+              ? "Live"
+              : "Test"}
+          </span>
+
+        </div>
+
+        {/* TYPE */}
+        <div className="gateway-type">
+
+          <span className="type-badge">
+            Auto
+          </span>
+
+        </div>
+
+        {/* STATUS */}
+        <div>
+
+          <span
+            className={
+              Number(item.is_enabled) === 1
+                ? "status-enabled"
+                : "status-disabled"
+            }
+          >
+            <span className="status-dot" />
+
+            {Number(item.is_enabled) === 1
+              ? "Enabled"
+              : "Disabled"}
+          </span>
+
+        </div>
+
+        {/* SORT */}
+        <div className="sort-badge">
+          {item.sort_order ?? index + 1}
+        </div>
+
+        {/* ACTIONS */}
+        <div className="gateway-actions">
+
+          <button
+            type="button"
+            className="edit-button"
+            onClick={() =>
+              openEditForm(item)
+            }
+          >
+            <FaPen />
+            Edit
+          </button>
+
+          <button
+            type="button"
+            className={
+              Number(item.is_enabled) === 1
+                ? "disable-button"
+                : "enable-button"
+            }
+            onClick={() =>
+              toggleGateway(item)
+            }
+          >
+            {Number(item.is_enabled) === 1 ? (
+              <>
+                <FaCircleXmark />
+                Disable
+              </>
+            ) : (
+              <>
+                <FaCircleCheck />
+                Enable
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            className="delete-button"
+            onClick={() =>
+              deleteGateway(item)
+            }
+          >
+            <FaTrash />
+          </button>
+
+        </div>
+
+      </div>
+    ))
+  )}
+
+</div>
       {/* ADD / EDIT FORM */}
 
       {showForm && (
@@ -1799,7 +1836,172 @@ function PaymentStyles() {
         .payment-save-button {
           width:100%;
         }
+/* =====================================================
+   GATEWAY TABLE HEADER
+===================================================== */
 
+.gateway-table-header {
+  min-height:56px;
+  padding:0 18px;
+
+  display:grid;
+
+  grid-template-columns:
+    35px
+    minmax(180px, 1fr)
+    90px
+    80px
+    100px
+    50px
+    auto;
+
+  align-items:center;
+  gap:14px;
+
+  background:#f8fafc;
+
+  border-bottom:1px solid #e5e7eb;
+
+  color:#4b5563;
+
+  font-size:12px;
+  font-weight:800;
+
+  text-transform:uppercase;
+  letter-spacing:.7px;
+}
+
+.gateway-header-gateway {
+  padding-left:0;
+}
+
+
+/* =====================================================
+   GATEWAY ROW
+===================================================== */
+
+.gateway-row {
+  min-height:88px;
+
+  padding:14px 18px;
+
+  display:grid;
+
+  grid-template-columns:
+    35px
+    48px
+    minmax(180px,1fr)
+    90px
+    80px
+    100px
+    50px
+    auto;
+
+  align-items:center;
+
+  gap:14px;
+
+  border-bottom:1px solid #eeeaf5;
+}
+
+.gateway-row:last-child {
+  border-bottom:0;
+}
+
+
+/* =====================================================
+   TYPE
+===================================================== */
+
+.gateway-type {
+  display:flex;
+  align-items:center;
+}
+
+.type-badge {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  min-width:48px;
+
+  padding:6px 10px;
+
+  border-radius:14px;
+
+  background:#eef2ff;
+  color:#4338ca;
+
+  font-size:10px;
+  font-weight:800;
+}
+
+
+/* =====================================================
+   OTHER EXISTING STYLES
+===================================================== */
+
+.gateway-number {
+  color:#777;
+  font-size:13px;
+  text-align:center;
+}
+
+.gateway-logo {
+  width:44px;
+  height:44px;
+
+  border-radius:13px;
+
+  background:linear-gradient(
+    135deg,
+    #3395ff,
+    #1674d1
+  );
+
+  color:#fff;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:20px;
+  font-weight:800;
+}
+
+.gateway-info {
+  min-width:0;
+}
+
+.gateway-name-line {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.gateway-name-line strong {
+  font-size:15px;
+}
+
+.code-badge {
+  padding:4px 8px;
+  border-radius:10px;
+
+  background:#f3e8ff;
+  color:#6d28d9;
+
+  font-size:10px;
+  font-weight:700;
+}
+
+.gateway-description {
+  display:block;
+  margin-top:4px;
+
+  color:#898397;
+  font-size:11px;
+}
       }
 
     `}</style>
